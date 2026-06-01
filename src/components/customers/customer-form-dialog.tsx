@@ -39,7 +39,7 @@ export function CustomerFormDialog({ open, onOpenChange, customer }: {
       });
       const op = customer?.id
         ? supabase.from("customers").update(payload).eq("id", customer.id)
-        : supabase.from("customers").insert(payload);
+        : supabase.from("customers").insert(payload as any);
       const { error } = await op;
       if (error) throw error;
       toast.success("تم الحفظ");
