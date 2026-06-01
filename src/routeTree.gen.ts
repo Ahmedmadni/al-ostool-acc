@@ -9,38 +9,270 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedTrialBalanceIndexRouteImport } from './routes/_authenticated/trial-balance/index'
+import { Route as AuthenticatedTaxToolsIndexRouteImport } from './routes/_authenticated/tax-tools/index'
+import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
+import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authenticated/reports/index'
+import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authenticated/projects/index'
+import { Route as AuthenticatedInvoicesIndexRouteImport } from './routes/_authenticated/invoices/index'
+import { Route as AuthenticatedInsightsIndexRouteImport } from './routes/_authenticated/insights/index'
+import { Route as AuthenticatedFinancialIndicatorsIndexRouteImport } from './routes/_authenticated/financial-indicators/index'
+import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
+import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authenticated/settings/users'
+import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
+import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
+import { Route as AuthenticatedCustomersImportRouteImport } from './routes/_authenticated/customers/import'
+import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenticated/customers/$id'
 
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedTrialBalanceIndexRoute =
+  AuthenticatedTrialBalanceIndexRouteImport.update({
+    id: '/trial-balance/',
+    path: '/trial-balance/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedTaxToolsIndexRoute =
+  AuthenticatedTaxToolsIndexRouteImport.update({
+    id: '/tax-tools/',
+    path: '/tax-tools/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedTasksIndexRoute = AuthenticatedTasksIndexRouteImport.update({
+  id: '/tasks/',
+  path: '/tasks/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedReportsIndexRoute =
+  AuthenticatedReportsIndexRouteImport.update({
+    id: '/reports/',
+    path: '/reports/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedProjectsIndexRoute =
+  AuthenticatedProjectsIndexRouteImport.update({
+    id: '/projects/',
+    path: '/projects/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedInvoicesIndexRoute =
+  AuthenticatedInvoicesIndexRouteImport.update({
+    id: '/invoices/',
+    path: '/invoices/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedInsightsIndexRoute =
+  AuthenticatedInsightsIndexRouteImport.update({
+    id: '/insights/',
+    path: '/insights/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancialIndicatorsIndexRoute =
+  AuthenticatedFinancialIndicatorsIndexRouteImport.update({
+    id: '/financial-indicators/',
+    path: '/financial-indicators/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCustomersIndexRoute =
+  AuthenticatedCustomersIndexRouteImport.update({
+    id: '/customers/',
+    path: '/customers/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSettingsUsersRoute =
+  AuthenticatedSettingsUsersRouteImport.update({
+    id: '/settings/users',
+    path: '/settings/users',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedReceivablesAgingRoute =
+  AuthenticatedReceivablesAgingRouteImport.update({
+    id: '/receivables/aging',
+    path: '/receivables/aging',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedProjectsProgressRoute =
+  AuthenticatedProjectsProgressRouteImport.update({
+    id: '/projects/progress',
+    path: '/projects/progress',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCustomersImportRoute =
+  AuthenticatedCustomersImportRouteImport.update({
+    id: '/customers/import',
+    path: '/customers/import',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCustomersIdRoute =
+  AuthenticatedCustomersIdRouteImport.update({
+    id: '/customers/$id',
+    path: '/customers/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/customers/$id': typeof AuthenticatedCustomersIdRoute
+  '/customers/import': typeof AuthenticatedCustomersImportRoute
+  '/projects/progress': typeof AuthenticatedProjectsProgressRoute
+  '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
+  '/settings/users': typeof AuthenticatedSettingsUsersRoute
+  '/customers/': typeof AuthenticatedCustomersIndexRoute
+  '/financial-indicators/': typeof AuthenticatedFinancialIndicatorsIndexRoute
+  '/insights/': typeof AuthenticatedInsightsIndexRoute
+  '/invoices/': typeof AuthenticatedInvoicesIndexRoute
+  '/projects/': typeof AuthenticatedProjectsIndexRoute
+  '/reports/': typeof AuthenticatedReportsIndexRoute
+  '/tasks/': typeof AuthenticatedTasksIndexRoute
+  '/tax-tools/': typeof AuthenticatedTaxToolsIndexRoute
+  '/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/customers/$id': typeof AuthenticatedCustomersIdRoute
+  '/customers/import': typeof AuthenticatedCustomersImportRoute
+  '/projects/progress': typeof AuthenticatedProjectsProgressRoute
+  '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
+  '/settings/users': typeof AuthenticatedSettingsUsersRoute
+  '/customers': typeof AuthenticatedCustomersIndexRoute
+  '/financial-indicators': typeof AuthenticatedFinancialIndicatorsIndexRoute
+  '/insights': typeof AuthenticatedInsightsIndexRoute
+  '/invoices': typeof AuthenticatedInvoicesIndexRoute
+  '/projects': typeof AuthenticatedProjectsIndexRoute
+  '/reports': typeof AuthenticatedReportsIndexRoute
+  '/tasks': typeof AuthenticatedTasksIndexRoute
+  '/tax-tools': typeof AuthenticatedTaxToolsIndexRoute
+  '/trial-balance': typeof AuthenticatedTrialBalanceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/login': typeof LoginRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRoute
+  '/_authenticated/customers/import': typeof AuthenticatedCustomersImportRoute
+  '/_authenticated/projects/progress': typeof AuthenticatedProjectsProgressRoute
+  '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
+  '/_authenticated/settings/users': typeof AuthenticatedSettingsUsersRoute
+  '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
+  '/_authenticated/financial-indicators/': typeof AuthenticatedFinancialIndicatorsIndexRoute
+  '/_authenticated/insights/': typeof AuthenticatedInsightsIndexRoute
+  '/_authenticated/invoices/': typeof AuthenticatedInvoicesIndexRoute
+  '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
+  '/_authenticated/reports/': typeof AuthenticatedReportsIndexRoute
+  '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
+  '/_authenticated/tax-tools/': typeof AuthenticatedTaxToolsIndexRoute
+  '/_authenticated/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/dashboard'
+    | '/customers/$id'
+    | '/customers/import'
+    | '/projects/progress'
+    | '/receivables/aging'
+    | '/settings/users'
+    | '/customers/'
+    | '/financial-indicators/'
+    | '/insights/'
+    | '/invoices/'
+    | '/projects/'
+    | '/reports/'
+    | '/tasks/'
+    | '/tax-tools/'
+    | '/trial-balance/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/dashboard'
+    | '/customers/$id'
+    | '/customers/import'
+    | '/projects/progress'
+    | '/receivables/aging'
+    | '/settings/users'
+    | '/customers'
+    | '/financial-indicators'
+    | '/insights'
+    | '/invoices'
+    | '/projects'
+    | '/reports'
+    | '/tasks'
+    | '/tax-tools'
+    | '/trial-balance'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/login'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/customers/$id'
+    | '/_authenticated/customers/import'
+    | '/_authenticated/projects/progress'
+    | '/_authenticated/receivables/aging'
+    | '/_authenticated/settings/users'
+    | '/_authenticated/customers/'
+    | '/_authenticated/financial-indicators/'
+    | '/_authenticated/insights/'
+    | '/_authenticated/invoices/'
+    | '/_authenticated/projects/'
+    | '/_authenticated/reports/'
+    | '/_authenticated/tasks/'
+    | '/_authenticated/tax-tools/'
+    | '/_authenticated/trial-balance/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +280,160 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/trial-balance/': {
+      id: '/_authenticated/trial-balance/'
+      path: '/trial-balance'
+      fullPath: '/trial-balance/'
+      preLoaderRoute: typeof AuthenticatedTrialBalanceIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/tax-tools/': {
+      id: '/_authenticated/tax-tools/'
+      path: '/tax-tools'
+      fullPath: '/tax-tools/'
+      preLoaderRoute: typeof AuthenticatedTaxToolsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/tasks/': {
+      id: '/_authenticated/tasks/'
+      path: '/tasks'
+      fullPath: '/tasks/'
+      preLoaderRoute: typeof AuthenticatedTasksIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/reports/': {
+      id: '/_authenticated/reports/'
+      path: '/reports'
+      fullPath: '/reports/'
+      preLoaderRoute: typeof AuthenticatedReportsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/projects/': {
+      id: '/_authenticated/projects/'
+      path: '/projects'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof AuthenticatedProjectsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/invoices/': {
+      id: '/_authenticated/invoices/'
+      path: '/invoices'
+      fullPath: '/invoices/'
+      preLoaderRoute: typeof AuthenticatedInvoicesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/insights/': {
+      id: '/_authenticated/insights/'
+      path: '/insights'
+      fullPath: '/insights/'
+      preLoaderRoute: typeof AuthenticatedInsightsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/financial-indicators/': {
+      id: '/_authenticated/financial-indicators/'
+      path: '/financial-indicators'
+      fullPath: '/financial-indicators/'
+      preLoaderRoute: typeof AuthenticatedFinancialIndicatorsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/customers/': {
+      id: '/_authenticated/customers/'
+      path: '/customers'
+      fullPath: '/customers/'
+      preLoaderRoute: typeof AuthenticatedCustomersIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/settings/users': {
+      id: '/_authenticated/settings/users'
+      path: '/settings/users'
+      fullPath: '/settings/users'
+      preLoaderRoute: typeof AuthenticatedSettingsUsersRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/receivables/aging': {
+      id: '/_authenticated/receivables/aging'
+      path: '/receivables/aging'
+      fullPath: '/receivables/aging'
+      preLoaderRoute: typeof AuthenticatedReceivablesAgingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/projects/progress': {
+      id: '/_authenticated/projects/progress'
+      path: '/projects/progress'
+      fullPath: '/projects/progress'
+      preLoaderRoute: typeof AuthenticatedProjectsProgressRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/customers/import': {
+      id: '/_authenticated/customers/import'
+      path: '/customers/import'
+      fullPath: '/customers/import'
+      preLoaderRoute: typeof AuthenticatedCustomersImportRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/customers/$id': {
+      id: '/_authenticated/customers/$id'
+      path: '/customers/$id'
+      fullPath: '/customers/$id'
+      preLoaderRoute: typeof AuthenticatedCustomersIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedCustomersIdRoute: typeof AuthenticatedCustomersIdRoute
+  AuthenticatedCustomersImportRoute: typeof AuthenticatedCustomersImportRoute
+  AuthenticatedProjectsProgressRoute: typeof AuthenticatedProjectsProgressRoute
+  AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
+  AuthenticatedSettingsUsersRoute: typeof AuthenticatedSettingsUsersRoute
+  AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
+  AuthenticatedFinancialIndicatorsIndexRoute: typeof AuthenticatedFinancialIndicatorsIndexRoute
+  AuthenticatedInsightsIndexRoute: typeof AuthenticatedInsightsIndexRoute
+  AuthenticatedInvoicesIndexRoute: typeof AuthenticatedInvoicesIndexRoute
+  AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
+  AuthenticatedReportsIndexRoute: typeof AuthenticatedReportsIndexRoute
+  AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
+  AuthenticatedTaxToolsIndexRoute: typeof AuthenticatedTaxToolsIndexRoute
+  AuthenticatedTrialBalanceIndexRoute: typeof AuthenticatedTrialBalanceIndexRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedCustomersIdRoute: AuthenticatedCustomersIdRoute,
+  AuthenticatedCustomersImportRoute: AuthenticatedCustomersImportRoute,
+  AuthenticatedProjectsProgressRoute: AuthenticatedProjectsProgressRoute,
+  AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
+  AuthenticatedSettingsUsersRoute: AuthenticatedSettingsUsersRoute,
+  AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
+  AuthenticatedFinancialIndicatorsIndexRoute:
+    AuthenticatedFinancialIndicatorsIndexRoute,
+  AuthenticatedInsightsIndexRoute: AuthenticatedInsightsIndexRoute,
+  AuthenticatedInvoicesIndexRoute: AuthenticatedInvoicesIndexRoute,
+  AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
+  AuthenticatedReportsIndexRoute: AuthenticatedReportsIndexRoute,
+  AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
+  AuthenticatedTaxToolsIndexRoute: AuthenticatedTaxToolsIndexRoute,
+  AuthenticatedTrialBalanceIndexRoute: AuthenticatedTrialBalanceIndexRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
