@@ -15,17 +15,17 @@ import logo from "@/assets/logo.ico";
 import { toast } from "sonner";
 
 const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { to: "/dashboard", label: "لوحة التحكم", icon: LayoutDashboard },
-  { to: "/customers", label: "العملاء", icon: Users },
+  { to: "/dashboard", label: "لوحة التحكم التنفيذية", icon: LayoutDashboard },
+  { to: "/customers", label: "العملاء والذمم", icon: Users },
+  { to: "/receivables/aging", label: "أعمار الديون", icon: TrendingUp },
   { to: "/projects", label: "المشاريع", icon: FolderKanban },
   { to: "/projects/progress", label: "متابعة الإنجاز", icon: Activity },
   { to: "/invoices", label: "الفوترة", icon: Receipt },
-  { to: "/receivables/aging", label: "أعمار الديون", icon: TrendingUp },
   { to: "/trial-balance", label: "ميزان المراجعة", icon: FileBarChart },
   { to: "/financial-indicators", label: "المؤشرات المالية", icon: BarChart3 },
   { to: "/tax-tools", label: "أدوات الضريبة والزكاة", icon: Calculator },
   { to: "/reports", label: "مركز التقارير", icon: FileText },
-  { to: "/insights", label: "الذكاء التحليلي", icon: Sparkles },
+  { to: "/insights", label: "الذكاء المالي AI", icon: Sparkles },
   { to: "/tasks", label: "المهام والتقويم", icon: Calendar },
 ];
 
@@ -49,7 +49,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <img src={logo} alt="شعار" className="w-10 h-10 rounded-md bg-white p-1" />
           <div>
             <div className="font-bold text-sm leading-tight">الأسطول الآلي</div>
-            <div className="text-xs text-sidebar-foreground/70">منصة الإدارة المالية</div>
+            <div className="text-xs text-sidebar-foreground/70">الذكاء المالي والمقاولات</div>
           </div>
         </div>
 

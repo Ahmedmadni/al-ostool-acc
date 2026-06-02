@@ -37,10 +37,9 @@ export function CustomerFormDialog({ open, onOpenChange, customer }: {
       ["sector", "age_category", "size_category", "risk_level"].forEach((k) => {
         if (payload[k] === "" || payload[k] === "none") payload[k] = null;
       });
-      const op = customer?.id
-        ? supabase.from("customers").update(payload).eq("id", customer.id)
-        : supabase.from("customers").insert(payload as any);
-      const { error } = await op;
+      const { error } = customer?.id
+        ? await supabase.from("customers").update(payload as any).eq("id", customer.id)
+        : await supabase.from("customers").insert(payload as any);
       if (error) throw error;
       toast.success("تم الحفظ");
       qc.invalidateQueries({ queryKey: ["customers"] });

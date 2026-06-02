@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      aging_buckets: {
+        Row: {
+          current_amt: number | null
+          customer_code: string
+          customer_name: string
+          days_120: number | null
+          days_150: number | null
+          days_180: number | null
+          days_270: number | null
+          days_30: number | null
+          days_360: number | null
+          days_60: number | null
+          days_90: number | null
+          days_over_360: number | null
+          id: string
+          imported_at: string
+          imported_by: string | null
+          period: string
+          total_outstanding: number | null
+        }
+        Insert: {
+          current_amt?: number | null
+          customer_code: string
+          customer_name: string
+          days_120?: number | null
+          days_150?: number | null
+          days_180?: number | null
+          days_270?: number | null
+          days_30?: number | null
+          days_360?: number | null
+          days_60?: number | null
+          days_90?: number | null
+          days_over_360?: number | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          period: string
+          total_outstanding?: number | null
+        }
+        Update: {
+          current_amt?: number | null
+          customer_code?: string
+          customer_name?: string
+          days_120?: number | null
+          days_150?: number | null
+          days_180?: number | null
+          days_270?: number | null
+          days_30?: number | null
+          days_360?: number | null
+          days_60?: number | null
+          days_90?: number | null
+          days_over_360?: number | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          period?: string
+          total_outstanding?: number | null
+        }
+        Relationships: []
+      }
       attachments: {
         Row: {
           created_at: string
@@ -77,6 +137,135 @@ export type Database = {
           entity_type?: string
           id?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      bank_statements: {
+        Row: {
+          account_number: string | null
+          balance: number | null
+          bank_name: string
+          credit: number | null
+          debit: number | null
+          description: string | null
+          id: string
+          imported_at: string
+          imported_by: string | null
+          txn_date: string
+        }
+        Insert: {
+          account_number?: string | null
+          balance?: number | null
+          bank_name: string
+          credit?: number | null
+          debit?: number | null
+          description?: string | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          txn_date: string
+        }
+        Update: {
+          account_number?: string | null
+          balance?: number | null
+          bank_name?: string
+          credit?: number | null
+          debit?: number | null
+          description?: string | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          txn_date?: string
+        }
+        Relationships: []
+      }
+      cost_entries: {
+        Row: {
+          amount: number | null
+          category: string
+          company: string | null
+          department: string | null
+          description: string | null
+          id: string
+          imported_at: string
+          imported_by: string | null
+          meta: Json | null
+          period: string | null
+          project: string | null
+          section: string | null
+        }
+        Insert: {
+          amount?: number | null
+          category: string
+          company?: string | null
+          department?: string | null
+          description?: string | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          meta?: Json | null
+          period?: string | null
+          project?: string | null
+          section?: string | null
+        }
+        Update: {
+          amount?: number | null
+          category?: string
+          company?: string | null
+          department?: string | null
+          description?: string | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          meta?: Json | null
+          period?: string | null
+          project?: string | null
+          section?: string | null
+        }
+        Relationships: []
+      }
+      customer_balances: {
+        Row: {
+          account_code: string
+          account_name: string
+          closing_credit: number | null
+          closing_debit: number | null
+          id: string
+          imported_at: string
+          imported_by: string | null
+          opening_credit: number | null
+          opening_debit: number | null
+          period: string
+          period_credit: number | null
+          period_debit: number | null
+        }
+        Insert: {
+          account_code: string
+          account_name: string
+          closing_credit?: number | null
+          closing_debit?: number | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          opening_credit?: number | null
+          opening_debit?: number | null
+          period: string
+          period_credit?: number | null
+          period_debit?: number | null
+        }
+        Update: {
+          account_code?: string
+          account_name?: string
+          closing_credit?: number | null
+          closing_debit?: number | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          opening_credit?: number | null
+          opening_debit?: number | null
+          period?: string
+          period_credit?: number | null
+          period_debit?: number | null
         }
         Relationships: []
       }
@@ -211,6 +400,186 @@ export type Database = {
           total_outstanding?: number | null
           updated_at?: string
           website?: string | null
+        }
+        Relationships: []
+      }
+      equipment_costs: {
+        Row: {
+          department: string | null
+          depreciation: number | null
+          equipment_code: string | null
+          equipment_name: string | null
+          equipment_type: string | null
+          fuel: number | null
+          id: string
+          imported_at: string
+          imported_by: string | null
+          insurance: number | null
+          maintenance: number | null
+          meta: Json | null
+          operating_cost: number | null
+          period: string | null
+          project: string | null
+          purchase_cost: number | null
+          total_cost: number | null
+        }
+        Insert: {
+          department?: string | null
+          depreciation?: number | null
+          equipment_code?: string | null
+          equipment_name?: string | null
+          equipment_type?: string | null
+          fuel?: number | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          insurance?: number | null
+          maintenance?: number | null
+          meta?: Json | null
+          operating_cost?: number | null
+          period?: string | null
+          project?: string | null
+          purchase_cost?: number | null
+          total_cost?: number | null
+        }
+        Update: {
+          department?: string | null
+          depreciation?: number | null
+          equipment_code?: string | null
+          equipment_name?: string | null
+          equipment_type?: string | null
+          fuel?: number | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          insurance?: number | null
+          maintenance?: number | null
+          meta?: Json | null
+          operating_cost?: number | null
+          period?: string | null
+          project?: string | null
+          purchase_cost?: number | null
+          total_cost?: number | null
+        }
+        Relationships: []
+      }
+      fixed_assets: {
+        Row: {
+          accumulated_depreciation: number | null
+          annual_depreciation: number | null
+          asset_code: string | null
+          asset_name: string
+          category: string | null
+          cost: number | null
+          department: string | null
+          id: string
+          imported_at: string
+          imported_by: string | null
+          net_book_value: number | null
+          project: string | null
+          purchase_date: string | null
+          status: string | null
+          useful_life_years: number | null
+        }
+        Insert: {
+          accumulated_depreciation?: number | null
+          annual_depreciation?: number | null
+          asset_code?: string | null
+          asset_name: string
+          category?: string | null
+          cost?: number | null
+          department?: string | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          net_book_value?: number | null
+          project?: string | null
+          purchase_date?: string | null
+          status?: string | null
+          useful_life_years?: number | null
+        }
+        Update: {
+          accumulated_depreciation?: number | null
+          annual_depreciation?: number | null
+          asset_code?: string | null
+          asset_name?: string
+          category?: string | null
+          cost?: number | null
+          department?: string | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          net_book_value?: number | null
+          project?: string | null
+          purchase_date?: string | null
+          status?: string | null
+          useful_life_years?: number | null
+        }
+        Relationships: []
+      }
+      hr_costs: {
+        Row: {
+          department: string | null
+          employee_code: string | null
+          employee_name: string | null
+          eos: number | null
+          food: number | null
+          gosi: number | null
+          housing: number | null
+          id: string
+          imported_at: string
+          imported_by: string | null
+          job_title: string | null
+          medical: number | null
+          meta: Json | null
+          nationality: string | null
+          period: string | null
+          project: string | null
+          salary: number | null
+          tickets: number | null
+          total_cost: number | null
+        }
+        Insert: {
+          department?: string | null
+          employee_code?: string | null
+          employee_name?: string | null
+          eos?: number | null
+          food?: number | null
+          gosi?: number | null
+          housing?: number | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          job_title?: string | null
+          medical?: number | null
+          meta?: Json | null
+          nationality?: string | null
+          period?: string | null
+          project?: string | null
+          salary?: number | null
+          tickets?: number | null
+          total_cost?: number | null
+        }
+        Update: {
+          department?: string | null
+          employee_code?: string | null
+          employee_name?: string | null
+          eos?: number | null
+          food?: number | null
+          gosi?: number | null
+          housing?: number | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          job_title?: string | null
+          medical?: number | null
+          meta?: Json | null
+          nationality?: string | null
+          period?: string | null
+          project?: string | null
+          salary?: number | null
+          tickets?: number | null
+          total_cost?: number | null
         }
         Relationships: []
       }
@@ -521,6 +890,51 @@ export type Database = {
           id?: string
           name?: string
           report_type?: string
+        }
+        Relationships: []
+      }
+      supplier_balances: {
+        Row: {
+          account_code: string
+          account_name: string
+          closing_credit: number | null
+          closing_debit: number | null
+          id: string
+          imported_at: string
+          imported_by: string | null
+          opening_credit: number | null
+          opening_debit: number | null
+          period: string
+          period_credit: number | null
+          period_debit: number | null
+        }
+        Insert: {
+          account_code: string
+          account_name: string
+          closing_credit?: number | null
+          closing_debit?: number | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          opening_credit?: number | null
+          opening_debit?: number | null
+          period: string
+          period_credit?: number | null
+          period_debit?: number | null
+        }
+        Update: {
+          account_code?: string
+          account_name?: string
+          closing_credit?: number | null
+          closing_debit?: number | null
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          opening_credit?: number | null
+          opening_debit?: number | null
+          period?: string
+          period_credit?: number | null
+          period_debit?: number | null
         }
         Relationships: []
       }
