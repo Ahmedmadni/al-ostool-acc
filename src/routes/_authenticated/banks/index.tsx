@@ -40,7 +40,7 @@ function Page() {
   const series = useMemo(() => rows.slice(-60).map((r) => ({ date: r.txn_date, balance: Number(r.balance ?? 0) })), [rows]);
 
   const doImport = async (data: Record<string, any>[]) => {
-    const { error } = await supabase.from("bank_statements").insert(data);
+    const { error } = await supabase.from("bank_statements").insert(data as any);
     if (error) throw error;
     qc.invalidateQueries({ queryKey: ["bank_statements"] });
     return data.length;

@@ -38,7 +38,7 @@ function Page() {
   const top10 = useMemo(() => [...rows].sort((a, b) => Number(b.closing_credit ?? 0) - Number(a.closing_credit ?? 0)).slice(0, 10), [rows]);
 
   const doImport = async (data: Record<string, any>[]) => {
-    const { error } = await supabase.from("supplier_balances").insert(data);
+    const { error } = await supabase.from("supplier_balances").insert(data as any);
     if (error) throw error;
     qc.invalidateQueries({ queryKey: ["supplier_balances"] });
     return data.length;

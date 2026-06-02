@@ -50,7 +50,7 @@ function Page() {
   }, [rows]);
 
   const doImport = async (data: Record<string, any>[]) => {
-    const { error } = await supabase.from("fixed_assets").insert(data);
+    const { error } = await supabase.from("fixed_assets").insert(data as any);
     if (error) throw error;
     qc.invalidateQueries({ queryKey: ["fixed_assets"] });
     return data.length;

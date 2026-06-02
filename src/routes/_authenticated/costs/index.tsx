@@ -114,19 +114,19 @@ function Page() {
   const periods = useMemo(() => Array.from(new Set(costs.map((c) => c.period).filter(Boolean))) as string[], [costs]);
 
   const importCosts = async (rows: Record<string, any>[]) => {
-    const { error } = await supabase.from("cost_entries").insert(rows.map((r) => ({ ...r, category: r.category ?? "OTHER" })));
+    const { error } = await supabase.from("cost_entries").insert((rows.map((r) => ({ ...r, category: r.category ?? "OTHER" }))) as any);
     if (error) throw error;
     qc.invalidateQueries({ queryKey: ["cost_entries"] });
     return rows.length;
   };
   const importHR = async (rows: Record<string, any>[]) => {
-    const { error } = await supabase.from("hr_costs").insert(rows);
+    const { error } = await supabase.from("hr_costs").insert(rows as any);
     if (error) throw error;
     qc.invalidateQueries({ queryKey: ["hr_costs"] });
     return rows.length;
   };
   const importEQ = async (rows: Record<string, any>[]) => {
-    const { error } = await supabase.from("equipment_costs").insert(rows);
+    const { error } = await supabase.from("equipment_costs").insert(rows as any);
     if (error) throw error;
     qc.invalidateQueries({ queryKey: ["equipment_costs"] });
     return rows.length;
