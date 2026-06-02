@@ -4,6 +4,7 @@ import {
   LayoutDashboard, Users, FolderKanban, Receipt, FileText, BarChart3,
   Calculator, FileBarChart, Sparkles, Calendar, Settings, LogOut,
   Moon, Sun, Bell, Search, ChevronLeft, TrendingUp, Activity,
+  Truck, Building2, Landmark, Layers, MessageSquare,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "@/components/theme-provider";
@@ -18,6 +19,10 @@ const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: 
   { to: "/dashboard", label: "لوحة التحكم التنفيذية", icon: LayoutDashboard },
   { to: "/customers", label: "العملاء والذمم", icon: Users },
   { to: "/receivables/aging", label: "أعمار الديون", icon: TrendingUp },
+  { to: "/suppliers", label: "الموردين", icon: Truck },
+  { to: "/costs", label: "ذكاء التكاليف", icon: Layers },
+  { to: "/fixed-assets", label: "الأصول الثابتة", icon: Building2 },
+  { to: "/banks", label: "البنوك والنقدية", icon: Landmark },
   { to: "/projects", label: "المشاريع", icon: FolderKanban },
   { to: "/projects/progress", label: "متابعة الإنجاز", icon: Activity },
   { to: "/invoices", label: "الفوترة", icon: Receipt },
@@ -25,7 +30,8 @@ const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: 
   { to: "/financial-indicators", label: "المؤشرات المالية", icon: BarChart3 },
   { to: "/tax-tools", label: "أدوات الضريبة والزكاة", icon: Calculator },
   { to: "/reports", label: "مركز التقارير", icon: FileText },
-  { to: "/insights", label: "الذكاء المالي AI", icon: Sparkles },
+  { to: "/copilot", label: "المساعد المالي AI", icon: MessageSquare },
+  { to: "/insights", label: "تحليلات تنفيذية AI", icon: Sparkles },
   { to: "/tasks", label: "المهام والتقويم", icon: Calendar },
 ];
 
