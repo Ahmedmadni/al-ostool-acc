@@ -13,7 +13,19 @@ import { ExcelImporter, type FieldSpec } from "@/lib/excel-importer";
 import { exportToExcel, exportToPdf } from "@/lib/export";
 import { fmtSAR } from "@/lib/format";
 import { Upload, FileSpreadsheet, FileText, Printer, Users, Truck, Wallet, Layers } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, CartesianGrid } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+  CartesianGrid,
+} from "recharts";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/costs/")({ component: Page });
@@ -25,7 +37,7 @@ const COST_FIELDS: FieldSpec[] = [
   { key: "company", label: "الشركة" },
   { key: "department", label: "الإدارة" },
   { key: "section", label: "القسم" },
-  { key: "period", label: "الفترة (YYYY-MM)" },
+  { key: "period", label: "الفترة (YYYY-MM-dd)" },
   { key: "amount", label: "المبلغ", type: "number", required: true },
 ];
 
@@ -86,10 +98,11 @@ function Page() {
   });
 
   const filtered = useMemo(() => {
-    return costs.filter((c) =>
-      (project === "__all__" || c.project === project) &&
-      (department === "__all__" || c.department === department) &&
-      (period === "__all__" || c.period === period)
+    return costs.filter(
+      (c) =>
+        (project === "__all__" || c.project === project) &&
+        (department === "__all__" || c.department === department) &&
+        (period === "__all__" || c.period === period),
     );
   }, [costs, project, department, period]);
 
@@ -106,15 +119,22 @@ function Page() {
   const byProject = useMemo(() => {
     const m = new Map<string, number>();
     filtered.forEach((c) => m.set(c.project ?? "—", (m.get(c.project ?? "—") ?? 0) + Number(c.amount ?? 0)));
-    return Array.from(m.entries()).map(([name, value]) => ({ name, value })).slice(0, 10);
+    return Array.from(m.entries())
+      .map(([name, value]) => ({ name, value }))
+      .slice(0, 10);
   }, [filtered]);
 
   const projects = useMemo(() => Array.from(new Set(costs.map((c) => c.project).filter(Boolean))) as string[], [costs]);
-  const departments = useMemo(() => Array.from(new Set(costs.map((c) => c.department).filter(Boolean))) as string[], [costs]);
+  const departments = useMemo(
+    () => Array.from(new Set(costs.map((c) => c.department).filter(Boolean))) as string[],
+    [costs],
+  );
   const periods = useMemo(() => Array.from(new Set(costs.map((c) => c.period).filter(Boolean))) as string[], [costs]);
 
   const importCosts = async (rows: Record<string, any>[]) => {
-    const { error } = await supabase.from("cost_entries").insert((rows.map((r) => ({ ...r, category: r.category ?? "OTHER" }))) as any);
+    const { error } = await supabase
+      .from("cost_entries")
+      .insert(rows.map((r) => ({ ...r, category: r.category ?? "OTHER" })) as any);
     if (error) throw error;
     qc.invalidateQueries({ queryKey: ["cost_entries"] });
     return rows.length;
@@ -139,15 +159,46 @@ function Page() {
         description="تحليل شامل للتكاليف حسب المشروع والإدارة والفئة — موارد بشرية ومعدات وإهلاك"
         actions={
           <>
-            <Button onClick={() => setOpenImp("cost")} className="gap-2"><Upload className="w-4 h-4" />استيراد تكاليف</Button>
-            <Button onClick={() => setOpenImp("hr")} variant="secondary" className="gap-2"><Users className="w-4 h-4" />استيراد HR</Button>
-            <Button onClick={() => setOpenImp("eq")} variant="secondary" className="gap-2"><Truck className="w-4 h-4" />استيراد معدات</Button>
-            <Button variant="outline" onClick={() => exportToExcel(filtered, "cost_entries")} className="gap-2"><FileSpreadsheet className="w-4 h-4" />Excel</Button>
-            <Button variant="outline" onClick={() => exportToPdf({ title: "تقرير التكاليف", columns: [
-              { header: "الفئة", dataKey: "category" }, { header: "المشروع", dataKey: "project" },
-              { header: "الإدارة", dataKey: "department" }, { header: "الفترة", dataKey: "period" }, { header: "المبلغ", dataKey: "amount" },
-            ], rows: filtered as any })} className="gap-2"><FileText className="w-4 h-4" />PDF</Button>
-            <Button variant="outline" onClick={() => window.print()} className="gap-2"><Printer className="w-4 h-4" />طباعة</Button>
+            <Button onClick={() => setOpenImp("cost")} className="gap-2">
+              <Upload className="w-4 h-4" />
+              استيراد تكاليف
+            </Button>
+            <Button onClick={() => setOpenImp("hr")} variant="secondary" className="gap-2">
+              <Users className="w-4 h-4" />
+              استيراد HR
+            </Button>
+            <Button onClick={() => setOpenImp("eq")} variant="secondary" className="gap-2">
+              <Truck className="w-4 h-4" />
+              استيراد معدات
+            </Button>
+            <Button variant="outline" onClick={() => exportToExcel(filtered, "cost_entries")} className="gap-2">
+              <FileSpreadsheet className="w-4 h-4" />
+              Excel
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() =>
+                exportToPdf({
+                  title: "تقرير التكاليف",
+                  columns: [
+                    { header: "الفئة", dataKey: "category" },
+                    { header: "المشروع", dataKey: "project" },
+                    { header: "الإدارة", dataKey: "department" },
+                    { header: "الفترة", dataKey: "period" },
+                    { header: "المبلغ", dataKey: "amount" },
+                  ],
+                  rows: filtered as any,
+                })
+              }
+              className="gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              PDF
+            </Button>
+            <Button variant="outline" onClick={() => window.print()} className="gap-2">
+              <Printer className="w-4 h-4" />
+              طباعة
+            </Button>
           </>
         }
       />
@@ -163,35 +214,63 @@ function Page() {
         <div>
           <label className="text-xs text-muted-foreground mb-1 block">المشروع</label>
           <Select value={project} onValueChange={setProject}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="__all__">جميع المشاريع</SelectItem>
-              {projects.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+              {projects.map((p) => (
+                <SelectItem key={p} value={p}>
+                  {p}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
         <div>
           <label className="text-xs text-muted-foreground mb-1 block">الإدارة</label>
           <Select value={department} onValueChange={setDepartment}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="__all__">جميع الإدارات</SelectItem>
-              {departments.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+              {departments.map((p) => (
+                <SelectItem key={p} value={p}>
+                  {p}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
         <div>
           <label className="text-xs text-muted-foreground mb-1 block">الفترة</label>
           <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="__all__">كل الفترات</SelectItem>
-              {periods.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+              {periods.map((p) => (
+                <SelectItem key={p} value={p}>
+                  {p}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
         <div className="flex items-end">
-          <Button variant="outline" className="w-full" onClick={() => { setProject("__all__"); setDepartment("__all__"); setPeriod("__all__"); }}>إعادة تعيين</Button>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => {
+              setProject("__all__");
+              setDepartment("__all__");
+              setPeriod("__all__");
+            }}
+          >
+            إعادة تعيين
+          </Button>
         </div>
       </Card>
 
@@ -201,7 +280,9 @@ function Page() {
           <ResponsiveContainer width="100%" height={280}>
             <PieChart>
               <Pie data={byCategory} dataKey="value" nameKey="name" outerRadius={100} label>
-                {byCategory.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                {byCategory.map((_, i) => (
+                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                ))}
               </Pie>
               <Tooltip formatter={(v) => fmtSAR(Number(v))} />
               <Legend />
@@ -234,9 +315,12 @@ function Page() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>الفئة</TableHead><TableHead>الوصف</TableHead>
-                  <TableHead>المشروع</TableHead><TableHead>الإدارة</TableHead>
-                  <TableHead>الفترة</TableHead><TableHead className="text-left">المبلغ</TableHead>
+                  <TableHead>الفئة</TableHead>
+                  <TableHead>الوصف</TableHead>
+                  <TableHead>المشروع</TableHead>
+                  <TableHead>الإدارة</TableHead>
+                  <TableHead>الفترة</TableHead>
+                  <TableHead className="text-left">المبلغ</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -250,7 +334,13 @@ function Page() {
                     <TableCell className="text-left font-mono">{fmtSAR(Number(r.amount ?? 0))}</TableCell>
                   </TableRow>
                 ))}
-                {filtered.length === 0 && <TableRow><TableCell colSpan={6} className="text-center py-10 text-muted-foreground">لا توجد بيانات — ابدأ بالاستيراد</TableCell></TableRow>}
+                {filtered.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                      لا توجد بيانات — ابدأ بالاستيراد
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </Card>
@@ -259,12 +349,16 @@ function Page() {
         <TabsContent value="hr">
           <Card className="p-0 overflow-hidden">
             <Table>
-              <TableHeader><TableRow>
-                <TableHead>الموظف</TableHead><TableHead>المسمى</TableHead>
-                <TableHead>الإدارة</TableHead><TableHead>المشروع</TableHead>
-                <TableHead className="text-left">الراتب</TableHead>
-                <TableHead className="text-left">الإجمالي</TableHead>
-              </TableRow></TableHeader>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>الموظف</TableHead>
+                  <TableHead>المسمى</TableHead>
+                  <TableHead>الإدارة</TableHead>
+                  <TableHead>المشروع</TableHead>
+                  <TableHead className="text-left">الراتب</TableHead>
+                  <TableHead className="text-left">الإجمالي</TableHead>
+                </TableRow>
+              </TableHeader>
               <TableBody>
                 {hr.slice(0, 200).map((r) => (
                   <TableRow key={r.id}>
@@ -273,10 +367,18 @@ function Page() {
                     <TableCell>{r.department ?? "—"}</TableCell>
                     <TableCell>{r.project ?? "—"}</TableCell>
                     <TableCell className="text-left font-mono">{fmtSAR(Number(r.salary ?? 0))}</TableCell>
-                    <TableCell className="text-left font-mono font-semibold">{fmtSAR(Number(r.total_cost ?? 0))}</TableCell>
+                    <TableCell className="text-left font-mono font-semibold">
+                      {fmtSAR(Number(r.total_cost ?? 0))}
+                    </TableCell>
                   </TableRow>
                 ))}
-                {hr.length === 0 && <TableRow><TableCell colSpan={6} className="text-center py-10 text-muted-foreground">لا توجد بيانات — ابدأ باستيراد HR</TableCell></TableRow>}
+                {hr.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                      لا توجد بيانات — ابدأ باستيراد HR
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </Card>
@@ -285,13 +387,16 @@ function Page() {
         <TabsContent value="eq">
           <Card className="p-0 overflow-hidden">
             <Table>
-              <TableHeader><TableRow>
-                <TableHead>المعدة</TableHead><TableHead>النوع</TableHead>
-                <TableHead>المشروع</TableHead>
-                <TableHead className="text-left">الوقود</TableHead>
-                <TableHead className="text-left">الصيانة</TableHead>
-                <TableHead className="text-left">الإجمالي</TableHead>
-              </TableRow></TableHeader>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>المعدة</TableHead>
+                  <TableHead>النوع</TableHead>
+                  <TableHead>المشروع</TableHead>
+                  <TableHead className="text-left">الوقود</TableHead>
+                  <TableHead className="text-left">الصيانة</TableHead>
+                  <TableHead className="text-left">الإجمالي</TableHead>
+                </TableRow>
+              </TableHeader>
               <TableBody>
                 {eq.slice(0, 200).map((r) => (
                   <TableRow key={r.id}>
@@ -300,19 +405,45 @@ function Page() {
                     <TableCell>{r.project ?? "—"}</TableCell>
                     <TableCell className="text-left font-mono">{fmtSAR(Number(r.fuel ?? 0))}</TableCell>
                     <TableCell className="text-left font-mono">{fmtSAR(Number(r.maintenance ?? 0))}</TableCell>
-                    <TableCell className="text-left font-mono font-semibold">{fmtSAR(Number(r.total_cost ?? 0))}</TableCell>
+                    <TableCell className="text-left font-mono font-semibold">
+                      {fmtSAR(Number(r.total_cost ?? 0))}
+                    </TableCell>
                   </TableRow>
                 ))}
-                {eq.length === 0 && <TableRow><TableCell colSpan={6} className="text-center py-10 text-muted-foreground">لا توجد بيانات — ابدأ باستيراد المعدات</TableCell></TableRow>}
+                {eq.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                      لا توجد بيانات — ابدأ باستيراد المعدات
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </Card>
         </TabsContent>
       </Tabs>
 
-      <ExcelImporter open={openImp === "cost"} onOpenChange={(o) => !o && setOpenImp(null)} title="استيراد قيود التكاليف" fields={COST_FIELDS} onImport={importCosts} />
-      <ExcelImporter open={openImp === "hr"} onOpenChange={(o) => !o && setOpenImp(null)} title="استيراد تكاليف الموارد البشرية" fields={HR_FIELDS} onImport={importHR} />
-      <ExcelImporter open={openImp === "eq"} onOpenChange={(o) => !o && setOpenImp(null)} title="استيراد تكاليف المعدات" fields={EQ_FIELDS} onImport={importEQ} />
+      <ExcelImporter
+        open={openImp === "cost"}
+        onOpenChange={(o) => !o && setOpenImp(null)}
+        title="استيراد قيود التكاليف"
+        fields={COST_FIELDS}
+        onImport={importCosts}
+      />
+      <ExcelImporter
+        open={openImp === "hr"}
+        onOpenChange={(o) => !o && setOpenImp(null)}
+        title="استيراد تكاليف الموارد البشرية"
+        fields={HR_FIELDS}
+        onImport={importHR}
+      />
+      <ExcelImporter
+        open={openImp === "eq"}
+        onOpenChange={(o) => !o && setOpenImp(null)}
+        title="استيراد تكاليف المعدات"
+        fields={EQ_FIELDS}
+        onImport={importEQ}
+      />
     </div>
   );
 }
