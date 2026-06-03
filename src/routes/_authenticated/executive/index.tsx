@@ -45,7 +45,7 @@ function ExecutivePage() {
   const collectionRate = totalRevenue > 0 ? (totalCollected / totalRevenue) * 100 : 0;
 
   const highRiskCustomers = customers.filter((c) => c.risk_level === "high").length;
-  const activeProjects = projects.filter((p) => p.status === "active" || p.status === "in_progress").length;
+  const activeProjects = projects.filter((p) => p.status === "in_progress").length;
   const delayedProjects = projects.filter((p) => p.status === "delayed").length;
   const avgProgress = projects.length ? projects.reduce((s, p) => s + Number(p.progress_actual ?? 0), 0) / projects.length : 0;
 
