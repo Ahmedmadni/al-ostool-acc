@@ -31,6 +31,7 @@ import { Route as AuthenticatedFinancialIndicatorsIndexRouteImport } from './rou
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
 import { Route as AuthenticatedCostsIndexRouteImport } from './routes/_authenticated/costs/index'
 import { Route as AuthenticatedCopilotIndexRouteImport } from './routes/_authenticated/copilot/index'
+import { Route as AuthenticatedControlIndexRouteImport } from './routes/_authenticated/control/index'
 import { Route as AuthenticatedBanksIndexRouteImport } from './routes/_authenticated/banks/index'
 import { Route as AuthenticatedVendorsTopRouteImport } from './routes/_authenticated/vendors/top'
 import { Route as AuthenticatedVendorsAgingRouteImport } from './routes/_authenticated/vendors/aging'
@@ -47,6 +48,8 @@ import { Route as AuthenticatedFinancialsCashFlowRouteImport } from './routes/_a
 import { Route as AuthenticatedFinancialsBalanceSheetRouteImport } from './routes/_authenticated/financials/balance-sheet'
 import { Route as AuthenticatedCustomersImportRouteImport } from './routes/_authenticated/customers/import'
 import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenticated/customers/$id'
+import { Route as AuthenticatedControlProjectsRouteImport } from './routes/_authenticated/control/projects'
+import { Route as AuthenticatedControlCostsRouteImport } from './routes/_authenticated/control/costs'
 import { Route as AuthenticatedCashFlowMatrixRouteImport } from './routes/_authenticated/cash-flow/matrix'
 import { Route as AuthenticatedVendorsStatementIdRouteImport } from './routes/_authenticated/vendors/statement.$id'
 
@@ -175,6 +178,12 @@ const AuthenticatedCopilotIndexRoute =
     path: '/copilot/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedControlIndexRoute =
+  AuthenticatedControlIndexRouteImport.update({
+    id: '/control/',
+    path: '/control/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedBanksIndexRoute = AuthenticatedBanksIndexRouteImport.update({
   id: '/banks/',
   path: '/banks/',
@@ -269,6 +278,18 @@ const AuthenticatedCustomersIdRoute =
     path: '/customers/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedControlProjectsRoute =
+  AuthenticatedControlProjectsRouteImport.update({
+    id: '/control/projects',
+    path: '/control/projects',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedControlCostsRoute =
+  AuthenticatedControlCostsRouteImport.update({
+    id: '/control/costs',
+    path: '/control/costs',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCashFlowMatrixRoute =
   AuthenticatedCashFlowMatrixRouteImport.update({
     id: '/cash-flow/matrix',
@@ -287,6 +308,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
+  '/control/costs': typeof AuthenticatedControlCostsRoute
+  '/control/projects': typeof AuthenticatedControlProjectsRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers/import': typeof AuthenticatedCustomersImportRoute
   '/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
@@ -303,6 +326,7 @@ export interface FileRoutesByFullPath {
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
   '/vendors/top': typeof AuthenticatedVendorsTopRoute
   '/banks/': typeof AuthenticatedBanksIndexRoute
+  '/control/': typeof AuthenticatedControlIndexRoute
   '/copilot/': typeof AuthenticatedCopilotIndexRoute
   '/costs/': typeof AuthenticatedCostsIndexRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
@@ -328,6 +352,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
+  '/control/costs': typeof AuthenticatedControlCostsRoute
+  '/control/projects': typeof AuthenticatedControlProjectsRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers/import': typeof AuthenticatedCustomersImportRoute
   '/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
@@ -344,6 +370,7 @@ export interface FileRoutesByTo {
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
   '/vendors/top': typeof AuthenticatedVendorsTopRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
+  '/control': typeof AuthenticatedControlIndexRoute
   '/copilot': typeof AuthenticatedCopilotIndexRoute
   '/costs': typeof AuthenticatedCostsIndexRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
@@ -371,6 +398,8 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
+  '/_authenticated/control/costs': typeof AuthenticatedControlCostsRoute
+  '/_authenticated/control/projects': typeof AuthenticatedControlProjectsRoute
   '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/_authenticated/customers/import': typeof AuthenticatedCustomersImportRoute
   '/_authenticated/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
@@ -387,6 +416,7 @@ export interface FileRoutesById {
   '/_authenticated/vendors/aging': typeof AuthenticatedVendorsAgingRoute
   '/_authenticated/vendors/top': typeof AuthenticatedVendorsTopRoute
   '/_authenticated/banks/': typeof AuthenticatedBanksIndexRoute
+  '/_authenticated/control/': typeof AuthenticatedControlIndexRoute
   '/_authenticated/copilot/': typeof AuthenticatedCopilotIndexRoute
   '/_authenticated/costs/': typeof AuthenticatedCostsIndexRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
@@ -414,6 +444,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard'
     | '/cash-flow/matrix'
+    | '/control/costs'
+    | '/control/projects'
     | '/customers/$id'
     | '/customers/import'
     | '/financials/balance-sheet'
@@ -430,6 +462,7 @@ export interface FileRouteTypes {
     | '/vendors/aging'
     | '/vendors/top'
     | '/banks/'
+    | '/control/'
     | '/copilot/'
     | '/costs/'
     | '/customers/'
@@ -455,6 +488,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard'
     | '/cash-flow/matrix'
+    | '/control/costs'
+    | '/control/projects'
     | '/customers/$id'
     | '/customers/import'
     | '/financials/balance-sheet'
@@ -471,6 +506,7 @@ export interface FileRouteTypes {
     | '/vendors/aging'
     | '/vendors/top'
     | '/banks'
+    | '/control'
     | '/copilot'
     | '/costs'
     | '/customers'
@@ -497,6 +533,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/_authenticated/dashboard'
     | '/_authenticated/cash-flow/matrix'
+    | '/_authenticated/control/costs'
+    | '/_authenticated/control/projects'
     | '/_authenticated/customers/$id'
     | '/_authenticated/customers/import'
     | '/_authenticated/financials/balance-sheet'
@@ -513,6 +551,7 @@ export interface FileRouteTypes {
     | '/_authenticated/vendors/aging'
     | '/_authenticated/vendors/top'
     | '/_authenticated/banks/'
+    | '/_authenticated/control/'
     | '/_authenticated/copilot/'
     | '/_authenticated/costs/'
     | '/_authenticated/customers/'
@@ -696,6 +735,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCopilotIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/control/': {
+      id: '/_authenticated/control/'
+      path: '/control'
+      fullPath: '/control/'
+      preLoaderRoute: typeof AuthenticatedControlIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/banks/': {
       id: '/_authenticated/banks/'
       path: '/banks'
@@ -808,6 +854,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/control/projects': {
+      id: '/_authenticated/control/projects'
+      path: '/control/projects'
+      fullPath: '/control/projects'
+      preLoaderRoute: typeof AuthenticatedControlProjectsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/control/costs': {
+      id: '/_authenticated/control/costs'
+      path: '/control/costs'
+      fullPath: '/control/costs'
+      preLoaderRoute: typeof AuthenticatedControlCostsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/cash-flow/matrix': {
       id: '/_authenticated/cash-flow/matrix'
       path: '/cash-flow/matrix'
@@ -828,6 +888,8 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedCashFlowMatrixRoute: typeof AuthenticatedCashFlowMatrixRoute
+  AuthenticatedControlCostsRoute: typeof AuthenticatedControlCostsRoute
+  AuthenticatedControlProjectsRoute: typeof AuthenticatedControlProjectsRoute
   AuthenticatedCustomersIdRoute: typeof AuthenticatedCustomersIdRoute
   AuthenticatedCustomersImportRoute: typeof AuthenticatedCustomersImportRoute
   AuthenticatedFinancialsBalanceSheetRoute: typeof AuthenticatedFinancialsBalanceSheetRoute
@@ -844,6 +906,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedVendorsAgingRoute: typeof AuthenticatedVendorsAgingRoute
   AuthenticatedVendorsTopRoute: typeof AuthenticatedVendorsTopRoute
   AuthenticatedBanksIndexRoute: typeof AuthenticatedBanksIndexRoute
+  AuthenticatedControlIndexRoute: typeof AuthenticatedControlIndexRoute
   AuthenticatedCopilotIndexRoute: typeof AuthenticatedCopilotIndexRoute
   AuthenticatedCostsIndexRoute: typeof AuthenticatedCostsIndexRoute
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
@@ -868,6 +931,8 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedCashFlowMatrixRoute: AuthenticatedCashFlowMatrixRoute,
+  AuthenticatedControlCostsRoute: AuthenticatedControlCostsRoute,
+  AuthenticatedControlProjectsRoute: AuthenticatedControlProjectsRoute,
   AuthenticatedCustomersIdRoute: AuthenticatedCustomersIdRoute,
   AuthenticatedCustomersImportRoute: AuthenticatedCustomersImportRoute,
   AuthenticatedFinancialsBalanceSheetRoute:
@@ -887,6 +952,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedVendorsAgingRoute: AuthenticatedVendorsAgingRoute,
   AuthenticatedVendorsTopRoute: AuthenticatedVendorsTopRoute,
   AuthenticatedBanksIndexRoute: AuthenticatedBanksIndexRoute,
+  AuthenticatedControlIndexRoute: AuthenticatedControlIndexRoute,
   AuthenticatedCopilotIndexRoute: AuthenticatedCopilotIndexRoute,
   AuthenticatedCostsIndexRoute: AuthenticatedCostsIndexRoute,
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
