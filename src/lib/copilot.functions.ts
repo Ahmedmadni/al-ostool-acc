@@ -2,10 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 export const askCopilot = createServerFn({ method: "POST" })
-  .inputValidator((data: { question: string }) => data)
+  .inputValidator((data: { question: string; pageContext?: string }) => data)
   .handler(async ({ data }) => {
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("Missing LOVABLE_API_KEY");
+    const pageHint = data.pageContext ? `\nالمستخدم حالياً على صفحة: ${data.pageContext}. ركّز تحليلك على هذا السياق إن كان مناسباً.` : "";
+
 
     const [tb, costs, aging, banks, hr, eq] = await Promise.all([
       supabaseAdmin.from("trial_balance_entries").select("account_name,account_type,balance").limit(200),
