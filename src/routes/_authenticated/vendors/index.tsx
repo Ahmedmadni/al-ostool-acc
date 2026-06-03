@@ -83,7 +83,7 @@ function VendorsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="الموردين والذمم الدائنة" subtitle="بيانات الموردين الدائمة (Master Data) — لا تُستبدل بين الفترات" icon={Truck} />
+      <PageHeader title="الموردين والذمم الدائنة" description="بيانات الموردين الدائمة (Master Data) — لا تُستبدل بين الفترات" />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <KpiCard label="إجمالي الموردين النشطين" value={String(kpis.active)} icon={Truck} />
