@@ -18,7 +18,7 @@ import { toast } from "sonner";
 const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { to: "/dashboard", label: "لوحة التحكم التنفيذية", icon: LayoutDashboard },
   { to: "/customers", label: "العملاء والذمم", icon: Users },
-  { to: "/receivables/aging", label: "أعمار الديون", icon: TrendingUp },
+  { to: "/vendors", label: "الموردين والذمم الدائنة", icon: Truck },
   { to: "/suppliers", label: "الموردين", icon: Truck },
   { to: "/costs", label: "ذكاء التكاليف", icon: Layers },
   { to: "/fixed-assets", label: "الأصول الثابتة", icon: Building2 },
