@@ -2,27 +2,53 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { PageHeader, KpiCard } from "@/components/layout/page-header";
+import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { fmtSAR, daysBetween } from "@/lib/format";
+import { Progress } from "@/components/ui/progress";
 import { useI18n } from "@/lib/i18n";
+import {
+  computeHealthScores, generateExecutiveInsights, alertCenter,
+} from "@/lib/intelligence.functions";
 import { generateExecutiveSummary } from "@/lib/copilot.functions";
 import { toast } from "sonner";
 import {
-  Wallet, TrendingUp, TrendingDown, AlertTriangle, FolderKanban, Users, Truck,
-  Activity, Scale, ArrowLeft, Sparkles, Loader2, Copy, RefreshCw,
+  Sparkles, Loader2, Copy, RefreshCw, AlertTriangle, TrendingUp, ArrowLeft,
+  Activity, Wallet, FolderKanban, Users, Layers, ShieldCheck,
 } from "lucide-react";
-import {
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
-  LineChart, Line, PieChart, Pie, Cell, Legend,
-} from "recharts";
 
 export const Route = createFileRoute("/_authenticated/executive/")({ component: ExecutivePage });
 
-const COLORS = ["#0ea5e9", "#22c55e", "#f59e0b", "#a855f7", "#ef4444"];
+const STATUS_COLORS: Record<string, string> = {
+  excellent: "text-emerald-600 bg-emerald-500/10 border-emerald-500/30",
+  good: "text-sky-600 bg-sky-500/10 border-sky-500/30",
+  fair: "text-amber-600 bg-amber-500/10 border-amber-500/30",
+  weak: "text-orange-600 bg-orange-500/10 border-orange-500/30",
+  critical: "text-red-600 bg-red-500/10 border-red-500/30",
+};
+const STATUS_AR: Record<string, string> = { excellent: "ممتاز", good: "جيد", fair: "مقبول", weak: "ضعيف", critical: "حرج" };
+const ICONS: Record<string, any> = { company: ShieldCheck, financial: Activity, liquidity: Wallet, project: FolderKanban, customer: Users, cost: Layers };
+
+function ScoreCard({ score, lang }: { score: any; lang: string }) {
+  const Icon = ICONS[score.key] ?? Activity;
+  return (
+    <Card className={`border-2 ${STATUS_COLORS[score.status]}`}>
+      <CardContent className="p-5">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Icon className="w-5 h-5" />
+            <div className="font-semibold text-sm">{lang === "ar" ? score.labelAr : score.label}</div>
+          </div>
+          <Badge variant="outline">{STATUS_AR[score.status] ?? score.status}</Badge>
+        </div>
+        <div className="text-4xl font-bold mb-2">{score.value}<span className="text-base font-normal text-muted-foreground">/100</span></div>
+        <Progress value={score.value} className="h-2 mb-3" />
+        <div className="text-xs text-muted-foreground">{lang === "ar" ? score.recommendation.ar : score.recommendation.en}</div>
+      </CardContent>
+    </Card>
+  );
+}
 
 function ExecutiveSummaryCard() {
   const { lang, t, dir } = useI18n();
@@ -33,34 +59,19 @@ function ExecutiveSummaryCard() {
 
   const run = async () => {
     setBusy(true);
-    try {
-      const res = await gen({ data: { lang } });
-      setText(res.text);
-    } catch (e) {
-      toast.error((e as Error).message);
-    } finally { setBusy(false); }
+    try { setText((await gen({ data: { lang } })).text); }
+    catch (e) { toast.error((e as Error).message); }
+    finally { setBusy(false); }
   };
-
-  const copy = async () => {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  const copy = async () => { await navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); };
 
   return (
     <Card className="border-2 border-primary/30">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-2 flex-wrap">
-          <span className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            {t("executiveSummary")}
-          </span>
+          <span className="flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary" />{t("executiveSummary")}</span>
           <div className="flex gap-2">
-            {text && (
-              <Button variant="outline" size="sm" onClick={copy} className="gap-1">
-                <Copy className="w-3 h-3" /> {copied ? t("copied") : t("copy")}
-              </Button>
-            )}
+            {text && <Button variant="outline" size="sm" onClick={copy} className="gap-1"><Copy className="w-3 h-3" />{copied ? t("copied") : t("copy")}</Button>}
             <Button onClick={run} disabled={busy} size="sm" className="gap-1">
               {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : text ? <RefreshCw className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
               {text ? t("regenerate") : t("generateSummary")}
@@ -70,188 +81,122 @@ function ExecutiveSummaryCard() {
       </CardHeader>
       <CardContent>
         {!text && !busy && <p className="text-sm text-muted-foreground">{t("summaryHint")}</p>}
-        {busy && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground py-8 justify-center">
-            <Loader2 className="w-4 h-4 animate-spin" /> {t("thinking")}
-          </div>
-        )}
-        {text && (
-          <div dir={dir} className="prose prose-sm max-w-none whitespace-pre-wrap text-sm leading-relaxed">
-            {text}
-          </div>
-        )}
+        {busy && <div className="flex items-center gap-2 text-sm text-muted-foreground py-8 justify-center"><Loader2 className="w-4 h-4 animate-spin" />{t("thinking")}</div>}
+        {text && <div dir={dir} className="prose prose-sm max-w-none whitespace-pre-wrap text-sm leading-relaxed">{text}</div>}
+      </CardContent>
+    </Card>
+  );
+}
+
+function InsightsCard() {
+  const { lang, dir } = useI18n();
+  const gen = useServerFn(generateExecutiveInsights);
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const run = async () => {
+    setBusy(true);
+    try { setText((await gen({ data: { lang } })).text); }
+    catch (e) { toast.error((e as Error).message); }
+    finally { setBusy(false); }
+  };
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span className="flex items-center gap-2"><TrendingUp className="w-5 h-5 text-primary" />رؤى تنفيذية AI</span>
+          <Button size="sm" onClick={run} disabled={busy} className="gap-1">
+            {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+            {text ? "تحديث الرؤى" : "توليد الرؤى"}
+          </Button>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {!text && !busy && <p className="text-sm text-muted-foreground">يحلل الذكاء الاصطناعي اتجاهات الإيرادات، الهامش، التكاليف، والتحصيل ويُنتج رؤى مع أرقام محددة.</p>}
+        {busy && <div className="flex items-center gap-2 text-sm text-muted-foreground py-6 justify-center"><Loader2 className="w-4 h-4 animate-spin" />جارٍ التحليل...</div>}
+        {text && <div dir={dir} className="prose prose-sm max-w-none whitespace-pre-wrap text-sm">{text}</div>}
       </CardContent>
     </Card>
   );
 }
 
 function ExecutivePage() {
-  const { data: customers = [] } = useQuery({ queryKey: ["ex-c"], queryFn: async () => (await supabase.from("customers").select("*")).data ?? [] });
-  const { data: vendors = [] } = useQuery({ queryKey: ["ex-v"], queryFn: async () => ((await supabase.from("vendors" as any).select("*")).data as any[]) ?? [] });
-  const { data: invoices = [] } = useQuery({ queryKey: ["ex-i"], queryFn: async () => (await supabase.from("invoices").select("*")).data ?? [] });
-  const { data: payments = [] } = useQuery({ queryKey: ["ex-p"], queryFn: async () => (await supabase.from("payments").select("*")).data ?? [] });
-  const { data: projects = [] } = useQuery({ queryKey: ["ex-pr"], queryFn: async () => (await supabase.from("projects").select("*")).data ?? [] });
-  const { data: banks = [] } = useQuery({ queryKey: ["ex-b"], queryFn: async () => ((await supabase.from("bank_statements" as any).select("bank_name,balance,txn_date").order("txn_date", { ascending: false })).data as any[]) ?? [] });
+  const { lang } = useI18n();
+  const { data: health } = useQuery({ queryKey: ["health-scores"], queryFn: () => computeHealthScores() });
+  const { data: alerts } = useQuery({ queryKey: ["alert-center-exec"], queryFn: () => alertCenter() });
 
-  const seen = new Set<string>();
-  let cash = 0;
-  for (const r of banks) { const k = r.bank_name ?? "—"; if (seen.has(k)) continue; seen.add(k); cash += Number(r.balance ?? 0); }
-
-  const ar = customers.reduce((s, c) => s + Number(c.total_outstanding ?? 0), 0);
-  const ap = vendors.reduce((s, v) => s + Number(v.total_outstanding ?? 0), 0);
-  const workingCapital = cash + ar - ap;
-
-  const now = new Date();
-  const overdueAr = invoices
-    .filter((i) => i.due_date && new Date(i.due_date) < now && i.status !== "paid")
-    .reduce((s, i) => s + Number(i.total_amount ?? 0) - Number(i.paid_amount ?? 0), 0);
-
-  const totalRevenue = invoices.reduce((s, i) => s + Number(i.total_amount ?? 0), 0);
-  const totalCollected = payments.reduce((s, p) => s + Number(p.amount ?? 0), 0);
-  const collectionRate = totalRevenue > 0 ? (totalCollected / totalRevenue) * 100 : 0;
-
-  const highRiskCustomers = customers.filter((c) => c.risk_level === "high").length;
-  const activeProjects = projects.filter((p) => p.status === "in_progress").length;
-  const delayedProjects = projects.filter((p) => p.status === "delayed").length;
-  const avgProgress = projects.length ? projects.reduce((s, p) => s + Number(p.progress_actual ?? 0), 0) / projects.length : 0;
-
-  // Project margin estimate
-  const totalContract = projects.reduce((s, p) => s + Number(p.contract_value ?? 0), 0);
-  const totalActualCost = projects.reduce((s, p) => s + Number(p.actual_cost ?? 0), 0);
-  const grossMargin = totalContract > 0 ? ((totalContract - totalActualCost) / totalContract) * 100 : 0;
-
-  // Monthly trend
-  const monthly: Record<string, { collected: number; invoiced: number }> = {};
-  payments.forEach((p) => {
-    const m = p.payment_date?.slice(0, 7) ?? "";
-    if (!m) return;
-    monthly[m] ??= { collected: 0, invoiced: 0 };
-    monthly[m].collected += Number(p.amount ?? 0);
-  });
-  invoices.forEach((i) => {
-    const m = i.issue_date?.slice(0, 7) ?? "";
-    if (!m) return;
-    monthly[m] ??= { collected: 0, invoiced: 0 };
-    monthly[m].invoiced += Number(i.total_amount ?? 0);
-  });
-  const monthlyData = Object.entries(monthly).sort().slice(-12).map(([m, v]) => ({ month: m, ...v }));
-
-  // Top alerts
-  const alerts: { level: "high" | "medium"; text: string; link?: string }[] = [];
-  if (workingCapital < 0) alerts.push({ level: "high", text: `رأس المال العامل سالب: ${fmtSAR(workingCapital)}`, link: "/treasury" });
-  if (overdueAr > ar * 0.3 && ar > 0) alerts.push({ level: "high", text: `نسبة الذمم المتأخرة ${((overdueAr / ar) * 100).toFixed(0)}% (مرتفع جداً)`, link: "/intelligence/customers" });
-  if (highRiskCustomers > 0) alerts.push({ level: "medium", text: `${highRiskCustomers} عميل عالي المخاطر يحتاج متابعة`, link: "/intelligence/customers" });
-  if (delayedProjects > 0) alerts.push({ level: "high", text: `${delayedProjects} مشروع متأخر عن الجدول الزمني`, link: "/control/projects" });
-  if (grossMargin < 10 && totalContract > 0) alerts.push({ level: "medium", text: `هامش الربح الإجمالي منخفض: ${grossMargin.toFixed(1)}%`, link: "/control/costs" });
-  if (collectionRate < 70 && totalRevenue > 0) alerts.push({ level: "medium", text: `معدل التحصيل منخفض: ${collectionRate.toFixed(0)}%`, link: "/financials/kpis" });
-
-  const positionData = [
-    { name: "النقد", value: cash },
-    { name: "ذمم مدينة", value: ar },
-    { name: "ذمم دائنة", value: ap },
-  ];
+  const priorityColor: Record<string, string> = {
+    critical: "border-red-500 bg-red-500/5",
+    high: "border-orange-500 bg-orange-500/5",
+    medium: "border-amber-500 bg-amber-500/5",
+    low: "border-sky-500 bg-sky-500/5",
+  };
+  const priorityLabel: Record<string, string> = { critical: "حرج", high: "عالي", medium: "متوسط", low: "منخفض" };
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="مركز القيادة التنفيذي (CFO)"
-        description="رؤية شاملة 360° عن أداء الشركة المالي والتشغيلي والمخاطر"
+        title="مركز القيادة التنفيذي V2"
+        description="6 مؤشرات صحة استراتيجية + رؤى AI + تنبيهات تنفيذية في الوقت الفعلي"
       />
 
       <ExecutiveSummaryCard />
 
-
-
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <KpiCard title="النقد المتاح" value={fmtSAR(cash)} icon={Wallet} color="info" />
-        <KpiCard title="رأس المال العامل" value={fmtSAR(workingCapital)} icon={workingCapital >= 0 ? TrendingUp : TrendingDown} color={workingCapital >= 0 ? "success" : "destructive"} />
-        <KpiCard title="ذمم مستحقة متأخرة" value={fmtSAR(overdueAr)} icon={AlertTriangle} color="warning" />
-        <KpiCard title="معدل التحصيل" value={`${collectionRate.toFixed(0)}%`} icon={Activity} color={collectionRate >= 75 ? "success" : "warning"} />
-        <KpiCard title="هامش الربح الإجمالي" value={`${grossMargin.toFixed(1)}%`} icon={Scale} color={grossMargin >= 15 ? "success" : grossMargin >= 5 ? "warning" : "destructive"} />
-        <KpiCard title="مشاريع نشطة" value={activeProjects} icon={FolderKanban} color="primary" hint={`${delayedProjects} متأخرة`} />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="lg:col-span-2">
-          <CardHeader><CardTitle>أداء الفوترة والتحصيل (12 شهر)</CardTitle></CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
-              <LineChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => new Intl.NumberFormat("ar", { notation: "compact" }).format(v)} />
-                <Tooltip formatter={(v: number) => fmtSAR(v)} />
-                <Legend />
-                <Line type="monotone" dataKey="invoiced" name="مفوتر" stroke="hsl(var(--chart-1))" strokeWidth={2} />
-                <Line type="monotone" dataKey="collected" name="محصل" stroke="hsl(var(--chart-2))" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader><CardTitle>المركز المالي</CardTitle></CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
-              <PieChart>
-                <Pie data={positionData} dataKey="value" nameKey="name" outerRadius={90} label={(d: any) => d.name}>
-                  {positionData.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
-                </Pie>
-                <Tooltip formatter={(v: number) => fmtSAR(v)} />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      <div>
+        <h2 className="text-lg font-semibold mb-3">مؤشرات الصحة الاستراتيجية</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {(health?.scores ?? []).map((s) => <ScoreCard key={s.key} score={s} lang={lang} />)}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <InsightsCard />
         <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-warning" /> تنبيهات تنفيذية</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-warning" />مركز التنبيهات الموحد</CardTitle>
+          </CardHeader>
           <CardContent>
-            {alerts.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8">لا توجد تنبيهات حرجة. الوضع مستقر.</div>
+            {(alerts?.alerts ?? []).length === 0 ? (
+              <div className="text-center text-muted-foreground py-6">لا توجد تنبيهات.</div>
             ) : (
-              <div className="space-y-2">
-                {alerts.map((a, i) => (
-                  <div key={i} className={`flex items-center justify-between p-3 rounded-md border ${a.level === "high" ? "border-destructive bg-destructive/5" : "border-warning bg-warning/5"}`}>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Badge variant={a.level === "high" ? "destructive" : "secondary"}>{a.level === "high" ? "عالي" : "متوسط"}</Badge>
-                      <span>{a.text}</span>
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {(alerts?.alerts ?? []).slice(0, 8).map((a, i) => (
+                  <div key={i} className={`flex items-start justify-between p-3 rounded-md border ${priorityColor[a.priority]}`}>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant={a.priority === "critical" ? "destructive" : "secondary"} className="text-xs">{priorityLabel[a.priority]}</Badge>
+                        <div className="font-medium text-sm truncate">{a.title}</div>
+                      </div>
+                      <div className="text-xs text-muted-foreground">{a.detail}</div>
                     </div>
                     {a.link && <Button asChild variant="ghost" size="sm"><Link to={a.link}><ArrowLeft className="w-4 h-4" /></Link></Button>}
                   </div>
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader><CardTitle>روابط سريعة</CardTitle></CardHeader>
-          <CardContent className="grid grid-cols-2 gap-2">
-            {[
-              { to: "/treasury", label: "الخزينة", icon: Wallet },
-              { to: "/treasury/forecast", label: "توقعات السيولة", icon: TrendingUp },
-              { to: "/financials", label: "القوائم المالية", icon: Scale },
-              { to: "/financials/kpis", label: "المؤشرات", icon: Activity },
-              { to: "/intelligence/customers", label: "ذكاء العملاء", icon: Users },
-              { to: "/intelligence/vendors", label: "ذكاء الموردين", icon: Truck },
-              { to: "/control/projects", label: "تحكم المشاريع", icon: FolderKanban },
-              { to: "/reports", label: "مركز التقارير", icon: Sparkles },
-            ].map((l) => (
-              <Button key={l.to} asChild variant="outline" className="justify-start gap-2 h-auto py-3">
-                <Link to={l.to}><l.icon className="w-4 h-4" /> {l.label}</Link>
-              </Button>
-            ))}
+            <div className="mt-3 text-center">
+              <Button asChild variant="outline" size="sm"><Link to="/alerts">عرض كل التنبيهات</Link></Button>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card><CardContent className="p-5"><div className="text-xs text-muted-foreground">إجمالي العملاء</div><div className="text-2xl font-bold mt-1">{customers.length}</div><div className="text-xs text-muted-foreground mt-1">{customers.filter((c) => c.is_active).length} نشط</div></CardContent></Card>
-        <Card><CardContent className="p-5"><div className="text-xs text-muted-foreground">إجمالي الموردين</div><div className="text-2xl font-bold mt-1">{vendors.length}</div></CardContent></Card>
-        <Card><CardContent className="p-5"><div className="text-xs text-muted-foreground">متوسط الإنجاز</div><div className="text-2xl font-bold mt-1">{avgProgress.toFixed(1)}%</div><div className="text-xs text-muted-foreground mt-1">عبر {projects.length} مشروع</div></CardContent></Card>
-      </div>
+      <Card>
+        <CardHeader><CardTitle>روابط الذكاء التنفيذي</CardTitle></CardHeader>
+        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          {[
+            { to: "/forecasting", label: "محرك التوقعات" },
+            { to: "/scenarios", label: "تحليل السيناريوهات" },
+            { to: "/alerts", label: "مركز التنبيهات" },
+            { to: "/board", label: "تقارير مجلس الإدارة" },
+            { to: "/intelligence/customers", label: "ذكاء العملاء V2" },
+            { to: "/intelligence/vendors", label: "ذكاء الموردين V2" },
+            { to: "/control/projects", label: "ذكاء المشاريع" },
+            { to: "/control/costs", label: "ذكاء التكاليف" },
+          ].map((l) => (
+            <Button key={l.to} asChild variant="outline" className="justify-start"><Link to={l.to}>{l.label}</Link></Button>
+          ))}
+        </CardContent>
+      </Card>
     </div>
   );
 }
