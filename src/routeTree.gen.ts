@@ -16,6 +16,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedVendorsIndexRouteImport } from './routes/_authenticated/vendors/index'
 import { Route as AuthenticatedTrialBalanceIndexRouteImport } from './routes/_authenticated/trial-balance/index'
 import { Route as AuthenticatedTreasuryIndexRouteImport } from './routes/_authenticated/treasury/index'
+import { Route as AuthenticatedTemplatesIndexRouteImport } from './routes/_authenticated/templates/index'
 import { Route as AuthenticatedTaxToolsIndexRouteImport } from './routes/_authenticated/tax-tools/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedSuppliersIndexRouteImport } from './routes/_authenticated/suppliers/index'
@@ -43,6 +44,7 @@ import { Route as AuthenticatedVendorsTopRouteImport } from './routes/_authentic
 import { Route as AuthenticatedVendorsAgingRouteImport } from './routes/_authenticated/vendors/aging'
 import { Route as AuthenticatedTreasuryForecastRouteImport } from './routes/_authenticated/treasury/forecast'
 import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authenticated/settings/users'
+import { Route as AuthenticatedSettingsRegionalRouteImport } from './routes/_authenticated/settings/regional'
 import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
 import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
 import { Route as AuthenticatedIntelligenceVendorsRouteImport } from './routes/_authenticated/intelligence/vendors'
@@ -95,6 +97,12 @@ const AuthenticatedTreasuryIndexRoute =
   AuthenticatedTreasuryIndexRouteImport.update({
     id: '/treasury/',
     path: '/treasury/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedTemplatesIndexRoute =
+  AuthenticatedTemplatesIndexRouteImport.update({
+    id: '/templates/',
+    path: '/templates/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedTaxToolsIndexRoute =
@@ -254,6 +262,12 @@ const AuthenticatedSettingsUsersRoute =
     path: '/settings/users',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedSettingsRegionalRoute =
+  AuthenticatedSettingsRegionalRouteImport.update({
+    id: '/settings/regional',
+    path: '/settings/regional',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedReceivablesAgingRoute =
   AuthenticatedReceivablesAgingRouteImport.update({
     id: '/receivables/aging',
@@ -370,6 +384,7 @@ export interface FileRoutesByFullPath {
   '/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
+  '/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
@@ -397,6 +412,7 @@ export interface FileRoutesByFullPath {
   '/suppliers/': typeof AuthenticatedSuppliersIndexRoute
   '/tasks/': typeof AuthenticatedTasksIndexRoute
   '/tax-tools/': typeof AuthenticatedTaxToolsIndexRoute
+  '/templates/': typeof AuthenticatedTemplatesIndexRoute
   '/treasury/': typeof AuthenticatedTreasuryIndexRoute
   '/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors/': typeof AuthenticatedVendorsIndexRoute
@@ -421,6 +437,7 @@ export interface FileRoutesByTo {
   '/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
+  '/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
@@ -448,6 +465,7 @@ export interface FileRoutesByTo {
   '/suppliers': typeof AuthenticatedSuppliersIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/tax-tools': typeof AuthenticatedTaxToolsIndexRoute
+  '/templates': typeof AuthenticatedTemplatesIndexRoute
   '/treasury': typeof AuthenticatedTreasuryIndexRoute
   '/trial-balance': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors': typeof AuthenticatedVendorsIndexRoute
@@ -474,6 +492,7 @@ export interface FileRoutesById {
   '/_authenticated/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
   '/_authenticated/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
+  '/_authenticated/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/_authenticated/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/_authenticated/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/_authenticated/vendors/aging': typeof AuthenticatedVendorsAgingRoute
@@ -501,6 +520,7 @@ export interface FileRoutesById {
   '/_authenticated/suppliers/': typeof AuthenticatedSuppliersIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/tax-tools/': typeof AuthenticatedTaxToolsIndexRoute
+  '/_authenticated/templates/': typeof AuthenticatedTemplatesIndexRoute
   '/_authenticated/treasury/': typeof AuthenticatedTreasuryIndexRoute
   '/_authenticated/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/_authenticated/vendors/': typeof AuthenticatedVendorsIndexRoute
@@ -527,6 +547,7 @@ export interface FileRouteTypes {
     | '/intelligence/vendors'
     | '/projects/progress'
     | '/receivables/aging'
+    | '/settings/regional'
     | '/settings/users'
     | '/treasury/forecast'
     | '/vendors/aging'
@@ -554,6 +575,7 @@ export interface FileRouteTypes {
     | '/suppliers/'
     | '/tasks/'
     | '/tax-tools/'
+    | '/templates/'
     | '/treasury/'
     | '/trial-balance/'
     | '/vendors/'
@@ -578,6 +600,7 @@ export interface FileRouteTypes {
     | '/intelligence/vendors'
     | '/projects/progress'
     | '/receivables/aging'
+    | '/settings/regional'
     | '/settings/users'
     | '/treasury/forecast'
     | '/vendors/aging'
@@ -605,6 +628,7 @@ export interface FileRouteTypes {
     | '/suppliers'
     | '/tasks'
     | '/tax-tools'
+    | '/templates'
     | '/treasury'
     | '/trial-balance'
     | '/vendors'
@@ -630,6 +654,7 @@ export interface FileRouteTypes {
     | '/_authenticated/intelligence/vendors'
     | '/_authenticated/projects/progress'
     | '/_authenticated/receivables/aging'
+    | '/_authenticated/settings/regional'
     | '/_authenticated/settings/users'
     | '/_authenticated/treasury/forecast'
     | '/_authenticated/vendors/aging'
@@ -657,6 +682,7 @@ export interface FileRouteTypes {
     | '/_authenticated/suppliers/'
     | '/_authenticated/tasks/'
     | '/_authenticated/tax-tools/'
+    | '/_authenticated/templates/'
     | '/_authenticated/treasury/'
     | '/_authenticated/trial-balance/'
     | '/_authenticated/vendors/'
@@ -718,6 +744,13 @@ declare module '@tanstack/react-router' {
       path: '/treasury'
       fullPath: '/treasury/'
       preLoaderRoute: typeof AuthenticatedTreasuryIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/templates/': {
+      id: '/_authenticated/templates/'
+      path: '/templates'
+      fullPath: '/templates/'
+      preLoaderRoute: typeof AuthenticatedTemplatesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/tax-tools/': {
@@ -909,6 +942,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsUsersRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/settings/regional': {
+      id: '/_authenticated/settings/regional'
+      path: '/settings/regional'
+      fullPath: '/settings/regional'
+      preLoaderRoute: typeof AuthenticatedSettingsRegionalRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/receivables/aging': {
       id: '/_authenticated/receivables/aging'
       path: '/receivables/aging'
@@ -1041,6 +1081,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedIntelligenceVendorsRoute: typeof AuthenticatedIntelligenceVendorsRoute
   AuthenticatedProjectsProgressRoute: typeof AuthenticatedProjectsProgressRoute
   AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
+  AuthenticatedSettingsRegionalRoute: typeof AuthenticatedSettingsRegionalRoute
   AuthenticatedSettingsUsersRoute: typeof AuthenticatedSettingsUsersRoute
   AuthenticatedTreasuryForecastRoute: typeof AuthenticatedTreasuryForecastRoute
   AuthenticatedVendorsAgingRoute: typeof AuthenticatedVendorsAgingRoute
@@ -1068,6 +1109,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSuppliersIndexRoute: typeof AuthenticatedSuppliersIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedTaxToolsIndexRoute: typeof AuthenticatedTaxToolsIndexRoute
+  AuthenticatedTemplatesIndexRoute: typeof AuthenticatedTemplatesIndexRoute
   AuthenticatedTreasuryIndexRoute: typeof AuthenticatedTreasuryIndexRoute
   AuthenticatedTrialBalanceIndexRoute: typeof AuthenticatedTrialBalanceIndexRoute
   AuthenticatedVendorsIndexRoute: typeof AuthenticatedVendorsIndexRoute
@@ -1094,6 +1136,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIntelligenceVendorsRoute: AuthenticatedIntelligenceVendorsRoute,
   AuthenticatedProjectsProgressRoute: AuthenticatedProjectsProgressRoute,
   AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
+  AuthenticatedSettingsRegionalRoute: AuthenticatedSettingsRegionalRoute,
   AuthenticatedSettingsUsersRoute: AuthenticatedSettingsUsersRoute,
   AuthenticatedTreasuryForecastRoute: AuthenticatedTreasuryForecastRoute,
   AuthenticatedVendorsAgingRoute: AuthenticatedVendorsAgingRoute,
@@ -1122,6 +1165,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSuppliersIndexRoute: AuthenticatedSuppliersIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedTaxToolsIndexRoute: AuthenticatedTaxToolsIndexRoute,
+  AuthenticatedTemplatesIndexRoute: AuthenticatedTemplatesIndexRoute,
   AuthenticatedTreasuryIndexRoute: AuthenticatedTreasuryIndexRoute,
   AuthenticatedTrialBalanceIndexRoute: AuthenticatedTrialBalanceIndexRoute,
   AuthenticatedVendorsIndexRoute: AuthenticatedVendorsIndexRoute,
