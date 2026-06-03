@@ -19,12 +19,14 @@ import { Route as AuthenticatedTreasuryIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedTaxToolsIndexRouteImport } from './routes/_authenticated/tax-tools/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedSuppliersIndexRouteImport } from './routes/_authenticated/suppliers/index'
+import { Route as AuthenticatedScenariosIndexRouteImport } from './routes/_authenticated/scenarios/index'
 import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authenticated/reports/index'
 import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authenticated/projects/index'
 import { Route as AuthenticatedInvoicesIndexRouteImport } from './routes/_authenticated/invoices/index'
 import { Route as AuthenticatedIntelligenceIndexRouteImport } from './routes/_authenticated/intelligence/index'
 import { Route as AuthenticatedInsightsIndexRouteImport } from './routes/_authenticated/insights/index'
 import { Route as AuthenticatedImportsIndexRouteImport } from './routes/_authenticated/imports/index'
+import { Route as AuthenticatedForecastingIndexRouteImport } from './routes/_authenticated/forecasting/index'
 import { Route as AuthenticatedFixedAssetsIndexRouteImport } from './routes/_authenticated/fixed-assets/index'
 import { Route as AuthenticatedFinancialsIndexRouteImport } from './routes/_authenticated/financials/index'
 import { Route as AuthenticatedFinancialIndicatorsIndexRouteImport } from './routes/_authenticated/financial-indicators/index'
@@ -33,7 +35,9 @@ import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedCostsIndexRouteImport } from './routes/_authenticated/costs/index'
 import { Route as AuthenticatedCopilotIndexRouteImport } from './routes/_authenticated/copilot/index'
 import { Route as AuthenticatedControlIndexRouteImport } from './routes/_authenticated/control/index'
+import { Route as AuthenticatedBoardIndexRouteImport } from './routes/_authenticated/board/index'
 import { Route as AuthenticatedBanksIndexRouteImport } from './routes/_authenticated/banks/index'
+import { Route as AuthenticatedAlertsIndexRouteImport } from './routes/_authenticated/alerts/index'
 import { Route as AuthenticatedVendorsTopRouteImport } from './routes/_authenticated/vendors/top'
 import { Route as AuthenticatedVendorsAgingRouteImport } from './routes/_authenticated/vendors/aging'
 import { Route as AuthenticatedTreasuryForecastRouteImport } from './routes/_authenticated/treasury/forecast'
@@ -109,6 +113,12 @@ const AuthenticatedSuppliersIndexRoute =
     path: '/suppliers/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedScenariosIndexRoute =
+  AuthenticatedScenariosIndexRouteImport.update({
+    id: '/scenarios/',
+    path: '/scenarios/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedReportsIndexRoute =
   AuthenticatedReportsIndexRouteImport.update({
     id: '/reports/',
@@ -143,6 +153,12 @@ const AuthenticatedImportsIndexRoute =
   AuthenticatedImportsIndexRouteImport.update({
     id: '/imports/',
     path: '/imports/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedForecastingIndexRoute =
+  AuthenticatedForecastingIndexRouteImport.update({
+    id: '/forecasting/',
+    path: '/forecasting/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFixedAssetsIndexRoute =
@@ -192,11 +208,22 @@ const AuthenticatedControlIndexRoute =
     path: '/control/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedBoardIndexRoute = AuthenticatedBoardIndexRouteImport.update({
+  id: '/board/',
+  path: '/board/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedBanksIndexRoute = AuthenticatedBanksIndexRouteImport.update({
   id: '/banks/',
   path: '/banks/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAlertsIndexRoute =
+  AuthenticatedAlertsIndexRouteImport.update({
+    id: '/alerts/',
+    path: '/alerts/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedVendorsTopRoute = AuthenticatedVendorsTopRouteImport.update({
   id: '/vendors/top',
   path: '/vendors/top',
@@ -340,7 +367,9 @@ export interface FileRoutesByFullPath {
   '/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
   '/vendors/top': typeof AuthenticatedVendorsTopRoute
+  '/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/banks/': typeof AuthenticatedBanksIndexRoute
+  '/board/': typeof AuthenticatedBoardIndexRoute
   '/control/': typeof AuthenticatedControlIndexRoute
   '/copilot/': typeof AuthenticatedCopilotIndexRoute
   '/costs/': typeof AuthenticatedCostsIndexRoute
@@ -349,12 +378,14 @@ export interface FileRoutesByFullPath {
   '/financial-indicators/': typeof AuthenticatedFinancialIndicatorsIndexRoute
   '/financials/': typeof AuthenticatedFinancialsIndexRoute
   '/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
+  '/forecasting/': typeof AuthenticatedForecastingIndexRoute
   '/imports/': typeof AuthenticatedImportsIndexRoute
   '/insights/': typeof AuthenticatedInsightsIndexRoute
   '/intelligence/': typeof AuthenticatedIntelligenceIndexRoute
   '/invoices/': typeof AuthenticatedInvoicesIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
   '/reports/': typeof AuthenticatedReportsIndexRoute
+  '/scenarios/': typeof AuthenticatedScenariosIndexRoute
   '/suppliers/': typeof AuthenticatedSuppliersIndexRoute
   '/tasks/': typeof AuthenticatedTasksIndexRoute
   '/tax-tools/': typeof AuthenticatedTaxToolsIndexRoute
@@ -386,7 +417,9 @@ export interface FileRoutesByTo {
   '/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
   '/vendors/top': typeof AuthenticatedVendorsTopRoute
+  '/alerts': typeof AuthenticatedAlertsIndexRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
+  '/board': typeof AuthenticatedBoardIndexRoute
   '/control': typeof AuthenticatedControlIndexRoute
   '/copilot': typeof AuthenticatedCopilotIndexRoute
   '/costs': typeof AuthenticatedCostsIndexRoute
@@ -395,12 +428,14 @@ export interface FileRoutesByTo {
   '/financial-indicators': typeof AuthenticatedFinancialIndicatorsIndexRoute
   '/financials': typeof AuthenticatedFinancialsIndexRoute
   '/fixed-assets': typeof AuthenticatedFixedAssetsIndexRoute
+  '/forecasting': typeof AuthenticatedForecastingIndexRoute
   '/imports': typeof AuthenticatedImportsIndexRoute
   '/insights': typeof AuthenticatedInsightsIndexRoute
   '/intelligence': typeof AuthenticatedIntelligenceIndexRoute
   '/invoices': typeof AuthenticatedInvoicesIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
   '/reports': typeof AuthenticatedReportsIndexRoute
+  '/scenarios': typeof AuthenticatedScenariosIndexRoute
   '/suppliers': typeof AuthenticatedSuppliersIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/tax-tools': typeof AuthenticatedTaxToolsIndexRoute
@@ -434,7 +469,9 @@ export interface FileRoutesById {
   '/_authenticated/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/_authenticated/vendors/aging': typeof AuthenticatedVendorsAgingRoute
   '/_authenticated/vendors/top': typeof AuthenticatedVendorsTopRoute
+  '/_authenticated/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/_authenticated/banks/': typeof AuthenticatedBanksIndexRoute
+  '/_authenticated/board/': typeof AuthenticatedBoardIndexRoute
   '/_authenticated/control/': typeof AuthenticatedControlIndexRoute
   '/_authenticated/copilot/': typeof AuthenticatedCopilotIndexRoute
   '/_authenticated/costs/': typeof AuthenticatedCostsIndexRoute
@@ -443,12 +480,14 @@ export interface FileRoutesById {
   '/_authenticated/financial-indicators/': typeof AuthenticatedFinancialIndicatorsIndexRoute
   '/_authenticated/financials/': typeof AuthenticatedFinancialsIndexRoute
   '/_authenticated/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
+  '/_authenticated/forecasting/': typeof AuthenticatedForecastingIndexRoute
   '/_authenticated/imports/': typeof AuthenticatedImportsIndexRoute
   '/_authenticated/insights/': typeof AuthenticatedInsightsIndexRoute
   '/_authenticated/intelligence/': typeof AuthenticatedIntelligenceIndexRoute
   '/_authenticated/invoices/': typeof AuthenticatedInvoicesIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
   '/_authenticated/reports/': typeof AuthenticatedReportsIndexRoute
+  '/_authenticated/scenarios/': typeof AuthenticatedScenariosIndexRoute
   '/_authenticated/suppliers/': typeof AuthenticatedSuppliersIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/tax-tools/': typeof AuthenticatedTaxToolsIndexRoute
@@ -482,7 +521,9 @@ export interface FileRouteTypes {
     | '/treasury/forecast'
     | '/vendors/aging'
     | '/vendors/top'
+    | '/alerts/'
     | '/banks/'
+    | '/board/'
     | '/control/'
     | '/copilot/'
     | '/costs/'
@@ -491,12 +532,14 @@ export interface FileRouteTypes {
     | '/financial-indicators/'
     | '/financials/'
     | '/fixed-assets/'
+    | '/forecasting/'
     | '/imports/'
     | '/insights/'
     | '/intelligence/'
     | '/invoices/'
     | '/projects/'
     | '/reports/'
+    | '/scenarios/'
     | '/suppliers/'
     | '/tasks/'
     | '/tax-tools/'
@@ -528,7 +571,9 @@ export interface FileRouteTypes {
     | '/treasury/forecast'
     | '/vendors/aging'
     | '/vendors/top'
+    | '/alerts'
     | '/banks'
+    | '/board'
     | '/control'
     | '/copilot'
     | '/costs'
@@ -537,12 +582,14 @@ export interface FileRouteTypes {
     | '/financial-indicators'
     | '/financials'
     | '/fixed-assets'
+    | '/forecasting'
     | '/imports'
     | '/insights'
     | '/intelligence'
     | '/invoices'
     | '/projects'
     | '/reports'
+    | '/scenarios'
     | '/suppliers'
     | '/tasks'
     | '/tax-tools'
@@ -575,7 +622,9 @@ export interface FileRouteTypes {
     | '/_authenticated/treasury/forecast'
     | '/_authenticated/vendors/aging'
     | '/_authenticated/vendors/top'
+    | '/_authenticated/alerts/'
     | '/_authenticated/banks/'
+    | '/_authenticated/board/'
     | '/_authenticated/control/'
     | '/_authenticated/copilot/'
     | '/_authenticated/costs/'
@@ -584,12 +633,14 @@ export interface FileRouteTypes {
     | '/_authenticated/financial-indicators/'
     | '/_authenticated/financials/'
     | '/_authenticated/fixed-assets/'
+    | '/_authenticated/forecasting/'
     | '/_authenticated/imports/'
     | '/_authenticated/insights/'
     | '/_authenticated/intelligence/'
     | '/_authenticated/invoices/'
     | '/_authenticated/projects/'
     | '/_authenticated/reports/'
+    | '/_authenticated/scenarios/'
     | '/_authenticated/suppliers/'
     | '/_authenticated/tasks/'
     | '/_authenticated/tax-tools/'
@@ -677,6 +728,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSuppliersIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/scenarios/': {
+      id: '/_authenticated/scenarios/'
+      path: '/scenarios'
+      fullPath: '/scenarios/'
+      preLoaderRoute: typeof AuthenticatedScenariosIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/reports/': {
       id: '/_authenticated/reports/'
       path: '/reports'
@@ -717,6 +775,13 @@ declare module '@tanstack/react-router' {
       path: '/imports'
       fullPath: '/imports/'
       preLoaderRoute: typeof AuthenticatedImportsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/forecasting/': {
+      id: '/_authenticated/forecasting/'
+      path: '/forecasting'
+      fullPath: '/forecasting/'
+      preLoaderRoute: typeof AuthenticatedForecastingIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/fixed-assets/': {
@@ -775,11 +840,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedControlIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/board/': {
+      id: '/_authenticated/board/'
+      path: '/board'
+      fullPath: '/board/'
+      preLoaderRoute: typeof AuthenticatedBoardIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/banks/': {
       id: '/_authenticated/banks/'
       path: '/banks'
       fullPath: '/banks/'
       preLoaderRoute: typeof AuthenticatedBanksIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/alerts/': {
+      id: '/_authenticated/alerts/'
+      path: '/alerts'
+      fullPath: '/alerts/'
+      preLoaderRoute: typeof AuthenticatedAlertsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/vendors/top': {
@@ -946,7 +1025,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTreasuryForecastRoute: typeof AuthenticatedTreasuryForecastRoute
   AuthenticatedVendorsAgingRoute: typeof AuthenticatedVendorsAgingRoute
   AuthenticatedVendorsTopRoute: typeof AuthenticatedVendorsTopRoute
+  AuthenticatedAlertsIndexRoute: typeof AuthenticatedAlertsIndexRoute
   AuthenticatedBanksIndexRoute: typeof AuthenticatedBanksIndexRoute
+  AuthenticatedBoardIndexRoute: typeof AuthenticatedBoardIndexRoute
   AuthenticatedControlIndexRoute: typeof AuthenticatedControlIndexRoute
   AuthenticatedCopilotIndexRoute: typeof AuthenticatedCopilotIndexRoute
   AuthenticatedCostsIndexRoute: typeof AuthenticatedCostsIndexRoute
@@ -955,12 +1036,14 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFinancialIndicatorsIndexRoute: typeof AuthenticatedFinancialIndicatorsIndexRoute
   AuthenticatedFinancialsIndexRoute: typeof AuthenticatedFinancialsIndexRoute
   AuthenticatedFixedAssetsIndexRoute: typeof AuthenticatedFixedAssetsIndexRoute
+  AuthenticatedForecastingIndexRoute: typeof AuthenticatedForecastingIndexRoute
   AuthenticatedImportsIndexRoute: typeof AuthenticatedImportsIndexRoute
   AuthenticatedInsightsIndexRoute: typeof AuthenticatedInsightsIndexRoute
   AuthenticatedIntelligenceIndexRoute: typeof AuthenticatedIntelligenceIndexRoute
   AuthenticatedInvoicesIndexRoute: typeof AuthenticatedInvoicesIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedReportsIndexRoute: typeof AuthenticatedReportsIndexRoute
+  AuthenticatedScenariosIndexRoute: typeof AuthenticatedScenariosIndexRoute
   AuthenticatedSuppliersIndexRoute: typeof AuthenticatedSuppliersIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedTaxToolsIndexRoute: typeof AuthenticatedTaxToolsIndexRoute
@@ -994,7 +1077,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTreasuryForecastRoute: AuthenticatedTreasuryForecastRoute,
   AuthenticatedVendorsAgingRoute: AuthenticatedVendorsAgingRoute,
   AuthenticatedVendorsTopRoute: AuthenticatedVendorsTopRoute,
+  AuthenticatedAlertsIndexRoute: AuthenticatedAlertsIndexRoute,
   AuthenticatedBanksIndexRoute: AuthenticatedBanksIndexRoute,
+  AuthenticatedBoardIndexRoute: AuthenticatedBoardIndexRoute,
   AuthenticatedControlIndexRoute: AuthenticatedControlIndexRoute,
   AuthenticatedCopilotIndexRoute: AuthenticatedCopilotIndexRoute,
   AuthenticatedCostsIndexRoute: AuthenticatedCostsIndexRoute,
@@ -1004,12 +1089,14 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFinancialIndicatorsIndexRoute,
   AuthenticatedFinancialsIndexRoute: AuthenticatedFinancialsIndexRoute,
   AuthenticatedFixedAssetsIndexRoute: AuthenticatedFixedAssetsIndexRoute,
+  AuthenticatedForecastingIndexRoute: AuthenticatedForecastingIndexRoute,
   AuthenticatedImportsIndexRoute: AuthenticatedImportsIndexRoute,
   AuthenticatedInsightsIndexRoute: AuthenticatedInsightsIndexRoute,
   AuthenticatedIntelligenceIndexRoute: AuthenticatedIntelligenceIndexRoute,
   AuthenticatedInvoicesIndexRoute: AuthenticatedInvoicesIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedReportsIndexRoute: AuthenticatedReportsIndexRoute,
+  AuthenticatedScenariosIndexRoute: AuthenticatedScenariosIndexRoute,
   AuthenticatedSuppliersIndexRoute: AuthenticatedSuppliersIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedTaxToolsIndexRoute: AuthenticatedTaxToolsIndexRoute,
