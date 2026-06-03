@@ -136,16 +136,22 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input placeholder="بحث عام في النظام..." className="pr-10" />
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setLang(lang === "ar" ? "en" : "ar")}
-            title="تبديل اللغة"
-            className="font-semibold"
-          >
-            {lang === "ar" ? "EN" : "ع"}
-          </Button>
-          <Button variant="ghost" size="icon" title="الإشعارات">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" title="Language" className="font-semibold gap-1">
+                {LANGS.find((l) => l.code === lang)?.native ?? lang}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {LANGS.map((l) => (
+                <DropdownMenuItem key={l.code} onClick={() => setLang(l.code as Lang)}>
+                  <span className="font-medium">{l.native}</span>
+                  <span className="text-xs text-muted-foreground ms-2">{l.label}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button variant="ghost" size="icon" title="Notifications">
             <Bell className="w-5 h-5" />
           </Button>
           <Button variant="ghost" size="icon" onClick={toggle} title="تبديل الوضع">
