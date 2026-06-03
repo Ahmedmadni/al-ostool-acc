@@ -12,14 +12,16 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { roleLabel } from "@/lib/labels";
+import { useI18n } from "@/lib/i18n";
 import logo from "@/assets/logo.ico";
 import { toast } from "sonner";
 
 const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { to: "/dashboard", label: "لوحة التحكم التنفيذية", icon: LayoutDashboard },
   { to: "/customers", label: "العملاء والذمم", icon: Users },
+  { to: "/vendors", label: "الموردين والذمم الدائنة", icon: Truck },
   { to: "/receivables/aging", label: "أعمار الديون", icon: TrendingUp },
-  { to: "/suppliers", label: "الموردين", icon: Truck },
+  { to: "/suppliers", label: "أرصدة موردين (تحليلية)", icon: Truck },
   { to: "/costs", label: "ذكاء التكاليف", icon: Layers },
   { to: "/fixed-assets", label: "الأصول الثابتة", icon: Building2 },
   { to: "/banks", label: "البنوك والنقدية", icon: Landmark },
@@ -37,6 +39,7 @@ const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: 
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { theme, toggle } = useTheme();
+  const { lang, setLang } = useI18n();
   const { user, roles, isAdmin } = useAuth();
   const router = useRouter();
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -112,6 +115,15 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input placeholder="بحث عام في النظام..." className="pr-10" />
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setLang(lang === "ar" ? "en" : "ar")}
+            title="تبديل اللغة"
+            className="font-semibold"
+          >
+            {lang === "ar" ? "EN" : "ع"}
+          </Button>
           <Button variant="ghost" size="icon" title="الإشعارات">
             <Bell className="w-5 h-5" />
           </Button>
