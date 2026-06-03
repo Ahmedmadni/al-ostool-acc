@@ -5,6 +5,7 @@ import {
   Calculator, FileBarChart, Sparkles, Calendar, Settings, LogOut,
   Moon, Sun, Bell, Search, ChevronLeft, TrendingUp, Activity,
   Truck, Building2, Landmark, Layers, MessageSquare, Trophy, Waves, Vault, Upload,
+  Scale, PieChart,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "@/components/theme-provider";
