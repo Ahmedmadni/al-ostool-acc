@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedVendorsIndexRouteImport } from './routes/_authenticated/vendors/index'
 import { Route as AuthenticatedTrialBalanceIndexRouteImport } from './routes/_authenticated/trial-balance/index'
+import { Route as AuthenticatedTreasuryIndexRouteImport } from './routes/_authenticated/treasury/index'
 import { Route as AuthenticatedTaxToolsIndexRouteImport } from './routes/_authenticated/tax-tools/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedSuppliersIndexRouteImport } from './routes/_authenticated/suppliers/index'
@@ -67,6 +68,12 @@ const AuthenticatedTrialBalanceIndexRoute =
   AuthenticatedTrialBalanceIndexRouteImport.update({
     id: '/trial-balance/',
     path: '/trial-balance/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedTreasuryIndexRoute =
+  AuthenticatedTreasuryIndexRouteImport.update({
+    id: '/treasury/',
+    path: '/treasury/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedTaxToolsIndexRoute =
@@ -223,6 +230,7 @@ export interface FileRoutesByFullPath {
   '/suppliers/': typeof AuthenticatedSuppliersIndexRoute
   '/tasks/': typeof AuthenticatedTasksIndexRoute
   '/tax-tools/': typeof AuthenticatedTaxToolsIndexRoute
+  '/treasury/': typeof AuthenticatedTreasuryIndexRoute
   '/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors/': typeof AuthenticatedVendorsIndexRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
@@ -252,6 +260,7 @@ export interface FileRoutesByTo {
   '/suppliers': typeof AuthenticatedSuppliersIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/tax-tools': typeof AuthenticatedTaxToolsIndexRoute
+  '/treasury': typeof AuthenticatedTreasuryIndexRoute
   '/trial-balance': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors': typeof AuthenticatedVendorsIndexRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
@@ -283,6 +292,7 @@ export interface FileRoutesById {
   '/_authenticated/suppliers/': typeof AuthenticatedSuppliersIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/tax-tools/': typeof AuthenticatedTaxToolsIndexRoute
+  '/_authenticated/treasury/': typeof AuthenticatedTreasuryIndexRoute
   '/_authenticated/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/_authenticated/vendors/': typeof AuthenticatedVendorsIndexRoute
   '/_authenticated/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
@@ -314,6 +324,7 @@ export interface FileRouteTypes {
     | '/suppliers/'
     | '/tasks/'
     | '/tax-tools/'
+    | '/treasury/'
     | '/trial-balance/'
     | '/vendors/'
     | '/vendors/statement/$id'
@@ -343,6 +354,7 @@ export interface FileRouteTypes {
     | '/suppliers'
     | '/tasks'
     | '/tax-tools'
+    | '/treasury'
     | '/trial-balance'
     | '/vendors'
     | '/vendors/statement/$id'
@@ -373,6 +385,7 @@ export interface FileRouteTypes {
     | '/_authenticated/suppliers/'
     | '/_authenticated/tasks/'
     | '/_authenticated/tax-tools/'
+    | '/_authenticated/treasury/'
     | '/_authenticated/trial-balance/'
     | '/_authenticated/vendors/'
     | '/_authenticated/vendors/statement/$id'
@@ -426,6 +439,13 @@ declare module '@tanstack/react-router' {
       path: '/trial-balance'
       fullPath: '/trial-balance/'
       preLoaderRoute: typeof AuthenticatedTrialBalanceIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/treasury/': {
+      id: '/_authenticated/treasury/'
+      path: '/treasury'
+      fullPath: '/treasury/'
+      preLoaderRoute: typeof AuthenticatedTreasuryIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/tax-tools/': {
@@ -608,6 +628,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSuppliersIndexRoute: typeof AuthenticatedSuppliersIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedTaxToolsIndexRoute: typeof AuthenticatedTaxToolsIndexRoute
+  AuthenticatedTreasuryIndexRoute: typeof AuthenticatedTreasuryIndexRoute
   AuthenticatedTrialBalanceIndexRoute: typeof AuthenticatedTrialBalanceIndexRoute
   AuthenticatedVendorsIndexRoute: typeof AuthenticatedVendorsIndexRoute
   AuthenticatedVendorsStatementIdRoute: typeof AuthenticatedVendorsStatementIdRoute
@@ -637,6 +658,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSuppliersIndexRoute: AuthenticatedSuppliersIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedTaxToolsIndexRoute: AuthenticatedTaxToolsIndexRoute,
+  AuthenticatedTreasuryIndexRoute: AuthenticatedTreasuryIndexRoute,
   AuthenticatedTrialBalanceIndexRoute: AuthenticatedTrialBalanceIndexRoute,
   AuthenticatedVendorsIndexRoute: AuthenticatedVendorsIndexRoute,
   AuthenticatedVendorsStatementIdRoute: AuthenticatedVendorsStatementIdRoute,
