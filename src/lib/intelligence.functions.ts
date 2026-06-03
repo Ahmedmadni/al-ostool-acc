@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const LANG_INSTRUCTION: Record<string, string> = {
@@ -128,6 +129,7 @@ function statusFromScore(s: number) {
 }
 
 export const computeHealthScores = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const d = await loadCore();
     const cash = uniqueBankCash(d.banks);
@@ -200,6 +202,7 @@ export const computeHealthScores = createServerFn({ method: "POST" })
   });
 
 export const generateExecutiveInsights = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: { lang?: string }) => d)
   .handler(async ({ data }) => {
     const lang = data.lang ?? "ar";
@@ -228,6 +231,7 @@ export const generateExecutiveInsights = createServerFn({ method: "POST" })
   });
 
 export const generateForecasts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: { periods?: number }) => d)
   .handler(async ({ data }) => {
     const periods = data.periods ?? 6;
@@ -254,6 +258,7 @@ export const generateForecasts = createServerFn({ method: "POST" })
   });
 
 export const projectIntelligence = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const d = await loadCore();
     const analyzed = d.projects.map((p) => {
@@ -287,6 +292,7 @@ export const projectIntelligence = createServerFn({ method: "POST" })
   });
 
 export const customerIntelligenceV2 = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const d = await loadCore();
     const totalAR = d.customers.reduce((s, c) => s + num(c.total_outstanding), 0) || 1;
@@ -318,6 +324,7 @@ export const customerIntelligenceV2 = createServerFn({ method: "POST" })
   });
 
 export const vendorIntelligenceV2 = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const d = await loadCore();
     const totalAP = d.vendors.reduce((s, v: any) => s + num(v.total_outstanding), 0) || 1;
@@ -339,6 +346,7 @@ export const vendorIntelligenceV2 = createServerFn({ method: "POST" })
   });
 
 export const costIntelligence = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const d = await loadCore();
     const byCat: Record<string, { month: string; value: number }[]> = {};
@@ -383,6 +391,7 @@ export const costIntelligence = createServerFn({ method: "POST" })
   });
 
 export const treasuryIntelligence = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const d = await loadCore();
     const cash = uniqueBankCash(d.banks);
@@ -410,6 +419,7 @@ export const treasuryIntelligence = createServerFn({ method: "POST" })
   });
 
 export const alertCenter = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const d = await loadCore();
     const alerts: { category: string; priority: "critical" | "high" | "medium" | "low"; title: string; detail: string; link?: string }[] = [];
@@ -441,6 +451,7 @@ export const alertCenter = createServerFn({ method: "POST" })
   });
 
 export const runScenario = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: { revenue_delta_pct?: number; cost_delta_pct?: number; collection_delay_days?: number; new_award?: number }) => d)
   .handler(async ({ data }) => {
     const d = await loadCore();
@@ -482,6 +493,7 @@ export const runScenario = createServerFn({ method: "POST" })
   });
 
 export const generateBoardPack = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: { period: "monthly" | "quarterly" | "annual"; lang?: string }) => d)
   .handler(async ({ data }) => {
     const lang = data.lang ?? "ar";

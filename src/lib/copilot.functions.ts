@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const LANG_INSTRUCTION: Record<string, string> = {
@@ -56,6 +57,7 @@ async function callGateway(messages: any[]) {
 }
 
 export const askCopilot = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { question: string; pageContext?: string; lang?: string }) => data)
   .handler(async ({ data }) => {
     const lang = data.lang ?? "ar";
@@ -73,6 +75,7 @@ export const askCopilot = createServerFn({ method: "POST" })
   });
 
 export const generateExecutiveSummary = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { lang?: string }) => data)
   .handler(async ({ data }) => {
     const lang = data.lang ?? "ar";

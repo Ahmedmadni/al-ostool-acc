@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const SOURCE_TYPES = [
@@ -119,6 +120,7 @@ const SOURCE_FIELDS: Record<string, { key: string; label: string; required?: boo
 };
 
 export const getSourceFields = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: { sourceType?: string }) => d)
   .handler(async ({ data }) => {
     if (data.sourceType && SOURCE_FIELDS[data.sourceType]) {
@@ -128,6 +130,7 @@ export const getSourceFields = createServerFn({ method: "GET" })
   });
 
 export const detectImportType = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: { headers: string[]; sampleRows: Record<string, unknown>[] }) => d)
   .handler(async ({ data }) => {
     const apiKey = process.env.LOVABLE_API_KEY;
@@ -187,6 +190,7 @@ type ValidateInput = {
 };
 
 export const validateImportBatch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: ValidateInput) => d)
   .handler(async ({ data }) => {
     const fields = SOURCE_FIELDS[data.sourceType] ?? [];
@@ -260,6 +264,7 @@ function toDate(v: unknown): string | null {
 }
 
 export const commitImportBatch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: CommitInput) => d)
   .handler(async ({ data }) => {
     const fields = SOURCE_FIELDS[data.sourceType];
@@ -418,6 +423,7 @@ export const commitImportBatch = createServerFn({ method: "POST" })
   });
 
 export const listImportBatches = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { data, error } = await supabaseAdmin
       .from("import_batches")
