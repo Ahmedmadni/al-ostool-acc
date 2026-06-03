@@ -158,6 +158,10 @@ function ExecutivePage() {
         description="رؤية شاملة 360° عن أداء الشركة المالي والتشغيلي والمخاطر"
       />
 
+      <ExecutiveSummaryCard />
+
+
+
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <KpiCard title="النقد المتاح" value={fmtSAR(cash)} icon={Wallet} color="info" />
         <KpiCard title="رأس المال العامل" value={fmtSAR(workingCapital)} icon={workingCapital >= 0 ? TrendingUp : TrendingDown} color={workingCapital >= 0 ? "success" : "destructive"} />
