@@ -5,6 +5,7 @@ import {
   Calculator, FileBarChart, Sparkles, Calendar, Settings, LogOut,
   Moon, Sun, Bell, Search, ChevronLeft, TrendingUp, Activity,
   Truck, Building2, Landmark, Layers, MessageSquare, Trophy, Waves, Vault, Upload,
+  Scale, PieChart,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "@/components/theme-provider";
@@ -34,7 +35,13 @@ const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: 
   { to: "/projects/progress", label: "متابعة الإنجاز", icon: Activity },
   { to: "/invoices", label: "الفوترة", icon: Receipt },
   { to: "/trial-balance", label: "ميزان المراجعة", icon: FileBarChart },
-  { to: "/financial-indicators", label: "المؤشرات المالية", icon: BarChart3 },
+  { to: "/financials", label: "مركز التحليل المالي", icon: Scale },
+  { to: "/financials/balance-sheet", label: "الميزانية العمومية", icon: Scale },
+  { to: "/financials/income-statement", label: "قائمة الدخل", icon: TrendingUp },
+  { to: "/financials/cash-flow", label: "قائمة التدفقات النقدية", icon: Waves },
+  { to: "/financials/equity", label: "قائمة حقوق الملكية", icon: PieChart },
+  { to: "/financials/kpis", label: "محرك المؤشرات (KPI)", icon: Activity },
+  { to: "/financial-indicators", label: "المؤشرات المالية (قديم)", icon: BarChart3 },
   { to: "/tax-tools", label: "أدوات الضريبة والزكاة", icon: Calculator },
   { to: "/reports", label: "مركز التقارير", icon: FileText },
   

@@ -25,6 +25,7 @@ import { Route as AuthenticatedInvoicesIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedInsightsIndexRouteImport } from './routes/_authenticated/insights/index'
 import { Route as AuthenticatedImportsIndexRouteImport } from './routes/_authenticated/imports/index'
 import { Route as AuthenticatedFixedAssetsIndexRouteImport } from './routes/_authenticated/fixed-assets/index'
+import { Route as AuthenticatedFinancialsIndexRouteImport } from './routes/_authenticated/financials/index'
 import { Route as AuthenticatedFinancialIndicatorsIndexRouteImport } from './routes/_authenticated/financial-indicators/index'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
 import { Route as AuthenticatedCostsIndexRouteImport } from './routes/_authenticated/costs/index'
@@ -36,6 +37,11 @@ import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authen
 import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
 import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
 import { Route as AuthenticatedImportsUploadRouteImport } from './routes/_authenticated/imports/upload'
+import { Route as AuthenticatedFinancialsKpisRouteImport } from './routes/_authenticated/financials/kpis'
+import { Route as AuthenticatedFinancialsIncomeStatementRouteImport } from './routes/_authenticated/financials/income-statement'
+import { Route as AuthenticatedFinancialsEquityRouteImport } from './routes/_authenticated/financials/equity'
+import { Route as AuthenticatedFinancialsCashFlowRouteImport } from './routes/_authenticated/financials/cash-flow'
+import { Route as AuthenticatedFinancialsBalanceSheetRouteImport } from './routes/_authenticated/financials/balance-sheet'
 import { Route as AuthenticatedCustomersImportRouteImport } from './routes/_authenticated/customers/import'
 import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenticated/customers/$id'
 import { Route as AuthenticatedCashFlowMatrixRouteImport } from './routes/_authenticated/cash-flow/matrix'
@@ -131,6 +137,12 @@ const AuthenticatedFixedAssetsIndexRoute =
     path: '/fixed-assets/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFinancialsIndexRoute =
+  AuthenticatedFinancialsIndexRouteImport.update({
+    id: '/financials/',
+    path: '/financials/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFinancialIndicatorsIndexRoute =
   AuthenticatedFinancialIndicatorsIndexRouteImport.update({
     id: '/financial-indicators/',
@@ -194,6 +206,36 @@ const AuthenticatedImportsUploadRoute =
     path: '/imports/upload',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFinancialsKpisRoute =
+  AuthenticatedFinancialsKpisRouteImport.update({
+    id: '/financials/kpis',
+    path: '/financials/kpis',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancialsIncomeStatementRoute =
+  AuthenticatedFinancialsIncomeStatementRouteImport.update({
+    id: '/financials/income-statement',
+    path: '/financials/income-statement',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancialsEquityRoute =
+  AuthenticatedFinancialsEquityRouteImport.update({
+    id: '/financials/equity',
+    path: '/financials/equity',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancialsCashFlowRoute =
+  AuthenticatedFinancialsCashFlowRouteImport.update({
+    id: '/financials/cash-flow',
+    path: '/financials/cash-flow',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancialsBalanceSheetRoute =
+  AuthenticatedFinancialsBalanceSheetRouteImport.update({
+    id: '/financials/balance-sheet',
+    path: '/financials/balance-sheet',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCustomersImportRoute =
   AuthenticatedCustomersImportRouteImport.update({
     id: '/customers/import',
@@ -226,6 +268,11 @@ export interface FileRoutesByFullPath {
   '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers/import': typeof AuthenticatedCustomersImportRoute
+  '/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
+  '/financials/cash-flow': typeof AuthenticatedFinancialsCashFlowRoute
+  '/financials/equity': typeof AuthenticatedFinancialsEquityRoute
+  '/financials/income-statement': typeof AuthenticatedFinancialsIncomeStatementRoute
+  '/financials/kpis': typeof AuthenticatedFinancialsKpisRoute
   '/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
@@ -237,6 +284,7 @@ export interface FileRoutesByFullPath {
   '/costs/': typeof AuthenticatedCostsIndexRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/financial-indicators/': typeof AuthenticatedFinancialIndicatorsIndexRoute
+  '/financials/': typeof AuthenticatedFinancialsIndexRoute
   '/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
   '/imports/': typeof AuthenticatedImportsIndexRoute
   '/insights/': typeof AuthenticatedInsightsIndexRoute
@@ -258,6 +306,11 @@ export interface FileRoutesByTo {
   '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers/import': typeof AuthenticatedCustomersImportRoute
+  '/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
+  '/financials/cash-flow': typeof AuthenticatedFinancialsCashFlowRoute
+  '/financials/equity': typeof AuthenticatedFinancialsEquityRoute
+  '/financials/income-statement': typeof AuthenticatedFinancialsIncomeStatementRoute
+  '/financials/kpis': typeof AuthenticatedFinancialsKpisRoute
   '/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
@@ -269,6 +322,7 @@ export interface FileRoutesByTo {
   '/costs': typeof AuthenticatedCostsIndexRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/financial-indicators': typeof AuthenticatedFinancialIndicatorsIndexRoute
+  '/financials': typeof AuthenticatedFinancialsIndexRoute
   '/fixed-assets': typeof AuthenticatedFixedAssetsIndexRoute
   '/imports': typeof AuthenticatedImportsIndexRoute
   '/insights': typeof AuthenticatedInsightsIndexRoute
@@ -292,6 +346,11 @@ export interface FileRoutesById {
   '/_authenticated/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/_authenticated/customers/import': typeof AuthenticatedCustomersImportRoute
+  '/_authenticated/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
+  '/_authenticated/financials/cash-flow': typeof AuthenticatedFinancialsCashFlowRoute
+  '/_authenticated/financials/equity': typeof AuthenticatedFinancialsEquityRoute
+  '/_authenticated/financials/income-statement': typeof AuthenticatedFinancialsIncomeStatementRoute
+  '/_authenticated/financials/kpis': typeof AuthenticatedFinancialsKpisRoute
   '/_authenticated/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/_authenticated/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
@@ -303,6 +362,7 @@ export interface FileRoutesById {
   '/_authenticated/costs/': typeof AuthenticatedCostsIndexRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/financial-indicators/': typeof AuthenticatedFinancialIndicatorsIndexRoute
+  '/_authenticated/financials/': typeof AuthenticatedFinancialsIndexRoute
   '/_authenticated/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
   '/_authenticated/imports/': typeof AuthenticatedImportsIndexRoute
   '/_authenticated/insights/': typeof AuthenticatedInsightsIndexRoute
@@ -326,6 +386,11 @@ export interface FileRouteTypes {
     | '/cash-flow/matrix'
     | '/customers/$id'
     | '/customers/import'
+    | '/financials/balance-sheet'
+    | '/financials/cash-flow'
+    | '/financials/equity'
+    | '/financials/income-statement'
+    | '/financials/kpis'
     | '/imports/upload'
     | '/projects/progress'
     | '/receivables/aging'
@@ -337,6 +402,7 @@ export interface FileRouteTypes {
     | '/costs/'
     | '/customers/'
     | '/financial-indicators/'
+    | '/financials/'
     | '/fixed-assets/'
     | '/imports/'
     | '/insights/'
@@ -358,6 +424,11 @@ export interface FileRouteTypes {
     | '/cash-flow/matrix'
     | '/customers/$id'
     | '/customers/import'
+    | '/financials/balance-sheet'
+    | '/financials/cash-flow'
+    | '/financials/equity'
+    | '/financials/income-statement'
+    | '/financials/kpis'
     | '/imports/upload'
     | '/projects/progress'
     | '/receivables/aging'
@@ -369,6 +440,7 @@ export interface FileRouteTypes {
     | '/costs'
     | '/customers'
     | '/financial-indicators'
+    | '/financials'
     | '/fixed-assets'
     | '/imports'
     | '/insights'
@@ -391,6 +463,11 @@ export interface FileRouteTypes {
     | '/_authenticated/cash-flow/matrix'
     | '/_authenticated/customers/$id'
     | '/_authenticated/customers/import'
+    | '/_authenticated/financials/balance-sheet'
+    | '/_authenticated/financials/cash-flow'
+    | '/_authenticated/financials/equity'
+    | '/_authenticated/financials/income-statement'
+    | '/_authenticated/financials/kpis'
     | '/_authenticated/imports/upload'
     | '/_authenticated/projects/progress'
     | '/_authenticated/receivables/aging'
@@ -402,6 +479,7 @@ export interface FileRouteTypes {
     | '/_authenticated/costs/'
     | '/_authenticated/customers/'
     | '/_authenticated/financial-indicators/'
+    | '/_authenticated/financials/'
     | '/_authenticated/fixed-assets/'
     | '/_authenticated/imports/'
     | '/_authenticated/insights/'
@@ -537,6 +615,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFixedAssetsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/financials/': {
+      id: '/_authenticated/financials/'
+      path: '/financials'
+      fullPath: '/financials/'
+      preLoaderRoute: typeof AuthenticatedFinancialsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/financial-indicators/': {
       id: '/_authenticated/financial-indicators/'
       path: '/financial-indicators'
@@ -614,6 +699,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedImportsUploadRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/financials/kpis': {
+      id: '/_authenticated/financials/kpis'
+      path: '/financials/kpis'
+      fullPath: '/financials/kpis'
+      preLoaderRoute: typeof AuthenticatedFinancialsKpisRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/financials/income-statement': {
+      id: '/_authenticated/financials/income-statement'
+      path: '/financials/income-statement'
+      fullPath: '/financials/income-statement'
+      preLoaderRoute: typeof AuthenticatedFinancialsIncomeStatementRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/financials/equity': {
+      id: '/_authenticated/financials/equity'
+      path: '/financials/equity'
+      fullPath: '/financials/equity'
+      preLoaderRoute: typeof AuthenticatedFinancialsEquityRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/financials/cash-flow': {
+      id: '/_authenticated/financials/cash-flow'
+      path: '/financials/cash-flow'
+      fullPath: '/financials/cash-flow'
+      preLoaderRoute: typeof AuthenticatedFinancialsCashFlowRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/financials/balance-sheet': {
+      id: '/_authenticated/financials/balance-sheet'
+      path: '/financials/balance-sheet'
+      fullPath: '/financials/balance-sheet'
+      preLoaderRoute: typeof AuthenticatedFinancialsBalanceSheetRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/customers/import': {
       id: '/_authenticated/customers/import'
       path: '/customers/import'
@@ -650,6 +770,11 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCashFlowMatrixRoute: typeof AuthenticatedCashFlowMatrixRoute
   AuthenticatedCustomersIdRoute: typeof AuthenticatedCustomersIdRoute
   AuthenticatedCustomersImportRoute: typeof AuthenticatedCustomersImportRoute
+  AuthenticatedFinancialsBalanceSheetRoute: typeof AuthenticatedFinancialsBalanceSheetRoute
+  AuthenticatedFinancialsCashFlowRoute: typeof AuthenticatedFinancialsCashFlowRoute
+  AuthenticatedFinancialsEquityRoute: typeof AuthenticatedFinancialsEquityRoute
+  AuthenticatedFinancialsIncomeStatementRoute: typeof AuthenticatedFinancialsIncomeStatementRoute
+  AuthenticatedFinancialsKpisRoute: typeof AuthenticatedFinancialsKpisRoute
   AuthenticatedImportsUploadRoute: typeof AuthenticatedImportsUploadRoute
   AuthenticatedProjectsProgressRoute: typeof AuthenticatedProjectsProgressRoute
   AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
@@ -661,6 +786,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCostsIndexRoute: typeof AuthenticatedCostsIndexRoute
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedFinancialIndicatorsIndexRoute: typeof AuthenticatedFinancialIndicatorsIndexRoute
+  AuthenticatedFinancialsIndexRoute: typeof AuthenticatedFinancialsIndexRoute
   AuthenticatedFixedAssetsIndexRoute: typeof AuthenticatedFixedAssetsIndexRoute
   AuthenticatedImportsIndexRoute: typeof AuthenticatedImportsIndexRoute
   AuthenticatedInsightsIndexRoute: typeof AuthenticatedInsightsIndexRoute
@@ -681,6 +807,13 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCashFlowMatrixRoute: AuthenticatedCashFlowMatrixRoute,
   AuthenticatedCustomersIdRoute: AuthenticatedCustomersIdRoute,
   AuthenticatedCustomersImportRoute: AuthenticatedCustomersImportRoute,
+  AuthenticatedFinancialsBalanceSheetRoute:
+    AuthenticatedFinancialsBalanceSheetRoute,
+  AuthenticatedFinancialsCashFlowRoute: AuthenticatedFinancialsCashFlowRoute,
+  AuthenticatedFinancialsEquityRoute: AuthenticatedFinancialsEquityRoute,
+  AuthenticatedFinancialsIncomeStatementRoute:
+    AuthenticatedFinancialsIncomeStatementRoute,
+  AuthenticatedFinancialsKpisRoute: AuthenticatedFinancialsKpisRoute,
   AuthenticatedImportsUploadRoute: AuthenticatedImportsUploadRoute,
   AuthenticatedProjectsProgressRoute: AuthenticatedProjectsProgressRoute,
   AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
@@ -693,6 +826,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedFinancialIndicatorsIndexRoute:
     AuthenticatedFinancialIndicatorsIndexRoute,
+  AuthenticatedFinancialsIndexRoute: AuthenticatedFinancialsIndexRoute,
   AuthenticatedFixedAssetsIndexRoute: AuthenticatedFixedAssetsIndexRoute,
   AuthenticatedImportsIndexRoute: AuthenticatedImportsIndexRoute,
   AuthenticatedInsightsIndexRoute: AuthenticatedInsightsIndexRoute,
