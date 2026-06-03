@@ -26,7 +26,7 @@ function RegionalSettings() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="الإعدادات الإقليمية" subtitle="Regional Settings - Currency, Date, Number & Time Zone" />
+      <PageHeader title="الإعدادات الإقليمية" description="Regional Settings - Currency, Date, Number & Time Zone" />
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
