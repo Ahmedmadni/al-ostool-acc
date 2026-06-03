@@ -311,7 +311,7 @@ export const commitImportBatch = createServerFn({ method: "POST" })
             debit: r.debit ?? 0, credit: r.credit ?? 0, balance: r.balance ?? 0,
             period: r.period ?? data.period,
           })).filter((r) => r.account_code && r.account_name);
-          const { error, count } = await supabaseAdmin.from("trial_balance_entries").insert(rows, { count: "exact" });
+          const { error, count } = await supabaseAdmin.from("trial_balance_entries").insert(rows as never[], { count: "exact" });
           if (error) throw error;
           imported = count ?? rows.length;
           break;
@@ -322,7 +322,7 @@ export const commitImportBatch = createServerFn({ method: "POST" })
             total_invoiced: r.total_invoiced ?? 0, total_collected: r.total_collected ?? 0,
             total_outstanding: r.total_outstanding ?? 0, currency: r.currency ?? "SAR",
           })).filter((r) => r.customer_code);
-          const { error, count } = await supabaseAdmin.from("customer_balances").insert(rows, { count: "exact" });
+          const { error, count } = await supabaseAdmin.from("customer_balances").insert(rows as never[], { count: "exact" });
           if (error) throw error;
           imported = count ?? rows.length;
           break;
@@ -333,7 +333,7 @@ export const commitImportBatch = createServerFn({ method: "POST" })
             total_purchased: r.total_purchased ?? 0, total_paid: r.total_paid ?? 0,
             current_balance: r.current_balance ?? 0,
           })).filter((r) => r.vendor_code);
-          const { error, count } = await supabaseAdmin.from("supplier_balances").insert(rows, { count: "exact" });
+          const { error, count } = await supabaseAdmin.from("supplier_balances").insert(rows as never[], { count: "exact" });
           if (error) throw error;
           imported = count ?? rows.length;
           break;
@@ -346,7 +346,7 @@ export const commitImportBatch = createServerFn({ method: "POST" })
             days_360: r.days_360 ?? 0, days_over_360: r.days_over_360 ?? 0,
             total_outstanding: r.total_outstanding ?? 0,
           })).filter((r) => r.customer_code);
-          const { error, count } = await supabaseAdmin.from("aging_buckets").insert(rows, { count: "exact" });
+          const { error, count } = await supabaseAdmin.from("aging_buckets").insert(rows as never[], { count: "exact" });
           if (error) throw error;
           imported = count ?? rows.length;
           break;
@@ -357,7 +357,7 @@ export const commitImportBatch = createServerFn({ method: "POST" })
             currency: r.currency ?? "SAR", balance: r.balance ?? 0,
             statement_date: r.statement_date,
           })).filter((r) => r.bank_name);
-          const { error, count } = await supabaseAdmin.from("bank_statements").insert(rows, { count: "exact" });
+          const { error, count } = await supabaseAdmin.from("bank_statements").insert(rows as never[], { count: "exact" });
           if (error) throw error;
           imported = count ?? rows.length;
           break;
@@ -369,7 +369,7 @@ export const commitImportBatch = createServerFn({ method: "POST" })
             description: r.description, period: r.period ?? data.period,
             amount: r.amount ?? 0,
           })).filter((r) => r.category);
-          const { error, count } = await supabaseAdmin.from("cost_entries").insert(rows, { count: "exact" });
+          const { error, count } = await supabaseAdmin.from("cost_entries").insert(rows as never[], { count: "exact" });
           if (error) throw error;
           imported = count ?? rows.length;
           break;
@@ -384,7 +384,7 @@ export const commitImportBatch = createServerFn({ method: "POST" })
             total_cost: r.total_cost ?? toNum(r.basic_salary) + toNum(r.allowances) + toNum(r.overtime) - toNum(r.deductions),
             batch_id: batch.id,
           })).filter((r) => r.employee_code && r.period);
-          const { error, count } = await supabaseAdmin.from("payroll_imports").insert(rows, { count: "exact" });
+          const { error, count } = await supabaseAdmin.from("payroll_imports").insert(rows as never[], { count: "exact" });
           if (error) throw error;
           imported = count ?? rows.length;
           break;
