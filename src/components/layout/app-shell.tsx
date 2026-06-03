@@ -115,6 +115,15 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input placeholder="بحث عام في النظام..." className="pr-10" />
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setLang(lang === "ar" ? "en" : "ar")}
+            title="تبديل اللغة"
+            className="font-semibold"
+          >
+            {lang === "ar" ? "EN" : "ع"}
+          </Button>
           <Button variant="ghost" size="icon" title="الإشعارات">
             <Bell className="w-5 h-5" />
           </Button>
