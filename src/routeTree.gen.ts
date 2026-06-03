@@ -25,6 +25,7 @@ import { Route as AuthenticatedInvoicesIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedInsightsIndexRouteImport } from './routes/_authenticated/insights/index'
 import { Route as AuthenticatedImportsIndexRouteImport } from './routes/_authenticated/imports/index'
 import { Route as AuthenticatedFixedAssetsIndexRouteImport } from './routes/_authenticated/fixed-assets/index'
+import { Route as AuthenticatedFinancialsIndexRouteImport } from './routes/_authenticated/financials/index'
 import { Route as AuthenticatedFinancialIndicatorsIndexRouteImport } from './routes/_authenticated/financial-indicators/index'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
 import { Route as AuthenticatedCostsIndexRouteImport } from './routes/_authenticated/costs/index'
@@ -129,6 +130,12 @@ const AuthenticatedFixedAssetsIndexRoute =
   AuthenticatedFixedAssetsIndexRouteImport.update({
     id: '/fixed-assets/',
     path: '/fixed-assets/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFinancialsIndexRoute =
+  AuthenticatedFinancialsIndexRouteImport.update({
+    id: '/financials/',
+    path: '/financials/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedFinancialIndicatorsIndexRoute =
@@ -237,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/costs/': typeof AuthenticatedCostsIndexRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/financial-indicators/': typeof AuthenticatedFinancialIndicatorsIndexRoute
+  '/financials/': typeof AuthenticatedFinancialsIndexRoute
   '/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
   '/imports/': typeof AuthenticatedImportsIndexRoute
   '/insights/': typeof AuthenticatedInsightsIndexRoute
@@ -269,6 +277,7 @@ export interface FileRoutesByTo {
   '/costs': typeof AuthenticatedCostsIndexRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/financial-indicators': typeof AuthenticatedFinancialIndicatorsIndexRoute
+  '/financials': typeof AuthenticatedFinancialsIndexRoute
   '/fixed-assets': typeof AuthenticatedFixedAssetsIndexRoute
   '/imports': typeof AuthenticatedImportsIndexRoute
   '/insights': typeof AuthenticatedInsightsIndexRoute
@@ -303,6 +312,7 @@ export interface FileRoutesById {
   '/_authenticated/costs/': typeof AuthenticatedCostsIndexRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/financial-indicators/': typeof AuthenticatedFinancialIndicatorsIndexRoute
+  '/_authenticated/financials/': typeof AuthenticatedFinancialsIndexRoute
   '/_authenticated/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
   '/_authenticated/imports/': typeof AuthenticatedImportsIndexRoute
   '/_authenticated/insights/': typeof AuthenticatedInsightsIndexRoute
@@ -337,6 +347,7 @@ export interface FileRouteTypes {
     | '/costs/'
     | '/customers/'
     | '/financial-indicators/'
+    | '/financials/'
     | '/fixed-assets/'
     | '/imports/'
     | '/insights/'
@@ -369,6 +380,7 @@ export interface FileRouteTypes {
     | '/costs'
     | '/customers'
     | '/financial-indicators'
+    | '/financials'
     | '/fixed-assets'
     | '/imports'
     | '/insights'
@@ -402,6 +414,7 @@ export interface FileRouteTypes {
     | '/_authenticated/costs/'
     | '/_authenticated/customers/'
     | '/_authenticated/financial-indicators/'
+    | '/_authenticated/financials/'
     | '/_authenticated/fixed-assets/'
     | '/_authenticated/imports/'
     | '/_authenticated/insights/'
@@ -537,6 +550,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFixedAssetsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/financials/': {
+      id: '/_authenticated/financials/'
+      path: '/financials'
+      fullPath: '/financials/'
+      preLoaderRoute: typeof AuthenticatedFinancialsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/financial-indicators/': {
       id: '/_authenticated/financial-indicators/'
       path: '/financial-indicators'
@@ -661,6 +681,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCostsIndexRoute: typeof AuthenticatedCostsIndexRoute
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedFinancialIndicatorsIndexRoute: typeof AuthenticatedFinancialIndicatorsIndexRoute
+  AuthenticatedFinancialsIndexRoute: typeof AuthenticatedFinancialsIndexRoute
   AuthenticatedFixedAssetsIndexRoute: typeof AuthenticatedFixedAssetsIndexRoute
   AuthenticatedImportsIndexRoute: typeof AuthenticatedImportsIndexRoute
   AuthenticatedInsightsIndexRoute: typeof AuthenticatedInsightsIndexRoute
@@ -693,6 +714,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedFinancialIndicatorsIndexRoute:
     AuthenticatedFinancialIndicatorsIndexRoute,
+  AuthenticatedFinancialsIndexRoute: AuthenticatedFinancialsIndexRoute,
   AuthenticatedFixedAssetsIndexRoute: AuthenticatedFixedAssetsIndexRoute,
   AuthenticatedImportsIndexRoute: AuthenticatedImportsIndexRoute,
   AuthenticatedInsightsIndexRoute: AuthenticatedInsightsIndexRoute,
@@ -720,3 +742,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
