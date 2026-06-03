@@ -61,8 +61,14 @@ export const taskStatusLabel: Record<string, string> = {
 };
 
 export const roleLabel: Record<string, string> = {
-  admin: "مدير عام",
+  admin: "مدير النظام",
+  ceo: "الرئيس التنفيذي",
+  cfo: "المدير المالي التنفيذي",
   finance_manager: "مدير مالي",
-  project_manager: "مدير مشاريع",
+  chief_accountant: "رئيس حسابات",
   accountant: "محاسب / موظف تحصيل",
+  cost_controller: "مراقب تكاليف",
+  project_manager: "مدير مشاريع",
+  auditor: "مدقق",
+  read_only: "قراءة فقط",
 };
