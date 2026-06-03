@@ -2072,12 +2072,14 @@ export type Database = {
       tasks: {
         Row: {
           assigned_to: string | null
+          completed_at: string | null
           created_at: string
           created_by: string | null
           customer_id: string | null
           description: string | null
           due_date: string | null
           id: string
+          priority: string | null
           project_id: string | null
           status: Database["public"]["Enums"]["task_status"] | null
           title: string
@@ -2086,12 +2088,14 @@ export type Database = {
         }
         Insert: {
           assigned_to?: string | null
+          completed_at?: string | null
           created_at?: string
           created_by?: string | null
           customer_id?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
+          priority?: string | null
           project_id?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title: string
@@ -2100,12 +2104,14 @@ export type Database = {
         }
         Update: {
           assigned_to?: string | null
+          completed_at?: string | null
           created_at?: string
           created_by?: string | null
           customer_id?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
+          priority?: string | null
           project_id?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title?: string

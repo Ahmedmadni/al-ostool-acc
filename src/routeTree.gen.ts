@@ -43,6 +43,7 @@ import { Route as AuthenticatedAlertsIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedVendorsTopRouteImport } from './routes/_authenticated/vendors/top'
 import { Route as AuthenticatedVendorsAgingRouteImport } from './routes/_authenticated/vendors/aging'
 import { Route as AuthenticatedTreasuryForecastRouteImport } from './routes/_authenticated/treasury/forecast'
+import { Route as AuthenticatedTasksTeamRouteImport } from './routes/_authenticated/tasks/team'
 import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authenticated/settings/users'
 import { Route as AuthenticatedSettingsRegionalRouteImport } from './routes/_authenticated/settings/regional'
 import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
@@ -256,6 +257,11 @@ const AuthenticatedTreasuryForecastRoute =
     path: '/treasury/forecast',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedTasksTeamRoute = AuthenticatedTasksTeamRouteImport.update({
+  id: '/tasks/team',
+  path: '/tasks/team',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedSettingsUsersRoute =
   AuthenticatedSettingsUsersRouteImport.update({
     id: '/settings/users',
@@ -386,6 +392,7 @@ export interface FileRoutesByFullPath {
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
+  '/tasks/team': typeof AuthenticatedTasksTeamRoute
   '/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
   '/vendors/top': typeof AuthenticatedVendorsTopRoute
@@ -439,6 +446,7 @@ export interface FileRoutesByTo {
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
+  '/tasks/team': typeof AuthenticatedTasksTeamRoute
   '/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
   '/vendors/top': typeof AuthenticatedVendorsTopRoute
@@ -494,6 +502,7 @@ export interface FileRoutesById {
   '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/_authenticated/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/_authenticated/settings/users': typeof AuthenticatedSettingsUsersRoute
+  '/_authenticated/tasks/team': typeof AuthenticatedTasksTeamRoute
   '/_authenticated/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/_authenticated/vendors/aging': typeof AuthenticatedVendorsAgingRoute
   '/_authenticated/vendors/top': typeof AuthenticatedVendorsTopRoute
@@ -549,6 +558,7 @@ export interface FileRouteTypes {
     | '/receivables/aging'
     | '/settings/regional'
     | '/settings/users'
+    | '/tasks/team'
     | '/treasury/forecast'
     | '/vendors/aging'
     | '/vendors/top'
@@ -602,6 +612,7 @@ export interface FileRouteTypes {
     | '/receivables/aging'
     | '/settings/regional'
     | '/settings/users'
+    | '/tasks/team'
     | '/treasury/forecast'
     | '/vendors/aging'
     | '/vendors/top'
@@ -656,6 +667,7 @@ export interface FileRouteTypes {
     | '/_authenticated/receivables/aging'
     | '/_authenticated/settings/regional'
     | '/_authenticated/settings/users'
+    | '/_authenticated/tasks/team'
     | '/_authenticated/treasury/forecast'
     | '/_authenticated/vendors/aging'
     | '/_authenticated/vendors/top'
@@ -935,6 +947,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTreasuryForecastRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/tasks/team': {
+      id: '/_authenticated/tasks/team'
+      path: '/tasks/team'
+      fullPath: '/tasks/team'
+      preLoaderRoute: typeof AuthenticatedTasksTeamRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/settings/users': {
       id: '/_authenticated/settings/users'
       path: '/settings/users'
@@ -1083,6 +1102,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
   AuthenticatedSettingsRegionalRoute: typeof AuthenticatedSettingsRegionalRoute
   AuthenticatedSettingsUsersRoute: typeof AuthenticatedSettingsUsersRoute
+  AuthenticatedTasksTeamRoute: typeof AuthenticatedTasksTeamRoute
   AuthenticatedTreasuryForecastRoute: typeof AuthenticatedTreasuryForecastRoute
   AuthenticatedVendorsAgingRoute: typeof AuthenticatedVendorsAgingRoute
   AuthenticatedVendorsTopRoute: typeof AuthenticatedVendorsTopRoute
@@ -1138,6 +1158,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
   AuthenticatedSettingsRegionalRoute: AuthenticatedSettingsRegionalRoute,
   AuthenticatedSettingsUsersRoute: AuthenticatedSettingsUsersRoute,
+  AuthenticatedTasksTeamRoute: AuthenticatedTasksTeamRoute,
   AuthenticatedTreasuryForecastRoute: AuthenticatedTreasuryForecastRoute,
   AuthenticatedVendorsAgingRoute: AuthenticatedVendorsAgingRoute,
   AuthenticatedVendorsTopRoute: AuthenticatedVendorsTopRoute,
