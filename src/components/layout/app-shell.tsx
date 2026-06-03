@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, FolderKanban, Receipt, FileText, BarChart3,
   Calculator, FileBarChart, Sparkles, Calendar, Settings, LogOut,
   Moon, Sun, Bell, Search, ChevronLeft, TrendingUp, Activity,
-  Truck, Building2, Landmark, Layers, MessageSquare, Trophy, Waves, Vault,
+  Truck, Building2, Landmark, Layers, MessageSquare, Trophy, Waves, Vault, Upload,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "@/components/theme-provider";
@@ -18,6 +18,7 @@ import { toast } from "sonner";
 
 const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { to: "/dashboard", label: "لوحة التحكم التنفيذية", icon: LayoutDashboard },
+  { to: "/imports", label: "مركز الاستيراد الذكي", icon: Upload },
   { to: "/treasury", label: "الخزينة والمركز النقدي", icon: Vault },
   { to: "/cash-flow/matrix", label: "مصفوفة التدفقات النقدية", icon: Waves },
   { to: "/customers", label: "العملاء والذمم", icon: Users },
