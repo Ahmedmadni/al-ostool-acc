@@ -1,0 +1,1 @@
+ALTER FUNCTION public.update_timestamp() SET search_path = public;
