@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { AppShell } from "@/components/layout/app-shell";
 import { I18nProvider } from "@/lib/i18n";
+import { RegionalProvider } from "@/lib/regional";
 import { FloatingCopilot } from "@/components/copilot/floating-copilot";
 
 export const Route = createFileRoute("/_authenticated")({ component: AuthLayout });
@@ -23,8 +24,10 @@ function AuthLayout() {
   }
   return (
     <I18nProvider>
-      <AppShell><Outlet /></AppShell>
-      <FloatingCopilot />
+      <RegionalProvider>
+        <AppShell><Outlet /></AppShell>
+        <FloatingCopilot />
+      </RegionalProvider>
     </I18nProvider>
   );
 }
