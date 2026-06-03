@@ -38,6 +38,7 @@ import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_aut
 import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
 import { Route as AuthenticatedImportsUploadRouteImport } from './routes/_authenticated/imports/upload'
 import { Route as AuthenticatedFinancialsIncomeStatementRouteImport } from './routes/_authenticated/financials/income-statement'
+import { Route as AuthenticatedFinancialsCashFlowRouteImport } from './routes/_authenticated/financials/cash-flow'
 import { Route as AuthenticatedFinancialsBalanceSheetRouteImport } from './routes/_authenticated/financials/balance-sheet'
 import { Route as AuthenticatedCustomersImportRouteImport } from './routes/_authenticated/customers/import'
 import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenticated/customers/$id'
@@ -209,6 +210,12 @@ const AuthenticatedFinancialsIncomeStatementRoute =
     path: '/financials/income-statement',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFinancialsCashFlowRoute =
+  AuthenticatedFinancialsCashFlowRouteImport.update({
+    id: '/financials/cash-flow',
+    path: '/financials/cash-flow',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFinancialsBalanceSheetRoute =
   AuthenticatedFinancialsBalanceSheetRouteImport.update({
     id: '/financials/balance-sheet',
@@ -248,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers/import': typeof AuthenticatedCustomersImportRoute
   '/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
+  '/financials/cash-flow': typeof AuthenticatedFinancialsCashFlowRoute
   '/financials/income-statement': typeof AuthenticatedFinancialsIncomeStatementRoute
   '/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
@@ -283,6 +291,7 @@ export interface FileRoutesByTo {
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers/import': typeof AuthenticatedCustomersImportRoute
   '/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
+  '/financials/cash-flow': typeof AuthenticatedFinancialsCashFlowRoute
   '/financials/income-statement': typeof AuthenticatedFinancialsIncomeStatementRoute
   '/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
@@ -320,6 +329,7 @@ export interface FileRoutesById {
   '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/_authenticated/customers/import': typeof AuthenticatedCustomersImportRoute
   '/_authenticated/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
+  '/_authenticated/financials/cash-flow': typeof AuthenticatedFinancialsCashFlowRoute
   '/_authenticated/financials/income-statement': typeof AuthenticatedFinancialsIncomeStatementRoute
   '/_authenticated/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/_authenticated/projects/progress': typeof AuthenticatedProjectsProgressRoute
@@ -357,6 +367,7 @@ export interface FileRouteTypes {
     | '/customers/$id'
     | '/customers/import'
     | '/financials/balance-sheet'
+    | '/financials/cash-flow'
     | '/financials/income-statement'
     | '/imports/upload'
     | '/projects/progress'
@@ -392,6 +403,7 @@ export interface FileRouteTypes {
     | '/customers/$id'
     | '/customers/import'
     | '/financials/balance-sheet'
+    | '/financials/cash-flow'
     | '/financials/income-statement'
     | '/imports/upload'
     | '/projects/progress'
@@ -428,6 +440,7 @@ export interface FileRouteTypes {
     | '/_authenticated/customers/$id'
     | '/_authenticated/customers/import'
     | '/_authenticated/financials/balance-sheet'
+    | '/_authenticated/financials/cash-flow'
     | '/_authenticated/financials/income-statement'
     | '/_authenticated/imports/upload'
     | '/_authenticated/projects/progress'
@@ -667,6 +680,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFinancialsIncomeStatementRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/financials/cash-flow': {
+      id: '/_authenticated/financials/cash-flow'
+      path: '/financials/cash-flow'
+      fullPath: '/financials/cash-flow'
+      preLoaderRoute: typeof AuthenticatedFinancialsCashFlowRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/financials/balance-sheet': {
       id: '/_authenticated/financials/balance-sheet'
       path: '/financials/balance-sheet'
@@ -711,6 +731,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCustomersIdRoute: typeof AuthenticatedCustomersIdRoute
   AuthenticatedCustomersImportRoute: typeof AuthenticatedCustomersImportRoute
   AuthenticatedFinancialsBalanceSheetRoute: typeof AuthenticatedFinancialsBalanceSheetRoute
+  AuthenticatedFinancialsCashFlowRoute: typeof AuthenticatedFinancialsCashFlowRoute
   AuthenticatedFinancialsIncomeStatementRoute: typeof AuthenticatedFinancialsIncomeStatementRoute
   AuthenticatedImportsUploadRoute: typeof AuthenticatedImportsUploadRoute
   AuthenticatedProjectsProgressRoute: typeof AuthenticatedProjectsProgressRoute
@@ -746,6 +767,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCustomersImportRoute: AuthenticatedCustomersImportRoute,
   AuthenticatedFinancialsBalanceSheetRoute:
     AuthenticatedFinancialsBalanceSheetRoute,
+  AuthenticatedFinancialsCashFlowRoute: AuthenticatedFinancialsCashFlowRoute,
   AuthenticatedFinancialsIncomeStatementRoute:
     AuthenticatedFinancialsIncomeStatementRoute,
   AuthenticatedImportsUploadRoute: AuthenticatedImportsUploadRoute,
