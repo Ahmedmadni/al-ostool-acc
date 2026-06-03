@@ -134,9 +134,7 @@ function TemplateDesigner() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="مصمم القوالب الديناميكي" description="Data Template Designer - Build, version & sync schemas" actions={<Button onClick={createNew}><Plus className="h-4 w-4 me-2" /> قالب جديد</Button>}/>
-        <Button onClick={createNew}><Plus className="h-4 w-4 me-2" /> قالب جديد</Button>
-      </PageHeader>
+      <PageHeader title="مصمم القوالب الديناميكي" description="Data Template Designer - Build, version & sync schemas" actions={<Button onClick={createNew}><Plus className="h-4 w-4 me-2" /> قالب جديد</Button>} />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {templates.map((tpl) => (
