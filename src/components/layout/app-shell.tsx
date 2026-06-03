@@ -31,6 +31,8 @@ const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: 
   { to: "/vendors/top", label: "أعلى الموردين والاعتمادية", icon: Trophy },
   { to: "/suppliers", label: "أرصدة موردين (تحليلية)", icon: Truck },
   { to: "/costs", label: "ذكاء التكاليف", icon: Layers },
+  { to: "/control/projects", label: "التحكم بالمشاريع", icon: FolderKanban },
+  { to: "/control/costs", label: "التحكم بالتكاليف", icon: Layers },
   { to: "/fixed-assets", label: "الأصول الثابتة", icon: Building2 },
   { to: "/banks", label: "البنوك والنقدية", icon: Landmark },
   { to: "/projects", label: "المشاريع", icon: FolderKanban },
