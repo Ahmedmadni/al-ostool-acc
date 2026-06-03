@@ -24,6 +24,67 @@ export const Route = createFileRoute("/_authenticated/executive/")({ component: 
 
 const COLORS = ["#0ea5e9", "#22c55e", "#f59e0b", "#a855f7", "#ef4444"];
 
+function ExecutiveSummaryCard() {
+  const { lang, t, dir } = useI18n();
+  const gen = useServerFn(generateExecutiveSummary);
+  const [text, setText] = useState<string>("");
+  const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const run = async () => {
+    setBusy(true);
+    try {
+      const res = await gen({ data: { lang } });
+      setText(res.text);
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally { setBusy(false); }
+  };
+
+  const copy = async () => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Card className="border-2 border-primary/30">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between gap-2 flex-wrap">
+          <span className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-primary" />
+            {t("executiveSummary")}
+          </span>
+          <div className="flex gap-2">
+            {text && (
+              <Button variant="outline" size="sm" onClick={copy} className="gap-1">
+                <Copy className="w-3 h-3" /> {copied ? t("copied") : t("copy")}
+              </Button>
+            )}
+            <Button onClick={run} disabled={busy} size="sm" className="gap-1">
+              {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : text ? <RefreshCw className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
+              {text ? t("regenerate") : t("generateSummary")}
+            </Button>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {!text && !busy && <p className="text-sm text-muted-foreground">{t("summaryHint")}</p>}
+        {busy && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground py-8 justify-center">
+            <Loader2 className="w-4 h-4 animate-spin" /> {t("thinking")}
+          </div>
+        )}
+        {text && (
+          <div dir={dir} className="prose prose-sm max-w-none whitespace-pre-wrap text-sm leading-relaxed">
+            {text}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function ExecutivePage() {
   const { data: customers = [] } = useQuery({ queryKey: ["ex-c"], queryFn: async () => (await supabase.from("customers").select("*")).data ?? [] });
   const { data: vendors = [] } = useQuery({ queryKey: ["ex-v"], queryFn: async () => ((await supabase.from("vendors" as any).select("*")).data as any[]) ?? [] });
