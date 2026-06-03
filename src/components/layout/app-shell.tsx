@@ -5,7 +5,7 @@ import {
   Calculator, FileBarChart, Sparkles, Calendar, Settings, LogOut,
   Moon, Sun, Bell, Search, ChevronLeft, TrendingUp, Activity,
   Truck, Building2, Landmark, Layers, MessageSquare, Trophy, Waves, Vault, Upload,
-  Scale, PieChart,
+  Scale, PieChart, Bot, Bell as BellIcon, Telescope, GitBranch, ClipboardList,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "@/components/theme-provider";
@@ -22,7 +22,11 @@ import { toast } from "sonner";
 
 const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { to: "/dashboard", label: "لوحة التحكم التنفيذية", icon: LayoutDashboard },
-  { to: "/executive", label: "مركز القيادة (CFO)", icon: Sparkles },
+  { to: "/executive", label: "مركز القيادة (CFO) V2", icon: Sparkles },
+  { to: "/forecasting", label: "محرك التوقعات", icon: Telescope },
+  { to: "/scenarios", label: "تحليل السيناريوهات", icon: GitBranch },
+  { to: "/alerts", label: "مركز التنبيهات", icon: BellIcon },
+  { to: "/board", label: "تقارير مجلس الإدارة", icon: ClipboardList },
   { to: "/imports", label: "مركز الاستيراد الذكي", icon: Upload },
   { to: "/treasury", label: "الخزينة والمركز النقدي", icon: Vault },
   { to: "/treasury/forecast", label: "توقعات السيولة (90 يوم)", icon: TrendingUp },
