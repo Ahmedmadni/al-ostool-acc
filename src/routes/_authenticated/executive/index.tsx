@@ -1,14 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, KpiCard } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fmtSAR, daysBetween } from "@/lib/format";
+import { useI18n } from "@/lib/i18n";
+import { generateExecutiveSummary } from "@/lib/copilot.functions";
+import { toast } from "sonner";
 import {
   Wallet, TrendingUp, TrendingDown, AlertTriangle, FolderKanban, Users, Truck,
-  Activity, Scale, ArrowLeft, Sparkles,
+  Activity, Scale, ArrowLeft, Sparkles, Loader2, Copy, RefreshCw,
 } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
