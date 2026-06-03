@@ -403,6 +403,45 @@ export type Database = {
         }
         Relationships: []
       }
+      data_imports: {
+        Row: {
+          file_name: string | null
+          id: string
+          import_type: string
+          imported_at: string
+          imported_by: string | null
+          notes: string | null
+          period: string | null
+          replaced_at: string | null
+          row_count: number | null
+          status: string | null
+        }
+        Insert: {
+          file_name?: string | null
+          id?: string
+          import_type: string
+          imported_at?: string
+          imported_by?: string | null
+          notes?: string | null
+          period?: string | null
+          replaced_at?: string | null
+          row_count?: number | null
+          status?: string | null
+        }
+        Update: {
+          file_name?: string | null
+          id?: string
+          import_type?: string
+          imported_at?: string
+          imported_by?: string | null
+          notes?: string | null
+          period?: string | null
+          replaced_at?: string | null
+          row_count?: number | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       equipment_costs: {
         Row: {
           department: string | null
@@ -804,56 +843,74 @@ export type Database = {
       projects: {
         Row: {
           actual_cost: number | null
+          billed_amount: number | null
           budget: number | null
           code: string
+          contract_number: string | null
           contract_value: number | null
           created_at: string
           customer_id: string | null
           description: string | null
           end_date: string | null
+          financial_progress: number | null
           id: string
           manager: string | null
           name: string
           progress_actual: number | null
           progress_planned: number | null
+          retention_amount: number | null
+          retention_pct: number | null
           start_date: string | null
           status: Database["public"]["Enums"]["project_status"] | null
+          unbilled_amount: number | null
           updated_at: string
         }
         Insert: {
           actual_cost?: number | null
+          billed_amount?: number | null
           budget?: number | null
           code: string
+          contract_number?: string | null
           contract_value?: number | null
           created_at?: string
           customer_id?: string | null
           description?: string | null
           end_date?: string | null
+          financial_progress?: number | null
           id?: string
           manager?: string | null
           name: string
           progress_actual?: number | null
           progress_planned?: number | null
+          retention_amount?: number | null
+          retention_pct?: number | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["project_status"] | null
+          unbilled_amount?: number | null
           updated_at?: string
         }
         Update: {
           actual_cost?: number | null
+          billed_amount?: number | null
           budget?: number | null
           code?: string
+          contract_number?: string | null
           contract_value?: number | null
           created_at?: string
           customer_id?: string | null
           description?: string | null
           end_date?: string | null
+          financial_progress?: number | null
           id?: string
           manager?: string | null
           name?: string
           progress_actual?: number | null
           progress_planned?: number | null
+          retention_amount?: number | null
+          retention_pct?: number | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["project_status"] | null
+          unbilled_amount?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -1055,6 +1112,87 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      vendors: {
+        Row: {
+          address: string | null
+          category: string | null
+          city: string | null
+          code: string
+          commercial_register: string | null
+          country: string | null
+          created_at: string
+          created_by: string | null
+          credit_limit: number | null
+          current_balance: number | null
+          email: string | null
+          id: string
+          is_active: boolean | null
+          mobile: string | null
+          name: string
+          name_en: string | null
+          payment_period: number | null
+          phone: string | null
+          region: string | null
+          tax_number: string | null
+          total_outstanding: number | null
+          total_paid: number | null
+          total_purchased: number | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          category?: string | null
+          city?: string | null
+          code: string
+          commercial_register?: string | null
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          credit_limit?: number | null
+          current_balance?: number | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          mobile?: string | null
+          name: string
+          name_en?: string | null
+          payment_period?: number | null
+          phone?: string | null
+          region?: string | null
+          tax_number?: string | null
+          total_outstanding?: number | null
+          total_paid?: number | null
+          total_purchased?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          category?: string | null
+          city?: string | null
+          code?: string
+          commercial_register?: string | null
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          credit_limit?: number | null
+          current_balance?: number | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          mobile?: string | null
+          name?: string
+          name_en?: string | null
+          payment_period?: number | null
+          phone?: string | null
+          region?: string | null
+          tax_number?: string | null
+          total_outstanding?: number | null
+          total_paid?: number | null
+          total_purchased?: number | null
+          updated_at?: string
         }
         Relationships: []
       }
