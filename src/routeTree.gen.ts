@@ -28,6 +28,7 @@ import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedCostsIndexRouteImport } from './routes/_authenticated/costs/index'
 import { Route as AuthenticatedCopilotIndexRouteImport } from './routes/_authenticated/copilot/index'
 import { Route as AuthenticatedBanksIndexRouteImport } from './routes/_authenticated/banks/index'
+import { Route as AuthenticatedVendorsTopRouteImport } from './routes/_authenticated/vendors/top'
 import { Route as AuthenticatedVendorsAgingRouteImport } from './routes/_authenticated/vendors/aging'
 import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authenticated/settings/users'
 import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
@@ -141,6 +142,11 @@ const AuthenticatedBanksIndexRoute = AuthenticatedBanksIndexRouteImport.update({
   path: '/banks/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedVendorsTopRoute = AuthenticatedVendorsTopRouteImport.update({
+  id: '/vendors/top',
+  path: '/vendors/top',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedVendorsAgingRoute =
   AuthenticatedVendorsAgingRouteImport.update({
     id: '/vendors/aging',
@@ -188,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
+  '/vendors/top': typeof AuthenticatedVendorsTopRoute
   '/banks/': typeof AuthenticatedBanksIndexRoute
   '/copilot/': typeof AuthenticatedCopilotIndexRoute
   '/costs/': typeof AuthenticatedCostsIndexRoute
@@ -214,6 +221,7 @@ export interface FileRoutesByTo {
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
+  '/vendors/top': typeof AuthenticatedVendorsTopRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
   '/copilot': typeof AuthenticatedCopilotIndexRoute
   '/costs': typeof AuthenticatedCostsIndexRoute
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/_authenticated/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/_authenticated/vendors/aging': typeof AuthenticatedVendorsAgingRoute
+  '/_authenticated/vendors/top': typeof AuthenticatedVendorsTopRoute
   '/_authenticated/banks/': typeof AuthenticatedBanksIndexRoute
   '/_authenticated/copilot/': typeof AuthenticatedCopilotIndexRoute
   '/_authenticated/costs/': typeof AuthenticatedCostsIndexRoute
@@ -270,6 +279,7 @@ export interface FileRouteTypes {
     | '/receivables/aging'
     | '/settings/users'
     | '/vendors/aging'
+    | '/vendors/top'
     | '/banks/'
     | '/copilot/'
     | '/costs/'
@@ -296,6 +306,7 @@ export interface FileRouteTypes {
     | '/receivables/aging'
     | '/settings/users'
     | '/vendors/aging'
+    | '/vendors/top'
     | '/banks'
     | '/copilot'
     | '/costs'
@@ -323,6 +334,7 @@ export interface FileRouteTypes {
     | '/_authenticated/receivables/aging'
     | '/_authenticated/settings/users'
     | '/_authenticated/vendors/aging'
+    | '/_authenticated/vendors/top'
     | '/_authenticated/banks/'
     | '/_authenticated/copilot/'
     | '/_authenticated/costs/'
@@ -481,6 +493,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBanksIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/vendors/top': {
+      id: '/_authenticated/vendors/top'
+      path: '/vendors/top'
+      fullPath: '/vendors/top'
+      preLoaderRoute: typeof AuthenticatedVendorsTopRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/vendors/aging': {
       id: '/_authenticated/vendors/aging'
       path: '/vendors/aging'
@@ -534,6 +553,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
   AuthenticatedSettingsUsersRoute: typeof AuthenticatedSettingsUsersRoute
   AuthenticatedVendorsAgingRoute: typeof AuthenticatedVendorsAgingRoute
+  AuthenticatedVendorsTopRoute: typeof AuthenticatedVendorsTopRoute
   AuthenticatedBanksIndexRoute: typeof AuthenticatedBanksIndexRoute
   AuthenticatedCopilotIndexRoute: typeof AuthenticatedCopilotIndexRoute
   AuthenticatedCostsIndexRoute: typeof AuthenticatedCostsIndexRoute
@@ -559,6 +579,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
   AuthenticatedSettingsUsersRoute: AuthenticatedSettingsUsersRoute,
   AuthenticatedVendorsAgingRoute: AuthenticatedVendorsAgingRoute,
+  AuthenticatedVendorsTopRoute: AuthenticatedVendorsTopRoute,
   AuthenticatedBanksIndexRoute: AuthenticatedBanksIndexRoute,
   AuthenticatedCopilotIndexRoute: AuthenticatedCopilotIndexRoute,
   AuthenticatedCostsIndexRoute: AuthenticatedCostsIndexRoute,
