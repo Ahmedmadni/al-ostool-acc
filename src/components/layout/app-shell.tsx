@@ -60,6 +60,8 @@ const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: 
   { to: "/reports", label: "مركز التقارير", icon: FileText },
   
   { to: "/insights", label: "تحليلات تنفيذية AI", icon: Sparkles },
+  { to: "/templates", label: "مصمم القوالب", icon: Layers },
+  { to: "/settings/regional", label: "الإعدادات الإقليمية", icon: Settings },
   { to: "/tasks", label: "المهام والتقويم", icon: Calendar },
 ];
 
