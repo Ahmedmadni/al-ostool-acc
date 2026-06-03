@@ -35,6 +35,7 @@ import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_aut
 import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
 import { Route as AuthenticatedCustomersImportRouteImport } from './routes/_authenticated/customers/import'
 import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenticated/customers/$id'
+import { Route as AuthenticatedVendorsStatementIdRouteImport } from './routes/_authenticated/vendors/statement.$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -183,6 +184,12 @@ const AuthenticatedCustomersIdRoute =
     path: '/customers/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedVendorsStatementIdRoute =
+  AuthenticatedVendorsStatementIdRouteImport.update({
+    id: '/vendors/statement/$id',
+    path: '/vendors/statement/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -210,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/tax-tools/': typeof AuthenticatedTaxToolsIndexRoute
   '/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors/': typeof AuthenticatedVendorsIndexRoute
+  '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -237,6 +245,7 @@ export interface FileRoutesByTo {
   '/tax-tools': typeof AuthenticatedTaxToolsIndexRoute
   '/trial-balance': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors': typeof AuthenticatedVendorsIndexRoute
+  '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -266,6 +275,7 @@ export interface FileRoutesById {
   '/_authenticated/tax-tools/': typeof AuthenticatedTaxToolsIndexRoute
   '/_authenticated/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/_authenticated/vendors/': typeof AuthenticatedVendorsIndexRoute
+  '/_authenticated/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -295,6 +305,7 @@ export interface FileRouteTypes {
     | '/tax-tools/'
     | '/trial-balance/'
     | '/vendors/'
+    | '/vendors/statement/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -322,6 +333,7 @@ export interface FileRouteTypes {
     | '/tax-tools'
     | '/trial-balance'
     | '/vendors'
+    | '/vendors/statement/$id'
   id:
     | '__root__'
     | '/'
@@ -350,6 +362,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tax-tools/'
     | '/_authenticated/trial-balance/'
     | '/_authenticated/vendors/'
+    | '/_authenticated/vendors/statement/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -542,6 +555,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/vendors/statement/$id': {
+      id: '/_authenticated/vendors/statement/$id'
+      path: '/vendors/statement/$id'
+      fullPath: '/vendors/statement/$id'
+      preLoaderRoute: typeof AuthenticatedVendorsStatementIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -569,6 +589,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTaxToolsIndexRoute: typeof AuthenticatedTaxToolsIndexRoute
   AuthenticatedTrialBalanceIndexRoute: typeof AuthenticatedTrialBalanceIndexRoute
   AuthenticatedVendorsIndexRoute: typeof AuthenticatedVendorsIndexRoute
+  AuthenticatedVendorsStatementIdRoute: typeof AuthenticatedVendorsStatementIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -596,6 +617,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTaxToolsIndexRoute: AuthenticatedTaxToolsIndexRoute,
   AuthenticatedTrialBalanceIndexRoute: AuthenticatedTrialBalanceIndexRoute,
   AuthenticatedVendorsIndexRoute: AuthenticatedVendorsIndexRoute,
+  AuthenticatedVendorsStatementIdRoute: AuthenticatedVendorsStatementIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
