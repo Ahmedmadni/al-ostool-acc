@@ -28,6 +28,7 @@ import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedCostsIndexRouteImport } from './routes/_authenticated/costs/index'
 import { Route as AuthenticatedCopilotIndexRouteImport } from './routes/_authenticated/copilot/index'
 import { Route as AuthenticatedBanksIndexRouteImport } from './routes/_authenticated/banks/index'
+import { Route as AuthenticatedVendorsAgingRouteImport } from './routes/_authenticated/vendors/aging'
 import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authenticated/settings/users'
 import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
 import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
@@ -140,6 +141,12 @@ const AuthenticatedBanksIndexRoute = AuthenticatedBanksIndexRouteImport.update({
   path: '/banks/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedVendorsAgingRoute =
+  AuthenticatedVendorsAgingRouteImport.update({
+    id: '/vendors/aging',
+    path: '/vendors/aging',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSettingsUsersRoute =
   AuthenticatedSettingsUsersRouteImport.update({
     id: '/settings/users',
@@ -180,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
+  '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
   '/banks/': typeof AuthenticatedBanksIndexRoute
   '/copilot/': typeof AuthenticatedCopilotIndexRoute
   '/costs/': typeof AuthenticatedCostsIndexRoute
@@ -205,6 +213,7 @@ export interface FileRoutesByTo {
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
+  '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
   '/copilot': typeof AuthenticatedCopilotIndexRoute
   '/costs': typeof AuthenticatedCostsIndexRoute
@@ -232,6 +241,7 @@ export interface FileRoutesById {
   '/_authenticated/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/_authenticated/settings/users': typeof AuthenticatedSettingsUsersRoute
+  '/_authenticated/vendors/aging': typeof AuthenticatedVendorsAgingRoute
   '/_authenticated/banks/': typeof AuthenticatedBanksIndexRoute
   '/_authenticated/copilot/': typeof AuthenticatedCopilotIndexRoute
   '/_authenticated/costs/': typeof AuthenticatedCostsIndexRoute
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/projects/progress'
     | '/receivables/aging'
     | '/settings/users'
+    | '/vendors/aging'
     | '/banks/'
     | '/copilot/'
     | '/costs/'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/projects/progress'
     | '/receivables/aging'
     | '/settings/users'
+    | '/vendors/aging'
     | '/banks'
     | '/copilot'
     | '/costs'
@@ -310,6 +322,7 @@ export interface FileRouteTypes {
     | '/_authenticated/projects/progress'
     | '/_authenticated/receivables/aging'
     | '/_authenticated/settings/users'
+    | '/_authenticated/vendors/aging'
     | '/_authenticated/banks/'
     | '/_authenticated/copilot/'
     | '/_authenticated/costs/'
@@ -468,6 +481,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBanksIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/vendors/aging': {
+      id: '/_authenticated/vendors/aging'
+      path: '/vendors/aging'
+      fullPath: '/vendors/aging'
+      preLoaderRoute: typeof AuthenticatedVendorsAgingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/settings/users': {
       id: '/_authenticated/settings/users'
       path: '/settings/users'
@@ -513,6 +533,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedProjectsProgressRoute: typeof AuthenticatedProjectsProgressRoute
   AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
   AuthenticatedSettingsUsersRoute: typeof AuthenticatedSettingsUsersRoute
+  AuthenticatedVendorsAgingRoute: typeof AuthenticatedVendorsAgingRoute
   AuthenticatedBanksIndexRoute: typeof AuthenticatedBanksIndexRoute
   AuthenticatedCopilotIndexRoute: typeof AuthenticatedCopilotIndexRoute
   AuthenticatedCostsIndexRoute: typeof AuthenticatedCostsIndexRoute
@@ -537,6 +558,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedProjectsProgressRoute: AuthenticatedProjectsProgressRoute,
   AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
   AuthenticatedSettingsUsersRoute: AuthenticatedSettingsUsersRoute,
+  AuthenticatedVendorsAgingRoute: AuthenticatedVendorsAgingRoute,
   AuthenticatedBanksIndexRoute: AuthenticatedBanksIndexRoute,
   AuthenticatedCopilotIndexRoute: AuthenticatedCopilotIndexRoute,
   AuthenticatedCostsIndexRoute: AuthenticatedCostsIndexRoute,
@@ -567,3 +589,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
