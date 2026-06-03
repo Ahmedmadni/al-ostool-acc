@@ -13,7 +13,10 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { roleLabel } from "@/lib/labels";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, LANGS, type Lang } from "@/lib/i18n";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import logo from "@/assets/logo.ico";
 import { toast } from "sonner";
 
