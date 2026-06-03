@@ -37,6 +37,7 @@ import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authen
 import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
 import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
 import { Route as AuthenticatedImportsUploadRouteImport } from './routes/_authenticated/imports/upload'
+import { Route as AuthenticatedFinancialsBalanceSheetRouteImport } from './routes/_authenticated/financials/balance-sheet'
 import { Route as AuthenticatedCustomersImportRouteImport } from './routes/_authenticated/customers/import'
 import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenticated/customers/$id'
 import { Route as AuthenticatedCashFlowMatrixRouteImport } from './routes/_authenticated/cash-flow/matrix'
@@ -201,6 +202,12 @@ const AuthenticatedImportsUploadRoute =
     path: '/imports/upload',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFinancialsBalanceSheetRoute =
+  AuthenticatedFinancialsBalanceSheetRouteImport.update({
+    id: '/financials/balance-sheet',
+    path: '/financials/balance-sheet',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCustomersImportRoute =
   AuthenticatedCustomersImportRouteImport.update({
     id: '/customers/import',
@@ -233,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers/import': typeof AuthenticatedCustomersImportRoute
+  '/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
   '/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
@@ -266,6 +274,7 @@ export interface FileRoutesByTo {
   '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers/import': typeof AuthenticatedCustomersImportRoute
+  '/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
   '/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
@@ -301,6 +310,7 @@ export interface FileRoutesById {
   '/_authenticated/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/_authenticated/customers/import': typeof AuthenticatedCustomersImportRoute
+  '/_authenticated/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
   '/_authenticated/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/_authenticated/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
@@ -336,6 +346,7 @@ export interface FileRouteTypes {
     | '/cash-flow/matrix'
     | '/customers/$id'
     | '/customers/import'
+    | '/financials/balance-sheet'
     | '/imports/upload'
     | '/projects/progress'
     | '/receivables/aging'
@@ -369,6 +380,7 @@ export interface FileRouteTypes {
     | '/cash-flow/matrix'
     | '/customers/$id'
     | '/customers/import'
+    | '/financials/balance-sheet'
     | '/imports/upload'
     | '/projects/progress'
     | '/receivables/aging'
@@ -403,6 +415,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cash-flow/matrix'
     | '/_authenticated/customers/$id'
     | '/_authenticated/customers/import'
+    | '/_authenticated/financials/balance-sheet'
     | '/_authenticated/imports/upload'
     | '/_authenticated/projects/progress'
     | '/_authenticated/receivables/aging'
@@ -634,6 +647,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedImportsUploadRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/financials/balance-sheet': {
+      id: '/_authenticated/financials/balance-sheet'
+      path: '/financials/balance-sheet'
+      fullPath: '/financials/balance-sheet'
+      preLoaderRoute: typeof AuthenticatedFinancialsBalanceSheetRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/customers/import': {
       id: '/_authenticated/customers/import'
       path: '/customers/import'
@@ -670,6 +690,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCashFlowMatrixRoute: typeof AuthenticatedCashFlowMatrixRoute
   AuthenticatedCustomersIdRoute: typeof AuthenticatedCustomersIdRoute
   AuthenticatedCustomersImportRoute: typeof AuthenticatedCustomersImportRoute
+  AuthenticatedFinancialsBalanceSheetRoute: typeof AuthenticatedFinancialsBalanceSheetRoute
   AuthenticatedImportsUploadRoute: typeof AuthenticatedImportsUploadRoute
   AuthenticatedProjectsProgressRoute: typeof AuthenticatedProjectsProgressRoute
   AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
@@ -702,6 +723,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCashFlowMatrixRoute: AuthenticatedCashFlowMatrixRoute,
   AuthenticatedCustomersIdRoute: AuthenticatedCustomersIdRoute,
   AuthenticatedCustomersImportRoute: AuthenticatedCustomersImportRoute,
+  AuthenticatedFinancialsBalanceSheetRoute:
+    AuthenticatedFinancialsBalanceSheetRoute,
   AuthenticatedImportsUploadRoute: AuthenticatedImportsUploadRoute,
   AuthenticatedProjectsProgressRoute: AuthenticatedProjectsProgressRoute,
   AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
