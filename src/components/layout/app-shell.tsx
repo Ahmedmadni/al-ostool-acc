@@ -45,6 +45,7 @@ const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: 
   { to: "/fixed-assets", label: "الأصول الثابتة", icon: Building2 },
   { to: "/banks", label: "البنوك والنقدية", icon: Landmark },
   { to: "/projects", label: "المشاريع", icon: FolderKanban },
+  { to: "/contracts", label: "لوحة العقود", icon: FileText },
   { to: "/projects/progress", label: "متابعة الإنجاز", icon: Activity },
   { to: "/invoices", label: "الفوترة", icon: Receipt },
   { to: "/trial-balance", label: "ميزان المراجعة", icon: FileBarChart },
