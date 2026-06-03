@@ -1201,6 +1201,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_delete_master: { Args: { _user_id: string }; Returns: boolean }
+      can_read_business: { Args: { _user_id: string }; Returns: boolean }
+      can_write_finance: { Args: { _user_id: string }; Returns: boolean }
+      can_write_operations: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1209,9 +1213,23 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      user_has_any_role: {
+        Args: { _roles: string[]; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      app_role: "admin" | "finance_manager" | "project_manager" | "accountant"
+      app_role:
+        | "admin"
+        | "finance_manager"
+        | "project_manager"
+        | "accountant"
+        | "ceo"
+        | "cfo"
+        | "chief_accountant"
+        | "cost_controller"
+        | "auditor"
+        | "read_only"
       customer_age: "lt_1" | "1_to_3" | "3_to_5" | "5_to_10" | "gt_10"
       customer_risk: "low" | "medium" | "high"
       customer_sector:
@@ -1364,7 +1382,18 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "finance_manager", "project_manager", "accountant"],
+      app_role: [
+        "admin",
+        "finance_manager",
+        "project_manager",
+        "accountant",
+        "ceo",
+        "cfo",
+        "chief_accountant",
+        "cost_controller",
+        "auditor",
+        "read_only",
+      ],
       customer_age: ["lt_1", "1_to_3", "3_to_5", "5_to_10", "gt_10"],
       customer_risk: ["low", "medium", "high"],
       customer_sector: [
