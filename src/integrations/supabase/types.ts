@@ -179,12 +179,309 @@ export type Database = {
         }
         Relationships: []
       }
+      chart_of_accounts: {
+        Row: {
+          account_type: Database["public"]["Enums"]["account_type"]
+          category: Database["public"]["Enums"]["account_category"]
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          level: number
+          name_ar: string
+          name_en: string | null
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_type?: Database["public"]["Enums"]["account_type"]
+          category: Database["public"]["Enums"]["account_category"]
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          level?: number
+          name_ar: string
+          name_en?: string | null
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_type?: Database["public"]["Enums"]["account_type"]
+          category?: Database["public"]["Enums"]["account_category"]
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          level?: number
+          name_ar?: string
+          name_en?: string | null
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chart_of_accounts_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "chart_of_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      companies: {
+        Row: {
+          address: string | null
+          city: string | null
+          code: string
+          commercial_register: string | null
+          company_type: Database["public"]["Enums"]["company_type"]
+          country: string | null
+          created_at: string
+          currency: string | null
+          email: string | null
+          fiscal_year_start: string | null
+          id: string
+          is_active: boolean | null
+          name_ar: string
+          name_en: string | null
+          parent_id: string | null
+          phone: string | null
+          tax_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          code: string
+          commercial_register?: string | null
+          company_type?: Database["public"]["Enums"]["company_type"]
+          country?: string | null
+          created_at?: string
+          currency?: string | null
+          email?: string | null
+          fiscal_year_start?: string | null
+          id?: string
+          is_active?: boolean | null
+          name_ar: string
+          name_en?: string | null
+          parent_id?: string | null
+          phone?: string | null
+          tax_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          code?: string
+          commercial_register?: string | null
+          company_type?: Database["public"]["Enums"]["company_type"]
+          country?: string | null
+          created_at?: string
+          currency?: string | null
+          email?: string | null
+          fiscal_year_start?: string | null
+          id?: string
+          is_active?: boolean | null
+          name_ar?: string
+          name_en?: string | null
+          parent_id?: string | null
+          phone?: string | null
+          tax_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "companies_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_settings: {
+        Row: {
+          company_id: string | null
+          date_format: string | null
+          default_currency: string | null
+          fiscal_year_start: string | null
+          id: string
+          language: string | null
+          logo_url: string | null
+          number_format: string | null
+          settings: Json | null
+          timezone: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          date_format?: string | null
+          default_currency?: string | null
+          fiscal_year_start?: string | null
+          id?: string
+          language?: string | null
+          logo_url?: string | null
+          number_format?: string | null
+          settings?: Json | null
+          timezone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          date_format?: string | null
+          default_currency?: string | null
+          fiscal_year_start?: string | null
+          id?: string
+          language?: string | null
+          logo_url?: string | null
+          number_format?: string | null
+          settings?: Json | null
+          timezone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_settings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_amendments: {
+        Row: {
+          amendment_date: string | null
+          amendment_number: string
+          contract_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          new_end_date: string | null
+          notes: string | null
+          reason: string | null
+          value_change: number | null
+        }
+        Insert: {
+          amendment_date?: string | null
+          amendment_number: string
+          contract_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          new_end_date?: string | null
+          notes?: string | null
+          reason?: string | null
+          value_change?: number | null
+        }
+        Update: {
+          amendment_date?: string | null
+          amendment_number?: string
+          contract_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          new_end_date?: string | null
+          notes?: string | null
+          reason?: string | null
+          value_change?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_amendments_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contracts: {
+        Row: {
+          contract_number: string
+          contract_value: number | null
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          customer_id: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          notes: string | null
+          project_id: string | null
+          retention_amount: number | null
+          retention_pct: number | null
+          signed_date: string | null
+          start_date: string | null
+          status: Database["public"]["Enums"]["contract_status"] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          contract_number: string
+          contract_value?: number | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          customer_id?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          project_id?: string | null
+          retention_amount?: number | null
+          retention_pct?: number | null
+          signed_date?: string | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["contract_status"] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          contract_number?: string
+          contract_value?: number | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          customer_id?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          project_id?: string | null
+          retention_amount?: number | null
+          retention_pct?: number | null
+          signed_date?: string | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["contract_status"] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cost_entries: {
         Row: {
           amount: number | null
           category: string
           company: string | null
           department: string | null
+          department_id: string | null
           description: string | null
           id: string
           imported_at: string
@@ -192,6 +489,7 @@ export type Database = {
           meta: Json | null
           period: string | null
           project: string | null
+          project_id: string | null
           section: string | null
         }
         Insert: {
@@ -199,6 +497,7 @@ export type Database = {
           category: string
           company?: string | null
           department?: string | null
+          department_id?: string | null
           description?: string | null
           id?: string
           imported_at?: string
@@ -206,6 +505,7 @@ export type Database = {
           meta?: Json | null
           period?: string | null
           project?: string | null
+          project_id?: string | null
           section?: string | null
         }
         Update: {
@@ -213,6 +513,7 @@ export type Database = {
           category?: string
           company?: string | null
           department?: string | null
+          department_id?: string | null
           description?: string | null
           id?: string
           imported_at?: string
@@ -220,7 +521,56 @@ export type Database = {
           meta?: Json | null
           period?: string | null
           project?: string | null
+          project_id?: string | null
           section?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cost_entries_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cost_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      currencies: {
+        Row: {
+          code: string
+          created_at: string
+          decimals: number | null
+          is_active: boolean | null
+          is_base: boolean | null
+          name_ar: string
+          name_en: string | null
+          symbol: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          decimals?: number | null
+          is_active?: boolean | null
+          is_base?: boolean | null
+          name_ar: string
+          name_en?: string | null
+          symbol?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          decimals?: number | null
+          is_active?: boolean | null
+          is_base?: boolean | null
+          name_ar?: string
+          name_en?: string | null
+          symbol?: string | null
         }
         Relationships: []
       }
@@ -442,9 +792,119 @@ export type Database = {
         }
         Relationships: []
       }
+      departments: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          manager: string | null
+          name_ar: string
+          name_en: string | null
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          manager?: string | null
+          name_ar: string
+          name_en?: string | null
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          manager?: string | null
+          name_ar?: string
+          name_en?: string | null
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "departments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employees: {
+        Row: {
+          created_at: string
+          department_id: string | null
+          email: string | null
+          employee_code: string
+          full_name: string
+          full_name_en: string | null
+          hire_date: string | null
+          id: string
+          is_active: boolean | null
+          job_title: string | null
+          national_id: string | null
+          nationality: string | null
+          phone: string | null
+          termination_date: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          department_id?: string | null
+          email?: string | null
+          employee_code: string
+          full_name: string
+          full_name_en?: string | null
+          hire_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          job_title?: string | null
+          national_id?: string | null
+          nationality?: string | null
+          phone?: string | null
+          termination_date?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          department_id?: string | null
+          email?: string | null
+          employee_code?: string
+          full_name?: string
+          full_name_en?: string | null
+          hire_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          job_title?: string | null
+          national_id?: string | null
+          nationality?: string | null
+          phone?: string | null
+          termination_date?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       equipment_costs: {
         Row: {
           department: string | null
+          department_id: string | null
           depreciation: number | null
           equipment_code: string | null
           equipment_name: string | null
@@ -459,11 +919,13 @@ export type Database = {
           operating_cost: number | null
           period: string | null
           project: string | null
+          project_id: string | null
           purchase_cost: number | null
           total_cost: number | null
         }
         Insert: {
           department?: string | null
+          department_id?: string | null
           depreciation?: number | null
           equipment_code?: string | null
           equipment_name?: string | null
@@ -478,11 +940,13 @@ export type Database = {
           operating_cost?: number | null
           period?: string | null
           project?: string | null
+          project_id?: string | null
           purchase_cost?: number | null
           total_cost?: number | null
         }
         Update: {
           department?: string | null
+          department_id?: string | null
           depreciation?: number | null
           equipment_code?: string | null
           equipment_name?: string | null
@@ -497,10 +961,71 @@ export type Database = {
           operating_cost?: number | null
           period?: string | null
           project?: string | null
+          project_id?: string | null
           purchase_cost?: number | null
           total_cost?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "equipment_costs_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_costs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exchange_rates: {
+        Row: {
+          created_at: string
+          from_currency: string
+          id: string
+          rate: number
+          rate_date: string
+          source: string | null
+          to_currency: string
+        }
+        Insert: {
+          created_at?: string
+          from_currency: string
+          id?: string
+          rate: number
+          rate_date?: string
+          source?: string | null
+          to_currency: string
+        }
+        Update: {
+          created_at?: string
+          from_currency?: string
+          id?: string
+          rate?: number
+          rate_date?: string
+          source?: string | null
+          to_currency?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exchange_rates_from_currency_fkey"
+            columns: ["from_currency"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "exchange_rates_to_currency_fkey"
+            columns: ["to_currency"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["code"]
+          },
+        ]
       }
       fixed_assets: {
         Row: {
@@ -511,11 +1036,13 @@ export type Database = {
           category: string | null
           cost: number | null
           department: string | null
+          department_id: string | null
           id: string
           imported_at: string
           imported_by: string | null
           net_book_value: number | null
           project: string | null
+          project_id: string | null
           purchase_date: string | null
           status: string | null
           useful_life_years: number | null
@@ -528,11 +1055,13 @@ export type Database = {
           category?: string | null
           cost?: number | null
           department?: string | null
+          department_id?: string | null
           id?: string
           imported_at?: string
           imported_by?: string | null
           net_book_value?: number | null
           project?: string | null
+          project_id?: string | null
           purchase_date?: string | null
           status?: string | null
           useful_life_years?: number | null
@@ -545,21 +1074,40 @@ export type Database = {
           category?: string | null
           cost?: number | null
           department?: string | null
+          department_id?: string | null
           id?: string
           imported_at?: string
           imported_by?: string | null
           net_book_value?: number | null
           project?: string | null
+          project_id?: string | null
           purchase_date?: string | null
           status?: string | null
           useful_life_years?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fixed_assets_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixed_assets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       hr_costs: {
         Row: {
           department: string | null
+          department_id: string | null
           employee_code: string | null
+          employee_id: string | null
           employee_name: string | null
           eos: number | null
           food: number | null
@@ -574,13 +1122,16 @@ export type Database = {
           nationality: string | null
           period: string | null
           project: string | null
+          project_id: string | null
           salary: number | null
           tickets: number | null
           total_cost: number | null
         }
         Insert: {
           department?: string | null
+          department_id?: string | null
           employee_code?: string | null
+          employee_id?: string | null
           employee_name?: string | null
           eos?: number | null
           food?: number | null
@@ -595,13 +1146,16 @@ export type Database = {
           nationality?: string | null
           period?: string | null
           project?: string | null
+          project_id?: string | null
           salary?: number | null
           tickets?: number | null
           total_cost?: number | null
         }
         Update: {
           department?: string | null
+          department_id?: string | null
           employee_code?: string | null
+          employee_id?: string | null
           employee_name?: string | null
           eos?: number | null
           food?: number | null
@@ -616,11 +1170,34 @@ export type Database = {
           nationality?: string | null
           period?: string | null
           project?: string | null
+          project_id?: string | null
           salary?: number | null
           tickets?: number | null
           total_cost?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "hr_costs_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_costs_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_costs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoices: {
         Row: {
@@ -726,34 +1303,43 @@ export type Database = {
           amount: number
           created_at: string
           customer_id: string | null
+          direction: string | null
           id: string
           invoice_id: string | null
           method: string | null
           notes: string | null
           payment_date: string
+          purchase_invoice_id: string | null
           reference: string | null
+          vendor_id: string | null
         }
         Insert: {
           amount: number
           created_at?: string
           customer_id?: string | null
+          direction?: string | null
           id?: string
           invoice_id?: string | null
           method?: string | null
           notes?: string | null
           payment_date?: string
+          purchase_invoice_id?: string | null
           reference?: string | null
+          vendor_id?: string | null
         }
         Update: {
           amount?: number
           created_at?: string
           customer_id?: string | null
+          direction?: string | null
           id?: string
           invoice_id?: string | null
           method?: string | null
           notes?: string | null
           payment_date?: string
+          purchase_invoice_id?: string | null
           reference?: string | null
+          vendor_id?: string | null
         }
         Relationships: [
           {
@@ -768,6 +1354,20 @@ export type Database = {
             columns: ["invoice_id"]
             isOneToOne: false
             referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_purchase_invoice_id_fkey"
+            columns: ["purchase_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
         ]
@@ -923,6 +1523,154 @@ export type Database = {
           },
         ]
       }
+      purchase_invoices: {
+        Row: {
+          amount: number | null
+          created_at: string
+          currency: string | null
+          due_date: string | null
+          id: string
+          invoice_number: string
+          issue_date: string | null
+          notes: string | null
+          paid_amount: number | null
+          project_id: string | null
+          purchase_order_id: string | null
+          status: Database["public"]["Enums"]["purchase_invoice_status"] | null
+          total_amount: number | null
+          updated_at: string
+          vat_amount: number | null
+          vendor_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number: string
+          issue_date?: string | null
+          notes?: string | null
+          paid_amount?: number | null
+          project_id?: string | null
+          purchase_order_id?: string | null
+          status?: Database["public"]["Enums"]["purchase_invoice_status"] | null
+          total_amount?: number | null
+          updated_at?: string
+          vat_amount?: number | null
+          vendor_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number?: string
+          issue_date?: string | null
+          notes?: string | null
+          paid_amount?: number | null
+          project_id?: string | null
+          purchase_order_id?: string | null
+          status?: Database["public"]["Enums"]["purchase_invoice_status"] | null
+          total_amount?: number | null
+          updated_at?: string
+          vat_amount?: number | null
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_invoices_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_invoices_purchase_order_id_fkey"
+            columns: ["purchase_order_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_invoices_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchase_orders: {
+        Row: {
+          amount: number | null
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          expected_date: string | null
+          id: string
+          notes: string | null
+          order_date: string | null
+          po_number: string
+          project_id: string | null
+          status: Database["public"]["Enums"]["po_status"] | null
+          total_amount: number | null
+          updated_at: string
+          vat_amount: number | null
+          vendor_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          expected_date?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string | null
+          po_number: string
+          project_id?: string | null
+          status?: Database["public"]["Enums"]["po_status"] | null
+          total_amount?: number | null
+          updated_at?: string
+          vat_amount?: number | null
+          vendor_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          expected_date?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string | null
+          po_number?: string
+          project_id?: string | null
+          status?: Database["public"]["Enums"]["po_status"] | null
+          total_amount?: number | null
+          updated_at?: string
+          vat_amount?: number | null
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_orders_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_orders_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       report_templates: {
         Row: {
           created_at: string
@@ -1058,6 +1806,7 @@ export type Database = {
       trial_balance_entries: {
         Row: {
           account_code: string
+          account_id: string | null
           account_name: string
           account_type: string | null
           balance: number | null
@@ -1070,6 +1819,7 @@ export type Database = {
         }
         Insert: {
           account_code: string
+          account_id?: string | null
           account_name: string
           account_type?: string | null
           balance?: number | null
@@ -1082,6 +1832,7 @@ export type Database = {
         }
         Update: {
           account_code?: string
+          account_id?: string | null
           account_name?: string
           account_type?: string | null
           balance?: number | null
@@ -1092,7 +1843,15 @@ export type Database = {
           imported_by?: string | null
           period?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "trial_balance_entries_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "chart_of_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -1114,6 +1873,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      vendor_contacts: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          job_title: string | null
+          name: string
+          phone: string | null
+          vendor_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          job_title?: string | null
+          name: string
+          phone?: string | null
+          vendor_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          job_title?: string | null
+          name?: string
+          phone?: string | null
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_contacts_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vendors: {
         Row: {
@@ -1219,6 +2016,16 @@ export type Database = {
       }
     }
     Enums: {
+      account_category:
+        | "assets"
+        | "liabilities"
+        | "equity"
+        | "revenue"
+        | "cost_of_revenue"
+        | "operating_expenses"
+        | "other_income"
+        | "other_expenses"
+      account_type: "header" | "detail"
       app_role:
         | "admin"
         | "finance_manager"
@@ -1230,6 +2037,13 @@ export type Database = {
         | "cost_controller"
         | "auditor"
         | "read_only"
+      company_type: "parent" | "subsidiary" | "branch"
+      contract_status:
+        | "draft"
+        | "active"
+        | "suspended"
+        | "completed"
+        | "cancelled"
       customer_age: "lt_1" | "1_to_3" | "3_to_5" | "5_to_10" | "gt_10"
       customer_risk: "low" | "medium" | "high"
       customer_sector:
@@ -1247,12 +2061,14 @@ export type Database = {
         | "overdue"
         | "paid"
         | "unbilled"
+      po_status: "draft" | "approved" | "partial" | "received" | "cancelled"
       project_status:
         | "new"
         | "in_progress"
         | "on_hold"
         | "completed"
         | "delayed"
+      purchase_invoice_status: "draft" | "received" | "due" | "overdue" | "paid"
       task_status: "pending" | "in_progress" | "done" | "cancelled"
       task_type: "meeting" | "visit" | "call" | "collection_reminder" | "other"
     }
@@ -1382,6 +2198,17 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      account_category: [
+        "assets",
+        "liabilities",
+        "equity",
+        "revenue",
+        "cost_of_revenue",
+        "operating_expenses",
+        "other_income",
+        "other_expenses",
+      ],
+      account_type: ["header", "detail"],
       app_role: [
         "admin",
         "finance_manager",
@@ -1393,6 +2220,14 @@ export const Constants = {
         "cost_controller",
         "auditor",
         "read_only",
+      ],
+      company_type: ["parent", "subsidiary", "branch"],
+      contract_status: [
+        "draft",
+        "active",
+        "suspended",
+        "completed",
+        "cancelled",
       ],
       customer_age: ["lt_1", "1_to_3", "3_to_5", "5_to_10", "gt_10"],
       customer_risk: ["low", "medium", "high"],
@@ -1406,7 +2241,9 @@ export const Constants = {
       ],
       customer_size: ["small", "medium", "large", "strategic"],
       invoice_status: ["draft", "issued", "due", "overdue", "paid", "unbilled"],
+      po_status: ["draft", "approved", "partial", "received", "cancelled"],
       project_status: ["new", "in_progress", "on_hold", "completed", "delayed"],
+      purchase_invoice_status: ["draft", "received", "due", "overdue", "paid"],
       task_status: ["pending", "in_progress", "done", "cancelled"],
       task_type: ["meeting", "visit", "call", "collection_reminder", "other"],
     },
