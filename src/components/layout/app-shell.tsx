@@ -39,6 +39,7 @@ const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: 
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { theme, toggle } = useTheme();
+  const { lang, setLang } = useI18n();
   const { user, roles, isAdmin } = useAuth();
   const router = useRouter();
   const path = useRouterState({ select: (s) => s.location.pathname });
