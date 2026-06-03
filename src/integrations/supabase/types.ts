@@ -179,6 +179,103 @@ export type Database = {
         }
         Relationships: []
       }
+      budget_lines: {
+        Row: {
+          account_id: string | null
+          amount: number
+          budget_id: string
+          category: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          period: string | null
+          project_id: string | null
+        }
+        Insert: {
+          account_id?: string | null
+          amount?: number
+          budget_id: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          period?: string | null
+          project_id?: string | null
+        }
+        Update: {
+          account_id?: string | null
+          amount?: number
+          budget_id?: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          period?: string | null
+          project_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_lines_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "chart_of_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_lines_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "budgets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_lines_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budgets: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          fiscal_year: number
+          id: string
+          name: string
+          notes: string | null
+          period_type: string
+          status: string
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          fiscal_year: number
+          id?: string
+          name: string
+          notes?: string | null
+          period_type?: string
+          status?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          fiscal_year?: number
+          id?: string
+          name?: string
+          notes?: string | null
+          period_type?: string
+          status?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       chart_of_accounts: {
         Row: {
           account_type: Database["public"]["Enums"]["account_type"]
@@ -1199,6 +1296,166 @@ export type Database = {
           },
         ]
       }
+      import_batches: {
+        Row: {
+          ai_detection: Json | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          duplicate_rows: number
+          error_rows: number
+          field_mapping: Json
+          file_name: string | null
+          file_size: number | null
+          id: string
+          imported_rows: number
+          notes: string | null
+          period: string | null
+          source_type: string
+          started_at: string | null
+          status: string
+          template_id: string | null
+          total_rows: number
+          updated_at: string
+          valid_rows: number
+        }
+        Insert: {
+          ai_detection?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          duplicate_rows?: number
+          error_rows?: number
+          field_mapping?: Json
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          imported_rows?: number
+          notes?: string | null
+          period?: string | null
+          source_type: string
+          started_at?: string | null
+          status?: string
+          template_id?: string | null
+          total_rows?: number
+          updated_at?: string
+          valid_rows?: number
+        }
+        Update: {
+          ai_detection?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          duplicate_rows?: number
+          error_rows?: number
+          field_mapping?: Json
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          imported_rows?: number
+          notes?: string | null
+          period?: string | null
+          source_type?: string
+          started_at?: string | null
+          status?: string
+          template_id?: string | null
+          total_rows?: number
+          updated_at?: string
+          valid_rows?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_batches_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "import_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_errors: {
+        Row: {
+          batch_id: string
+          created_at: string
+          error_type: string
+          field: string | null
+          id: string
+          message: string
+          row_data: Json | null
+          row_number: number | null
+          severity: string
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          error_type: string
+          field?: string | null
+          id?: string
+          message: string
+          row_data?: Json | null
+          row_number?: number | null
+          severity?: string
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          error_type?: string
+          field?: string | null
+          id?: string
+          message?: string
+          row_data?: Json | null
+          row_number?: number | null
+          severity?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_errors_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "import_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          field_mapping: Json
+          id: string
+          is_shared: boolean
+          name: string
+          options: Json
+          source_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          field_mapping?: Json
+          id?: string
+          is_shared?: boolean
+          name: string
+          options?: Json
+          source_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          field_mapping?: Json
+          id?: string
+          is_shared?: boolean
+          name?: string
+          options?: Json
+          source_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           amount: number | null
@@ -1368,6 +1625,75 @@ export type Database = {
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payroll_imports: {
+        Row: {
+          allowances: number
+          basic_salary: number
+          batch_id: string | null
+          created_at: string
+          deductions: number
+          department: string | null
+          employee_code: string | null
+          employee_name: string | null
+          gosi: number
+          id: string
+          net_pay: number
+          overtime: number
+          period: string
+          project_id: string | null
+          total_cost: number
+        }
+        Insert: {
+          allowances?: number
+          basic_salary?: number
+          batch_id?: string | null
+          created_at?: string
+          deductions?: number
+          department?: string | null
+          employee_code?: string | null
+          employee_name?: string | null
+          gosi?: number
+          id?: string
+          net_pay?: number
+          overtime?: number
+          period: string
+          project_id?: string | null
+          total_cost?: number
+        }
+        Update: {
+          allowances?: number
+          basic_salary?: number
+          batch_id?: string | null
+          created_at?: string
+          deductions?: number
+          department?: string | null
+          employee_code?: string | null
+          employee_name?: string | null
+          gosi?: number
+          id?: string
+          net_pay?: number
+          overtime?: number
+          period?: string
+          project_id?: string | null
+          total_cost?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_imports_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "import_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payroll_imports_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]

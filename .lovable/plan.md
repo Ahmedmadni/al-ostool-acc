@@ -1,81 +1,112 @@
-## خطة بناء منصة ERP المالية الذكية للمقاولات
+## ملاحظة جوهرية حول نطاق Phase 3
 
-نطاق هذا الطلب ضخم جداً (9 وحدات + Dynamic Schema + AI Import + متعدد اللغات + RBAC متقدم + Executive Center). سأقسّمه على **6 جولات تنفيذية متتالية**. كل جولة تُسلَّم قابلة للاستخدام.
+هذه المرحلة ضخمة جداً (12 مركز رئيسي + AI + 5 لغات + تقارير). تنفيذها دفعة واحدة في رسالة واحدة سيؤدي إلى:
+- ملفات سطحية غير قابلة للاستخدام
+- تجاهل أجزاء كاملة من المتطلبات
+- صعوبة المراجعة والاختبار
 
----
-
-### الجولة 1 (هذه الجولة) — الأساسات والبنية التحتية
-
-1. **فصل البيانات Master vs Analysis**
-   - إنشاء جدول `data_imports` لتتبع كل عملية استيراد (نوع، فترة، حالة، إمكانية الاستبدال).
-   - إضافة `is_master` flag في الجداول الحالية.
-
-2. **Vendors Master Data**
-   - جدول `vendors` بالحقول الكاملة (code, name, tax_number, CR, category, region, contact).
-
-3. **Contracts & Retention للمشاريع**
-   - إضافة: `contract_number`, `retention_pct`, `retention_amount`, `billed_amount`, `unbilled_amount`, `financial_progress` إلى `projects`.
-   - Trigger يحدّث `billed_amount` تلقائياً عند إضافة فاتورة.
-
-4. **Global AI Copilot Widget**
-   - مكون عائم `<FloatingCopilot />` يظهر في كل صفحة، يقرأ سياق الصفحة الحالية ويستخدم `gemini-3-flash-preview`.
-   - يحلّ محل صفحة `/copilot` الحالية كنقطة وصول من أي مكان.
-
-5. **Theme متعدد اللغات (i18n foundation)**
-   - مكتبة بسيطة لتبديل ar/en مع RTL/LTR تلقائي.
-   - زر تبديل اللغة في الـ Topbar (الجولة 1: ar/en فقط، باقي اللغات لاحقاً).
-
-6. **Page Toolbar موحد**
-   - مكون `<DataTableToolbar />` يحتوي: بحث، فلاتر، إضافة، تعديل، حذف، طباعة، PDF، Excel، مشاركة. يُطبَّق على كل الجداول.
+لذلك سأنفّذها على **6 جولات (Sub-Phases)** متتالية، كل جولة قابلة للتسليم والمراجعة بشكل مستقل.
 
 ---
 
-### الجولة 2 — Vendors + Project Contracts + Cash Flow Matrix
+## التحوّل المعماري المعتمد
 
-- صفحات Vendors كاملة (Master + Aging + Statement + Top Vendors + Dependency).
-- ربط الفواتير بالمشاريع مع تحديث Contract Utilization تلقائياً.
-- **12-Month Cash Flow Matrix** كاملة.
-- Treasury & Cash Position Dashboard.
+التطبيق **ليس** ERP محاسبي. لن نبني:
+- ❌ قيود يومية / GL / دورة شراء / دورة بيع / Bookkeeping
 
-### الجولة 3 — Financial Statements & Ratios
+التطبيق **هو** طبقة ذكاء مالي فوق الأنظمة المحاسبية الخارجية:
+- ✅ استيراد من Excel/CSV
+- ✅ تحليل + مراقبة + تنبؤ + دعم قرار + AI
 
-- توليد تلقائي من ميزان المراجعة: Balance Sheet, Income Statement, Cash Flow Statement, Statement of Equity.
-- 13+ نسبة مالية (Current, Quick, Gross Margin, Net Margin, Debt, ROA, ROE, ROI, EBITDA…).
-- VAT Return و Zakat Report بصيغة ZATCA.
-
-### الجولة 4 — Cost Management الكامل
-
-- 4 أقسام: Labor / Equipment & Assets / Materials / G&A.
-- تحليل تفصيلي لكل بند (Salaries, Housing, Tickets, EOS, Fuel, Maintenance, Depreciation, Utilization…).
-
-### الجولة 5 — Executive Command Center + Reports Center + Tasks RBAC
-
-- لوحة CEO/CFO ببطاقات KPI تنفيذية + AI Executive Assistant.
-- Reports Center مع Save Template + Schedule + Email.
-- Task creation محصور على CEO/CFO/Finance Manager/Chief Accountant.
-
-### الجولة 6 — Dynamic Schema Engine + AI Import + متعدد اللغات الكامل
-
-- Template Designer لإضافة/تعديل الحقول مع تحديث تلقائي للجداول والنماذج.
-- AI Import يكتشف الأعمدة المفقودة، التكرارات، عدم التوازن، ويقترح Mapping تلقائياً.
-- إضافة Urdu, Hindi, French + إعدادات إقليمية كاملة (Currency, Date, Number, Timezone).
+**أثر فوري:** الجداول التي أنشأناها في Phase 2C وغير مستخدمة في هذا التوجه (`journal_entries`, `purchase_orders`, `purchase_invoices` كدورة شراء كاملة) ستبقى موجودة لكن لن نبني عليها واجهات تشغيلية — فقط استيراد.
 
 ---
 
-### ما سيُنفّذ في هذه الجولة بالتفصيل
+## الجولات (Sub-Phases)
 
-**Migration:**
-- جدول `vendors` (مع GRANTs + RLS).
-- جدول `data_imports` (تتبع الاستيرادات: type, period, replaced_at, row_count).
-- ALTER `projects`: contract_number, retention_pct, retention_amount, billed_amount, unbilled_amount, financial_progress.
-- Trigger `update_project_billing()` على `invoices` لتحديث `projects.billed_amount` تلقائياً.
+### Phase 3.1 — Smart Import Center (الأساس)
+**الأولوية القصوى — كل المراحل اللاحقة تعتمد عليه.**
 
-**كود:**
-- `src/lib/i18n.tsx` — Provider بسيط + hook `useT()`.
-- `src/components/copilot/floating-copilot.tsx` — Widget عائم يستخدم `askCopilot`.
-- `src/components/data-table-toolbar.tsx` — Toolbar موحد.
-- `src/routes/_authenticated/vendors/index.tsx` — صفحة Vendors الأساسية.
-- تحديث `app-shell.tsx`: إضافة Vendors + Language Switcher + إدراج `<FloatingCopilot />`.
-- تحديث `_authenticated.tsx` لتغليف بـ I18nProvider.
+- صفحة `/imports` مركزية: رفع، تاريخ، تحقق، حالة
+- محرّك استيراد موحّد لكل أنواع الملفات (10 أنواع):
+  - Trial Balance / Customer Balances / Vendor Balances / Aging / Bank Statements / Cost Reports / Project Reports / Asset Reports / Equipment Reports / Payroll / Budgets
+- AI Auto-Detection (server function عبر Lovable AI):
+  - كشف نوع الملف من الأعمدة
+  - اقتراح Field Mapping تلقائياً
+  - كشف Duplicates / Missing / Inconsistencies
+- Reusable Import Templates (جدول `import_templates` + UI حفظ/استرجاع)
+- جدول `import_batches` لتتبع كل عملية استيراد + سجل الأخطاء
 
-سؤال واحد فقط قبل التنفيذ: **هل أبدأ التنفيذ بهذا الترتيب**، أم تفضّل تقديم Cash Flow Matrix أو Financial Statements إلى الجولة 1 لأنها أولوية لديك؟
+**جداول جديدة:** `import_templates`, `import_batches`, `import_errors`, `budgets`, `budget_lines`, `payroll_imports`
+
+---
+
+### Phase 3.2 — Financial Analysis Center + KPI Engine
+بعد توفّر بيانات Trial Balance:
+
+- توليد تلقائي من ميزان المراجعة (ربط بـ `chart_of_accounts`):
+  - الميزانية العمومية (Balance Sheet)
+  - قائمة الدخل (Income Statement)
+  - قائمة التدفقات النقدية (Cash Flow — indirect method)
+  - قائمة التغيرات في حقوق الملكية
+- مقارنات: شهري / ربعي / سنوي + Variance + Trend
+- محرّك KPI شامل (Liquidity / Profitability / Leverage / Efficiency / Investment Ratios)
+- صفحات: `/financials/balance-sheet`, `/financials/income-statement`, `/financials/cash-flow`, `/financials/equity`, `/financials/kpis`
+
+---
+
+### Phase 3.3 — Customer + Vendor Intelligence Centers
+- `/intelligence/customers`: Top, High-Risk, DSO, Concentration, Collection Forecast, Risk Scoring, Sector Analysis
+- `/intelligence/vendors`: Top, Outstanding, Upcoming Payments, Dependency, Exposure
+- محرّكات حساب (server functions) + خوارزميات Risk Scoring بسيطة
+
+---
+
+### Phase 3.4 — Project Control + Cost Control Centers
+- `/control/projects`: Health Score, Budget vs Actual, Cost/Revenue Variance, Retention Analysis, "تتطلب انتباه الإدارة"
+- `/control/costs`: تصنيف Labor / Equipment / Materials / G&A مع Budget vs Actual + Variance% + Alerts + Efficiency
+
+---
+
+### Phase 3.5 — Treasury & Executive Command Center + Reports Hub
+- `/treasury`: تطوير الموجود — Available/Restricted Cash, Bank Balances, 12-Month Cash Flow Matrix
+- `/executive`: CEO/CFO Dashboard مع Drill-Down
+- `/reports`: مركز التقارير الموحّد (PDF / Excel / Print / Share / Schedule / Save as Template)
+  - PDF: `jspdf` + `jspdf-autotable` (موجود)
+  - Excel: `xlsx` (موجود)
+  - Schedule + Share: مرحلة لاحقة (placeholder UI الآن)
+
+---
+
+### Phase 3.6 — i18n التوسعة (5 لغات) + AI Copilot Enhancement
+- توسعة `i18n.tsx` الحالي من (ar/en) إلى **5 لغات**: ar, en, ur, hi, fr
+- RTL تلقائي لـ ar + ur
+- ترجمة جميع المسميات في Dashboards / Reports / AI prompts
+- تحسين `FloatingCopilot` الموجود ليفهم Context صفحة + يجيب بلغة المستخدم
+- إضافة Executive Summary Generator (AI) في الـ Executive Dashboard
+
+---
+
+## التنفيذ الآن: Phase 3.1 فقط
+
+في هذه الرسالة سأنفّذ **Phase 3.1 (Smart Import Center)** بالكامل:
+
+1. **Migration**: إنشاء `import_templates`, `import_batches`, `import_errors`, `budgets`, `budget_lines` مع GRANTs + RLS
+2. **Server Function**: `detectImportType()` عبر Lovable AI (Gemini 3 Flash) لكشف نوع الملف ومطابقة الأعمدة تلقائياً
+3. **Server Function**: `validateImportBatch()` لكشف duplicates / missing / inconsistencies
+4. **UI**: 
+   - `/imports` — لوحة مركزية (Cards لكل نوع + تاريخ الاستيرادات + إحصائيات)
+   - `/imports/upload` — Wizard موحّد (Upload → AI Detect → Map → Validate → Preview → Import)
+   - `/imports/templates` — حفظ/استرجاع قوالب
+   - `/imports/$id` — تفاصيل batch مع أخطاء وتفاصيل
+5. **تكامل**: Sidebar entry + ربط بالـ AppShell
+
+بعد اعتماد 3.1 ننتقل لـ 3.2 وهكذا.
+
+## ملف الإخراج
+سأولّد `/mnt/documents/phase-3-roadmap.md` يحتوي الخارطة الكاملة + حالة كل جولة.
+
+---
+
+## هل توافق على البدء بـ Phase 3.1 الآن؟
+إذا أردت ترتيباً مختلفاً (مثلاً: البدء بـ Financial Analysis قبل Import Center)، أخبرني قبل التنفيذ.
