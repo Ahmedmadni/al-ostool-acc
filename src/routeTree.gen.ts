@@ -22,6 +22,7 @@ import { Route as AuthenticatedSuppliersIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authenticated/reports/index'
 import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authenticated/projects/index'
 import { Route as AuthenticatedInvoicesIndexRouteImport } from './routes/_authenticated/invoices/index'
+import { Route as AuthenticatedIntelligenceIndexRouteImport } from './routes/_authenticated/intelligence/index'
 import { Route as AuthenticatedInsightsIndexRouteImport } from './routes/_authenticated/insights/index'
 import { Route as AuthenticatedImportsIndexRouteImport } from './routes/_authenticated/imports/index'
 import { Route as AuthenticatedFixedAssetsIndexRouteImport } from './routes/_authenticated/fixed-assets/index'
@@ -36,6 +37,8 @@ import { Route as AuthenticatedVendorsAgingRouteImport } from './routes/_authent
 import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authenticated/settings/users'
 import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
 import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
+import { Route as AuthenticatedIntelligenceVendorsRouteImport } from './routes/_authenticated/intelligence/vendors'
+import { Route as AuthenticatedIntelligenceCustomersRouteImport } from './routes/_authenticated/intelligence/customers'
 import { Route as AuthenticatedImportsUploadRouteImport } from './routes/_authenticated/imports/upload'
 import { Route as AuthenticatedFinancialsKpisRouteImport } from './routes/_authenticated/financials/kpis'
 import { Route as AuthenticatedFinancialsIncomeStatementRouteImport } from './routes/_authenticated/financials/income-statement'
@@ -119,6 +122,12 @@ const AuthenticatedInvoicesIndexRoute =
     path: '/invoices/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedIntelligenceIndexRoute =
+  AuthenticatedIntelligenceIndexRouteImport.update({
+    id: '/intelligence/',
+    path: '/intelligence/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedInsightsIndexRoute =
   AuthenticatedInsightsIndexRouteImport.update({
     id: '/insights/',
@@ -200,6 +209,18 @@ const AuthenticatedProjectsProgressRoute =
     path: '/projects/progress',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedIntelligenceVendorsRoute =
+  AuthenticatedIntelligenceVendorsRouteImport.update({
+    id: '/intelligence/vendors',
+    path: '/intelligence/vendors',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedIntelligenceCustomersRoute =
+  AuthenticatedIntelligenceCustomersRouteImport.update({
+    id: '/intelligence/customers',
+    path: '/intelligence/customers',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedImportsUploadRoute =
   AuthenticatedImportsUploadRouteImport.update({
     id: '/imports/upload',
@@ -274,6 +295,8 @@ export interface FileRoutesByFullPath {
   '/financials/income-statement': typeof AuthenticatedFinancialsIncomeStatementRoute
   '/financials/kpis': typeof AuthenticatedFinancialsKpisRoute
   '/imports/upload': typeof AuthenticatedImportsUploadRoute
+  '/intelligence/customers': typeof AuthenticatedIntelligenceCustomersRoute
+  '/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
@@ -288,6 +311,7 @@ export interface FileRoutesByFullPath {
   '/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
   '/imports/': typeof AuthenticatedImportsIndexRoute
   '/insights/': typeof AuthenticatedInsightsIndexRoute
+  '/intelligence/': typeof AuthenticatedIntelligenceIndexRoute
   '/invoices/': typeof AuthenticatedInvoicesIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
   '/reports/': typeof AuthenticatedReportsIndexRoute
@@ -312,6 +336,8 @@ export interface FileRoutesByTo {
   '/financials/income-statement': typeof AuthenticatedFinancialsIncomeStatementRoute
   '/financials/kpis': typeof AuthenticatedFinancialsKpisRoute
   '/imports/upload': typeof AuthenticatedImportsUploadRoute
+  '/intelligence/customers': typeof AuthenticatedIntelligenceCustomersRoute
+  '/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
@@ -326,6 +352,7 @@ export interface FileRoutesByTo {
   '/fixed-assets': typeof AuthenticatedFixedAssetsIndexRoute
   '/imports': typeof AuthenticatedImportsIndexRoute
   '/insights': typeof AuthenticatedInsightsIndexRoute
+  '/intelligence': typeof AuthenticatedIntelligenceIndexRoute
   '/invoices': typeof AuthenticatedInvoicesIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
   '/reports': typeof AuthenticatedReportsIndexRoute
@@ -352,6 +379,8 @@ export interface FileRoutesById {
   '/_authenticated/financials/income-statement': typeof AuthenticatedFinancialsIncomeStatementRoute
   '/_authenticated/financials/kpis': typeof AuthenticatedFinancialsKpisRoute
   '/_authenticated/imports/upload': typeof AuthenticatedImportsUploadRoute
+  '/_authenticated/intelligence/customers': typeof AuthenticatedIntelligenceCustomersRoute
+  '/_authenticated/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
   '/_authenticated/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/_authenticated/settings/users': typeof AuthenticatedSettingsUsersRoute
@@ -366,6 +395,7 @@ export interface FileRoutesById {
   '/_authenticated/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
   '/_authenticated/imports/': typeof AuthenticatedImportsIndexRoute
   '/_authenticated/insights/': typeof AuthenticatedInsightsIndexRoute
+  '/_authenticated/intelligence/': typeof AuthenticatedIntelligenceIndexRoute
   '/_authenticated/invoices/': typeof AuthenticatedInvoicesIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
   '/_authenticated/reports/': typeof AuthenticatedReportsIndexRoute
@@ -392,6 +422,8 @@ export interface FileRouteTypes {
     | '/financials/income-statement'
     | '/financials/kpis'
     | '/imports/upload'
+    | '/intelligence/customers'
+    | '/intelligence/vendors'
     | '/projects/progress'
     | '/receivables/aging'
     | '/settings/users'
@@ -406,6 +438,7 @@ export interface FileRouteTypes {
     | '/fixed-assets/'
     | '/imports/'
     | '/insights/'
+    | '/intelligence/'
     | '/invoices/'
     | '/projects/'
     | '/reports/'
@@ -430,6 +463,8 @@ export interface FileRouteTypes {
     | '/financials/income-statement'
     | '/financials/kpis'
     | '/imports/upload'
+    | '/intelligence/customers'
+    | '/intelligence/vendors'
     | '/projects/progress'
     | '/receivables/aging'
     | '/settings/users'
@@ -444,6 +479,7 @@ export interface FileRouteTypes {
     | '/fixed-assets'
     | '/imports'
     | '/insights'
+    | '/intelligence'
     | '/invoices'
     | '/projects'
     | '/reports'
@@ -469,6 +505,8 @@ export interface FileRouteTypes {
     | '/_authenticated/financials/income-statement'
     | '/_authenticated/financials/kpis'
     | '/_authenticated/imports/upload'
+    | '/_authenticated/intelligence/customers'
+    | '/_authenticated/intelligence/vendors'
     | '/_authenticated/projects/progress'
     | '/_authenticated/receivables/aging'
     | '/_authenticated/settings/users'
@@ -483,6 +521,7 @@ export interface FileRouteTypes {
     | '/_authenticated/fixed-assets/'
     | '/_authenticated/imports/'
     | '/_authenticated/insights/'
+    | '/_authenticated/intelligence/'
     | '/_authenticated/invoices/'
     | '/_authenticated/projects/'
     | '/_authenticated/reports/'
@@ -594,6 +633,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInvoicesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/intelligence/': {
+      id: '/_authenticated/intelligence/'
+      path: '/intelligence'
+      fullPath: '/intelligence/'
+      preLoaderRoute: typeof AuthenticatedIntelligenceIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/insights/': {
       id: '/_authenticated/insights/'
       path: '/insights'
@@ -692,6 +738,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsProgressRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/intelligence/vendors': {
+      id: '/_authenticated/intelligence/vendors'
+      path: '/intelligence/vendors'
+      fullPath: '/intelligence/vendors'
+      preLoaderRoute: typeof AuthenticatedIntelligenceVendorsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/intelligence/customers': {
+      id: '/_authenticated/intelligence/customers'
+      path: '/intelligence/customers'
+      fullPath: '/intelligence/customers'
+      preLoaderRoute: typeof AuthenticatedIntelligenceCustomersRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/imports/upload': {
       id: '/_authenticated/imports/upload'
       path: '/imports/upload'
@@ -776,6 +836,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFinancialsIncomeStatementRoute: typeof AuthenticatedFinancialsIncomeStatementRoute
   AuthenticatedFinancialsKpisRoute: typeof AuthenticatedFinancialsKpisRoute
   AuthenticatedImportsUploadRoute: typeof AuthenticatedImportsUploadRoute
+  AuthenticatedIntelligenceCustomersRoute: typeof AuthenticatedIntelligenceCustomersRoute
+  AuthenticatedIntelligenceVendorsRoute: typeof AuthenticatedIntelligenceVendorsRoute
   AuthenticatedProjectsProgressRoute: typeof AuthenticatedProjectsProgressRoute
   AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
   AuthenticatedSettingsUsersRoute: typeof AuthenticatedSettingsUsersRoute
@@ -790,6 +852,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFixedAssetsIndexRoute: typeof AuthenticatedFixedAssetsIndexRoute
   AuthenticatedImportsIndexRoute: typeof AuthenticatedImportsIndexRoute
   AuthenticatedInsightsIndexRoute: typeof AuthenticatedInsightsIndexRoute
+  AuthenticatedIntelligenceIndexRoute: typeof AuthenticatedIntelligenceIndexRoute
   AuthenticatedInvoicesIndexRoute: typeof AuthenticatedInvoicesIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedReportsIndexRoute: typeof AuthenticatedReportsIndexRoute
@@ -815,6 +878,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedFinancialsIncomeStatementRoute,
   AuthenticatedFinancialsKpisRoute: AuthenticatedFinancialsKpisRoute,
   AuthenticatedImportsUploadRoute: AuthenticatedImportsUploadRoute,
+  AuthenticatedIntelligenceCustomersRoute:
+    AuthenticatedIntelligenceCustomersRoute,
+  AuthenticatedIntelligenceVendorsRoute: AuthenticatedIntelligenceVendorsRoute,
   AuthenticatedProjectsProgressRoute: AuthenticatedProjectsProgressRoute,
   AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
   AuthenticatedSettingsUsersRoute: AuthenticatedSettingsUsersRoute,
@@ -830,6 +896,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFixedAssetsIndexRoute: AuthenticatedFixedAssetsIndexRoute,
   AuthenticatedImportsIndexRoute: AuthenticatedImportsIndexRoute,
   AuthenticatedInsightsIndexRoute: AuthenticatedInsightsIndexRoute,
+  AuthenticatedIntelligenceIndexRoute: AuthenticatedIntelligenceIndexRoute,
   AuthenticatedInvoicesIndexRoute: AuthenticatedInvoicesIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedReportsIndexRoute: AuthenticatedReportsIndexRoute,
@@ -854,3 +921,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
