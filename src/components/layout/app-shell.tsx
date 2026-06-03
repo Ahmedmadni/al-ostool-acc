@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, FolderKanban, Receipt, FileText, BarChart3,
   Calculator, FileBarChart, Sparkles, Calendar, Settings, LogOut,
   Moon, Sun, Bell, Search, ChevronLeft, TrendingUp, Activity,
-  Truck, Building2, Landmark, Layers, MessageSquare,
+  Truck, Building2, Landmark, Layers, MessageSquare, Trophy, Waves, Vault,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "@/components/theme-provider";
@@ -18,9 +18,13 @@ import { toast } from "sonner";
 
 const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { to: "/dashboard", label: "لوحة التحكم التنفيذية", icon: LayoutDashboard },
+  { to: "/treasury", label: "الخزينة والمركز النقدي", icon: Vault },
+  { to: "/cash-flow/matrix", label: "مصفوفة التدفقات النقدية", icon: Waves },
   { to: "/customers", label: "العملاء والذمم", icon: Users },
-  { to: "/vendors", label: "الموردين والذمم الدائنة", icon: Truck },
-  { to: "/receivables/aging", label: "أعمار الديون", icon: TrendingUp },
+  { to: "/receivables/aging", label: "أعمار ذمم العملاء", icon: TrendingUp },
+  { to: "/vendors", label: "الموردين (بيانات أساسية)", icon: Truck },
+  { to: "/vendors/aging", label: "أعمار ذمم الموردين", icon: TrendingUp },
+  { to: "/vendors/top", label: "أعلى الموردين والاعتمادية", icon: Trophy },
   { to: "/suppliers", label: "أرصدة موردين (تحليلية)", icon: Truck },
   { to: "/costs", label: "ذكاء التكاليف", icon: Layers },
   { to: "/fixed-assets", label: "الأصول الثابتة", icon: Building2 },

@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedVendorsIndexRouteImport } from './routes/_authenticated/vendors/index'
 import { Route as AuthenticatedTrialBalanceIndexRouteImport } from './routes/_authenticated/trial-balance/index'
+import { Route as AuthenticatedTreasuryIndexRouteImport } from './routes/_authenticated/treasury/index'
 import { Route as AuthenticatedTaxToolsIndexRouteImport } from './routes/_authenticated/tax-tools/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedSuppliersIndexRouteImport } from './routes/_authenticated/suppliers/index'
@@ -28,11 +29,15 @@ import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedCostsIndexRouteImport } from './routes/_authenticated/costs/index'
 import { Route as AuthenticatedCopilotIndexRouteImport } from './routes/_authenticated/copilot/index'
 import { Route as AuthenticatedBanksIndexRouteImport } from './routes/_authenticated/banks/index'
+import { Route as AuthenticatedVendorsTopRouteImport } from './routes/_authenticated/vendors/top'
+import { Route as AuthenticatedVendorsAgingRouteImport } from './routes/_authenticated/vendors/aging'
 import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authenticated/settings/users'
 import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
 import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
 import { Route as AuthenticatedCustomersImportRouteImport } from './routes/_authenticated/customers/import'
 import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenticated/customers/$id'
+import { Route as AuthenticatedCashFlowMatrixRouteImport } from './routes/_authenticated/cash-flow/matrix'
+import { Route as AuthenticatedVendorsStatementIdRouteImport } from './routes/_authenticated/vendors/statement.$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -63,6 +68,12 @@ const AuthenticatedTrialBalanceIndexRoute =
   AuthenticatedTrialBalanceIndexRouteImport.update({
     id: '/trial-balance/',
     path: '/trial-balance/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedTreasuryIndexRoute =
+  AuthenticatedTreasuryIndexRouteImport.update({
+    id: '/treasury/',
+    path: '/treasury/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedTaxToolsIndexRoute =
@@ -140,6 +151,17 @@ const AuthenticatedBanksIndexRoute = AuthenticatedBanksIndexRouteImport.update({
   path: '/banks/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedVendorsTopRoute = AuthenticatedVendorsTopRouteImport.update({
+  id: '/vendors/top',
+  path: '/vendors/top',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedVendorsAgingRoute =
+  AuthenticatedVendorsAgingRouteImport.update({
+    id: '/vendors/aging',
+    path: '/vendors/aging',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSettingsUsersRoute =
   AuthenticatedSettingsUsersRouteImport.update({
     id: '/settings/users',
@@ -170,16 +192,31 @@ const AuthenticatedCustomersIdRoute =
     path: '/customers/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedCashFlowMatrixRoute =
+  AuthenticatedCashFlowMatrixRouteImport.update({
+    id: '/cash-flow/matrix',
+    path: '/cash-flow/matrix',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedVendorsStatementIdRoute =
+  AuthenticatedVendorsStatementIdRouteImport.update({
+    id: '/vendors/statement/$id',
+    path: '/vendors/statement/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers/import': typeof AuthenticatedCustomersImportRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
+  '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
+  '/vendors/top': typeof AuthenticatedVendorsTopRoute
   '/banks/': typeof AuthenticatedBanksIndexRoute
   '/copilot/': typeof AuthenticatedCopilotIndexRoute
   '/costs/': typeof AuthenticatedCostsIndexRoute
@@ -193,18 +230,23 @@ export interface FileRoutesByFullPath {
   '/suppliers/': typeof AuthenticatedSuppliersIndexRoute
   '/tasks/': typeof AuthenticatedTasksIndexRoute
   '/tax-tools/': typeof AuthenticatedTaxToolsIndexRoute
+  '/treasury/': typeof AuthenticatedTreasuryIndexRoute
   '/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors/': typeof AuthenticatedVendorsIndexRoute
+  '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers/import': typeof AuthenticatedCustomersImportRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
+  '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
+  '/vendors/top': typeof AuthenticatedVendorsTopRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
   '/copilot': typeof AuthenticatedCopilotIndexRoute
   '/costs': typeof AuthenticatedCostsIndexRoute
@@ -218,8 +260,10 @@ export interface FileRoutesByTo {
   '/suppliers': typeof AuthenticatedSuppliersIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/tax-tools': typeof AuthenticatedTaxToolsIndexRoute
+  '/treasury': typeof AuthenticatedTreasuryIndexRoute
   '/trial-balance': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors': typeof AuthenticatedVendorsIndexRoute
+  '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -227,11 +271,14 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/_authenticated/customers/import': typeof AuthenticatedCustomersImportRoute
   '/_authenticated/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/_authenticated/settings/users': typeof AuthenticatedSettingsUsersRoute
+  '/_authenticated/vendors/aging': typeof AuthenticatedVendorsAgingRoute
+  '/_authenticated/vendors/top': typeof AuthenticatedVendorsTopRoute
   '/_authenticated/banks/': typeof AuthenticatedBanksIndexRoute
   '/_authenticated/copilot/': typeof AuthenticatedCopilotIndexRoute
   '/_authenticated/costs/': typeof AuthenticatedCostsIndexRoute
@@ -245,8 +292,10 @@ export interface FileRoutesById {
   '/_authenticated/suppliers/': typeof AuthenticatedSuppliersIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/tax-tools/': typeof AuthenticatedTaxToolsIndexRoute
+  '/_authenticated/treasury/': typeof AuthenticatedTreasuryIndexRoute
   '/_authenticated/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/_authenticated/vendors/': typeof AuthenticatedVendorsIndexRoute
+  '/_authenticated/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -254,11 +303,14 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/dashboard'
+    | '/cash-flow/matrix'
     | '/customers/$id'
     | '/customers/import'
     | '/projects/progress'
     | '/receivables/aging'
     | '/settings/users'
+    | '/vendors/aging'
+    | '/vendors/top'
     | '/banks/'
     | '/copilot/'
     | '/costs/'
@@ -272,18 +324,23 @@ export interface FileRouteTypes {
     | '/suppliers/'
     | '/tasks/'
     | '/tax-tools/'
+    | '/treasury/'
     | '/trial-balance/'
     | '/vendors/'
+    | '/vendors/statement/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/dashboard'
+    | '/cash-flow/matrix'
     | '/customers/$id'
     | '/customers/import'
     | '/projects/progress'
     | '/receivables/aging'
     | '/settings/users'
+    | '/vendors/aging'
+    | '/vendors/top'
     | '/banks'
     | '/copilot'
     | '/costs'
@@ -297,19 +354,24 @@ export interface FileRouteTypes {
     | '/suppliers'
     | '/tasks'
     | '/tax-tools'
+    | '/treasury'
     | '/trial-balance'
     | '/vendors'
+    | '/vendors/statement/$id'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/login'
     | '/_authenticated/dashboard'
+    | '/_authenticated/cash-flow/matrix'
     | '/_authenticated/customers/$id'
     | '/_authenticated/customers/import'
     | '/_authenticated/projects/progress'
     | '/_authenticated/receivables/aging'
     | '/_authenticated/settings/users'
+    | '/_authenticated/vendors/aging'
+    | '/_authenticated/vendors/top'
     | '/_authenticated/banks/'
     | '/_authenticated/copilot/'
     | '/_authenticated/costs/'
@@ -323,8 +385,10 @@ export interface FileRouteTypes {
     | '/_authenticated/suppliers/'
     | '/_authenticated/tasks/'
     | '/_authenticated/tax-tools/'
+    | '/_authenticated/treasury/'
     | '/_authenticated/trial-balance/'
     | '/_authenticated/vendors/'
+    | '/_authenticated/vendors/statement/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -375,6 +439,13 @@ declare module '@tanstack/react-router' {
       path: '/trial-balance'
       fullPath: '/trial-balance/'
       preLoaderRoute: typeof AuthenticatedTrialBalanceIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/treasury/': {
+      id: '/_authenticated/treasury/'
+      path: '/treasury'
+      fullPath: '/treasury/'
+      preLoaderRoute: typeof AuthenticatedTreasuryIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/tax-tools/': {
@@ -468,6 +539,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBanksIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/vendors/top': {
+      id: '/_authenticated/vendors/top'
+      path: '/vendors/top'
+      fullPath: '/vendors/top'
+      preLoaderRoute: typeof AuthenticatedVendorsTopRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/vendors/aging': {
+      id: '/_authenticated/vendors/aging'
+      path: '/vendors/aging'
+      fullPath: '/vendors/aging'
+      preLoaderRoute: typeof AuthenticatedVendorsAgingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/settings/users': {
       id: '/_authenticated/settings/users'
       path: '/settings/users'
@@ -503,16 +588,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/cash-flow/matrix': {
+      id: '/_authenticated/cash-flow/matrix'
+      path: '/cash-flow/matrix'
+      fullPath: '/cash-flow/matrix'
+      preLoaderRoute: typeof AuthenticatedCashFlowMatrixRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/vendors/statement/$id': {
+      id: '/_authenticated/vendors/statement/$id'
+      path: '/vendors/statement/$id'
+      fullPath: '/vendors/statement/$id'
+      preLoaderRoute: typeof AuthenticatedVendorsStatementIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedCashFlowMatrixRoute: typeof AuthenticatedCashFlowMatrixRoute
   AuthenticatedCustomersIdRoute: typeof AuthenticatedCustomersIdRoute
   AuthenticatedCustomersImportRoute: typeof AuthenticatedCustomersImportRoute
   AuthenticatedProjectsProgressRoute: typeof AuthenticatedProjectsProgressRoute
   AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
   AuthenticatedSettingsUsersRoute: typeof AuthenticatedSettingsUsersRoute
+  AuthenticatedVendorsAgingRoute: typeof AuthenticatedVendorsAgingRoute
+  AuthenticatedVendorsTopRoute: typeof AuthenticatedVendorsTopRoute
   AuthenticatedBanksIndexRoute: typeof AuthenticatedBanksIndexRoute
   AuthenticatedCopilotIndexRoute: typeof AuthenticatedCopilotIndexRoute
   AuthenticatedCostsIndexRoute: typeof AuthenticatedCostsIndexRoute
@@ -526,17 +628,22 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSuppliersIndexRoute: typeof AuthenticatedSuppliersIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedTaxToolsIndexRoute: typeof AuthenticatedTaxToolsIndexRoute
+  AuthenticatedTreasuryIndexRoute: typeof AuthenticatedTreasuryIndexRoute
   AuthenticatedTrialBalanceIndexRoute: typeof AuthenticatedTrialBalanceIndexRoute
   AuthenticatedVendorsIndexRoute: typeof AuthenticatedVendorsIndexRoute
+  AuthenticatedVendorsStatementIdRoute: typeof AuthenticatedVendorsStatementIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedCashFlowMatrixRoute: AuthenticatedCashFlowMatrixRoute,
   AuthenticatedCustomersIdRoute: AuthenticatedCustomersIdRoute,
   AuthenticatedCustomersImportRoute: AuthenticatedCustomersImportRoute,
   AuthenticatedProjectsProgressRoute: AuthenticatedProjectsProgressRoute,
   AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
   AuthenticatedSettingsUsersRoute: AuthenticatedSettingsUsersRoute,
+  AuthenticatedVendorsAgingRoute: AuthenticatedVendorsAgingRoute,
+  AuthenticatedVendorsTopRoute: AuthenticatedVendorsTopRoute,
   AuthenticatedBanksIndexRoute: AuthenticatedBanksIndexRoute,
   AuthenticatedCopilotIndexRoute: AuthenticatedCopilotIndexRoute,
   AuthenticatedCostsIndexRoute: AuthenticatedCostsIndexRoute,
@@ -551,8 +658,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSuppliersIndexRoute: AuthenticatedSuppliersIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedTaxToolsIndexRoute: AuthenticatedTaxToolsIndexRoute,
+  AuthenticatedTreasuryIndexRoute: AuthenticatedTreasuryIndexRoute,
   AuthenticatedTrialBalanceIndexRoute: AuthenticatedTrialBalanceIndexRoute,
   AuthenticatedVendorsIndexRoute: AuthenticatedVendorsIndexRoute,
+  AuthenticatedVendorsStatementIdRoute: AuthenticatedVendorsStatementIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
