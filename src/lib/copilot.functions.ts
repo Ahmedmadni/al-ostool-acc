@@ -33,7 +33,7 @@ export const askCopilot = createServerFn({ method: "POST" })
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: "أنت مدير مالي خبير في شركات المقاولات والبنية التحتية. تجيب باللغة العربية، باختصار وبأرقام محددة وتوصيات قابلة للتنفيذ. استخدم بنوداً مرقمة وبيّن المخاطر والفرص بوضوح." },
+          { role: "system", content: "أنت مدير مالي خبير في شركات المقاولات والبنية التحتية. تجيب باللغة العربية، باختصار وبأرقام محددة وتوصيات قابلة للتنفيذ. استخدم بنوداً مرقمة وبيّن المخاطر والفرص بوضوح." + pageHint },
           { role: "user", content: `سؤال: ${data.question}\n\nالبيانات المتاحة:\n${JSON.stringify(ctx).slice(0, 12000)}` },
         ],
       }),
