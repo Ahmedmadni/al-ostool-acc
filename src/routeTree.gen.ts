@@ -35,6 +35,7 @@ import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedCostsIndexRouteImport } from './routes/_authenticated/costs/index'
 import { Route as AuthenticatedCopilotIndexRouteImport } from './routes/_authenticated/copilot/index'
 import { Route as AuthenticatedControlIndexRouteImport } from './routes/_authenticated/control/index'
+import { Route as AuthenticatedContractsIndexRouteImport } from './routes/_authenticated/contracts/index'
 import { Route as AuthenticatedBoardIndexRouteImport } from './routes/_authenticated/board/index'
 import { Route as AuthenticatedBanksIndexRouteImport } from './routes/_authenticated/banks/index'
 import { Route as AuthenticatedAlertsIndexRouteImport } from './routes/_authenticated/alerts/index'
@@ -208,6 +209,12 @@ const AuthenticatedControlIndexRoute =
     path: '/control/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedContractsIndexRoute =
+  AuthenticatedContractsIndexRouteImport.update({
+    id: '/contracts/',
+    path: '/contracts/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedBoardIndexRoute = AuthenticatedBoardIndexRouteImport.update({
   id: '/board/',
   path: '/board/',
@@ -370,6 +377,7 @@ export interface FileRoutesByFullPath {
   '/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/banks/': typeof AuthenticatedBanksIndexRoute
   '/board/': typeof AuthenticatedBoardIndexRoute
+  '/contracts/': typeof AuthenticatedContractsIndexRoute
   '/control/': typeof AuthenticatedControlIndexRoute
   '/copilot/': typeof AuthenticatedCopilotIndexRoute
   '/costs/': typeof AuthenticatedCostsIndexRoute
@@ -420,6 +428,7 @@ export interface FileRoutesByTo {
   '/alerts': typeof AuthenticatedAlertsIndexRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
   '/board': typeof AuthenticatedBoardIndexRoute
+  '/contracts': typeof AuthenticatedContractsIndexRoute
   '/control': typeof AuthenticatedControlIndexRoute
   '/copilot': typeof AuthenticatedCopilotIndexRoute
   '/costs': typeof AuthenticatedCostsIndexRoute
@@ -472,6 +481,7 @@ export interface FileRoutesById {
   '/_authenticated/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/_authenticated/banks/': typeof AuthenticatedBanksIndexRoute
   '/_authenticated/board/': typeof AuthenticatedBoardIndexRoute
+  '/_authenticated/contracts/': typeof AuthenticatedContractsIndexRoute
   '/_authenticated/control/': typeof AuthenticatedControlIndexRoute
   '/_authenticated/copilot/': typeof AuthenticatedCopilotIndexRoute
   '/_authenticated/costs/': typeof AuthenticatedCostsIndexRoute
@@ -524,6 +534,7 @@ export interface FileRouteTypes {
     | '/alerts/'
     | '/banks/'
     | '/board/'
+    | '/contracts/'
     | '/control/'
     | '/copilot/'
     | '/costs/'
@@ -574,6 +585,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/banks'
     | '/board'
+    | '/contracts'
     | '/control'
     | '/copilot'
     | '/costs'
@@ -625,6 +637,7 @@ export interface FileRouteTypes {
     | '/_authenticated/alerts/'
     | '/_authenticated/banks/'
     | '/_authenticated/board/'
+    | '/_authenticated/contracts/'
     | '/_authenticated/control/'
     | '/_authenticated/copilot/'
     | '/_authenticated/costs/'
@@ -840,6 +853,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedControlIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/contracts/': {
+      id: '/_authenticated/contracts/'
+      path: '/contracts'
+      fullPath: '/contracts/'
+      preLoaderRoute: typeof AuthenticatedContractsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/board/': {
       id: '/_authenticated/board/'
       path: '/board'
@@ -1028,6 +1048,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAlertsIndexRoute: typeof AuthenticatedAlertsIndexRoute
   AuthenticatedBanksIndexRoute: typeof AuthenticatedBanksIndexRoute
   AuthenticatedBoardIndexRoute: typeof AuthenticatedBoardIndexRoute
+  AuthenticatedContractsIndexRoute: typeof AuthenticatedContractsIndexRoute
   AuthenticatedControlIndexRoute: typeof AuthenticatedControlIndexRoute
   AuthenticatedCopilotIndexRoute: typeof AuthenticatedCopilotIndexRoute
   AuthenticatedCostsIndexRoute: typeof AuthenticatedCostsIndexRoute
@@ -1080,6 +1101,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAlertsIndexRoute: AuthenticatedAlertsIndexRoute,
   AuthenticatedBanksIndexRoute: AuthenticatedBanksIndexRoute,
   AuthenticatedBoardIndexRoute: AuthenticatedBoardIndexRoute,
+  AuthenticatedContractsIndexRoute: AuthenticatedContractsIndexRoute,
   AuthenticatedControlIndexRoute: AuthenticatedControlIndexRoute,
   AuthenticatedCopilotIndexRoute: AuthenticatedCopilotIndexRoute,
   AuthenticatedCostsIndexRoute: AuthenticatedCostsIndexRoute,
