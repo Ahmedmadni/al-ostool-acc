@@ -19,8 +19,10 @@ import { toast } from "sonner";
 
 const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { to: "/dashboard", label: "لوحة التحكم التنفيذية", icon: LayoutDashboard },
+  { to: "/executive", label: "مركز القيادة (CFO)", icon: Sparkles },
   { to: "/imports", label: "مركز الاستيراد الذكي", icon: Upload },
   { to: "/treasury", label: "الخزينة والمركز النقدي", icon: Vault },
+  { to: "/treasury/forecast", label: "توقعات السيولة (90 يوم)", icon: TrendingUp },
   { to: "/cash-flow/matrix", label: "مصفوفة التدفقات النقدية", icon: Waves },
   { to: "/customers", label: "العملاء والذمم", icon: Users },
   { to: "/intelligence/customers", label: "ذكاء العملاء", icon: Sparkles },
