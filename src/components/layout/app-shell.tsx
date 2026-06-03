@@ -36,7 +36,7 @@ const NAV: { to: string; label: string; icon: React.ComponentType<{ className?: 
   { to: "/financial-indicators", label: "المؤشرات المالية", icon: BarChart3 },
   { to: "/tax-tools", label: "أدوات الضريبة والزكاة", icon: Calculator },
   { to: "/reports", label: "مركز التقارير", icon: FileText },
-  { to: "/copilot", label: "المساعد المالي AI", icon: MessageSquare },
+  
   { to: "/insights", label: "تحليلات تنفيذية AI", icon: Sparkles },
   { to: "/tasks", label: "المهام والتقويم", icon: Calendar },
 ];
