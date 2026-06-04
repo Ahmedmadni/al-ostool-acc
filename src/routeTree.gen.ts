@@ -47,6 +47,7 @@ import { Route as AuthenticatedTreasuryForecastRouteImport } from './routes/_aut
 import { Route as AuthenticatedTasksTeamRouteImport } from './routes/_authenticated/tasks/team'
 import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authenticated/settings/users'
 import { Route as AuthenticatedSettingsRegionalRouteImport } from './routes/_authenticated/settings/regional'
+import { Route as AuthenticatedSettingsApprovalsRouteImport } from './routes/_authenticated/settings/approvals'
 import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
 import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
 import { Route as AuthenticatedIntelligenceVendorsRouteImport } from './routes/_authenticated/intelligence/vendors'
@@ -280,6 +281,12 @@ const AuthenticatedSettingsRegionalRoute =
     path: '/settings/regional',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedSettingsApprovalsRoute =
+  AuthenticatedSettingsApprovalsRouteImport.update({
+    id: '/settings/approvals',
+    path: '/settings/approvals',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedReceivablesAgingRoute =
   AuthenticatedReceivablesAgingRouteImport.update({
     id: '/receivables/aging',
@@ -397,6 +404,7 @@ export interface FileRoutesByFullPath {
   '/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
+  '/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
   '/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/tasks/team': typeof AuthenticatedTasksTeamRoute
@@ -452,6 +460,7 @@ export interface FileRoutesByTo {
   '/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
+  '/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
   '/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/tasks/team': typeof AuthenticatedTasksTeamRoute
@@ -509,6 +518,7 @@ export interface FileRoutesById {
   '/_authenticated/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
   '/_authenticated/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
+  '/_authenticated/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
   '/_authenticated/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/_authenticated/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/_authenticated/tasks/team': typeof AuthenticatedTasksTeamRoute
@@ -566,6 +576,7 @@ export interface FileRouteTypes {
     | '/intelligence/vendors'
     | '/projects/progress'
     | '/receivables/aging'
+    | '/settings/approvals'
     | '/settings/regional'
     | '/settings/users'
     | '/tasks/team'
@@ -621,6 +632,7 @@ export interface FileRouteTypes {
     | '/intelligence/vendors'
     | '/projects/progress'
     | '/receivables/aging'
+    | '/settings/approvals'
     | '/settings/regional'
     | '/settings/users'
     | '/tasks/team'
@@ -677,6 +689,7 @@ export interface FileRouteTypes {
     | '/_authenticated/intelligence/vendors'
     | '/_authenticated/projects/progress'
     | '/_authenticated/receivables/aging'
+    | '/_authenticated/settings/approvals'
     | '/_authenticated/settings/regional'
     | '/_authenticated/settings/users'
     | '/_authenticated/tasks/team'
@@ -987,6 +1000,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRegionalRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/settings/approvals': {
+      id: '/_authenticated/settings/approvals'
+      path: '/settings/approvals'
+      fullPath: '/settings/approvals'
+      preLoaderRoute: typeof AuthenticatedSettingsApprovalsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/receivables/aging': {
       id: '/_authenticated/receivables/aging'
       path: '/receivables/aging'
@@ -1120,6 +1140,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedIntelligenceVendorsRoute: typeof AuthenticatedIntelligenceVendorsRoute
   AuthenticatedProjectsProgressRoute: typeof AuthenticatedProjectsProgressRoute
   AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
+  AuthenticatedSettingsApprovalsRoute: typeof AuthenticatedSettingsApprovalsRoute
   AuthenticatedSettingsRegionalRoute: typeof AuthenticatedSettingsRegionalRoute
   AuthenticatedSettingsUsersRoute: typeof AuthenticatedSettingsUsersRoute
   AuthenticatedTasksTeamRoute: typeof AuthenticatedTasksTeamRoute
@@ -1177,6 +1198,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIntelligenceVendorsRoute: AuthenticatedIntelligenceVendorsRoute,
   AuthenticatedProjectsProgressRoute: AuthenticatedProjectsProgressRoute,
   AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
+  AuthenticatedSettingsApprovalsRoute: AuthenticatedSettingsApprovalsRoute,
   AuthenticatedSettingsRegionalRoute: AuthenticatedSettingsRegionalRoute,
   AuthenticatedSettingsUsersRoute: AuthenticatedSettingsUsersRoute,
   AuthenticatedTasksTeamRoute: AuthenticatedTasksTeamRoute,
