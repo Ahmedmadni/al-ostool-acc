@@ -101,12 +101,6 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: "tax", label: "الضريبة والزكاة", icon: Calculator,
-    links: [
-      { to: "/tax-tools", label: "إقرارات الزكاة وضريبة القيمة المضافة" },
-    ],
-  },
-  {
     key: "reports", label: "التقارير والاستيراد", icon: FileText,
     links: [
       { to: "/reports", label: "مركز التقارير" },
@@ -114,16 +108,21 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: "tools", label: "الأدوات والإعدادات", icon: Settings,
+    key: "tasks", label: "المهام والتقويم", icon: ClipboardList,
     links: [
       { to: "/tasks", label: "المهام والتقويم" },
       { to: "/tasks/team", label: "أداء الفريق (المهام)" },
-      { to: "/notes", label: "ملاحظاتي الشخصية" },
+    ],
+  },
+  {
+    key: "tools", label: "الأدوات المحاسبية", icon: Calculator,
+    links: [
+      { to: "/tax-tools", label: "إقرارات الزكاة وضريبة القيمة المضافة" },
       { to: "/templates", label: "مصمم القوالب" },
-      { to: "/settings/regional", label: "الإعدادات الإقليمية" },
     ],
   },
 ];
+
 
 const STORAGE_KEY = "nav-open-groups";
 
@@ -149,6 +148,19 @@ export function AppShell({ children }: { children: ReactNode }) {
     return null;
   }, [path]);
 
+  const settingsGroup: NavGroup = useMemo(() => ({
+    key: "settings", label: "الإعدادات", icon: Settings,
+    links: [
+      { to: "/settings/regional", label: "الإعدادات الإقليمية" },
+      ...(isAdmin ? [
+        { to: "/settings/approvals", label: "اعتماد المستخدمين الجدد" },
+        { to: "/settings/users", label: "إدارة المستخدمين" },
+      ] : []),
+    ],
+  }), [isAdmin]);
+
+  const allGroups = useMemo(() => [...GROUPS, settingsGroup], [settingsGroup]);
+
   const [openMap, setOpenMap] = useState<Record<string, boolean>>(loadOpen);
   useEffect(() => {
     if (activeGroupKey && !openMap[activeGroupKey]) {
@@ -158,6 +170,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(openMap)); } catch {}
   }, [openMap]);
+
 
   const toggleGroup = (k: string) => setOpenMap((m) => ({ ...m, [k]: !m[k] }));
 
@@ -179,7 +192,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
 
         <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
-          {GROUPS.map((group) => {
+          {allGroups.map((group) => {
             const Icon = group.icon;
             const open = openMap[group.key] ?? group.key === activeGroupKey;
             const groupActive = group.key === activeGroupKey;
@@ -222,38 +235,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
             );
           })}
-          <Link
-            to="/account"
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm mt-4 ${
-              path.startsWith("/account") ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold" : "hover:bg-sidebar-accent"
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>حسابي</span>
-          </Link>
-          {isAdmin && (
-            <>
-              <Link
-                to="/settings/approvals"
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm ${
-                  path.startsWith("/settings/approvals") ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold" : "hover:bg-sidebar-accent"
-                }`}
-              >
-                <ShieldCheck className="w-4 h-4" />
-                <span>اعتماد المستخدمين الجدد</span>
-              </Link>
-              <Link
-                to="/settings/users"
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm ${
-                  path.startsWith("/settings/users") ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold" : "hover:bg-sidebar-accent"
-                }`}
-              >
-                <Settings className="w-4 h-4" />
-                <span>إدارة المستخدمين</span>
-              </Link>
-            </>
-          )}
         </nav>
+
 
         <div className="p-3 border-t border-sidebar-border">
           <div className="text-xs text-sidebar-foreground/70 mb-1 truncate">{user?.email}</div>
@@ -288,9 +271,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             </DropdownMenuContent>
           </DropdownMenu>
           <NotificationsBell />
+          <Button variant="ghost" size="icon" asChild title="ملاحظاتي الشخصية">
+            <Link to="/notes"><FileText className="w-5 h-5" /></Link>
+          </Button>
+          <Button variant="ghost" size="icon" asChild title="حسابي">
+            <Link to="/account"><Users className="w-5 h-5" /></Link>
+          </Button>
           <Button variant="ghost" size="icon" onClick={toggle} title="تبديل الوضع">
             {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
+
         </header>
 
         <main className="flex-1 p-6 overflow-x-hidden">{children}</main>
