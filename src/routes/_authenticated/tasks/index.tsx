@@ -364,7 +364,9 @@ function TaskCard({
         </div>
       </div>
 
-      <div className="font-semibold mb-1">{t.title}</div>
+      <Link to="/tasks/$id" params={{ id: t.id }} className="block">
+        <div className="font-semibold mb-1 hover:text-primary">{t.title}</div>
+      </Link>
       {t.description && <div className="text-sm text-muted-foreground mb-2 line-clamp-2">{t.description}</div>}
 
       {/* Checklist */}
