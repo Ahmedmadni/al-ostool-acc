@@ -113,9 +113,11 @@ function Page() {
 
   return (
     <div>
-      <PageHeader title="إدارة المستخدمين والصلاحيات" description="تعديل الأرقام الوظيفية، الأدوار، والحالات">
-        <Button onClick={() => setOpen(true)} className="gap-2"><Plus className="w-4 h-4" />مستخدم جديد</Button>
-      </PageHeader>
+      <PageHeader
+        title="إدارة المستخدمين والصلاحيات"
+        description="تعديل الأرقام الوظيفية، الأدوار، والحالات"
+        actions={<Button onClick={() => setOpen(true)} className="gap-2"><Plus className="w-4 h-4" />مستخدم جديد</Button>}
+      />
 
       <Card>
         <Table>
