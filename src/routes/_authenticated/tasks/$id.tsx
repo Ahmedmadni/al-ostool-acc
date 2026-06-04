@@ -447,9 +447,14 @@ function Page() {
                     req={r}
                     canDecide={isCreator || isAdmin}
                     profileById={profileById}
-                    onDecided={() => { refetchRequests(); qc.invalidateQueries({ queryKey: ["task", id] }); }}
+                    onDecided={() => {
+                      refetchRequests();
+                      qc.invalidateQueries({ queryKey: ["task", id] });
+                      promptApproval();
+                    }}
                   />
                 ))}
+
               </div>
             </Card>
           )}
