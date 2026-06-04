@@ -2132,6 +2132,79 @@ export type Database = {
         }
         Relationships: []
       }
+      task_assignees: {
+        Row: {
+          created_at: string
+          id: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_assignees_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_checklist_items: {
+        Row: {
+          created_at: string
+          done_at: string | null
+          done_by: string | null
+          id: string
+          is_done: boolean
+          order_index: number
+          task_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          done_at?: string | null
+          done_by?: string | null
+          id?: string
+          is_done?: boolean
+          order_index?: number
+          task_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          done_at?: string | null
+          done_by?: string | null
+          id?: string
+          is_done?: boolean
+          order_index?: number
+          task_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_checklist_items_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           assigned_to: string | null
@@ -2139,15 +2212,19 @@ export type Database = {
           created_at: string
           created_by: string | null
           customer_id: string | null
+          department_id: string | null
           description: string | null
           due_date: string | null
           id: string
+          is_group_task: boolean
           priority: string | null
           project_id: string | null
           status: Database["public"]["Enums"]["task_status"] | null
           title: string
           type: Database["public"]["Enums"]["task_type"] | null
           updated_at: string
+          visibility: string
+          visible_to_user_ids: string[]
         }
         Insert: {
           assigned_to?: string | null
@@ -2155,15 +2232,19 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           customer_id?: string | null
+          department_id?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
+          is_group_task?: boolean
           priority?: string | null
           project_id?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title: string
           type?: Database["public"]["Enums"]["task_type"] | null
           updated_at?: string
+          visibility?: string
+          visible_to_user_ids?: string[]
         }
         Update: {
           assigned_to?: string | null
@@ -2171,15 +2252,19 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           customer_id?: string | null
+          department_id?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
+          is_group_task?: boolean
           priority?: string | null
           project_id?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title?: string
           type?: Database["public"]["Enums"]["task_type"] | null
           updated_at?: string
+          visibility?: string
+          visible_to_user_ids?: string[]
         }
         Relationships: [
           {
@@ -2187,6 +2272,13 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
             referencedColumns: ["id"]
           },
           {
@@ -2465,7 +2557,16 @@ export type Database = {
         | "delayed"
       purchase_invoice_status: "draft" | "received" | "due" | "overdue" | "paid"
       task_status: "pending" | "in_progress" | "done" | "cancelled"
-      task_type: "meeting" | "visit" | "call" | "collection_reminder" | "other"
+      task_type:
+        | "meeting"
+        | "visit"
+        | "call"
+        | "collection_reminder"
+        | "other"
+        | "vendor_followup"
+        | "contract_review"
+        | "audit"
+        | "report"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2640,7 +2741,17 @@ export const Constants = {
       project_status: ["new", "in_progress", "on_hold", "completed", "delayed"],
       purchase_invoice_status: ["draft", "received", "due", "overdue", "paid"],
       task_status: ["pending", "in_progress", "done", "cancelled"],
-      task_type: ["meeting", "visit", "call", "collection_reminder", "other"],
+      task_type: [
+        "meeting",
+        "visit",
+        "call",
+        "collection_reminder",
+        "other",
+        "vendor_followup",
+        "contract_review",
+        "audit",
+        "report",
+      ],
     },
   },
 } as const
