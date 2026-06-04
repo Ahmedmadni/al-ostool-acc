@@ -161,8 +161,16 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const allGroups = useMemo(() => [...GROUPS, settingsGroup], [settingsGroup]);
 
+  const [openMap, setOpenMap] = useState<Record<string, boolean>>(loadOpen);
+  useEffect(() => {
+    if (activeGroupKey && !openMap[activeGroupKey]) {
+      setOpenMap((m) => ({ ...m, [activeGroupKey]: true }));
+    }
+  }, [activeGroupKey]); // eslint-disable-line
+  useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(openMap)); } catch {}
   }, [openMap]);
+
 
   const toggleGroup = (k: string) => setOpenMap((m) => ({ ...m, [k]: !m[k] }));
 
