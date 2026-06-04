@@ -252,6 +252,21 @@ function Page() {
             <Progress value={progress} className="h-2" />
           </div>
         )}
+
+        {/* Manager-approved completion percentage */}
+        <div className="mt-4 p-3 rounded-md border bg-muted/30">
+          <div className="flex items-center justify-between mb-1 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1"><Star className="w-3 h-3" /> نسبة الإنجاز المعتمدة من المدير</span>
+            <span className="font-bold">
+              {task.completion_percentage != null ? `${task.completion_percentage}%` : "— لم تُعتمد بعد"}
+            </span>
+          </div>
+          <Progress value={task.completion_percentage ?? 0} className="h-2" />
+          {task.completion_approved_at && (
+            <div className="text-[10px] text-muted-foreground mt-1">آخر اعتماد: {fmtDate(task.completion_approved_at)}</div>
+          )}
+        </div>
+
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
