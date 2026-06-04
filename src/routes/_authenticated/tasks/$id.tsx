@@ -109,6 +109,12 @@ function Page() {
   const [requestKind, setRequestKind] = useState<"reschedule" | "reassign">("reschedule");
   const [completionOpen, setCompletionOpen] = useState(false);
   const [evalOpen, setEvalOpen] = useState(false);
+  const [approvalOpen, setApprovalOpen] = useState(false);
+
+  // Open the manager's progress-approval screen automatically after any
+  // dialog/action that should prompt them to confirm a completion %.
+  const promptApproval = () => { if (isCreator || isAdmin) setApprovalOpen(true); };
+
 
   if (isLoading) {
     return <div className="p-10 text-center text-muted-foreground">جاري التحميل...</div>;
@@ -246,6 +252,21 @@ function Page() {
             <Progress value={progress} className="h-2" />
           </div>
         )}
+
+        {/* Manager-approved completion percentage */}
+        <div className="mt-4 p-3 rounded-md border bg-muted/30">
+          <div className="flex items-center justify-between mb-1 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1"><Star className="w-3 h-3" /> نسبة الإنجاز المعتمدة من المدير</span>
+            <span className="font-bold">
+              {task.completion_percentage != null ? `${task.completion_percentage}%` : "— لم تُعتمد بعد"}
+            </span>
+          </div>
+          <Progress value={task.completion_percentage ?? 0} className="h-2" />
+          {task.completion_approved_at && (
+            <div className="text-[10px] text-muted-foreground mt-1">آخر اعتماد: {fmtDate(task.completion_approved_at)}</div>
+          )}
+        </div>
+
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -375,6 +396,24 @@ function Page() {
             </Card>
           )}
 
+          {/* Manager-only: approve completion percentage at any time */}
+          {(isCreator || isAdmin) && (
+            <Card className="p-4 border-primary/40">
+              <div className="font-semibold mb-2 flex items-center gap-2">
+                <Star className="w-4 h-4 text-primary" /> اعتماد نسبة الإنجاز
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                تظهر هذه الشاشة تلقائيًا بعد كل إجراء حواري (طلب، إنهاء…) ليعتمد المدير النسبة الحالية.
+              </p>
+              <Button className="w-full" variant="outline" onClick={() => setApprovalOpen(true)}>
+                {task.completion_percentage != null
+                  ? `تحديث النسبة المعتمدة (${task.completion_percentage}%)`
+                  : "اعتماد نسبة إنجاز"}
+              </Button>
+            </Card>
+          )}
+
+
           {/* Evaluation */}
           {isDone && isCreator && !task.rating && (
             <Card className="p-4 border-warning bg-warning/5">
@@ -408,9 +447,14 @@ function Page() {
                     req={r}
                     canDecide={isCreator || isAdmin}
                     profileById={profileById}
-                    onDecided={() => { refetchRequests(); qc.invalidateQueries({ queryKey: ["task", id] }); }}
+                    onDecided={() => {
+                      refetchRequests();
+                      qc.invalidateQueries({ queryKey: ["task", id] });
+                      promptApproval();
+                    }}
                   />
                 ))}
+
               </div>
             </Card>
           )}
@@ -448,6 +492,7 @@ function Page() {
           setCompletionOpen(false);
           qc.invalidateQueries({ queryKey: ["task", id] });
           qc.invalidateQueries({ queryKey: ["tasks"] });
+          promptApproval();
         }}
       />
       <EvaluationDialog
@@ -460,9 +505,22 @@ function Page() {
           qc.invalidateQueries({ queryKey: ["task", id] });
         }}
       />
+      <ProgressApprovalDialog
+        open={approvalOpen}
+        onOpenChange={setApprovalOpen}
+        taskId={id}
+        userId={user?.id ?? ""}
+        currentValue={task.completion_percentage ?? 0}
+        onSaved={() => {
+          setApprovalOpen(false);
+          qc.invalidateQueries({ queryKey: ["task", id] });
+          qc.invalidateQueries({ queryKey: ["all-tasks-team"] });
+        }}
+      />
     </div>
   );
 }
+
 
 function RequestRow({ req, canDecide, profileById, onDecided }: any) {
   const [note, setNote] = useState("");
@@ -654,6 +712,64 @@ function EvaluationDialog({ open, onOpenChange, taskId, userId, onSaved }: any) 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>إلغاء</Button>
           <Button onClick={save}>حفظ التقييم</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ProgressApprovalDialog({ open, onOpenChange, taskId, userId, currentValue, onSaved }: any) {
+  const [percentage, setPercentage] = useState<number>(currentValue ?? 0);
+  const [note, setNote] = useState("");
+  useEffect(() => { setPercentage(currentValue ?? 0); }, [currentValue, open]);
+
+  const save = async () => {
+    const { error } = await (supabase as any).from("tasks").update({
+      completion_percentage: percentage,
+      completion_approval_note: note || null,
+      completion_approved_by: userId,
+      completion_approved_at: new Date().toISOString(),
+    }).eq("id", taskId);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`تم اعتماد نسبة الإنجاز: ${percentage}%`);
+    setNote("");
+    onSaved();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent dir="rtl">
+        <DialogHeader>
+          <DialogTitle>اعتماد نسبة إنجاز المهمة</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            بعد المناقشة، اعتمد النسبة التي ترى أنها تعكس الإنجاز الفعلي للموظف في هذه المهمة.
+            هذه النسبة هي ما يظهر في صفحة أداء الفريق.
+          </p>
+          <div>
+            <Label>
+              النسبة المعتمدة:{" "}
+              <span className="text-2xl font-bold text-primary mr-2">{percentage}%</span>
+            </Label>
+            <input
+              type="range" min={0} max={100} step={5} value={percentage}
+              onChange={(e) => setPercentage(parseInt(e.target.value))}
+              className="w-full mt-2"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
+              <span>0%</span><span>50%</span><span>100%</span>
+            </div>
+          </div>
+          <div>
+            <Label>ملاحظة (اختياري)</Label>
+            <Textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3}
+              placeholder="مثلاً: تم إنجاز الجزء الأكبر، ينقص فقط التوثيق…" />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>لاحقًا</Button>
+          <Button onClick={save}>اعتماد النسبة</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
