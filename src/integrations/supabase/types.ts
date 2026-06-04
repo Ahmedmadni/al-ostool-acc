@@ -1522,6 +1522,33 @@ export type Database = {
           },
         ]
       }
+      job_titles: {
+        Row: {
+          code: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name_ar: string
+          name_en: string | null
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name_ar: string
+          name_en?: string | null
+        }
+        Update: {
+          code?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name_ar?: string
+          name_en?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -1700,30 +1727,66 @@ export type Database = {
       }
       profiles: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           avatar_url: string | null
           created_at: string
+          department_id: string | null
           email: string | null
+          employee_id: string | null
           full_name: string | null
           id: string
+          job_title_id: string | null
+          phone: string | null
+          status: string
           updated_at: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           avatar_url?: string | null
           created_at?: string
+          department_id?: string | null
           email?: string | null
+          employee_id?: string | null
           full_name?: string | null
           id: string
+          job_title_id?: string | null
+          phone?: string | null
+          status?: string
           updated_at?: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           avatar_url?: string | null
           created_at?: string
+          department_id?: string | null
           email?: string | null
+          employee_id?: string | null
           full_name?: string | null
           id?: string
+          job_title_id?: string | null
+          phone?: string | null
+          status?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_job_title_id_fkey"
+            columns: ["job_title_id"]
+            isOneToOne: false
+            referencedRelation: "job_titles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_milestones: {
         Row: {
