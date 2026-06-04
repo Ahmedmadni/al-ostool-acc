@@ -717,3 +717,61 @@ function EvaluationDialog({ open, onOpenChange, taskId, userId, onSaved }: any) 
     </Dialog>
   );
 }
+
+function ProgressApprovalDialog({ open, onOpenChange, taskId, userId, currentValue, onSaved }: any) {
+  const [percentage, setPercentage] = useState<number>(currentValue ?? 0);
+  const [note, setNote] = useState("");
+  useEffect(() => { setPercentage(currentValue ?? 0); }, [currentValue, open]);
+
+  const save = async () => {
+    const { error } = await (supabase as any).from("tasks").update({
+      completion_percentage: percentage,
+      completion_approval_note: note || null,
+      completion_approved_by: userId,
+      completion_approved_at: new Date().toISOString(),
+    }).eq("id", taskId);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`تم اعتماد نسبة الإنجاز: ${percentage}%`);
+    setNote("");
+    onSaved();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent dir="rtl">
+        <DialogHeader>
+          <DialogTitle>اعتماد نسبة إنجاز المهمة</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            بعد المناقشة، اعتمد النسبة التي ترى أنها تعكس الإنجاز الفعلي للموظف في هذه المهمة.
+            هذه النسبة هي ما يظهر في صفحة أداء الفريق.
+          </p>
+          <div>
+            <Label>
+              النسبة المعتمدة:{" "}
+              <span className="text-2xl font-bold text-primary mr-2">{percentage}%</span>
+            </Label>
+            <input
+              type="range" min={0} max={100} step={5} value={percentage}
+              onChange={(e) => setPercentage(parseInt(e.target.value))}
+              className="w-full mt-2"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
+              <span>0%</span><span>50%</span><span>100%</span>
+            </div>
+          </div>
+          <div>
+            <Label>ملاحظة (اختياري)</Label>
+            <Textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3}
+              placeholder="مثلاً: تم إنجاز الجزء الأكبر، ينقص فقط التوثيق…" />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>لاحقًا</Button>
+          <Button onClick={save}>اعتماد النسبة</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
