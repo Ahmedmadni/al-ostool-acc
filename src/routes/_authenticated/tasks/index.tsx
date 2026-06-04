@@ -309,7 +309,7 @@ function Page() {
 
       <NewTaskDialog
         open={open}
-        onOpenChange={(o) => { setOpen(o); if (!o) setForm(emptyForm()); }}
+        onOpenChange={(o: boolean) => { setOpen(o); if (!o) setForm(emptyForm()); }}
         form={form}
         setForm={setForm}
         profiles={profiles}
