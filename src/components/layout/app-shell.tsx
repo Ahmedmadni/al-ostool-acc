@@ -3,7 +3,7 @@ import { type ReactNode, useState, useEffect, useMemo } from "react";
 import {
   LayoutDashboard, Users, FolderKanban, Receipt, FileText, BarChart3,
   Calculator, FileBarChart, Sparkles, Calendar, Settings, LogOut,
-  Moon, Sun, Bell, Search, ChevronLeft, ChevronDown, TrendingUp, Activity,
+  Moon, Sun, Search, ChevronLeft, ChevronDown, TrendingUp, Activity,
   Truck, Building2, Landmark, Layers, Trophy, Waves, Vault, Upload,
   Scale, PieChart, Bell as BellIcon, Telescope, GitBranch, ClipboardList, ShieldCheck,
 } from "lucide-react";
@@ -17,6 +17,7 @@ import { useI18n, LANGS, type Lang } from "@/lib/i18n";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { NotificationsBell } from "@/components/notifications/notifications-bell";
 import logo from "@/assets/logo.ico";
 import { toast } from "sonner";
 
