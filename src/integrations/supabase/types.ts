@@ -2601,7 +2601,7 @@ export type Database = {
         | "completed"
         | "delayed"
       purchase_invoice_status: "draft" | "received" | "due" | "overdue" | "paid"
-      task_status: "pending" | "in_progress" | "done" | "cancelled"
+      task_status: "pending" | "in_progress" | "done" | "cancelled" | "overdue"
       task_type:
         | "meeting"
         | "visit"
@@ -2785,7 +2785,7 @@ export const Constants = {
       po_status: ["draft", "approved", "partial", "received", "cancelled"],
       project_status: ["new", "in_progress", "on_hold", "completed", "delayed"],
       purchase_invoice_status: ["draft", "received", "due", "overdue", "paid"],
-      task_status: ["pending", "in_progress", "done", "cancelled"],
+      task_status: ["pending", "in_progress", "done", "cancelled", "overdue"],
       task_type: [
         "meeting",
         "visit",
