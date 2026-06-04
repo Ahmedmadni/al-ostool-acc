@@ -101,12 +101,6 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: "tax", label: "الضريبة والزكاة", icon: Calculator,
-    links: [
-      { to: "/tax-tools", label: "إقرارات الزكاة وضريبة القيمة المضافة" },
-    ],
-  },
-  {
     key: "reports", label: "التقارير والاستيراد", icon: FileText,
     links: [
       { to: "/reports", label: "مركز التقارير" },
@@ -114,16 +108,21 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: "tools", label: "الأدوات والإعدادات", icon: Settings,
+    key: "tasks", label: "المهام والتقويم", icon: ClipboardList,
     links: [
       { to: "/tasks", label: "المهام والتقويم" },
       { to: "/tasks/team", label: "أداء الفريق (المهام)" },
-      { to: "/notes", label: "ملاحظاتي الشخصية" },
+    ],
+  },
+  {
+    key: "tools", label: "الأدوات المحاسبية", icon: Calculator,
+    links: [
+      { to: "/tax-tools", label: "إقرارات الزكاة وضريبة القيمة المضافة" },
       { to: "/templates", label: "مصمم القوالب" },
-      { to: "/settings/regional", label: "الإعدادات الإقليمية" },
     ],
   },
 ];
+
 
 const STORAGE_KEY = "nav-open-groups";
 
