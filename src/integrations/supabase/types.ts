@@ -1556,6 +1556,8 @@ export type Database = {
           is_read: boolean | null
           link: string | null
           message: string | null
+          metadata: Json
+          read_at: string | null
           title: string
           type: string | null
           user_id: string | null
@@ -1566,6 +1568,8 @@ export type Database = {
           is_read?: boolean | null
           link?: string | null
           message?: string | null
+          metadata?: Json
+          read_at?: string | null
           title: string
           type?: string | null
           user_id?: string | null
@@ -1576,6 +1580,8 @@ export type Database = {
           is_read?: boolean | null
           link?: string | null
           message?: string | null
+          metadata?: Json
+          read_at?: string | null
           title?: string
           type?: string | null
           user_id?: string | null
@@ -2206,6 +2212,47 @@ export type Database = {
           },
         ]
       }
+      task_attachments: {
+        Row: {
+          created_at: string
+          file_name: string
+          id: string
+          mime_type: string | null
+          size_bytes: number | null
+          storage_path: string
+          task_id: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          id?: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          storage_path: string
+          task_id: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          id?: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          storage_path?: string
+          task_id?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_attachments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_checklist_items: {
         Row: {
           created_at: string
@@ -2250,10 +2297,100 @@ export type Database = {
           },
         ]
       }
+      task_comments: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_requests: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_note: string | null
+          id: string
+          proposed_assignee: string | null
+          proposed_due_date: string | null
+          reason: string | null
+          request_type: string
+          requested_by: string
+          status: string
+          task_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          id?: string
+          proposed_assignee?: string | null
+          proposed_due_date?: string | null
+          reason?: string | null
+          request_type: string
+          requested_by: string
+          status?: string
+          task_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          id?: string
+          proposed_assignee?: string | null
+          proposed_due_date?: string | null
+          reason?: string | null
+          request_type?: string
+          requested_by?: string
+          status?: string
+          task_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_requests_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           assigned_to: string | null
           completed_at: string | null
+          completion_note: string | null
+          completion_outcome: string | null
           created_at: string
           created_by: string | null
           customer_id: string | null
@@ -2264,6 +2401,10 @@ export type Database = {
           is_group_task: boolean
           priority: string | null
           project_id: string | null
+          rated_at: string | null
+          rated_by: string | null
+          rating: number | null
+          rating_note: string | null
           status: Database["public"]["Enums"]["task_status"] | null
           title: string
           type: Database["public"]["Enums"]["task_type"] | null
@@ -2274,6 +2415,8 @@ export type Database = {
         Insert: {
           assigned_to?: string | null
           completed_at?: string | null
+          completion_note?: string | null
+          completion_outcome?: string | null
           created_at?: string
           created_by?: string | null
           customer_id?: string | null
@@ -2284,6 +2427,10 @@ export type Database = {
           is_group_task?: boolean
           priority?: string | null
           project_id?: string | null
+          rated_at?: string | null
+          rated_by?: string | null
+          rating?: number | null
+          rating_note?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title: string
           type?: Database["public"]["Enums"]["task_type"] | null
@@ -2294,6 +2441,8 @@ export type Database = {
         Update: {
           assigned_to?: string | null
           completed_at?: string | null
+          completion_note?: string | null
+          completion_outcome?: string | null
           created_at?: string
           created_by?: string | null
           customer_id?: string | null
@@ -2304,6 +2453,10 @@ export type Database = {
           is_group_task?: boolean
           priority?: string | null
           project_id?: string | null
+          rated_at?: string | null
+          rated_by?: string | null
+          rating?: number | null
+          rating_note?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title?: string
           type?: Database["public"]["Enums"]["task_type"] | null
@@ -2534,6 +2687,17 @@ export type Database = {
       can_read_business: { Args: { _user_id: string }; Returns: boolean }
       can_write_finance: { Args: { _user_id: string }; Returns: boolean }
       can_write_operations: { Args: { _user_id: string }; Returns: boolean }
+      create_notification: {
+        Args: {
+          _link: string
+          _message: string
+          _metadata: Json
+          _title: string
+          _type: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2542,6 +2706,11 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_task_participant: {
+        Args: { _task_id: string; _user_id: string }
+        Returns: boolean
+      }
+      mark_overdue_tasks: { Args: never; Returns: number }
       user_has_any_role: {
         Args: { _roles: string[]; _user_id: string }
         Returns: boolean
