@@ -149,7 +149,7 @@ function TemplateDesigner() {
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">{tpl.description || "—"}</p>
               <div className="text-xs text-muted-foreground">
-                {tpl.fields.length} حقل · آخر تعديل {new Date(tpl.updatedAt).toLocaleDateString("ar")}
+                {tpl.fields.length} حقل · آخر تعديل {new Date(tpl.updatedAt).toLocaleDateString("ar-u-nu-latn")}
               </div>
               <div className="flex flex-wrap gap-1">
                 {tpl.fields.slice(0, 5).map((f) => (
@@ -177,13 +177,13 @@ function TemplateDesigner() {
             <div className="space-y-2 max-h-96 overflow-auto">
               <div className="rounded border p-3 bg-primary/5">
                 <div className="font-semibold">الإصدار الحالي v{historyOpen.version}</div>
-                <div className="text-xs text-muted-foreground">{new Date(historyOpen.updatedAt).toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground">{new Date(historyOpen.updatedAt).toLocaleString("en-US")}</div>
                 <div className="text-xs mt-1">{historyOpen.fields.length} حقل</div>
               </div>
               {historyOpen.history.slice().reverse().map((h) => (
                 <div key={h.version} className="rounded border p-3">
                   <div>v{h.version}</div>
-                  <div className="text-xs text-muted-foreground">{new Date(h.updatedAt).toLocaleString()}</div>
+                  <div className="text-xs text-muted-foreground">{new Date(h.updatedAt).toLocaleString("en-US")}</div>
                   <div className="text-xs mt-1">{h.fields.length} حقل</div>
                 </div>
               ))}

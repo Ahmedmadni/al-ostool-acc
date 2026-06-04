@@ -29,7 +29,7 @@ type MonthBucket = {
 function monthKey(d: Date) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; }
 function monthLabel(key: string) {
   const [y, m] = key.split("-").map(Number);
-  return new Intl.DateTimeFormat("ar-SA-u-ca-gregory", { month: "short", year: "numeric" }).format(new Date(y, m - 1, 1));
+  return new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn", { month: "short", year: "numeric" }).format(new Date(y, m - 1, 1));
 }
 
 function CashFlowMatrixPage() {
@@ -141,7 +141,7 @@ function CashFlowMatrixPage() {
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => new Intl.NumberFormat("ar", { notation: "compact" }).format(v)} />
+              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => new Intl.NumberFormat("ar-u-nu-latn", { notation: "compact" }).format(v)} />
               <Tooltip formatter={(v: number) => fmtSAR(v)} />
               <Legend />
               <ReferenceLine y={0} stroke="hsl(var(--muted-foreground))" />
