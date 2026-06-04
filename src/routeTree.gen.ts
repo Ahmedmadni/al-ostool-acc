@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedVendorsIndexRouteImport } from './routes/_authenticated/vendors/index'
 import { Route as AuthenticatedTrialBalanceIndexRouteImport } from './routes/_authenticated/trial-balance/index'
 import { Route as AuthenticatedTreasuryIndexRouteImport } from './routes/_authenticated/treasury/index'
@@ -46,6 +47,7 @@ import { Route as AuthenticatedTreasuryForecastRouteImport } from './routes/_aut
 import { Route as AuthenticatedTasksTeamRouteImport } from './routes/_authenticated/tasks/team'
 import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authenticated/settings/users'
 import { Route as AuthenticatedSettingsRegionalRouteImport } from './routes/_authenticated/settings/regional'
+import { Route as AuthenticatedSettingsApprovalsRouteImport } from './routes/_authenticated/settings/approvals'
 import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
 import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
 import { Route as AuthenticatedIntelligenceVendorsRouteImport } from './routes/_authenticated/intelligence/vendors'
@@ -80,6 +82,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedVendorsIndexRoute =
@@ -274,6 +281,12 @@ const AuthenticatedSettingsRegionalRoute =
     path: '/settings/regional',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedSettingsApprovalsRoute =
+  AuthenticatedSettingsApprovalsRouteImport.update({
+    id: '/settings/approvals',
+    path: '/settings/approvals',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedReceivablesAgingRoute =
   AuthenticatedReceivablesAgingRouteImport.update({
     id: '/receivables/aging',
@@ -374,6 +387,7 @@ const AuthenticatedVendorsStatementIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/account': typeof AuthenticatedAccountRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/control/costs': typeof AuthenticatedControlCostsRoute
@@ -390,6 +404,7 @@ export interface FileRoutesByFullPath {
   '/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
+  '/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
   '/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/tasks/team': typeof AuthenticatedTasksTeamRoute
@@ -428,6 +443,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/account': typeof AuthenticatedAccountRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/control/costs': typeof AuthenticatedControlCostsRoute
@@ -444,6 +460,7 @@ export interface FileRoutesByTo {
   '/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
+  '/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
   '/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/tasks/team': typeof AuthenticatedTasksTeamRoute
@@ -484,6 +501,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
+  '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/_authenticated/control/costs': typeof AuthenticatedControlCostsRoute
@@ -500,6 +518,7 @@ export interface FileRoutesById {
   '/_authenticated/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
   '/_authenticated/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
+  '/_authenticated/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
   '/_authenticated/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/_authenticated/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/_authenticated/tasks/team': typeof AuthenticatedTasksTeamRoute
@@ -540,6 +559,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/account'
     | '/dashboard'
     | '/cash-flow/matrix'
     | '/control/costs'
@@ -556,6 +576,7 @@ export interface FileRouteTypes {
     | '/intelligence/vendors'
     | '/projects/progress'
     | '/receivables/aging'
+    | '/settings/approvals'
     | '/settings/regional'
     | '/settings/users'
     | '/tasks/team'
@@ -594,6 +615,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/account'
     | '/dashboard'
     | '/cash-flow/matrix'
     | '/control/costs'
@@ -610,6 +632,7 @@ export interface FileRouteTypes {
     | '/intelligence/vendors'
     | '/projects/progress'
     | '/receivables/aging'
+    | '/settings/approvals'
     | '/settings/regional'
     | '/settings/users'
     | '/tasks/team'
@@ -649,6 +672,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/login'
+    | '/_authenticated/account'
     | '/_authenticated/dashboard'
     | '/_authenticated/cash-flow/matrix'
     | '/_authenticated/control/costs'
@@ -665,6 +689,7 @@ export interface FileRouteTypes {
     | '/_authenticated/intelligence/vendors'
     | '/_authenticated/projects/progress'
     | '/_authenticated/receivables/aging'
+    | '/_authenticated/settings/approvals'
     | '/_authenticated/settings/regional'
     | '/_authenticated/settings/users'
     | '/_authenticated/tasks/team'
@@ -735,6 +760,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/account': {
+      id: '/_authenticated/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AuthenticatedAccountRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/vendors/': {
@@ -968,6 +1000,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRegionalRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/settings/approvals': {
+      id: '/_authenticated/settings/approvals'
+      path: '/settings/approvals'
+      fullPath: '/settings/approvals'
+      preLoaderRoute: typeof AuthenticatedSettingsApprovalsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/receivables/aging': {
       id: '/_authenticated/receivables/aging'
       path: '/receivables/aging'
@@ -1084,6 +1123,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedCashFlowMatrixRoute: typeof AuthenticatedCashFlowMatrixRoute
   AuthenticatedControlCostsRoute: typeof AuthenticatedControlCostsRoute
@@ -1100,6 +1140,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedIntelligenceVendorsRoute: typeof AuthenticatedIntelligenceVendorsRoute
   AuthenticatedProjectsProgressRoute: typeof AuthenticatedProjectsProgressRoute
   AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
+  AuthenticatedSettingsApprovalsRoute: typeof AuthenticatedSettingsApprovalsRoute
   AuthenticatedSettingsRegionalRoute: typeof AuthenticatedSettingsRegionalRoute
   AuthenticatedSettingsUsersRoute: typeof AuthenticatedSettingsUsersRoute
   AuthenticatedTasksTeamRoute: typeof AuthenticatedTasksTeamRoute
@@ -1137,6 +1178,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedCashFlowMatrixRoute: AuthenticatedCashFlowMatrixRoute,
   AuthenticatedControlCostsRoute: AuthenticatedControlCostsRoute,
@@ -1156,6 +1198,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIntelligenceVendorsRoute: AuthenticatedIntelligenceVendorsRoute,
   AuthenticatedProjectsProgressRoute: AuthenticatedProjectsProgressRoute,
   AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
+  AuthenticatedSettingsApprovalsRoute: AuthenticatedSettingsApprovalsRoute,
   AuthenticatedSettingsRegionalRoute: AuthenticatedSettingsRegionalRoute,
   AuthenticatedSettingsUsersRoute: AuthenticatedSettingsUsersRoute,
   AuthenticatedTasksTeamRoute: AuthenticatedTasksTeamRoute,
@@ -1205,13 +1248,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
