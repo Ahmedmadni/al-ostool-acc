@@ -2697,6 +2697,10 @@ export type Database = {
     Functions: {
       can_delete_master: { Args: { _user_id: string }; Returns: boolean }
       can_read_business: { Args: { _user_id: string }; Returns: boolean }
+      can_read_sensitive_finance: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
       can_write_finance: { Args: { _user_id: string }; Returns: boolean }
       can_write_operations: { Args: { _user_id: string }; Returns: boolean }
       create_notification: {
