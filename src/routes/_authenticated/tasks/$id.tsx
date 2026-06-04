@@ -396,6 +396,24 @@ function Page() {
             </Card>
           )}
 
+          {/* Manager-only: approve completion percentage at any time */}
+          {(isCreator || isAdmin) && (
+            <Card className="p-4 border-primary/40">
+              <div className="font-semibold mb-2 flex items-center gap-2">
+                <Star className="w-4 h-4 text-primary" /> اعتماد نسبة الإنجاز
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                تظهر هذه الشاشة تلقائيًا بعد كل إجراء حواري (طلب، إنهاء…) ليعتمد المدير النسبة الحالية.
+              </p>
+              <Button className="w-full" variant="outline" onClick={() => setApprovalOpen(true)}>
+                {task.completion_percentage != null
+                  ? `تحديث النسبة المعتمدة (${task.completion_percentage}%)`
+                  : "اعتماد نسبة إنجاز"}
+              </Button>
+            </Card>
+          )}
+
+
           {/* Evaluation */}
           {isDone && isCreator && !task.rating && (
             <Card className="p-4 border-warning bg-warning/5">
