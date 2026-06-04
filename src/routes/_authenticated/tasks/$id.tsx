@@ -138,7 +138,7 @@ function Page() {
 
   const addComment = async () => {
     if (!newComment.trim() || !user) return;
-    const { error } = await supabase.from("task_comments").insert({
+    const { error } = await (supabase as any).from("task_comments").insert({
       task_id: id, author_id: user.id, body: newComment.trim(),
     });
     if (error) { toast.error(error.message); return; }
@@ -156,7 +156,7 @@ function Page() {
   };
 
   const startTask = async () => {
-    await supabase.from("tasks").update({ status: "in_progress" }).eq("id", id);
+    await (supabase as any).from("tasks").update({ status: "in_progress" }).eq("id", id);
     qc.invalidateQueries({ queryKey: ["task", id] });
   };
 
@@ -165,7 +165,7 @@ function Page() {
     const path = `${id}/${Date.now()}_${file.name}`;
     const { error: upErr } = await supabase.storage.from("task-attachments").upload(path, file);
     if (upErr) { toast.error(upErr.message); return; }
-    await supabase.from("task_attachments").insert({
+    await (supabase as any).from("task_attachments").insert({
       task_id: id, file_path: path, file_name: file.name, mime_type: file.type, size: file.size, uploaded_by: user.id,
     });
     refetchAttachments();
@@ -174,7 +174,7 @@ function Page() {
 
   const removeAttachment = async (att: any) => {
     await supabase.storage.from("task-attachments").remove([att.file_path]);
-    await supabase.from("task_attachments").delete().eq("id", att.id);
+    await (supabase as any).from("task_attachments").delete().eq("id", att.id);
     refetchAttachments();
   };
 
@@ -469,16 +469,16 @@ function RequestRow({ req, canDecide, profileById, onDecided }: any) {
   const requester = profileById[req.requested_by];
   const proposedUser = req.proposed_assignee_id ? profileById[req.proposed_assignee_id] : null;
   const decide = async (status: "approved" | "rejected") => {
-    const { error } = await supabase.from("task_requests").update({
+    const { error } = await (supabase as any).from("task_requests").update({
       status, decided_at: new Date().toISOString(), decision_note: note || null,
     }).eq("id", req.id);
     if (error) { toast.error(error.message); return; }
     // If approved, apply
     if (status === "approved") {
       if (req.kind === "reschedule" && req.proposed_date) {
-        await supabase.from("tasks").update({ due_date: req.proposed_date }).eq("id", req.task_id);
+        await (supabase as any).from("tasks").update({ due_date: req.proposed_date }).eq("id", req.task_id);
       } else if (req.kind === "reassign" && req.proposed_assignee_id) {
-        await supabase.from("tasks").update({ assigned_to: req.proposed_assignee_id }).eq("id", req.task_id);
+        await (supabase as any).from("tasks").update({ assigned_to: req.proposed_assignee_id }).eq("id", req.task_id);
       }
     }
     toast.success("تم تسجيل القرار");
@@ -519,7 +519,7 @@ function RequestDialog({ open, onOpenChange, kind, taskId, userId, profiles, cur
   const save = async () => {
     if (kind === "reschedule" && !proposedDate) { toast.error("اختر التاريخ المقترح"); return; }
     if (kind === "reassign" && !proposedAssignee) { toast.error("اختر الموظف المقترح"); return; }
-    const { error } = await supabase.from("task_requests").insert({
+    const { error } = await (supabase as any).from("task_requests").insert({
       task_id: taskId,
       requested_by: userId,
       kind,
@@ -578,7 +578,7 @@ function CompletionDialog({ open, onOpenChange, taskId, onSaved }: any) {
   const [outcome, setOutcome] = useState<"success" | "failed">("success");
   const save = async () => {
     if (!note.trim()) { toast.error("ملاحظة الإنهاء مطلوبة"); return; }
-    const { error } = await supabase.from("tasks").update({
+    const { error } = await (supabase as any).from("tasks").update({
       status: "done",
       completion_note: note.trim(),
       completion_outcome: outcome,
@@ -623,7 +623,7 @@ function EvaluationDialog({ open, onOpenChange, taskId, userId, onSaved }: any) 
   const [rating, setRating] = useState(8);
   const [note, setNote] = useState("");
   const save = async () => {
-    const { error } = await supabase.from("tasks").update({
+    const { error } = await (supabase as any).from("tasks").update({
       rating, rating_note: note || null, rated_by: userId, rated_at: new Date().toISOString(),
     }).eq("id", taskId);
     if (error) { toast.error(error.message); return; }

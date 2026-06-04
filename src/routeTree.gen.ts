@@ -24,6 +24,7 @@ import { Route as AuthenticatedSuppliersIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedScenariosIndexRouteImport } from './routes/_authenticated/scenarios/index'
 import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authenticated/reports/index'
 import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authenticated/projects/index'
+import { Route as AuthenticatedNotificationsIndexRouteImport } from './routes/_authenticated/notifications/index'
 import { Route as AuthenticatedNotesIndexRouteImport } from './routes/_authenticated/notes/index'
 import { Route as AuthenticatedInvoicesIndexRouteImport } from './routes/_authenticated/invoices/index'
 import { Route as AuthenticatedIntelligenceIndexRouteImport } from './routes/_authenticated/intelligence/index'
@@ -46,6 +47,7 @@ import { Route as AuthenticatedVendorsTopRouteImport } from './routes/_authentic
 import { Route as AuthenticatedVendorsAgingRouteImport } from './routes/_authenticated/vendors/aging'
 import { Route as AuthenticatedTreasuryForecastRouteImport } from './routes/_authenticated/treasury/forecast'
 import { Route as AuthenticatedTasksTeamRouteImport } from './routes/_authenticated/tasks/team'
+import { Route as AuthenticatedTasksIdRouteImport } from './routes/_authenticated/tasks/$id'
 import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authenticated/settings/users'
 import { Route as AuthenticatedSettingsRegionalRouteImport } from './routes/_authenticated/settings/regional'
 import { Route as AuthenticatedSettingsApprovalsRouteImport } from './routes/_authenticated/settings/approvals'
@@ -147,6 +149,12 @@ const AuthenticatedProjectsIndexRoute =
   AuthenticatedProjectsIndexRouteImport.update({
     id: '/projects/',
     path: '/projects/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNotificationsIndexRoute =
+  AuthenticatedNotificationsIndexRouteImport.update({
+    id: '/notifications/',
+    path: '/notifications/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedNotesIndexRoute = AuthenticatedNotesIndexRouteImport.update({
@@ -273,6 +281,11 @@ const AuthenticatedTreasuryForecastRoute =
 const AuthenticatedTasksTeamRoute = AuthenticatedTasksTeamRouteImport.update({
   id: '/tasks/team',
   path: '/tasks/team',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedTasksIdRoute = AuthenticatedTasksIdRouteImport.update({
+  id: '/tasks/$id',
+  path: '/tasks/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSettingsUsersRoute =
@@ -413,6 +426,7 @@ export interface FileRoutesByFullPath {
   '/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
   '/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
+  '/tasks/$id': typeof AuthenticatedTasksIdRoute
   '/tasks/team': typeof AuthenticatedTasksTeamRoute
   '/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
@@ -435,6 +449,7 @@ export interface FileRoutesByFullPath {
   '/intelligence/': typeof AuthenticatedIntelligenceIndexRoute
   '/invoices/': typeof AuthenticatedInvoicesIndexRoute
   '/notes/': typeof AuthenticatedNotesIndexRoute
+  '/notifications/': typeof AuthenticatedNotificationsIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
   '/reports/': typeof AuthenticatedReportsIndexRoute
   '/scenarios/': typeof AuthenticatedScenariosIndexRoute
@@ -470,6 +485,7 @@ export interface FileRoutesByTo {
   '/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
   '/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
+  '/tasks/$id': typeof AuthenticatedTasksIdRoute
   '/tasks/team': typeof AuthenticatedTasksTeamRoute
   '/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
@@ -492,6 +508,7 @@ export interface FileRoutesByTo {
   '/intelligence': typeof AuthenticatedIntelligenceIndexRoute
   '/invoices': typeof AuthenticatedInvoicesIndexRoute
   '/notes': typeof AuthenticatedNotesIndexRoute
+  '/notifications': typeof AuthenticatedNotificationsIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
   '/reports': typeof AuthenticatedReportsIndexRoute
   '/scenarios': typeof AuthenticatedScenariosIndexRoute
@@ -529,6 +546,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
   '/_authenticated/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/_authenticated/settings/users': typeof AuthenticatedSettingsUsersRoute
+  '/_authenticated/tasks/$id': typeof AuthenticatedTasksIdRoute
   '/_authenticated/tasks/team': typeof AuthenticatedTasksTeamRoute
   '/_authenticated/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/_authenticated/vendors/aging': typeof AuthenticatedVendorsAgingRoute
@@ -551,6 +569,7 @@ export interface FileRoutesById {
   '/_authenticated/intelligence/': typeof AuthenticatedIntelligenceIndexRoute
   '/_authenticated/invoices/': typeof AuthenticatedInvoicesIndexRoute
   '/_authenticated/notes/': typeof AuthenticatedNotesIndexRoute
+  '/_authenticated/notifications/': typeof AuthenticatedNotificationsIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
   '/_authenticated/reports/': typeof AuthenticatedReportsIndexRoute
   '/_authenticated/scenarios/': typeof AuthenticatedScenariosIndexRoute
@@ -588,6 +607,7 @@ export interface FileRouteTypes {
     | '/settings/approvals'
     | '/settings/regional'
     | '/settings/users'
+    | '/tasks/$id'
     | '/tasks/team'
     | '/treasury/forecast'
     | '/vendors/aging'
@@ -610,6 +630,7 @@ export interface FileRouteTypes {
     | '/intelligence/'
     | '/invoices/'
     | '/notes/'
+    | '/notifications/'
     | '/projects/'
     | '/reports/'
     | '/scenarios/'
@@ -645,6 +666,7 @@ export interface FileRouteTypes {
     | '/settings/approvals'
     | '/settings/regional'
     | '/settings/users'
+    | '/tasks/$id'
     | '/tasks/team'
     | '/treasury/forecast'
     | '/vendors/aging'
@@ -667,6 +689,7 @@ export interface FileRouteTypes {
     | '/intelligence'
     | '/invoices'
     | '/notes'
+    | '/notifications'
     | '/projects'
     | '/reports'
     | '/scenarios'
@@ -703,6 +726,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/approvals'
     | '/_authenticated/settings/regional'
     | '/_authenticated/settings/users'
+    | '/_authenticated/tasks/$id'
     | '/_authenticated/tasks/team'
     | '/_authenticated/treasury/forecast'
     | '/_authenticated/vendors/aging'
@@ -725,6 +749,7 @@ export interface FileRouteTypes {
     | '/_authenticated/intelligence/'
     | '/_authenticated/invoices/'
     | '/_authenticated/notes/'
+    | '/_authenticated/notifications/'
     | '/_authenticated/projects/'
     | '/_authenticated/reports/'
     | '/_authenticated/scenarios/'
@@ -849,6 +874,13 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/projects/'
       preLoaderRoute: typeof AuthenticatedProjectsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/notifications/': {
+      id: '/_authenticated/notifications/'
+      path: '/notifications'
+      fullPath: '/notifications/'
+      preLoaderRoute: typeof AuthenticatedNotificationsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/notes/': {
@@ -1003,6 +1035,13 @@ declare module '@tanstack/react-router' {
       path: '/tasks/team'
       fullPath: '/tasks/team'
       preLoaderRoute: typeof AuthenticatedTasksTeamRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/tasks/$id': {
+      id: '/_authenticated/tasks/$id'
+      path: '/tasks/$id'
+      fullPath: '/tasks/$id'
+      preLoaderRoute: typeof AuthenticatedTasksIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/settings/users': {
@@ -1162,6 +1201,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSettingsApprovalsRoute: typeof AuthenticatedSettingsApprovalsRoute
   AuthenticatedSettingsRegionalRoute: typeof AuthenticatedSettingsRegionalRoute
   AuthenticatedSettingsUsersRoute: typeof AuthenticatedSettingsUsersRoute
+  AuthenticatedTasksIdRoute: typeof AuthenticatedTasksIdRoute
   AuthenticatedTasksTeamRoute: typeof AuthenticatedTasksTeamRoute
   AuthenticatedTreasuryForecastRoute: typeof AuthenticatedTreasuryForecastRoute
   AuthenticatedVendorsAgingRoute: typeof AuthenticatedVendorsAgingRoute
@@ -1184,6 +1224,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedIntelligenceIndexRoute: typeof AuthenticatedIntelligenceIndexRoute
   AuthenticatedInvoicesIndexRoute: typeof AuthenticatedInvoicesIndexRoute
   AuthenticatedNotesIndexRoute: typeof AuthenticatedNotesIndexRoute
+  AuthenticatedNotificationsIndexRoute: typeof AuthenticatedNotificationsIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedReportsIndexRoute: typeof AuthenticatedReportsIndexRoute
   AuthenticatedScenariosIndexRoute: typeof AuthenticatedScenariosIndexRoute
@@ -1221,6 +1262,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSettingsApprovalsRoute: AuthenticatedSettingsApprovalsRoute,
   AuthenticatedSettingsRegionalRoute: AuthenticatedSettingsRegionalRoute,
   AuthenticatedSettingsUsersRoute: AuthenticatedSettingsUsersRoute,
+  AuthenticatedTasksIdRoute: AuthenticatedTasksIdRoute,
   AuthenticatedTasksTeamRoute: AuthenticatedTasksTeamRoute,
   AuthenticatedTreasuryForecastRoute: AuthenticatedTreasuryForecastRoute,
   AuthenticatedVendorsAgingRoute: AuthenticatedVendorsAgingRoute,
@@ -1244,6 +1286,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIntelligenceIndexRoute: AuthenticatedIntelligenceIndexRoute,
   AuthenticatedInvoicesIndexRoute: AuthenticatedInvoicesIndexRoute,
   AuthenticatedNotesIndexRoute: AuthenticatedNotesIndexRoute,
+  AuthenticatedNotificationsIndexRoute: AuthenticatedNotificationsIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedReportsIndexRoute: AuthenticatedReportsIndexRoute,
   AuthenticatedScenariosIndexRoute: AuthenticatedScenariosIndexRoute,
@@ -1269,3 +1312,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
