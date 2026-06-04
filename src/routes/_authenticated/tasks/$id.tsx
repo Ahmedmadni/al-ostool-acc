@@ -109,6 +109,12 @@ function Page() {
   const [requestKind, setRequestKind] = useState<"reschedule" | "reassign">("reschedule");
   const [completionOpen, setCompletionOpen] = useState(false);
   const [evalOpen, setEvalOpen] = useState(false);
+  const [approvalOpen, setApprovalOpen] = useState(false);
+
+  // Open the manager's progress-approval screen automatically after any
+  // dialog/action that should prompt them to confirm a completion %.
+  const promptApproval = () => { if (isCreator || isAdmin) setApprovalOpen(true); };
+
 
   if (isLoading) {
     return <div className="p-10 text-center text-muted-foreground">جاري التحميل...</div>;
