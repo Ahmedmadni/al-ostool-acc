@@ -50,7 +50,18 @@ export const taskTypeLabel: Record<string, string> = {
   visit: "زيارة",
   call: "مكالمة",
   collection_reminder: "تذكير تحصيل",
+  vendor_followup: "متابعة مورّد",
+  contract_review: "مراجعة عقد",
+  audit: "تدقيق",
+  report: "تقرير",
   other: "أخرى",
+};
+
+export const taskVisibilityLabel: Record<string, string> = {
+  personal: "شخصية (للمكلَّف والمكلِّف فقط)",
+  manager_employee: "بين مدير وموظف",
+  department: "مشتركة بإدارة كاملة",
+  custom: "مخصصة لمستخدمين محددين",
 };
 
 export const taskStatusLabel: Record<string, string> = {
