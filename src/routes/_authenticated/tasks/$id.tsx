@@ -492,6 +492,7 @@ function Page() {
           setCompletionOpen(false);
           qc.invalidateQueries({ queryKey: ["task", id] });
           qc.invalidateQueries({ queryKey: ["tasks"] });
+          promptApproval();
         }}
       />
       <EvaluationDialog
@@ -504,9 +505,22 @@ function Page() {
           qc.invalidateQueries({ queryKey: ["task", id] });
         }}
       />
+      <ProgressApprovalDialog
+        open={approvalOpen}
+        onOpenChange={setApprovalOpen}
+        taskId={id}
+        userId={user?.id ?? ""}
+        currentValue={task.completion_percentage ?? 0}
+        onSaved={() => {
+          setApprovalOpen(false);
+          qc.invalidateQueries({ queryKey: ["task", id] });
+          qc.invalidateQueries({ queryKey: ["all-tasks-team"] });
+        }}
+      />
     </div>
   );
 }
+
 
 function RequestRow({ req, canDecide, profileById, onDecided }: any) {
   const [note, setNote] = useState("");
