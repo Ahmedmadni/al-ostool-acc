@@ -148,13 +148,19 @@ export function AppShell({ children }: { children: ReactNode }) {
     return null;
   }, [path]);
 
-  const [openMap, setOpenMap] = useState<Record<string, boolean>>(loadOpen);
-  useEffect(() => {
-    if (activeGroupKey && !openMap[activeGroupKey]) {
-      setOpenMap((m) => ({ ...m, [activeGroupKey]: true }));
-    }
-  }, [activeGroupKey]); // eslint-disable-line
-  useEffect(() => {
+  const settingsGroup: NavGroup = useMemo(() => ({
+    key: "settings", label: "الإعدادات", icon: Settings,
+    links: [
+      { to: "/settings/regional", label: "الإعدادات الإقليمية" },
+      ...(isAdmin ? [
+        { to: "/settings/approvals", label: "اعتماد المستخدمين الجدد" },
+        { to: "/settings/users", label: "إدارة المستخدمين" },
+      ] : []),
+    ],
+  }), [isAdmin]);
+
+  const allGroups = useMemo(() => [...GROUPS, settingsGroup], [settingsGroup]);
+
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(openMap)); } catch {}
   }, [openMap]);
 
