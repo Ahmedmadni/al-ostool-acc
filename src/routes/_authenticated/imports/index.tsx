@@ -59,7 +59,7 @@ function ImportCenter() {
         <KpiCard title="إجمالي عمليات الاستيراد" value={total} icon={History} color="primary" />
         <KpiCard title="عمليات ناجحة" value={completed} icon={CheckCircle2} color="success" />
         <KpiCard title="عمليات بأخطاء" value={failed} icon={AlertTriangle} color="destructive" />
-        <KpiCard title="إجمالي السجلات المستوردة" value={totalRows.toLocaleString("ar-SA")} icon={FileSpreadsheet} color="info" />
+        <KpiCard title="إجمالي السجلات المستوردة" value={totalRows.toLocaleString("ar-SA-u-nu-latn")} icon={FileSpreadsheet} color="info" />
       </div>
 
       <h2 className="text-lg font-bold mb-3">أنواع البيانات المدعومة</h2>
@@ -114,7 +114,7 @@ function ImportCenter() {
                   const srcLabel = SOURCES.find((s) => s.key === b.source_type)?.label ?? b.source_type;
                   return (
                     <tr key={b.id} className="border-t">
-                      <td className="px-3 py-2 whitespace-nowrap text-xs">{new Date(b.created_at).toLocaleString("ar-SA")}</td>
+                      <td className="px-3 py-2 whitespace-nowrap text-xs">{new Date(b.created_at).toLocaleString("ar-SA-u-nu-latn")}</td>
                       <td className="px-3 py-2">{srcLabel}</td>
                       <td className="px-3 py-2 text-xs text-muted-foreground truncate max-w-[200px]">{b.file_name ?? "—"}</td>
                       <td className="px-3 py-2 text-xs">{b.period ?? "—"}</td>

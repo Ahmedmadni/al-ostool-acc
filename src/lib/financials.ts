@@ -343,7 +343,7 @@ export function computeKpis(coa: CoaRow[], tb: TbRow[]): Kpi[] {
       name: "رأس المال العامل",
       category: "liquidity",
       value: currentAssets - currentLiab,
-      display: (currentAssets - currentLiab).toLocaleString("ar-SA"),
+      display: (currentAssets - currentLiab).toLocaleString("ar-SA-u-nu-latn"),
     },
   ];
 

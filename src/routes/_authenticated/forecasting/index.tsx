@@ -42,7 +42,7 @@ function SeriesChart({ title, history, forecast, color }: any) {
           <ComposedChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-            <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => new Intl.NumberFormat("ar", { notation: "compact" }).format(v)} />
+            <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => new Intl.NumberFormat("ar-u-nu-latn", { notation: "compact" }).format(v)} />
             <Tooltip formatter={(v: number) => v ? fmtSAR(v) : "—"} />
             <Legend />
             <Line type="monotone" dataKey="actual" name="فعلي" stroke={color} strokeWidth={2} />

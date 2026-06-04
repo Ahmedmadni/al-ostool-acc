@@ -98,7 +98,7 @@ function VendorAgingPage() {
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={chartData}>
               <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => new Intl.NumberFormat("ar").format(v)} />
+              <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => new Intl.NumberFormat("ar-u-nu-latn").format(v)} />
               <Tooltip formatter={(v: number) => fmtSAR(v)} />
               <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                 {chartData.map((d, i) => <Cell key={i} fill={d.color} />)}

@@ -89,7 +89,7 @@ function TopVendorsPage() {
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={top10} layout="vertical" margin={{ left: 100 }}>
-                <XAxis type="number" tick={{ fontSize: 11 }} tickFormatter={(v) => new Intl.NumberFormat("ar", { notation: "compact" }).format(v)} />
+                <XAxis type="number" tick={{ fontSize: 11 }} tickFormatter={(v) => new Intl.NumberFormat("ar-u-nu-latn", { notation: "compact" }).format(v)} />
                 <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={100} />
                 <Tooltip formatter={(v: number) => fmtSAR(v)} />
                 <Bar dataKey="purchased" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />

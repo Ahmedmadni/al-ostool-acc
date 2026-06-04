@@ -155,7 +155,7 @@ function TreasuryPage() {
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={banks}>
                   <XAxis dataKey="bank_name" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => new Intl.NumberFormat("ar", { notation: "compact" }).format(v)} />
+                  <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => new Intl.NumberFormat("ar-u-nu-latn", { notation: "compact" }).format(v)} />
                   <Tooltip formatter={(v: number) => fmtSAR(v)} />
                   <Bar dataKey="balance" fill="hsl(var(--info))" radius={[6, 6, 0, 0]} />
                 </BarChart>

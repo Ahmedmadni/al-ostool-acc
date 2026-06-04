@@ -136,7 +136,7 @@ function ForecastPage() {
             <AreaChart data={buckets}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="week" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => new Intl.NumberFormat("ar", { notation: "compact" }).format(v)} />
+              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => new Intl.NumberFormat("ar-u-nu-latn", { notation: "compact" }).format(v)} />
               <Tooltip formatter={(v: number) => fmtSAR(v)} />
               <ReferenceLine y={0} stroke="hsl(var(--destructive))" strokeDasharray="4 4" />
               <Area type="monotone" dataKey="cumulative" stroke="hsl(var(--primary))" fill="hsl(var(--primary)/0.2)" />
