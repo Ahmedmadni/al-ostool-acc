@@ -2389,8 +2389,12 @@ export type Database = {
         Row: {
           assigned_to: string | null
           completed_at: string | null
+          completion_approval_note: string | null
+          completion_approved_at: string | null
+          completion_approved_by: string | null
           completion_note: string | null
           completion_outcome: string | null
+          completion_percentage: number | null
           created_at: string
           created_by: string | null
           customer_id: string | null
@@ -2415,8 +2419,12 @@ export type Database = {
         Insert: {
           assigned_to?: string | null
           completed_at?: string | null
+          completion_approval_note?: string | null
+          completion_approved_at?: string | null
+          completion_approved_by?: string | null
           completion_note?: string | null
           completion_outcome?: string | null
+          completion_percentage?: number | null
           created_at?: string
           created_by?: string | null
           customer_id?: string | null
@@ -2441,8 +2449,12 @@ export type Database = {
         Update: {
           assigned_to?: string | null
           completed_at?: string | null
+          completion_approval_note?: string | null
+          completion_approved_at?: string | null
+          completion_approved_by?: string | null
           completion_note?: string | null
           completion_outcome?: string | null
+          completion_percentage?: number | null
           created_at?: string
           created_by?: string | null
           customer_id?: string | null
