@@ -24,6 +24,7 @@ import { Route as AuthenticatedSuppliersIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedScenariosIndexRouteImport } from './routes/_authenticated/scenarios/index'
 import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authenticated/reports/index'
 import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authenticated/projects/index'
+import { Route as AuthenticatedNotesIndexRouteImport } from './routes/_authenticated/notes/index'
 import { Route as AuthenticatedInvoicesIndexRouteImport } from './routes/_authenticated/invoices/index'
 import { Route as AuthenticatedIntelligenceIndexRouteImport } from './routes/_authenticated/intelligence/index'
 import { Route as AuthenticatedInsightsIndexRouteImport } from './routes/_authenticated/insights/index'
@@ -148,6 +149,11 @@ const AuthenticatedProjectsIndexRoute =
     path: '/projects/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedNotesIndexRoute = AuthenticatedNotesIndexRouteImport.update({
+  id: '/notes/',
+  path: '/notes/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedInvoicesIndexRoute =
   AuthenticatedInvoicesIndexRouteImport.update({
     id: '/invoices/',
@@ -428,6 +434,7 @@ export interface FileRoutesByFullPath {
   '/insights/': typeof AuthenticatedInsightsIndexRoute
   '/intelligence/': typeof AuthenticatedIntelligenceIndexRoute
   '/invoices/': typeof AuthenticatedInvoicesIndexRoute
+  '/notes/': typeof AuthenticatedNotesIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
   '/reports/': typeof AuthenticatedReportsIndexRoute
   '/scenarios/': typeof AuthenticatedScenariosIndexRoute
@@ -484,6 +491,7 @@ export interface FileRoutesByTo {
   '/insights': typeof AuthenticatedInsightsIndexRoute
   '/intelligence': typeof AuthenticatedIntelligenceIndexRoute
   '/invoices': typeof AuthenticatedInvoicesIndexRoute
+  '/notes': typeof AuthenticatedNotesIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
   '/reports': typeof AuthenticatedReportsIndexRoute
   '/scenarios': typeof AuthenticatedScenariosIndexRoute
@@ -542,6 +550,7 @@ export interface FileRoutesById {
   '/_authenticated/insights/': typeof AuthenticatedInsightsIndexRoute
   '/_authenticated/intelligence/': typeof AuthenticatedIntelligenceIndexRoute
   '/_authenticated/invoices/': typeof AuthenticatedInvoicesIndexRoute
+  '/_authenticated/notes/': typeof AuthenticatedNotesIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
   '/_authenticated/reports/': typeof AuthenticatedReportsIndexRoute
   '/_authenticated/scenarios/': typeof AuthenticatedScenariosIndexRoute
@@ -600,6 +609,7 @@ export interface FileRouteTypes {
     | '/insights/'
     | '/intelligence/'
     | '/invoices/'
+    | '/notes/'
     | '/projects/'
     | '/reports/'
     | '/scenarios/'
@@ -656,6 +666,7 @@ export interface FileRouteTypes {
     | '/insights'
     | '/intelligence'
     | '/invoices'
+    | '/notes'
     | '/projects'
     | '/reports'
     | '/scenarios'
@@ -713,6 +724,7 @@ export interface FileRouteTypes {
     | '/_authenticated/insights/'
     | '/_authenticated/intelligence/'
     | '/_authenticated/invoices/'
+    | '/_authenticated/notes/'
     | '/_authenticated/projects/'
     | '/_authenticated/reports/'
     | '/_authenticated/scenarios/'
@@ -837,6 +849,13 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/projects/'
       preLoaderRoute: typeof AuthenticatedProjectsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/notes/': {
+      id: '/_authenticated/notes/'
+      path: '/notes'
+      fullPath: '/notes/'
+      preLoaderRoute: typeof AuthenticatedNotesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/invoices/': {
@@ -1164,6 +1183,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedInsightsIndexRoute: typeof AuthenticatedInsightsIndexRoute
   AuthenticatedIntelligenceIndexRoute: typeof AuthenticatedIntelligenceIndexRoute
   AuthenticatedInvoicesIndexRoute: typeof AuthenticatedInvoicesIndexRoute
+  AuthenticatedNotesIndexRoute: typeof AuthenticatedNotesIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedReportsIndexRoute: typeof AuthenticatedReportsIndexRoute
   AuthenticatedScenariosIndexRoute: typeof AuthenticatedScenariosIndexRoute
@@ -1223,6 +1243,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedInsightsIndexRoute: AuthenticatedInsightsIndexRoute,
   AuthenticatedIntelligenceIndexRoute: AuthenticatedIntelligenceIndexRoute,
   AuthenticatedInvoicesIndexRoute: AuthenticatedInvoicesIndexRoute,
+  AuthenticatedNotesIndexRoute: AuthenticatedNotesIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedReportsIndexRoute: AuthenticatedReportsIndexRoute,
   AuthenticatedScenariosIndexRoute: AuthenticatedScenariosIndexRoute,
