@@ -287,9 +287,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="ghost" size="icon" title="Notifications">
-            <Bell className="w-5 h-5" />
-          </Button>
+          <NotificationsBell />
           <Button variant="ghost" size="icon" onClick={toggle} title="تبديل الوضع">
             {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
