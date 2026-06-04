@@ -1,29 +1,21 @@
-## المشكلة
+## خطة الاختبار
 
-**خطأ التعليقات:** الكود في `src/routes/_authenticated/tasks/$id.tsx` يستخدم عمود `author_id` بينما العمود الفعلي في جدول `task_comments` اسمه `user_id`.
+التحقق من أن سياسة `tasks_assignee_update` التي أضفناها تعمل كما هو متوقع، وأن زر «بدء العمل» يحدّث الحالة إلى `in_progress` للمُكلَّف فقط.
 
-**خطأ "بدء العمل":** سياسة الكتابة `rbac_write` على جدول `tasks` تتطلب أحد أدوار `can_write_operations` (admin/cfo/finance_manager/chief_accountant/accountant/project_manager/cost_controller). الموظف المُكلَّف الذي لا يملك أحد هذه الأدوار لا يستطيع تحديث حالة مهمته الخاصة.
+### الخطوات
 
-## الإصلاح
+1. **التحقق من وجود السياسة في قاعدة البيانات**
+   - استعلام `pg_policies` للتأكد من وجود `tasks_assignee_update` بصلاحية UPDATE وشرط `assigned_to = auth.uid() OR created_by = auth.uid()`.
 
-### 1. تصحيح اسم العمود في الواجهة
-في `src/routes/_authenticated/tasks/$id.tsx` استبدال `author_id` بـ `user_id` في:
-- الـ INSERT (السطر 148)
-- قراءة `c.author_id` عند عرض التعليقات (السطران 309، 310)
+2. **محاكاة المُكلَّف (assignee) بدون دور إداري**
+   - اختيار مهمة موجودة لها `assigned_to` لمستخدم لا يملك أي دور في `user_roles` (أو دور غير `can_write_operations`).
+   - تنفيذ `SET LOCAL role authenticated; SET LOCAL "request.jwt.claim.sub" = '<uid>';` ثم `UPDATE public.tasks SET status='in_progress' WHERE id='<task>'` والتأكد من نجاحه.
 
-### 2. ترحيل قاعدة البيانات (Migration)
-إضافة سياسات RLS تسمح للمُكلَّف ومنشئ المهمة بتحديث مهامهم:
+3. **محاكاة مستخدم غير مرتبط بالمهمة**
+   - تنفيذ نفس الـ UPDATE بـ uid مستخدم آخر غير المُكلَّف وغير المنشئ — يجب أن يُرجع 0 صفوف (RLS تمنع).
 
-```sql
--- السماح للمكلَّف بتحديث حالة/تقدم مهمته
-CREATE POLICY tasks_assignee_update ON public.tasks
-  FOR UPDATE TO authenticated
-  USING (assigned_to = auth.uid() OR created_by = auth.uid())
-  WITH CHECK (assigned_to = auth.uid() OR created_by = auth.uid());
-```
+4. **اختبار التراجع لحالة `pending`**
+   - التأكد أن المُكلَّف يستطيع أيضًا إعادة الحالة (نفس السياسة تغطي كل UPDATE).
 
-السياسة الحالية `rbac_write` تبقى للأدوار الإدارية. السياسات في PostgreSQL تعمل بمنطق OR، لذا الموظف العادي يستطيع تحديث مهامه فقط، والمدراء يحتفظون بصلاحيتهم الكاملة.
-
-## الملفات المتأثرة
-- تعديل: `src/routes/_authenticated/tasks/$id.tsx`
-- إنشاء: migration جديد لإضافة سياسة UPDATE للمكلَّف على `tasks`
+5. **النتيجة**
+   - تقرير قصير بنتائج كل خطوة وأي ملاحظات (مثلاً ما إذا كانت السياسة تسمح أيضًا للمُكلَّف بتعديل حقول حساسة مثل `rating` — وفي حال نعم نقترح تضييقها).
