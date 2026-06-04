@@ -306,8 +306,8 @@ function Page() {
                 <div className="text-sm text-muted-foreground text-center py-6">لا توجد تعليقات بعد</div>
               )}
               {comments.map((c: any) => {
-                const p = profileById[c.author_id];
-                const mine = c.author_id === user?.id;
+                const p = profileById[c.user_id];
+                const mine = c.user_id === user?.id;
                 return (
                   <div key={c.id} className={`p-3 rounded-md border ${mine ? "bg-primary/5 border-primary/20" : "bg-muted/40"}`}>
                     <div className="flex items-center justify-between mb-1">
