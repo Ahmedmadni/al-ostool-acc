@@ -49,11 +49,11 @@ function Page() {
   const { data: task, isLoading } = useQuery({
     queryKey: ["task", id],
     queryFn: async () =>
-      (await supabase
+      (await (supabase as any)
         .from("tasks")
         .select("*, customers(name), projects(name), task_assignees(user_id), task_checklist_items(id,title,is_done,order_index)")
         .eq("id", id)
-        .maybeSingle()).data,
+        .maybeSingle()).data as any,
   });
   const { data: profiles = [] } = useQuery({
     queryKey: ["profiles-min"],
