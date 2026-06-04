@@ -271,9 +271,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             </DropdownMenuContent>
           </DropdownMenu>
           <NotificationsBell />
+          <Button variant="ghost" size="icon" asChild title="ملاحظاتي الشخصية">
+            <Link to="/notes"><FileText className="w-5 h-5" /></Link>
+          </Button>
+          <Button variant="ghost" size="icon" asChild title="حسابي">
+            <Link to="/account"><Users className="w-5 h-5" /></Link>
+          </Button>
           <Button variant="ghost" size="icon" onClick={toggle} title="تبديل الوضع">
             {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
+
         </header>
 
         <main className="flex-1 p-6 overflow-x-hidden">{children}</main>
