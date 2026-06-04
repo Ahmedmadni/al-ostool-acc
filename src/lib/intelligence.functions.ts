@@ -430,17 +430,17 @@ export const alertCenter = createServerFn({ method: "POST" })
     const overdue = d.invoices.filter((i) => i.due_date && new Date(i.due_date) < now && i.status !== "paid")
       .reduce((s, i) => s + num(i.total_amount) - num(i.paid_amount), 0);
 
-    if (cash < ap * 0.5) alerts.push({ category: "treasury", priority: "critical", title: "نقص حاد في السيولة", detail: `النقد ${Math.round(cash).toLocaleString()} لا يغطي 50% من الذمم الدائنة`, link: "/treasury" });
+    if (cash < ap * 0.5) alerts.push({ category: "treasury", priority: "critical", title: "نقص حاد في السيولة", detail: `النقد ${Math.round(cash).toLocaleString("en-US")} لا يغطي 50% من الذمم الدائنة`, link: "/treasury" });
     else if (cash < ap) alerts.push({ category: "treasury", priority: "high", title: "ضغط على السيولة", detail: `النقد أقل من إجمالي الذمم الدائنة`, link: "/treasury" });
 
-    if (overdue > ar * 0.4) alerts.push({ category: "collection", priority: "critical", title: "تأخر تحصيل كبير", detail: `${Math.round(overdue).toLocaleString()} متأخر`, link: "/intelligence/customers" });
+    if (overdue > ar * 0.4) alerts.push({ category: "collection", priority: "critical", title: "تأخر تحصيل كبير", detail: `${Math.round(overdue).toLocaleString("en-US")} متأخر`, link: "/intelligence/customers" });
     else if (overdue > ar * 0.2) alerts.push({ category: "collection", priority: "high", title: "ارتفاع المتأخرات", detail: `${Math.round((overdue / Math.max(1, ar)) * 100)}% من الذمم متأخر`, link: "/intelligence/customers" });
 
     const delayed = d.projects.filter((p) => p.status === "delayed");
     for (const p of delayed.slice(0, 5)) alerts.push({ category: "project", priority: "high", title: `مشروع متأخر: ${p.name}`, detail: `الإنجاز ${p.progress_actual ?? 0}% مقابل المخطط ${p.progress_planned ?? 0}%`, link: "/control/projects" });
 
     const highRisk = d.customers.filter((c) => c.risk_level === "high");
-    for (const c of highRisk.slice(0, 5)) alerts.push({ category: "financial", priority: "medium", title: `عميل عالي المخاطر: ${c.name}`, detail: `الرصيد المستحق ${Math.round(num(c.total_outstanding)).toLocaleString()}`, link: "/intelligence/customers" });
+    for (const c of highRisk.slice(0, 5)) alerts.push({ category: "financial", priority: "medium", title: `عميل عالي المخاطر: ${c.name}`, detail: `الرصيد المستحق ${Math.round(num(c.total_outstanding)).toLocaleString("en-US")}`, link: "/intelligence/customers" });
 
     const totalContract = d.projects.reduce((s, p) => s + num(p.contract_value), 0);
     const totalCost = d.projects.reduce((s, p) => s + num(p.actual_cost), 0);
