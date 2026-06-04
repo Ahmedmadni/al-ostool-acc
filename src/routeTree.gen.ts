@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedVendorsIndexRouteImport } from './routes/_authenticated/vendors/index'
 import { Route as AuthenticatedTrialBalanceIndexRouteImport } from './routes/_authenticated/trial-balance/index'
 import { Route as AuthenticatedTreasuryIndexRouteImport } from './routes/_authenticated/treasury/index'
@@ -80,6 +81,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedVendorsIndexRoute =
@@ -374,6 +380,7 @@ const AuthenticatedVendorsStatementIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/account': typeof AuthenticatedAccountRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/control/costs': typeof AuthenticatedControlCostsRoute
@@ -428,6 +435,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/account': typeof AuthenticatedAccountRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/control/costs': typeof AuthenticatedControlCostsRoute
@@ -484,6 +492,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
+  '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/_authenticated/control/costs': typeof AuthenticatedControlCostsRoute
@@ -540,6 +549,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/account'
     | '/dashboard'
     | '/cash-flow/matrix'
     | '/control/costs'
@@ -594,6 +604,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/account'
     | '/dashboard'
     | '/cash-flow/matrix'
     | '/control/costs'
@@ -649,6 +660,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/login'
+    | '/_authenticated/account'
     | '/_authenticated/dashboard'
     | '/_authenticated/cash-flow/matrix'
     | '/_authenticated/control/costs'
@@ -735,6 +747,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/account': {
+      id: '/_authenticated/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AuthenticatedAccountRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/vendors/': {
@@ -1084,6 +1103,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedCashFlowMatrixRoute: typeof AuthenticatedCashFlowMatrixRoute
   AuthenticatedControlCostsRoute: typeof AuthenticatedControlCostsRoute
@@ -1137,6 +1157,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedCashFlowMatrixRoute: AuthenticatedCashFlowMatrixRoute,
   AuthenticatedControlCostsRoute: AuthenticatedControlCostsRoute,
