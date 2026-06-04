@@ -145,7 +145,7 @@ function Page() {
   const addComment = async () => {
     if (!newComment.trim() || !user) return;
     const { error } = await (supabase as any).from("task_comments").insert({
-      task_id: id, author_id: user.id, body: newComment.trim(),
+      task_id: id, user_id: user.id, body: newComment.trim(),
     });
     if (error) { toast.error(error.message); return; }
     setNewComment("");
