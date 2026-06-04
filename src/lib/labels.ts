@@ -68,6 +68,7 @@ export const taskStatusLabel: Record<string, string> = {
   pending: "قيد الانتظار",
   in_progress: "قيد التنفيذ",
   done: "منجزة",
+  overdue: "متأخرة",
   cancelled: "ملغاة",
 };
 
