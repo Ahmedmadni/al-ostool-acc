@@ -220,18 +220,36 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
             );
           })}
+          <Link
+            to="/account"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm mt-4 ${
+              path.startsWith("/account") ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold" : "hover:bg-sidebar-accent"
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            <span>حسابي</span>
+          </Link>
           {isAdmin && (
-            <Link
-              to="/settings/users"
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm mt-4 ${
-                path.startsWith("/settings/users")
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold"
-                  : "hover:bg-sidebar-accent"
-              }`}
-            >
-              <Settings className="w-4 h-4" />
-              <span>إدارة المستخدمين</span>
-            </Link>
+            <>
+              <Link
+                to="/settings/approvals"
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm ${
+                  path.startsWith("/settings/approvals") ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold" : "hover:bg-sidebar-accent"
+                }`}
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>اعتماد المستخدمين الجدد</span>
+              </Link>
+              <Link
+                to="/settings/users"
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm ${
+                  path.startsWith("/settings/users") ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold" : "hover:bg-sidebar-accent"
+                }`}
+              >
+                <Settings className="w-4 h-4" />
+                <span>إدارة المستخدمين</span>
+              </Link>
+            </>
           )}
         </nav>
 
