@@ -1725,6 +1725,51 @@ export type Database = {
           },
         ]
       }
+      personal_notes: {
+        Row: {
+          color: string
+          content: string
+          created_at: string
+          done_at: string | null
+          due_date: string | null
+          id: string
+          is_done: boolean
+          order_index: number
+          pinned: boolean
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          content?: string
+          created_at?: string
+          done_at?: string | null
+          due_date?: string | null
+          id?: string
+          is_done?: boolean
+          order_index?: number
+          pinned?: boolean
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          content?: string
+          created_at?: string
+          done_at?: string | null
+          due_date?: string | null
+          id?: string
+          is_done?: boolean
+          order_index?: number
+          pinned?: boolean
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           approved_at: string | null

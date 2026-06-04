@@ -117,6 +117,7 @@ const GROUPS: NavGroup[] = [
     links: [
       { to: "/tasks", label: "المهام والتقويم" },
       { to: "/tasks/team", label: "أداء الفريق (المهام)" },
+      { to: "/notes", label: "ملاحظاتي الشخصية" },
       { to: "/templates", label: "مصمم القوالب" },
       { to: "/settings/regional", label: "الإعدادات الإقليمية" },
     ],
