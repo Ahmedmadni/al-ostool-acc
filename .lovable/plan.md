@@ -1,71 +1,46 @@
-# نظام تسجيل وإدارة المستخدمين
+## التشخيص
 
-## 1) قاعدة البيانات (Migration)
+الجدول `profiles` في قاعدة البيانات يحتوي فقط على: `id, full_name, email, avatar_url, created_at, updated_at`.
+الأعمدة الجديدة (`employee_id`, `phone`, `department_id`, `job_title_id`, `status`) **غير موجودة**، وجدولا `departments` و `job_titles` **غير موجودين**.
 
-### جداول مرجعية
-- `departments` (id, name_ar, code, active) — تعبئتها بالقائمة المرفقة (22 إدارة)
-- `job_titles` (id, name_ar, code, active) — تعبئتها بالقائمة المرفقة (24 وظيفة)
+السبب: المايجريشن السابق الذي يضيف هذه البنية لم يُعتمد، لذلك الاستعلام في `users.tsx`:
+```ts
+.from("profiles").select("*, departments(name_ar), job_titles(name_ar)")
+```
+يفشل بصمت (FK غير موجود) ويُرجع قائمة فارغة → الجدول يظهر بلا صفوف.
 
-### تعديل `profiles`
-إضافة الأعمدة:
-- `employee_id` TEXT UNIQUE NOT NULL — رقم وظيفي (اجباري)
-- `phone` TEXT — رقم الجوال (اختياري)
-- `job_title_id` UUID FK — الوظيفة (اجباري)
-- `department_id` UUID FK — الإدارة (اجباري)
-- `avatar_url` TEXT — صورة شخصية
-- `status` TEXT DEFAULT 'pending' — pending | active | rejected
-- `approved_by` UUID, `approved_at` TIMESTAMPTZ
+كذلك لا يوجد زر "إضافة مستخدم" أصلاً في الشاشة الحالية.
 
-### Trigger `handle_new_user`
-- يقرأ raw_user_meta_data (employee_id, full_name, phone, job_title_id, department_id)
-- ينشئ profile بحالة `pending`
-- أول مستخدم في النظام يصبح `admin` وحالته `active` تلقائياً
-- باقي المستخدمين: لا role حتى الموافقة
+## الخطة
 
-### RLS
-- منع تسجيل دخول profile بحالة pending/rejected في كل سياسات النظام (إضافة فحص status='active' عند الحاجة)
-- سياسة للمدير لاعتماد/رفض الطلبات
+### 1) مايجريشن قاعدة البيانات (إعادة تطبيق ما فُقد)
+- إنشاء جدول `departments` (id, name_ar, code) + تعبئة بالقائمة (20 إدارة).
+- إنشاء جدول `job_titles` (id, name_ar, code) + تعبئة بالقائمة (23 وظيفة).
+- إضافة الأعمدة على `profiles`:
+  - `employee_id TEXT UNIQUE`
+  - `phone TEXT`
+  - `department_id UUID FK → departments`
+  - `job_title_id UUID FK → job_titles`
+  - `status TEXT DEFAULT 'active'` (active / pending / rejected)
+  - `approved_by UUID`, `approved_at TIMESTAMPTZ`
+- تحديث دالة `handle_new_user` لقراءة الميتاداتا من التسجيل (employee_id, phone, department_id, job_title_id) وتعيين `status='active'` لأول مستخدم و `pending` للباقي.
+- جعل المستخدم الحالي `elmadnim@gmail.com` بحالة `active`.
+- منح GRANTs و RLS policies المناسبة للجداول المرجعية (قراءة للمصادق عليهم).
 
-### Storage
-- bucket عام `avatars` مع سياسات للقراءة وكتابة الملف الخاص بالمستخدم فقط
+### 2) إضافة زر "مستخدم جديد" في `/settings/users`
+- زر علوي في الـ PageHeader يفتح Dialog.
+- النموذج يحتوي: الرقم الوظيفي، الاسم الكامل، البريد، الجوال، الإدارة، الوظيفة، الدور، كلمة المرور المؤقتة.
+- ينشئ المستخدم عبر `supabase.auth.admin.createUser` من خلال **server function** بصلاحية admin (لأن إنشاء حساب لمستخدم آخر يتطلب service role).
+- بعد الإنشاء: يُسجّل الـ profile والـ role والحالة `active` مباشرة (لا يحتاج اعتماد لأن المسؤول هو المنشئ).
 
-## 2) واجهة التسجيل (`/auth` أو `/login`)
+### 3) ملف server function جديد
+- `src/lib/admin-users.functions.ts` فيه `createUserByAdmin` يستخدم `supabaseAdmin` ويتحقق من أن المنادي admin قبل التنفيذ.
 
-تبويبان: تسجيل دخول | إنشاء حساب جديد
+### 4) ملاحظة
+صفحة `approvals` تعتمد على نفس المخطط، فستعمل تلقائياً بعد المايجريشن.
 
-**نموذج إنشاء حساب**:
-- الرقم الوظيفي* / الاسم الكامل* / الإيميل* / الجوال
-- الإدارة* (Select منسدلة من departments)
-- الوظيفة* (Select منسدلة من job_titles)
-- كلمة المرور* + تأكيدها
-- رسالة بعد التسجيل: "تم استلام طلبك، بانتظار اعتماد مسؤول النظام"
-
-**تسجيل الدخول**:
-- إذا status='pending' → رسالة "حسابك بانتظار الموافقة"
-- إذا 'rejected' → "تم رفض الحساب"
-
-## 3) صفحة "حسابي" `/account`
-- صورة شخصية قابلة للرفع (avatars bucket)
-- تعديل: الاسم / الإيميل / الجوال / الإدارة / الوظيفة / كلمة المرور
-- **الرقم الوظيفي للقراءة فقط** (يعدّله المدير فقط)
-
-## 4) شاشة اعتماد المستخدمين الجدد `/settings/approvals`
-للـ Super Admin فقط:
-- قائمة بالحسابات pending
-- لكل طلب: عرض البيانات + اختيار الدور + زر "اعتماد" / "رفض"
-- بالاعتماد: تعيين الدور في user_roles وتحديث status='active'
-
-## 5) تحديث صفحة المستخدمين `/settings/users`
-- إضافة عمود الإدارة والوظيفة والحالة والرقم الوظيفي
-- السماح للمدير بتعديل الرقم الوظيفي
-- توضيح الأدوار الثلاثة: Super Admin (admin) / System Administrator (read+reports) / مستخدم عادي (حسب التكليف)
-
-## 6) ملاحظات تقنية
-- استخدام Lovable Cloud (Supabase) للمصادقة والتخزين
-- لا تغيير على بنية التبويبات الحالية، فقط إضافة شاشتي الاعتماد والحساب الشخصي
-- التحقق من الحقول بـ zod + react-hook-form
-- جميع الواجهات بالعربية RTL متناسقة مع الهوية البصرية (أصفر/أسود)
-
-## التسليم على مرحلتين
-**مرحلة 1**: المايجريشن (جداول مرجعية، تعديل profiles، trigger، RLS، bucket الصور)
-**مرحلة 2**: واجهات التسجيل، حسابي، اعتماد المستخدمين، تحديث صفحة المستخدمين
+## التسليم
+بعد اعتماد الخطة:
+1. مايجريشن واحد كامل.
+2. تعديل `src/routes/_authenticated/settings/users.tsx` (زر + Dialog + نموذج).
+3. ملف server function جديد للإنشاء.
