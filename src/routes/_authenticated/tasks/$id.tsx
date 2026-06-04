@@ -62,7 +62,7 @@ function Page() {
   const { data: comments = [], refetch: refetchComments } = useQuery({
     queryKey: ["task-comments", id],
     queryFn: async () =>
-      (await supabase
+      (await (supabase as any)
         .from("task_comments")
         .select("*")
         .eq("task_id", id)
@@ -71,7 +71,7 @@ function Page() {
   const { data: requests = [], refetch: refetchRequests } = useQuery({
     queryKey: ["task-requests", id],
     queryFn: async () =>
-      (await supabase
+      (await (supabase as any)
         .from("task_requests")
         .select("*")
         .eq("task_id", id)
@@ -80,7 +80,7 @@ function Page() {
   const { data: attachments = [], refetch: refetchAttachments } = useQuery({
     queryKey: ["task-attachments", id],
     queryFn: async () =>
-      (await supabase
+      (await (supabase as any)
         .from("task_attachments")
         .select("*")
         .eq("task_id", id)
