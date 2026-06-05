@@ -648,32 +648,45 @@ function NewTaskDialog({
             </div>
           )}
 
-          {/* Checklist */}
+          {/* Weighted checklist */}
           <div className="border rounded-md p-3 space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="m-0">بنود المهمة / الإجراءات</Label>
+              <Label className="m-0">بنود المهمة / الأوزان (المجموع = 100%)</Label>
               <Button type="button" size="sm" variant="outline" onClick={addChecklistItem} className="gap-1">
                 <Plus className="w-3 h-3" /> إضافة بند
               </Button>
             </div>
             {form.checklist.length === 0 && (
-              <p className="text-xs text-muted-foreground">لا توجد بنود. أضف بنودًا لتقسيم المهمة إلى خطوات.</p>
+              <p className="text-xs text-muted-foreground">لا توجد بنود. أضف بنودًا موزونة لتقسيم المهمة (مثلاً: بند 30% + بند 70%).</p>
             )}
             {form.checklist.map((item: ChecklistDraft, idx: number) => (
               <div key={idx} className="flex items-center gap-2">
-                <GripVertical className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground w-6 text-center">{idx + 1}.</span>
+                <GripVertical className="w-4 h-4 text-muted-foreground shrink-0" />
+                <span className="text-sm text-muted-foreground w-6 text-center shrink-0">{idx + 1}.</span>
                 <Input
                   className="flex-1"
                   value={item.title}
                   placeholder="نص البند..."
-                  onChange={(e) => updateChecklist(idx, e.target.value)}
+                  onChange={(e) => updateChecklistTitle(idx, e.target.value)}
                 />
+                <Input
+                  type="number" min={0} max={100} step={5}
+                  className="w-20 text-center"
+                  value={item.weight}
+                  placeholder="%"
+                  onChange={(e) => updateChecklistWeight(idx, parseFloat(e.target.value))}
+                />
+                <span className="text-xs text-muted-foreground">%</span>
                 <Button type="button" size="icon" variant="ghost" onClick={() => removeChecklistItem(idx)}>
                   <Trash2 className="w-4 h-4 text-destructive" />
                 </Button>
               </div>
             ))}
+            {form.checklist.length > 0 && (
+              <div className={`text-xs font-bold text-left ${Math.round(totalWeight) === 100 ? "text-success" : "text-destructive"}`}>
+                مجموع الأوزان: {totalWeight}% {Math.round(totalWeight) === 100 ? "✓" : "(يجب أن يساوي 100%)"}
+              </div>
+            )}
           </div>
         </div>
         <DialogFooter>
