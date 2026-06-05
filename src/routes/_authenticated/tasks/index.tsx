@@ -372,10 +372,12 @@ function Page() {
 }
 
 function TaskCard({
-  task: t, profileById, currentUserId, showAssignmentInfo, onStart, onDone, onToggleItem,
+  task: t, profileById, currentUserId, showAssignmentInfo, canManage, onStart, onDone, onToggleItem, onDelete,
 }: {
   task: any; profileById: Record<string, any>; currentUserId: string; showAssignmentInfo: boolean;
+  canManage: boolean;
   onStart: () => void; onDone: () => void; onToggleItem: (id: string, checked: boolean) => void;
+  onDelete: () => void;
 }) {
   const isDone = t.status === "done";
   const overdue = !isDone && t.status !== "cancelled" && t.due_date && new Date(t.due_date) < new Date();
