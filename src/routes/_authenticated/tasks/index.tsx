@@ -136,13 +136,44 @@ function Page() {
 
   const allStats = useMemo(() => {
     const now = new Date();
+    const done = tasks.filter((t: any) => t.status === "done");
+    const overdueList = tasks.filter(
+      (t: any) => t.status !== "done" && t.status !== "cancelled" && t.due_date && new Date(t.due_date) < now,
+    );
+    const withDuration = done.filter((t: any) => t.started_at && t.completed_at);
+    const avgDurationHrs = withDuration.length
+      ? Math.round(
+          (withDuration.reduce(
+            (s: number, t: any) => s + (new Date(t.completed_at).getTime() - new Date(t.started_at).getTime()),
+            0,
+          ) / withDuration.length / 3600000) * 10,
+        ) / 10
+      : 0;
+    const withCompletion = done.filter((t: any) => t.created_at && t.completed_at);
+    const avgCompletionDays = withCompletion.length
+      ? Math.round(
+          (withCompletion.reduce(
+            (s: number, t: any) => s + (new Date(t.completed_at).getTime() - new Date(t.created_at).getTime()),
+            0,
+          ) / withCompletion.length / 86400000) * 10,
+        ) / 10
+      : 0;
+    const avgOverdueDays = overdueList.length
+      ? Math.round(
+          (overdueList.reduce(
+            (s: number, t: any) => s + (now.getTime() - new Date(t.due_date).getTime()),
+            0,
+          ) / overdueList.length / 86400000) * 10,
+        ) / 10
+      : 0;
     return {
       total: tasks.length,
-      done: tasks.filter((t: any) => t.status === "done").length,
+      done: done.length,
       pending: tasks.filter((t: any) => t.status !== "done" && t.status !== "cancelled").length,
-      overdue: tasks.filter(
-        (t: any) => t.status !== "done" && t.status !== "cancelled" && t.due_date && new Date(t.due_date) < now,
-      ).length,
+      overdue: overdueList.length,
+      avgDurationHrs,
+      avgCompletionDays,
+      avgOverdueDays,
     };
   }, [tasks]);
 
@@ -250,11 +281,17 @@ function Page() {
         </div>
       </Card>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
         <StatCard icon={ListChecks} label="إجمالي المهام" value={allStats.total} tone="default" />
         <StatCard icon={Clock} label="قيد التنفيذ" value={allStats.pending} tone="warn" />
         <StatCard icon={CheckCircle2} label="مكتملة" value={allStats.done} tone="ok" />
         <StatCard icon={AlertTriangle} label="متأخرة" value={allStats.overdue} tone="danger" />
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
+        <StatCard icon={Clock} label="متوسط مدة التنفيذ (ساعة)" value={allStats.avgDurationHrs} tone="default" />
+        <StatCard icon={CheckCircle2} label="متوسط زمن الإنجاز (يوم)" value={allStats.avgCompletionDays} tone="ok" />
+        <StatCard icon={AlertTriangle} label="متوسط أيام التأخير" value={allStats.avgOverdueDays} tone="danger" />
       </div>
 
       <Tabs value={tab} onValueChange={setTab} className="mb-4">
