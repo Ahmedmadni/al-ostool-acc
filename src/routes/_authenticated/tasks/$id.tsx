@@ -190,25 +190,71 @@ function Page() {
 
   const uploadAttachment = async (file: File) => {
     if (!user) return;
-    const path = `${id}/${Date.now()}_${file.name}`;
-    const { error: upErr } = await supabase.storage.from("task-attachments").upload(path, file);
-    if (upErr) { toast.error(upErr.message); return; }
-    await (supabase as any).from("task_attachments").insert({
-      task_id: id, file_path: path, file_name: file.name, mime_type: file.type, size: file.size, uploaded_by: user.id,
+    if (!ACCEPTED_ATTACHMENT_TYPES.includes(file.type) && !/\.(zip|xls|xlsx|docx|pdf|png|jpe?g|webp)$/i.test(file.name)) {
+      toast.error(`نوع الملف غير مسموح: ${file.type || file.name}`);
+      return;
+    }
+    if (file.size > MAX_ATTACHMENT_BYTES) {
+      toast.error(`حجم الملف كبير جدًا (الحد الأقصى ${formatBytes(MAX_ATTACHMENT_BYTES)})`);
+      return;
+    }
+    const safeName = file.name.replace(/[^\w.\-\u0600-\u06FF]/g, "_");
+    const path = `${id}/${Date.now()}_${safeName}`;
+    setUploadingName(file.name);
+    setUploadProgress(10);
+    const { error: upErr } = await supabase.storage
+      .from("task-attachments")
+      .upload(path, file, { contentType: file.type, upsert: false });
+    setUploadProgress(70);
+    if (upErr) {
+      setUploadingName(null); setUploadProgress(0);
+      toast.error("فشل الرفع: " + upErr.message); return;
+    }
+    const { error: dbErr } = await (supabase as any).from("task_attachments").insert({
+      task_id: id,
+      storage_path: path,
+      file_name: file.name,
+      mime_type: file.type || "application/octet-stream",
+      size_bytes: file.size,
+      uploaded_by: user.id,
     });
+    setUploadProgress(100);
+    setTimeout(() => { setUploadingName(null); setUploadProgress(0); }, 400);
+    if (dbErr) { toast.error("فشل حفظ سجل المرفق: " + dbErr.message); return; }
     refetchAttachments();
-    toast.success("تم رفع المرفق");
+    toast.success(`تم رفع: ${file.name}`);
+  };
+
+  const handleFilesDropped = async (files: FileList | File[]) => {
+    const arr = Array.from(files);
+    for (const f of arr) await uploadAttachment(f);
   };
 
   const removeAttachment = async (att: any) => {
-    await supabase.storage.from("task-attachments").remove([att.file_path]);
+    await supabase.storage.from("task-attachments").remove([att.storage_path]);
     await (supabase as any).from("task_attachments").delete().eq("id", att.id);
     refetchAttachments();
+    toast.success("تم حذف المرفق");
   };
 
   const downloadAttachment = async (att: any) => {
-    const { data } = await supabase.storage.from("task-attachments").createSignedUrl(att.file_path, 3600);
-    if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+    const { data, error } = await supabase.storage.from("task-attachments").createSignedUrl(att.storage_path, 3600);
+    if (error || !data?.signedUrl) { toast.error("تعذّر إنشاء الرابط"); return; }
+    window.open(data.signedUrl, "_blank");
+  };
+
+  const openPreview = async (att: any) => {
+    const { data } = await supabase.storage.from("task-attachments").createSignedUrl(att.storage_path, 3600);
+    if (data?.signedUrl) { setPreviewUrl(data.signedUrl); setPreviewAtt(att); }
+  };
+
+  const approveTask = async () => {
+    const { error } = await (supabase as any).from("tasks")
+      .update({ status: "approved" }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("تم اعتماد المهمة");
+    qc.invalidateQueries({ queryKey: ["task", id] });
+    qc.invalidateQueries({ queryKey: ["tasks"] });
   };
 
   if (!canView) {
