@@ -12,10 +12,11 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { roleLabel } from "@/lib/labels";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Pencil, Check, Plus, Trash2, Shield } from "lucide-react";
+import { Pencil, Check, Plus, Trash2, Shield, Info } from "lucide-react";
 import { createUserByAdmin, deleteUserByAdmin } from "@/lib/admin-users.functions";
 
 export const Route = createFileRoute("/_authenticated/settings/users")({ component: Page });
