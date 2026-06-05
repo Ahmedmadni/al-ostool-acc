@@ -54,6 +54,20 @@ function Page() {
         ? Math.round(approved.reduce((s: number, t: any) => s + (t.completion_percentage ?? 0), 0) / approved.length)
         : null;
 
+      // Final score per task = checklist(weighted) * 0.5 + manager_eval * 0.5
+      const finalsList = my
+        .map((t: any) => {
+          const items = (t.task_checklist_items ?? []) as Array<{ is_done: boolean; weight?: number | null }>;
+          const checklistPct = checklistCompletion(items);
+          const mgr = typeof t.manager_evaluation_score === "number" ? t.manager_evaluation_score : null;
+          if (mgr == null && items.length === 0) return null;
+          return finalScore(checklistPct, mgr);
+        })
+        .filter((v: any) => typeof v === "number") as number[];
+      const avgFinal = finalsList.length
+        ? Math.round(finalsList.reduce((s, v) => s + v, 0) / finalsList.length)
+        : null;
+
       return {
         id: p.id,
         name: p.full_name || p.email,
@@ -65,10 +79,12 @@ function Page() {
         ratedCount: rated.length,
         avgCompletion,
         approvedCount: approved.length,
+        avgFinal,
+        scoredCount: finalsList.length,
       };
     })
       .filter((s) => s.total > 0)
-      .sort((a, b) => (b.avgRating ?? -1) - (a.avgRating ?? -1));
+      .sort((a, b) => (b.avgFinal ?? -1) - (a.avgFinal ?? -1));
   }, [tasks, profiles]);
 
   const chartData = stats.slice(0, 10).map((s) => ({
