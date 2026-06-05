@@ -106,7 +106,7 @@ export function FloatingCopilot() {
           className={`fixed bottom-6 ${side} z-50 h-14 w-14 rounded-full shadow-2xl bg-gradient-to-br from-primary to-accent no-print`}
           title={t("copilot")}
         >
-          <Sparkles className="w-6 h-6" />
+          <Bot className="w-6 h-6" />
         </Button>
       )}
 
