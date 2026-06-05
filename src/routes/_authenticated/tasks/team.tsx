@@ -8,14 +8,15 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
-import { Info, Star } from "lucide-react";
+import { Info, Star, Trophy } from "lucide-react";
+import { checklistCompletion, finalScore } from "@/lib/task-scoring";
 
 export const Route = createFileRoute("/_authenticated/tasks/team")({ component: Page });
 
 function Page() {
   const { data: tasks = [] } = useQuery({
     queryKey: ["all-tasks-team"],
-    queryFn: async () => (await supabase.from("tasks").select("*")).data ?? [],
+    queryFn: async () => (await supabase.from("tasks").select("*, task_checklist_items(is_done,weight)")).data ?? [],
   });
   const { data: profiles = [] } = useQuery({
     queryKey: ["profiles-team"],
@@ -53,6 +54,20 @@ function Page() {
         ? Math.round(approved.reduce((s: number, t: any) => s + (t.completion_percentage ?? 0), 0) / approved.length)
         : null;
 
+      // Final score per task = checklist(weighted) * 0.5 + manager_eval * 0.5
+      const finalsList = my
+        .map((t: any) => {
+          const items = (t.task_checklist_items ?? []) as Array<{ is_done: boolean; weight?: number | null }>;
+          const checklistPct = checklistCompletion(items);
+          const mgr = typeof t.manager_evaluation_score === "number" ? t.manager_evaluation_score : null;
+          if (mgr == null && items.length === 0) return null;
+          return finalScore(checklistPct, mgr);
+        })
+        .filter((v: any) => typeof v === "number") as number[];
+      const avgFinal = finalsList.length
+        ? Math.round(finalsList.reduce((s, v) => s + v, 0) / finalsList.length)
+        : null;
+
       return {
         id: p.id,
         name: p.full_name || p.email,
@@ -64,10 +79,12 @@ function Page() {
         ratedCount: rated.length,
         avgCompletion,
         approvedCount: approved.length,
+        avgFinal,
+        scoredCount: finalsList.length,
       };
     })
       .filter((s) => s.total > 0)
-      .sort((a, b) => (b.avgRating ?? -1) - (a.avgRating ?? -1));
+      .sort((a, b) => (b.avgFinal ?? -1) - (a.avgFinal ?? -1));
   }, [tasks, profiles]);
 
   const chartData = stats.slice(0, 10).map((s) => ({
@@ -123,19 +140,25 @@ function Page() {
               <TableHead>متأخرة (للعلم)</TableHead>
               <TableHead>متوسط تقييم المدير</TableHead>
               <TableHead>نسبة الإنجاز المعتمدة</TableHead>
+              <TableHead>النتيجة النهائية</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {stats.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                   لا توجد مهام مُكلَّفة لأي موظف.
                 </TableCell>
               </TableRow>
             )}
-            {stats.map((s) => (
+            {stats.map((s, idx) => (
               <TableRow key={s.id}>
-                <TableCell className="font-medium">{s.name}</TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-1">
+                    {idx === 0 && s.avgFinal != null && <Trophy className="w-3.5 h-3.5 text-warning" />}
+                    {s.name}
+                  </div>
+                </TableCell>
                 <TableCell>{s.total}</TableCell>
                 <TableCell><Badge variant="default">{s.completed}</Badge></TableCell>
                 <TableCell><Badge variant="secondary">{s.inProgress}</Badge></TableCell>
@@ -164,6 +187,16 @@ function Page() {
                     </div>
                   ) : (
                     <span className="text-xs text-muted-foreground">— لم تُعتمد بعد</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {s.avgFinal != null ? (
+                    <div className="flex items-center gap-2 w-44">
+                      <Progress value={s.avgFinal} className="h-2" />
+                      <span className="text-sm font-bold text-primary whitespace-nowrap">{s.avgFinal}%</span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">—</span>
                   )}
                 </TableCell>
               </TableRow>

@@ -16,11 +16,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   ArrowRight, Send, CheckCircle2, CalendarClock, UserPlus, Star,
-  Paperclip, AlertTriangle, MessageSquare, Trash2,
+  Paperclip, AlertTriangle, MessageSquare, Trash2, Download, Eye,
+  Upload, FileText, Image as ImageIcon, RotateCcw, ThumbsUp,
 } from "lucide-react";
 import { taskTypeLabel, taskStatusLabel } from "@/lib/labels";
 import { fmtDate } from "@/lib/format";
 import { toast } from "sonner";
+import {
+  ACCEPTED_ATTACHMENT_TYPES, MAX_ATTACHMENT_BYTES, formatBytes,
+  isImage, isPdf, checklistCompletion, finalScore,
+  plannedDuration, remainingDays, delayDays,
+} from "@/lib/task-scoring";
 
 export const Route = createFileRoute("/_authenticated/tasks/$id")({ component: Page });
 
@@ -51,7 +57,7 @@ function Page() {
     queryFn: async () =>
       (await (supabase as any)
         .from("tasks")
-        .select("*, customers(name), projects(name), task_assignees(user_id), task_checklist_items(id,title,is_done,order_index)")
+        .select("*, customers(name), projects(name), task_assignees(user_id), task_checklist_items(id,title,is_done,order_index,weight)")
         .eq("id", id)
         .maybeSingle()).data as any,
   });
@@ -110,6 +116,13 @@ function Page() {
   const [completionOpen, setCompletionOpen] = useState(false);
   const [evalOpen, setEvalOpen] = useState(false);
   const [approvalOpen, setApprovalOpen] = useState(false);
+  const [managerEvalOpen, setManagerEvalOpen] = useState(false);
+  const [returnOpen, setReturnOpen] = useState(false);
+  const [uploadingName, setUploadingName] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [dragOver, setDragOver] = useState(false);
+  const [previewAtt, setPreviewAtt] = useState<any | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Open the manager's progress-approval screen automatically after any
   // dialog/action that should prompt them to confirm a completion %.
@@ -131,11 +144,16 @@ function Page() {
   const isAssignee = task.assigned_to === user?.id;
   const isCreator = task.created_by === user?.id;
   const canView = isAssignee || isCreator || isAdmin;
-  const isDone = task.status === "done";
+  const isDone = task.status === "done" || task.status === "approved";
   const items = (task.task_checklist_items ?? []).slice().sort((a: any, b: any) => a.order_index - b.order_index);
   const doneCount = items.filter((i: any) => i.is_done).length;
+  const checklistPct = checklistCompletion(items);
   const progress = items.length > 0 ? Math.round((doneCount / items.length) * 100) : 0;
   const countdown = dueCountdown(task.due_date);
+  const planned = plannedDuration(task.planned_start_date, task.planned_end_date);
+  const remaining = remainingDays(task.planned_end_date || task.due_date);
+  const delay = delayDays(task.planned_end_date || task.due_date, task.completed_at);
+  const final = finalScore(checklistPct, task.manager_evaluation_score);
 
   const assignee = task.assigned_to ? profileById[task.assigned_to] : null;
   const creator = task.created_by ? profileById[task.created_by] : null;
@@ -177,25 +195,71 @@ function Page() {
 
   const uploadAttachment = async (file: File) => {
     if (!user) return;
-    const path = `${id}/${Date.now()}_${file.name}`;
-    const { error: upErr } = await supabase.storage.from("task-attachments").upload(path, file);
-    if (upErr) { toast.error(upErr.message); return; }
-    await (supabase as any).from("task_attachments").insert({
-      task_id: id, file_path: path, file_name: file.name, mime_type: file.type, size: file.size, uploaded_by: user.id,
+    if (!ACCEPTED_ATTACHMENT_TYPES.includes(file.type) && !/\.(zip|xls|xlsx|docx|pdf|png|jpe?g|webp)$/i.test(file.name)) {
+      toast.error(`نوع الملف غير مسموح: ${file.type || file.name}`);
+      return;
+    }
+    if (file.size > MAX_ATTACHMENT_BYTES) {
+      toast.error(`حجم الملف كبير جدًا (الحد الأقصى ${formatBytes(MAX_ATTACHMENT_BYTES)})`);
+      return;
+    }
+    const safeName = file.name.replace(/[^\w.\-\u0600-\u06FF]/g, "_");
+    const path = `${id}/${Date.now()}_${safeName}`;
+    setUploadingName(file.name);
+    setUploadProgress(10);
+    const { error: upErr } = await supabase.storage
+      .from("task-attachments")
+      .upload(path, file, { contentType: file.type, upsert: false });
+    setUploadProgress(70);
+    if (upErr) {
+      setUploadingName(null); setUploadProgress(0);
+      toast.error("فشل الرفع: " + upErr.message); return;
+    }
+    const { error: dbErr } = await (supabase as any).from("task_attachments").insert({
+      task_id: id,
+      storage_path: path,
+      file_name: file.name,
+      mime_type: file.type || "application/octet-stream",
+      size_bytes: file.size,
+      uploaded_by: user.id,
     });
+    setUploadProgress(100);
+    setTimeout(() => { setUploadingName(null); setUploadProgress(0); }, 400);
+    if (dbErr) { toast.error("فشل حفظ سجل المرفق: " + dbErr.message); return; }
     refetchAttachments();
-    toast.success("تم رفع المرفق");
+    toast.success(`تم رفع: ${file.name}`);
+  };
+
+  const handleFilesDropped = async (files: FileList | File[]) => {
+    const arr = Array.from(files);
+    for (const f of arr) await uploadAttachment(f);
   };
 
   const removeAttachment = async (att: any) => {
-    await supabase.storage.from("task-attachments").remove([att.file_path]);
+    await supabase.storage.from("task-attachments").remove([att.storage_path]);
     await (supabase as any).from("task_attachments").delete().eq("id", att.id);
     refetchAttachments();
+    toast.success("تم حذف المرفق");
   };
 
   const downloadAttachment = async (att: any) => {
-    const { data } = await supabase.storage.from("task-attachments").createSignedUrl(att.file_path, 3600);
-    if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+    const { data, error } = await supabase.storage.from("task-attachments").createSignedUrl(att.storage_path, 3600);
+    if (error || !data?.signedUrl) { toast.error("تعذّر إنشاء الرابط"); return; }
+    window.open(data.signedUrl, "_blank");
+  };
+
+  const openPreview = async (att: any) => {
+    const { data } = await supabase.storage.from("task-attachments").createSignedUrl(att.storage_path, 3600);
+    if (data?.signedUrl) { setPreviewUrl(data.signedUrl); setPreviewAtt(att); }
+  };
+
+  const approveTask = async () => {
+    const { error } = await (supabase as any).from("tasks")
+      .update({ status: "approved" }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("تم اعتماد المهمة");
+    qc.invalidateQueries({ queryKey: ["task", id] });
+    qc.invalidateQueries({ queryKey: ["tasks"] });
   };
 
   if (!canView) {
@@ -252,20 +316,64 @@ function Page() {
           </div>
         </div>
 
-        {items.length > 0 && (
-          <div className="mt-4">
-            <div className="flex items-center justify-between mb-1 text-xs text-muted-foreground">
-              <span>تقدّم البنود</span>
-              <span>{doneCount}/{items.length} ({progress}%)</span>
+        {/* Planned dates strip */}
+        {(task.planned_start_date || task.planned_end_date) && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 text-xs">
+            <div className="p-2 rounded border bg-muted/30">
+              <div className="text-muted-foreground">بداية مخططة</div>
+              <div className="font-semibold">{task.planned_start_date ? fmtDate(task.planned_start_date) : "—"}</div>
             </div>
-            <Progress value={progress} className="h-2" />
+            <div className="p-2 rounded border bg-muted/30">
+              <div className="text-muted-foreground">نهاية مخططة</div>
+              <div className="font-semibold">{task.planned_end_date ? fmtDate(task.planned_end_date) : "—"}</div>
+            </div>
+            <div className="p-2 rounded border bg-muted/30">
+              <div className="text-muted-foreground">المدة المخططة (يوم)</div>
+              <div className="font-semibold">{planned ?? "—"}</div>
+            </div>
+            <div className="p-2 rounded border bg-muted/30">
+              <div className="text-muted-foreground">
+                {isDone ? "أيام التأخير عن النهاية" : "متبقي / تأخير (يوم)"}
+              </div>
+              <div className={`font-semibold ${delay > 0 ? "text-destructive" : "text-success"}`}>
+                {isDone ? delay : remaining ?? "—"}
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Manager-approved completion percentage */}
+        {items.length > 0 && (
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-1 text-xs text-muted-foreground">
+              <span>تقدّم البنود (الموزون)</span>
+              <span>{doneCount}/{items.length} — {checklistPct}%</span>
+            </div>
+            <Progress value={checklistPct} className="h-2" />
+          </div>
+        )}
+
+        {/* Final performance score */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+          <div className="p-3 rounded-md border bg-muted/30">
+            <div className="text-xs text-muted-foreground">نسبة إنجاز القائمة (50%)</div>
+            <div className="text-xl font-bold">{checklistPct}%</div>
+          </div>
+          <div className="p-3 rounded-md border bg-muted/30">
+            <div className="text-xs text-muted-foreground">تقييم المدير (50%)</div>
+            <div className="text-xl font-bold">
+              {task.manager_evaluation_score != null ? `${task.manager_evaluation_score}%` : "—"}
+            </div>
+          </div>
+          <div className="p-3 rounded-md border bg-primary/10 border-primary/30">
+            <div className="text-xs text-muted-foreground flex items-center gap-1"><Star className="w-3 h-3" /> النتيجة النهائية</div>
+            <div className="text-2xl font-bold text-primary">{final}%</div>
+          </div>
+        </div>
+
+        {/* Legacy manager-approved completion percentage */}
         <div className="mt-4 p-3 rounded-md border bg-muted/30">
           <div className="flex items-center justify-between mb-1 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1"><Star className="w-3 h-3" /> نسبة الإنجاز المعتمدة من المدير</span>
+            <span className="flex items-center gap-1"><Star className="w-3 h-3" /> نسبة الإنجاز المعتمدة من المدير (تقديرية)</span>
             <span className="font-bold">
               {task.completion_percentage != null ? `${task.completion_percentage}%` : "— لم تُعتمد بعد"}
             </span>
@@ -296,9 +404,12 @@ function Page() {
                       className="mt-0.5"
                       disabled={isDone}
                     />
-                    <span className={item.is_done ? "line-through text-muted-foreground" : ""}>
+                    <span className={`flex-1 ${item.is_done ? "line-through text-muted-foreground" : ""}`}>
                       {idx + 1}. {item.title}
                     </span>
+                    {Number(item.weight) > 0 && (
+                      <Badge variant="outline" className="text-[10px] shrink-0">{Number(item.weight)}%</Badge>
+                    )}
                   </label>
                 ))}
               </div>
@@ -348,28 +459,88 @@ function Page() {
             <div className="font-semibold mb-3 flex items-center gap-2">
               <Paperclip className="w-4 h-4" /> المرفقات ({attachments.length})
             </div>
-            <Input
-              type="file"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) uploadAttachment(f);
-                e.target.value = "";
+
+            <label
+              htmlFor="task-file-input"
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragOver(false);
+                if (e.dataTransfer.files?.length) handleFilesDropped(e.dataTransfer.files);
               }}
-              className="mb-3"
-            />
-            <div className="space-y-2">
-              {attachments.map((a: any) => (
-                <div key={a.id} className="flex items-center gap-2 p-2 border rounded-md text-sm">
-                  <Paperclip className="w-4 h-4 text-muted-foreground" />
-                  <button className="flex-1 text-right hover:underline" onClick={() => downloadAttachment(a)}>
-                    {a.file_name}
-                  </button>
-                  <Button size="icon" variant="ghost" onClick={() => removeAttachment(a)}>
-                    <Trash2 className="w-4 h-4 text-destructive" />
-                  </Button>
+              className={`block border-2 border-dashed rounded-md p-4 text-center text-sm cursor-pointer transition-colors mb-3 ${
+                dragOver ? "border-primary bg-primary/5" : "border-border hover:bg-muted/30"
+              }`}
+            >
+              <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+              <div className="font-medium">اسحب وأفلت الملفات هنا، أو اضغط للاختيار</div>
+              <div className="text-[11px] text-muted-foreground mt-1">
+                JPG / PNG / WEBP · PDF · XLSX / XLS · DOCX · ZIP — حتى {formatBytes(MAX_ATTACHMENT_BYTES)}
+              </div>
+              <input
+                id="task-file-input"
+                type="file"
+                multiple
+                accept=".jpg,.jpeg,.png,.webp,.pdf,.xlsx,.xls,.docx,.zip,image/*,application/pdf"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files?.length) handleFilesDropped(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+
+            {uploadingName && (
+              <div className="mb-3 p-2 rounded border bg-info/5 border-info/30">
+                <div className="text-xs mb-1 flex justify-between">
+                  <span className="truncate">جارٍ رفع: {uploadingName}</span>
+                  <span>{uploadProgress}%</span>
                 </div>
-              ))}
-              {attachments.length === 0 && <div className="text-xs text-muted-foreground">لا توجد مرفقات</div>}
+                <Progress value={uploadProgress} className="h-1.5" />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              {attachments.map((a: any) => {
+                const uploader = profileById[a.uploaded_by];
+                const img = isImage(a.mime_type);
+                const pdf = isPdf(a.mime_type);
+                return (
+                  <div key={a.id} className="flex items-center gap-2 p-2 border rounded-md text-sm">
+                    {img ? <ImageIcon className="w-5 h-5 text-info shrink-0" />
+                      : pdf ? <FileText className="w-5 h-5 text-destructive shrink-0" />
+                      : <Paperclip className="w-5 h-5 text-muted-foreground shrink-0" />}
+                    <div className="flex-1 min-w-0">
+                      <button className="block w-full text-right hover:underline truncate font-medium"
+                        onClick={() => (img || pdf) ? openPreview(a) : downloadAttachment(a)}>
+                        {a.file_name}
+                      </button>
+                      <div className="text-[10px] text-muted-foreground flex gap-2 flex-wrap">
+                        <span>{formatBytes(a.size_bytes)}</span>
+                        <span>•</span>
+                        <span>{uploader?.full_name || uploader?.email || "—"}</span>
+                        <span>•</span>
+                        <span>{fmtDate(a.created_at)}</span>
+                      </div>
+                    </div>
+                    {(img || pdf) && (
+                      <Button size="icon" variant="ghost" onClick={() => openPreview(a)} title="معاينة">
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                    )}
+                    <Button size="icon" variant="ghost" onClick={() => downloadAttachment(a)} title="تحميل">
+                      <Download className="w-4 h-4" />
+                    </Button>
+                    {(a.uploaded_by === user?.id || isAdmin || isCreator) && (
+                      <Button size="icon" variant="ghost" onClick={() => removeAttachment(a)} title="حذف">
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+              {attachments.length === 0 && <div className="text-xs text-muted-foreground text-center py-3">لا توجد مرفقات</div>}
             </div>
           </Card>
         </div>
@@ -421,6 +592,52 @@ function Page() {
               </Button>
             </Card>
           )}
+
+
+
+          {/* Manager evaluation 0-100 (NEW: half of final score) */}
+          {(isCreator || isAdmin) && (
+            <Card className="p-4 border-primary/40">
+              <div className="font-semibold mb-2 flex items-center gap-2">
+                <Star className="w-4 h-4 text-primary" /> تقييم المدير (0-100)
+              </div>
+              <div className="text-2xl font-bold mb-2">
+                {task.manager_evaluation_score != null ? `${task.manager_evaluation_score}%` : "— لم يُسجّل بعد"}
+              </div>
+              {task.manager_evaluation_notes && (
+                <p className="text-xs text-muted-foreground border-t pt-2 mb-2">{task.manager_evaluation_notes}</p>
+              )}
+              <Button className="w-full" variant="outline" onClick={() => setManagerEvalOpen(true)}>
+                {task.manager_evaluation_score != null ? "تحديث التقييم" : "تسجيل تقييم"}
+              </Button>
+            </Card>
+          )}
+
+          {/* Approval workflow (NEW) */}
+          {(isCreator || isAdmin) && (task.status === "done" || task.status === "waiting_review" || task.status === "returned") && (
+            <Card className="p-4 border-success/40 bg-success/5">
+              <div className="font-semibold mb-2 flex items-center gap-2">
+                <ThumbsUp className="w-4 h-4 text-success" /> اعتماد المدير
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                وافق على المهمة لإغلاقها، أو أعدها للموظف مع ملاحظة لإعادة العمل.
+              </p>
+              <div className="flex gap-2">
+                <Button className="flex-1 gap-1" onClick={approveTask}>
+                  <CheckCircle2 className="w-4 h-4" /> موافقة وإغلاق
+                </Button>
+                <Button variant="outline" className="flex-1 gap-1" onClick={() => setReturnOpen(true)}>
+                  <RotateCcw className="w-4 h-4" /> إرجاع لإعادة العمل
+                </Button>
+              </div>
+              {task.return_reason && (
+                <div className="text-xs mt-3 p-2 rounded bg-warning/10 border border-warning/30">
+                  <strong>سبب الإرجاع السابق:</strong> {task.return_reason}
+                </div>
+              )}
+            </Card>
+          )}
+
 
 
           {/* Evaluation */}
@@ -526,6 +743,43 @@ function Page() {
           qc.invalidateQueries({ queryKey: ["all-tasks-team"] });
         }}
       />
+      <ManagerEvalDialog
+        open={managerEvalOpen}
+        onOpenChange={setManagerEvalOpen}
+        taskId={id}
+        currentValue={task.manager_evaluation_score ?? 0}
+        currentNotes={task.manager_evaluation_notes ?? ""}
+        onSaved={() => {
+          setManagerEvalOpen(false);
+          qc.invalidateQueries({ queryKey: ["task", id] });
+          qc.invalidateQueries({ queryKey: ["all-tasks-team"] });
+        }}
+      />
+      <ReturnDialog
+        open={returnOpen}
+        onOpenChange={setReturnOpen}
+        taskId={id}
+        onSaved={() => {
+          setReturnOpen(false);
+          qc.invalidateQueries({ queryKey: ["task", id] });
+          qc.invalidateQueries({ queryKey: ["tasks"] });
+        }}
+      />
+      <Dialog open={!!previewAtt} onOpenChange={(o) => { if (!o) { setPreviewAtt(null); setPreviewUrl(null); } }}>
+        <DialogContent dir="rtl" className="max-w-4xl max-h-[90vh]">
+          <DialogHeader><DialogTitle className="truncate">{previewAtt?.file_name}</DialogTitle></DialogHeader>
+          {previewUrl && previewAtt && (isImage(previewAtt.mime_type) ? (
+            <img src={previewUrl} alt={previewAtt.file_name} className="max-h-[70vh] mx-auto object-contain" />
+          ) : isPdf(previewAtt.mime_type) ? (
+            <iframe src={previewUrl} className="w-full h-[70vh] border rounded" title={previewAtt.file_name} />
+          ) : (
+            <div className="text-center text-sm text-muted-foreground p-8">المعاينة غير متاحة لهذا النوع — استخدم زر التحميل.</div>
+          ))}
+          <DialogFooter>
+            {previewUrl && <Button variant="outline" onClick={() => window.open(previewUrl!, "_blank")}>فتح في تبويب جديد</Button>}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -779,6 +1033,81 @@ function ProgressApprovalDialog({ open, onOpenChange, taskId, userId, currentVal
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>لاحقًا</Button>
           <Button onClick={save}>اعتماد النسبة</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ManagerEvalDialog({ open, onOpenChange, taskId, currentValue, currentNotes, onSaved }: any) {
+  const [score, setScore] = useState<number>(currentValue ?? 0);
+  const [notes, setNotes] = useState<string>(currentNotes ?? "");
+  useEffect(() => { setScore(currentValue ?? 0); setNotes(currentNotes ?? ""); }, [currentValue, currentNotes, open]);
+  const save = async () => {
+    const { error } = await (supabase as any).from("tasks").update({
+      manager_evaluation_score: score,
+      manager_evaluation_notes: notes || null,
+    }).eq("id", taskId);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`تم حفظ تقييم المدير: ${score}%`);
+    onSaved();
+  };
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent dir="rtl">
+        <DialogHeader><DialogTitle>تقييم المدير (0 - 100%)</DialogTitle></DialogHeader>
+        <div className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            قيّم الجودة والدقة والالتزام والتواصل والتنفيذ. هذا التقييم يمثل 50% من النتيجة النهائية للموظف.
+          </p>
+          <div>
+            <Label>الدرجة: <span className="text-2xl font-bold text-primary mr-2">{score}%</span></Label>
+            <input type="range" min={0} max={100} step={5} value={score}
+              onChange={(e) => setScore(parseInt(e.target.value))} className="w-full mt-2" />
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
+              <span>0%</span><span>50%</span><span>100%</span>
+            </div>
+          </div>
+          <div>
+            <Label>ملاحظات التقييم</Label>
+            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3}
+              placeholder="مثلاً: تنفيذ ممتاز، ينقص التزام بالمواعيد..." />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>إلغاء</Button>
+          <Button onClick={save}>حفظ التقييم</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ReturnDialog({ open, onOpenChange, taskId, onSaved }: any) {
+  const [reason, setReason] = useState("");
+  const save = async () => {
+    if (!reason.trim()) { toast.error("اذكر سبب الإرجاع"); return; }
+    const { error } = await (supabase as any).from("tasks").update({
+      status: "returned",
+      return_reason: reason.trim(),
+    }).eq("id", taskId);
+    if (error) { toast.error(error.message); return; }
+    toast.success("تم إرجاع المهمة للموظف");
+    setReason("");
+    onSaved();
+  };
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent dir="rtl">
+        <DialogHeader><DialogTitle>إرجاع المهمة لإعادة العمل</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <Label>سبب الإرجاع *</Label>
+          <Textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={4}
+            placeholder="اشرح ما يجب تعديله أو تحسينه..." />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>إلغاء</Button>
+          <Button onClick={save}>إرجاع المهمة</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

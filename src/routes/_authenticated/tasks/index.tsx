@@ -33,7 +33,7 @@ const priorityColor: Record<string, string> = {
   urgent: "bg-destructive/15 text-destructive",
 };
 
-type ChecklistDraft = { title: string };
+type ChecklistDraft = { title: string; weight: number };
 
 function emptyForm() {
   return {
@@ -45,6 +45,8 @@ function emptyForm() {
     title: "",
     description: "",
     due_date: "",
+    planned_start_date: "",
+    planned_end_date: "",
     assigned_to: "",
     assignee_ids: [] as string[],
     department_id: "",
@@ -178,18 +180,29 @@ function Page() {
     };
   }, [tasks]);
 
-  const addChecklistItem = () => setForm({ ...form, checklist: [...form.checklist, { title: "" }] });
-  const updateChecklist = (i: number, title: string) => {
+  const addChecklistItem = () => setForm({ ...form, checklist: [...form.checklist, { title: "", weight: 0 }] });
+  const updateChecklistTitle = (i: number, title: string) => {
     const next = [...form.checklist];
-    next[i] = { title };
+    next[i] = { ...next[i], title };
+    setForm({ ...form, checklist: next });
+  };
+  const updateChecklistWeight = (i: number, weight: number) => {
+    const next = [...form.checklist];
+    next[i] = { ...next[i], weight: Math.max(0, Math.min(100, weight || 0)) };
     setForm({ ...form, checklist: next });
   };
   const removeChecklistItem = (i: number) => {
     setForm({ ...form, checklist: form.checklist.filter((_, idx) => idx !== i) });
   };
+  const totalWeight = form.checklist.reduce((s, c) => s + (Number(c.weight) || 0), 0);
 
   const save = async () => {
     if (!form.title.trim()) { toast.error("العنوان مطلوب"); return; }
+    if (!form.planned_start_date) { toast.error("تاريخ البداية المخططة مطلوب"); return; }
+    if (!form.planned_end_date) { toast.error("تاريخ النهاية المخططة مطلوب"); return; }
+    if (new Date(form.planned_end_date) < new Date(form.planned_start_date)) {
+      toast.error("تاريخ النهاية المخططة قبل تاريخ البداية"); return;
+    }
     if (form.is_group_task && form.assignee_ids.length === 0) {
       toast.error("اختر مكلَّفًا واحدًا على الأقل للمهمة الجماعية"); return;
     }
@@ -199,6 +212,13 @@ function Page() {
     if (form.visibility === "department" && !form.department_id) {
       toast.error("اختر الإدارة"); return;
     }
+    const items = form.checklist.filter((c) => c.title.trim());
+    if (items.length > 0) {
+      const total = items.reduce((s, c) => s + (Number(c.weight) || 0), 0);
+      if (Math.round(total) !== 100) {
+        toast.error(`مجموع أوزان البنود يجب أن يساوي 100% (الحالي: ${total}%)`); return;
+      }
+    }
 
     const payload: any = {
       title: form.title.trim(),
@@ -206,7 +226,9 @@ function Page() {
       type: form.type,
       status: form.status,
       priority: form.priority,
-      due_date: form.due_date || null,
+      due_date: form.due_date || form.planned_end_date || null,
+      planned_start_date: form.planned_start_date,
+      planned_end_date: form.planned_end_date,
       visibility: form.visibility,
       is_group_task: form.is_group_task,
       department_id: form.visibility === "department" ? form.department_id : null,
@@ -219,17 +241,16 @@ function Page() {
     if (error) { toast.error(error.message); return; }
     const taskId = inserted!.id;
 
-    // Group assignees
     if (form.is_group_task && form.assignee_ids.length > 0) {
       const rows = form.assignee_ids.map((uid) => ({ task_id: taskId, user_id: uid }));
       const { error: aerr } = await supabase.from("task_assignees").insert(rows);
       if (aerr) toast.error(aerr.message);
     }
 
-    // Checklist items
-    const items = form.checklist.filter((c) => c.title.trim());
     if (items.length > 0) {
-      const rows = items.map((c, idx) => ({ task_id: taskId, title: c.title.trim(), order_index: idx + 1 }));
+      const rows = items.map((c, idx) => ({
+        task_id: taskId, title: c.title.trim(), order_index: idx + 1, weight: c.weight,
+      }));
       const { error: cerr } = await supabase.from("task_checklist_items").insert(rows);
       if (cerr) toast.error(cerr.message);
     }
@@ -364,8 +385,10 @@ function Page() {
         departments={departments}
         onSave={save}
         addChecklistItem={addChecklistItem}
-        updateChecklist={updateChecklist}
+        updateChecklistTitle={updateChecklistTitle}
+        updateChecklistWeight={updateChecklistWeight}
         removeChecklistItem={removeChecklistItem}
+        totalWeight={totalWeight}
       />
     </div>
   );
@@ -502,7 +525,7 @@ function TaskCard({
 
 function NewTaskDialog({
   open, onOpenChange, form, setForm, profiles, departments, onSave,
-  addChecklistItem, updateChecklist, removeChecklistItem,
+  addChecklistItem, updateChecklistTitle, updateChecklistWeight, removeChecklistItem, totalWeight,
 }: any) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -525,7 +548,20 @@ function NewTaskDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>تاريخ الاستحقاق</Label>
+              <Label>بداية مخططة *</Label>
+              <Input type="date" value={form.planned_start_date}
+                onChange={(e) => setForm({ ...form, planned_start_date: e.target.value })} />
+            </div>
+            <div>
+              <Label>نهاية مخططة *</Label>
+              <Input type="date" value={form.planned_end_date}
+                onChange={(e) => setForm({ ...form, planned_end_date: e.target.value })} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>تاريخ الاستحقاق (اختياري)</Label>
               <Input type="datetime-local" value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} />
             </div>
             <div>
@@ -612,32 +648,45 @@ function NewTaskDialog({
             </div>
           )}
 
-          {/* Checklist */}
+          {/* Weighted checklist */}
           <div className="border rounded-md p-3 space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="m-0">بنود المهمة / الإجراءات</Label>
+              <Label className="m-0">بنود المهمة / الأوزان (المجموع = 100%)</Label>
               <Button type="button" size="sm" variant="outline" onClick={addChecklistItem} className="gap-1">
                 <Plus className="w-3 h-3" /> إضافة بند
               </Button>
             </div>
             {form.checklist.length === 0 && (
-              <p className="text-xs text-muted-foreground">لا توجد بنود. أضف بنودًا لتقسيم المهمة إلى خطوات.</p>
+              <p className="text-xs text-muted-foreground">لا توجد بنود. أضف بنودًا موزونة لتقسيم المهمة (مثلاً: بند 30% + بند 70%).</p>
             )}
             {form.checklist.map((item: ChecklistDraft, idx: number) => (
               <div key={idx} className="flex items-center gap-2">
-                <GripVertical className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground w-6 text-center">{idx + 1}.</span>
+                <GripVertical className="w-4 h-4 text-muted-foreground shrink-0" />
+                <span className="text-sm text-muted-foreground w-6 text-center shrink-0">{idx + 1}.</span>
                 <Input
                   className="flex-1"
                   value={item.title}
                   placeholder="نص البند..."
-                  onChange={(e) => updateChecklist(idx, e.target.value)}
+                  onChange={(e) => updateChecklistTitle(idx, e.target.value)}
                 />
+                <Input
+                  type="number" min={0} max={100} step={5}
+                  className="w-20 text-center"
+                  value={item.weight}
+                  placeholder="%"
+                  onChange={(e) => updateChecklistWeight(idx, parseFloat(e.target.value))}
+                />
+                <span className="text-xs text-muted-foreground">%</span>
                 <Button type="button" size="icon" variant="ghost" onClick={() => removeChecklistItem(idx)}>
                   <Trash2 className="w-4 h-4 text-destructive" />
                 </Button>
               </div>
             ))}
+            {form.checklist.length > 0 && (
+              <div className={`text-xs font-bold text-left ${Math.round(totalWeight) === 100 ? "text-success" : "text-destructive"}`}>
+                مجموع الأوزان: {totalWeight}% {Math.round(totalWeight) === 100 ? "✓" : "(يجب أن يساوي 100%)"}
+              </div>
+            )}
           </div>
         </div>
         <DialogFooter>

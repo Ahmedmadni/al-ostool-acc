@@ -2264,6 +2264,7 @@ export type Database = {
           task_id: string
           title: string
           updated_at: string
+          weight: number
         }
         Insert: {
           created_at?: string
@@ -2275,6 +2276,7 @@ export type Database = {
           task_id: string
           title: string
           updated_at?: string
+          weight?: number
         }
         Update: {
           created_at?: string
@@ -2286,6 +2288,7 @@ export type Database = {
           task_id?: string
           title?: string
           updated_at?: string
+          weight?: number
         }
         Relationships: [
           {
@@ -2403,12 +2406,17 @@ export type Database = {
           due_date: string | null
           id: string
           is_group_task: boolean
+          manager_evaluation_notes: string | null
+          manager_evaluation_score: number | null
+          planned_end_date: string | null
+          planned_start_date: string | null
           priority: string | null
           project_id: string | null
           rated_at: string | null
           rated_by: string | null
           rating: number | null
           rating_note: string | null
+          return_reason: string | null
           started_at: string | null
           status: Database["public"]["Enums"]["task_status"] | null
           title: string
@@ -2434,12 +2442,17 @@ export type Database = {
           due_date?: string | null
           id?: string
           is_group_task?: boolean
+          manager_evaluation_notes?: string | null
+          manager_evaluation_score?: number | null
+          planned_end_date?: string | null
+          planned_start_date?: string | null
           priority?: string | null
           project_id?: string | null
           rated_at?: string | null
           rated_by?: string | null
           rating?: number | null
           rating_note?: string | null
+          return_reason?: string | null
           started_at?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title: string
@@ -2465,12 +2478,17 @@ export type Database = {
           due_date?: string | null
           id?: string
           is_group_task?: boolean
+          manager_evaluation_notes?: string | null
+          manager_evaluation_score?: number | null
+          planned_end_date?: string | null
+          planned_start_date?: string | null
           priority?: string | null
           project_id?: string | null
           rated_at?: string | null
           rated_by?: string | null
           rating?: number | null
           rating_note?: string | null
+          return_reason?: string | null
           started_at?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title?: string
@@ -2789,7 +2807,15 @@ export type Database = {
         | "completed"
         | "delayed"
       purchase_invoice_status: "draft" | "received" | "due" | "overdue" | "paid"
-      task_status: "pending" | "in_progress" | "done" | "cancelled" | "overdue"
+      task_status:
+        | "pending"
+        | "in_progress"
+        | "done"
+        | "cancelled"
+        | "overdue"
+        | "waiting_review"
+        | "approved"
+        | "returned"
       task_type:
         | "meeting"
         | "visit"
@@ -2973,7 +2999,16 @@ export const Constants = {
       po_status: ["draft", "approved", "partial", "received", "cancelled"],
       project_status: ["new", "in_progress", "on_hold", "completed", "delayed"],
       purchase_invoice_status: ["draft", "received", "due", "overdue", "paid"],
-      task_status: ["pending", "in_progress", "done", "cancelled", "overdue"],
+      task_status: [
+        "pending",
+        "in_progress",
+        "done",
+        "cancelled",
+        "overdue",
+        "waiting_review",
+        "approved",
+        "returned",
+      ],
       task_type: [
         "meeting",
         "visit",
