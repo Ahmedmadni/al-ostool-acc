@@ -50,6 +50,7 @@ import { Route as AuthenticatedTasksTeamRouteImport } from './routes/_authentica
 import { Route as AuthenticatedTasksIdRouteImport } from './routes/_authenticated/tasks/$id'
 import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authenticated/settings/users'
 import { Route as AuthenticatedSettingsRegionalRouteImport } from './routes/_authenticated/settings/regional'
+import { Route as AuthenticatedSettingsPermissionsDashboardRouteImport } from './routes/_authenticated/settings/permissions-dashboard'
 import { Route as AuthenticatedSettingsPermissionsRouteImport } from './routes/_authenticated/settings/permissions'
 import { Route as AuthenticatedSettingsApprovalsRouteImport } from './routes/_authenticated/settings/approvals'
 import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
@@ -301,6 +302,12 @@ const AuthenticatedSettingsRegionalRoute =
     path: '/settings/regional',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedSettingsPermissionsDashboardRoute =
+  AuthenticatedSettingsPermissionsDashboardRouteImport.update({
+    id: '/settings/permissions-dashboard',
+    path: '/settings/permissions-dashboard',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSettingsPermissionsRoute =
   AuthenticatedSettingsPermissionsRouteImport.update({
     id: '/settings/permissions',
@@ -432,6 +439,7 @@ export interface FileRoutesByFullPath {
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
   '/settings/permissions': typeof AuthenticatedSettingsPermissionsRoute
+  '/settings/permissions-dashboard': typeof AuthenticatedSettingsPermissionsDashboardRoute
   '/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/tasks/$id': typeof AuthenticatedTasksIdRoute
@@ -492,6 +500,7 @@ export interface FileRoutesByTo {
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
   '/settings/permissions': typeof AuthenticatedSettingsPermissionsRoute
+  '/settings/permissions-dashboard': typeof AuthenticatedSettingsPermissionsDashboardRoute
   '/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/tasks/$id': typeof AuthenticatedTasksIdRoute
@@ -554,6 +563,7 @@ export interface FileRoutesById {
   '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/_authenticated/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
   '/_authenticated/settings/permissions': typeof AuthenticatedSettingsPermissionsRoute
+  '/_authenticated/settings/permissions-dashboard': typeof AuthenticatedSettingsPermissionsDashboardRoute
   '/_authenticated/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/_authenticated/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/_authenticated/tasks/$id': typeof AuthenticatedTasksIdRoute
@@ -616,6 +626,7 @@ export interface FileRouteTypes {
     | '/receivables/aging'
     | '/settings/approvals'
     | '/settings/permissions'
+    | '/settings/permissions-dashboard'
     | '/settings/regional'
     | '/settings/users'
     | '/tasks/$id'
@@ -676,6 +687,7 @@ export interface FileRouteTypes {
     | '/receivables/aging'
     | '/settings/approvals'
     | '/settings/permissions'
+    | '/settings/permissions-dashboard'
     | '/settings/regional'
     | '/settings/users'
     | '/tasks/$id'
@@ -737,6 +749,7 @@ export interface FileRouteTypes {
     | '/_authenticated/receivables/aging'
     | '/_authenticated/settings/approvals'
     | '/_authenticated/settings/permissions'
+    | '/_authenticated/settings/permissions-dashboard'
     | '/_authenticated/settings/regional'
     | '/_authenticated/settings/users'
     | '/_authenticated/tasks/$id'
@@ -1071,6 +1084,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRegionalRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/settings/permissions-dashboard': {
+      id: '/_authenticated/settings/permissions-dashboard'
+      path: '/settings/permissions-dashboard'
+      fullPath: '/settings/permissions-dashboard'
+      preLoaderRoute: typeof AuthenticatedSettingsPermissionsDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/settings/permissions': {
       id: '/_authenticated/settings/permissions'
       path: '/settings/permissions'
@@ -1220,6 +1240,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
   AuthenticatedSettingsApprovalsRoute: typeof AuthenticatedSettingsApprovalsRoute
   AuthenticatedSettingsPermissionsRoute: typeof AuthenticatedSettingsPermissionsRoute
+  AuthenticatedSettingsPermissionsDashboardRoute: typeof AuthenticatedSettingsPermissionsDashboardRoute
   AuthenticatedSettingsRegionalRoute: typeof AuthenticatedSettingsRegionalRoute
   AuthenticatedSettingsUsersRoute: typeof AuthenticatedSettingsUsersRoute
   AuthenticatedTasksIdRoute: typeof AuthenticatedTasksIdRoute
@@ -1282,6 +1303,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
   AuthenticatedSettingsApprovalsRoute: AuthenticatedSettingsApprovalsRoute,
   AuthenticatedSettingsPermissionsRoute: AuthenticatedSettingsPermissionsRoute,
+  AuthenticatedSettingsPermissionsDashboardRoute:
+    AuthenticatedSettingsPermissionsDashboardRoute,
   AuthenticatedSettingsRegionalRoute: AuthenticatedSettingsRegionalRoute,
   AuthenticatedSettingsUsersRoute: AuthenticatedSettingsUsersRoute,
   AuthenticatedTasksIdRoute: AuthenticatedTasksIdRoute,
