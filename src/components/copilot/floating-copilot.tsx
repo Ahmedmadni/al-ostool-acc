@@ -103,7 +103,7 @@ export function FloatingCopilot() {
       {!open && (
         <Button
           onClick={() => setOpen(true)}
-          className={`fixed bottom-6 ${side} z-50 h-14 w-14 rounded-full shadow-2xl bg-gradient-to-br from-primary to-accent no-print`}
+          className={`fixed bottom-24 md:bottom-6 ${side} z-50 h-14 w-14 rounded-full shadow-2xl bg-gradient-to-br from-primary to-accent no-print`}
           title={t("copilot")}
         >
           <Bot className="w-6 h-6" />
@@ -111,7 +111,7 @@ export function FloatingCopilot() {
       )}
 
       {open && (
-        <Card className={`fixed bottom-6 ${side} z-50 w-[400px] max-w-[calc(100vw-3rem)] h-[560px] flex flex-col shadow-2xl border-2 no-print`} dir={dir}>
+        <Card className={`fixed bottom-24 md:bottom-6 ${side} z-50 w-[400px] max-w-[calc(100vw-3rem)] h-[560px] flex flex-col shadow-2xl border-2 no-print`} dir={dir}>
           <div className="flex items-center justify-between p-3 border-b bg-gradient-to-l from-primary/10 to-accent/10">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">

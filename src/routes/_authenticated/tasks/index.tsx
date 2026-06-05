@@ -16,8 +16,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Plus, Check, Clock, AlertTriangle, CheckCircle2, ListChecks, X, Trash2, GripVertical,
-  CheckSquare, EyeOff,
+  CheckSquare, EyeOff, Pencil,
 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { taskTypeLabel, taskStatusLabel, taskVisibilityLabel } from "@/lib/labels";
 import { fmtDate } from "@/lib/format";
 import { toast } from "sonner";
@@ -256,6 +257,14 @@ function Page() {
     }).eq("id", id);
     qc.invalidateQueries({ queryKey: ["tasks"] });
   };
+  const deleteTask = async (id: string) => {
+    await supabase.from("task_assignees").delete().eq("task_id", id);
+    await supabase.from("task_checklist_items").delete().eq("task_id", id);
+    const { error } = await supabase.from("tasks").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("تم حذف المهمة");
+    qc.invalidateQueries({ queryKey: ["tasks"] });
+  };
 
   return (
     <div>
@@ -335,9 +344,11 @@ function Page() {
                 profileById={profileById}
                 currentUserId={user?.id ?? ""}
                 showAssignmentInfo={tab !== "mine"}
+                canManage={canSeeAll}
                 onStart={() => startTask(t.id)}
                 onDone={() => markDone(t.id)}
                 onToggleItem={toggleChecklistItem}
+                onDelete={() => deleteTask(t.id)}
               />
             ))}
           </div>
@@ -361,10 +372,12 @@ function Page() {
 }
 
 function TaskCard({
-  task: t, profileById, currentUserId, showAssignmentInfo, onStart, onDone, onToggleItem,
+  task: t, profileById, currentUserId, showAssignmentInfo, canManage, onStart, onDone, onToggleItem, onDelete,
 }: {
   task: any; profileById: Record<string, any>; currentUserId: string; showAssignmentInfo: boolean;
+  canManage: boolean;
   onStart: () => void; onDone: () => void; onToggleItem: (id: string, checked: boolean) => void;
+  onDelete: () => void;
 }) {
   const isDone = t.status === "done";
   const overdue = !isDone && t.status !== "cancelled" && t.due_date && new Date(t.due_date) < new Date();
@@ -443,16 +456,46 @@ function TaskCard({
         {t.projects?.name && <div>📁 {t.projects.name}</div>}
       </div>
 
-      {!isDone && (
-        <div className="flex gap-2 mt-3">
-          {t.status === "pending" && (
-            <Button size="sm" variant="outline" className="flex-1" onClick={onStart}>بدء العمل</Button>
-          )}
+      <div className="flex gap-2 mt-3 flex-wrap">
+        {!isDone && t.status === "pending" && (
+          <Button size="sm" variant="outline" className="flex-1" onClick={onStart}>بدء العمل</Button>
+        )}
+        {!isDone && (
           <Button size="sm" className="flex-1 gap-1" onClick={onDone}>
             <Check className="w-4 h-4" />إنهاء
           </Button>
-        </div>
-      )}
+        )}
+        {canManage && (
+          <>
+            <Button asChild size="sm" variant="outline" className="gap-1">
+              <Link to="/tasks/$id" params={{ id: t.id }}>
+                <Pencil className="w-4 h-4" />تعديل
+              </Link>
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="sm" variant="outline" className="gap-1 text-destructive hover:text-destructive">
+                  <Trash2 className="w-4 h-4" />حذف
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent dir="rtl">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>حذف المهمة؟</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    سيتم حذف المهمة "{t.title}" نهائياً مع جميع البنود والمكلفين. لا يمكن التراجع.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                  <AlertDialogAction onClick={onDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    حذف
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </>
+        )}
+      </div>
     </Card>
   );
 }
