@@ -20,6 +20,8 @@ import {
 import { NotificationsBell } from "@/components/notifications/notifications-bell";
 import logo from "@/assets/logo.ico";
 import { toast } from "sonner";
+import { usePermissions } from "@/hooks/use-permissions";
+import { pathToModule } from "@/lib/route-permissions";
 
 type NavLink = { to: string; label: string };
 type NavGroup = { key: string; label: string; icon: React.ComponentType<{ className?: string }>; links: NavLink[] };
