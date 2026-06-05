@@ -16,8 +16,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Plus, Check, Clock, AlertTriangle, CheckCircle2, ListChecks, X, Trash2, GripVertical,
-  CheckSquare, EyeOff,
+  CheckSquare, EyeOff, Pencil,
 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { taskTypeLabel, taskStatusLabel, taskVisibilityLabel } from "@/lib/labels";
 import { fmtDate } from "@/lib/format";
 import { toast } from "sonner";
