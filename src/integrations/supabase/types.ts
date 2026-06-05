@@ -2409,6 +2409,7 @@ export type Database = {
           rated_by: string | null
           rating: number | null
           rating_note: string | null
+          started_at: string | null
           status: Database["public"]["Enums"]["task_status"] | null
           title: string
           type: Database["public"]["Enums"]["task_type"] | null
@@ -2439,6 +2440,7 @@ export type Database = {
           rated_by?: string | null
           rating?: number | null
           rating_note?: string | null
+          started_at?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title: string
           type?: Database["public"]["Enums"]["task_type"] | null
@@ -2469,6 +2471,7 @@ export type Database = {
           rated_by?: string | null
           rating?: number | null
           rating_note?: string | null
+          started_at?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           title?: string
           type?: Database["public"]["Enums"]["task_type"] | null
