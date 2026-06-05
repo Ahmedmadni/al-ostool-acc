@@ -257,6 +257,14 @@ function Page() {
     }).eq("id", id);
     qc.invalidateQueries({ queryKey: ["tasks"] });
   };
+  const deleteTask = async (id: string) => {
+    await supabase.from("task_assignees").delete().eq("task_id", id);
+    await supabase.from("task_checklist_items").delete().eq("task_id", id);
+    const { error } = await supabase.from("tasks").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("تم حذف المهمة");
+    qc.invalidateQueries({ queryKey: ["tasks"] });
+  };
 
   return (
     <div>
