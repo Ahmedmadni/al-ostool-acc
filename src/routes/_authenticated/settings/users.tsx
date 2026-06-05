@@ -175,11 +175,16 @@ function Page() {
                     </Select>
                   </TableCell>
                   <TableCell>
-                    {me?.id !== p.id && (
-                      <Button size="icon" variant="ghost" onClick={() => removeUser(p.id)} className="h-8 w-8 text-destructive">
-                        <Trash2 className="w-4 h-4" />
+                    <div className="flex gap-1">
+                      <Button asChild size="icon" variant="ghost" className="h-8 w-8" title="إدارة الصلاحيات">
+                        <Link to="/settings/permissions"><Shield className="w-4 h-4" /></Link>
                       </Button>
-                    )}
+                      {me?.id !== p.id && (
+                        <Button size="icon" variant="ghost" onClick={() => removeUser(p.id)} className="h-8 w-8 text-destructive">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               );
