@@ -159,7 +159,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         { to: "/settings/approvals", label: "اعتماد المستخدمين الجدد" },
         { to: "/settings/users", label: "إدارة المستخدمين" },
         { to: "/settings/permissions", label: "الصلاحيات" },
+        { to: "/settings/permissions-dashboard", label: "لوحة الصلاحيات والجاهزية" },
       ] : []),
+
     ],
   }), [isAdmin]);
 
