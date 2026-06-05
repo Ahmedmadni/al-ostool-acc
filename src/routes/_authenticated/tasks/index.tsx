@@ -281,11 +281,17 @@ function Page() {
         </div>
       </Card>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
         <StatCard icon={ListChecks} label="إجمالي المهام" value={allStats.total} tone="default" />
         <StatCard icon={Clock} label="قيد التنفيذ" value={allStats.pending} tone="warn" />
         <StatCard icon={CheckCircle2} label="مكتملة" value={allStats.done} tone="ok" />
         <StatCard icon={AlertTriangle} label="متأخرة" value={allStats.overdue} tone="danger" />
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
+        <StatCard icon={Clock} label="متوسط مدة التنفيذ (ساعة)" value={allStats.avgDurationHrs} tone="default" />
+        <StatCard icon={CheckCircle2} label="متوسط زمن الإنجاز (يوم)" value={allStats.avgCompletionDays} tone="ok" />
+        <StatCard icon={AlertTriangle} label="متوسط أيام التأخير" value={allStats.avgOverdueDays} tone="danger" />
       </div>
 
       <Tabs value={tab} onValueChange={setTab} className="mb-4">
