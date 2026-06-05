@@ -5,6 +5,8 @@ import { AppShell } from "@/components/layout/app-shell";
 import { I18nProvider } from "@/lib/i18n";
 import { RegionalProvider } from "@/lib/regional";
 import { FloatingCopilot } from "@/components/copilot/floating-copilot";
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
+import { InstallPrompt } from "@/components/pwa/install-prompt";
 
 export const Route = createFileRoute("/_authenticated")({ component: AuthLayout });
 
@@ -26,9 +28,10 @@ function AuthLayout() {
     <I18nProvider>
       <RegionalProvider>
         <AppShell><Outlet /></AppShell>
+        <MobileBottomNav />
         <FloatingCopilot />
+        <InstallPrompt />
       </RegionalProvider>
     </I18nProvider>
   );
 }
-
