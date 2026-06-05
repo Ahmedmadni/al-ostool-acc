@@ -1038,3 +1038,78 @@ function ProgressApprovalDialog({ open, onOpenChange, taskId, userId, currentVal
     </Dialog>
   );
 }
+
+function ManagerEvalDialog({ open, onOpenChange, taskId, currentValue, currentNotes, onSaved }: any) {
+  const [score, setScore] = useState<number>(currentValue ?? 0);
+  const [notes, setNotes] = useState<string>(currentNotes ?? "");
+  useEffect(() => { setScore(currentValue ?? 0); setNotes(currentNotes ?? ""); }, [currentValue, currentNotes, open]);
+  const save = async () => {
+    const { error } = await (supabase as any).from("tasks").update({
+      manager_evaluation_score: score,
+      manager_evaluation_notes: notes || null,
+    }).eq("id", taskId);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`تم حفظ تقييم المدير: ${score}%`);
+    onSaved();
+  };
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent dir="rtl">
+        <DialogHeader><DialogTitle>تقييم المدير (0 - 100%)</DialogTitle></DialogHeader>
+        <div className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            قيّم الجودة والدقة والالتزام والتواصل والتنفيذ. هذا التقييم يمثل 50% من النتيجة النهائية للموظف.
+          </p>
+          <div>
+            <Label>الدرجة: <span className="text-2xl font-bold text-primary mr-2">{score}%</span></Label>
+            <input type="range" min={0} max={100} step={5} value={score}
+              onChange={(e) => setScore(parseInt(e.target.value))} className="w-full mt-2" />
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
+              <span>0%</span><span>50%</span><span>100%</span>
+            </div>
+          </div>
+          <div>
+            <Label>ملاحظات التقييم</Label>
+            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3}
+              placeholder="مثلاً: تنفيذ ممتاز، ينقص التزام بالمواعيد..." />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>إلغاء</Button>
+          <Button onClick={save}>حفظ التقييم</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ReturnDialog({ open, onOpenChange, taskId, onSaved }: any) {
+  const [reason, setReason] = useState("");
+  const save = async () => {
+    if (!reason.trim()) { toast.error("اذكر سبب الإرجاع"); return; }
+    const { error } = await (supabase as any).from("tasks").update({
+      status: "returned",
+      return_reason: reason.trim(),
+    }).eq("id", taskId);
+    if (error) { toast.error(error.message); return; }
+    toast.success("تم إرجاع المهمة للموظف");
+    setReason("");
+    onSaved();
+  };
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent dir="rtl">
+        <DialogHeader><DialogTitle>إرجاع المهمة لإعادة العمل</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <Label>سبب الإرجاع *</Label>
+          <Textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={4}
+            placeholder="اشرح ما يجب تعديله أو تحسينه..." />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>إلغاء</Button>
+          <Button onClick={save}>إرجاع المهمة</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
