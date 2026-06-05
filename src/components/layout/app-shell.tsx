@@ -158,11 +158,24 @@ export function AppShell({ children }: { children: ReactNode }) {
       ...(isAdmin ? [
         { to: "/settings/approvals", label: "اعتماد المستخدمين الجدد" },
         { to: "/settings/users", label: "إدارة المستخدمين" },
+        { to: "/settings/permissions", label: "الصلاحيات" },
       ] : []),
     ],
   }), [isAdmin]);
 
-  const allGroups = useMemo(() => [...GROUPS, settingsGroup], [settingsGroup]);
+  const filterLink = (to: string) => {
+    if (isAdmin) return true;
+    const m = pathToModule(to);
+    if (!m) return true;
+    return can(m, "view");
+  };
+
+  const allGroups = useMemo(
+    () => [...GROUPS, settingsGroup]
+      .map((g) => ({ ...g, links: g.links.filter((l) => filterLink(l.to)) }))
+      .filter((g) => g.links.length > 0),
+    [settingsGroup, isAdmin, can], // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   const [openMap, setOpenMap] = useState<Record<string, boolean>>(loadOpen);
   useEffect(() => {
