@@ -1,65 +1,86 @@
-## Mobile PWA Navigation Redesign
+# نظام إدارة الصلاحيات المتقدم
 
-Transform the current limited mobile bottom nav (6 fixed items) and the small "additional menus" popup into a complete mobile app launcher exposing every module already present in the desktop sidebar.
+نظراً لحجم الطلب (10 أقسام، عشرات الموديولات × 10 إجراءات × عدد المستخدمين)، سأنفّذه على 4 مراحل متتابعة. هذا الـ Plan يغطي **المرحلة 1** التأسيسية، ثم نتابع البقية في رسائل لاحقة.
 
-### 1. New Bottom Navigation Bar (`src/components/layout/mobile-bottom-nav.tsx`)
+## نظرة عامة على المراحل
 
-Replace the existing 6 tabs with exactly 5:
+| المرحلة | المحتوى |
+|---|---|
+| **1 — البنية التحتية** (هذا الـ Plan) | الجداول، الكتالوج، RLS، Hook الصلاحيات، شاشة المصفوفة الأساسية |
+| 2 — التطبيق على الواجهة | حماية الموديولات الحالية (`can(module, action)`) + إخفاء الأزرار |
+| 3 — صلاحيات الإجراءات الخاصة + الموروثة | Inherited from Job Title + Special Actions + Tooltip |
+| 4 — Dashboard + Audit + تقرير الجاهزية | لوحة المتابعة + سجل التدقيق المخصص + تقرير الجاهزية الأمنية |
 
-- الرئيسية → `/dashboard`
-- المشاريع → `/projects`
-- العملاء → `/customers`
-- التقارير → `/reports`
-- المزيد → opens the new Launcher sheet (not a route)
+---
 
-The "More" button toggles a full-screen launcher overlay.
+## المرحلة 1: التفاصيل التقنية
 
-### 2. New Mobile App Launcher (`src/components/layout/mobile-app-launcher.tsx`)
+### 1) قاعدة البيانات (Migration واحدة)
 
-Full-screen sheet (using existing `ui/sheet`) opened from "More". Contents:
+**جدول `permission_modules`** — كتالوج الموديولات والصفحات:
+- `key` (نص فريد، مثل `customers`, `projects.list`)
+- `parent_key` (للصفحات الفرعية)
+- `name_ar`, `name_en`, `category`, `sort_order`
+- يُملأ مسبقاً ببيانات الـ 22 موديول + صفحاتها الفرعية
 
-**Header**
-- Title: "جميع الوحدات"
-- Search input (filters modules live by Arabic label)
-- Close button
+**جدول `permission_actions`** — قائمة الإجراءات المتاحة:
+- `key` (`view`, `create`, `edit`, `delete`, `approve`, `export`, `print`, `share`, `import`, `manage`)
+- `name_ar`
 
-**Favorites strip** (only when user has pinned modules)
-- Horizontal scroll row of pinned module icons
-- Long-press / star icon on any tile toggles favorite
-- Stored in `localStorage` under `mobile-launcher-favorites` (array of `to` paths)
+**جدول `user_permissions`** — الصلاحيات الفعّالة لكل مستخدم:
+- `user_id`, `module_key`, `action_key`, `granted` (boolean)
+- `source` (`inherited` / `manual`)
+- `granted_by`, `granted_at`
+- UNIQUE(user_id, module_key, action_key)
 
-**Categorized sections** (collapsible headers), each rendering a 4-column responsive icon grid (3 cols on very narrow widths):
+**جدول `job_title_permissions`** — صلاحيات افتراضية لكل وظيفة (للوراثة):
+- `job_title_id`, `module_key`, `action_key`
 
-1. **المالية (Financial)** — Invoices, Aging (Customers/Vendors), Banks, Treasury, Treasury Forecast, Cash Flow Matrix, Financial Statements hub + Balance Sheet, Income Statement, Cash Flow, Equity, KPIs, Trial Balance, Financial Indicators
-2. **المشاريع (Projects)** — Projects, Contracts, Progress, Project Control
-3. **التكاليف (Costs)** — Cost Intelligence, Cost Control, HR Costs (vendors top), Fixed Assets
-4. **الذكاء (Intelligence)** — Executive CFO, Customer Intelligence, Vendor Intelligence, AI Insights, Forecasting, Scenarios, Board Reports, Alerts, Copilot
-5. **العمليات (Operations)** — Customers, Vendors, Suppliers, Tasks, Team Performance, Reports Center, Import Center, Templates, Tax Tools, Notes, Notifications
-6. **الإدارة (Administration)** — Regional Settings, User Approvals (admin), Users (admin), Account
+**جدول `permission_audit_log`**:
+- `user_id` (المستهدف), `changed_by`, `module_key`, `action_key`, `old_value`, `new_value`, `changed_at`
 
-Each tile: icon + label, tap navigates and closes the sheet. A small star button in the corner toggles favorite.
+**RLS لكل الجداول**: قراءة للجميع المسجلين، كتابة فقط لـ `is_admin()`.
 
-**Module catalog** lives in one shared file `src/lib/mobile-modules.ts` exporting `MODULES: { to, label, icon, category }[]` so the launcher, search, and favorites all read from a single source. The catalog mirrors the existing desktop `GROUPS` from `app-shell.tsx` plus the missing routes (`/copilot`, `/notes`, `/notifications`, `/account`, `/imports/upload`, etc.).
+**الدوال:**
+- `has_permission(_user uuid, _module text, _action text) returns boolean` — SECURITY DEFINER، تتحقق من `user_permissions` ثم تسقط على الوراثة من `job_title_permissions`. تُرجع `true` دائماً للـ admin.
+- Trigger على `user_permissions` لتسجيل التغييرات في `permission_audit_log`.
 
-### 3. Wire into `_authenticated.tsx`
+### 2) طبقة الواجهة (Frontend)
 
-Add launcher state at layout level: `const [launcherOpen, setLauncherOpen] = useState(false)`, pass setter to `MobileBottomNav`, render `<MobileAppLauncher open={launcherOpen} onOpenChange={setLauncherOpen} />`.
+**`src/lib/permissions.ts`**:
+- ثوابت `MODULES` و `ACTIONS` و `MODULE_TREE` (شجرة الموديولات والصفحات الفرعية).
+- ثوابت `SPECIAL_ACTIONS` (اعتماد فاتورة، اعتماد دفعة، …).
 
-### 4. Mobile Header search hookup
+**`src/hooks/use-permissions.ts`**:
+- يجلب صلاحيات المستخدم الحالي مرة واحدة (React Query).
+- يُصدّر `can(module, action)` و `cannot(...)`.
+- admin = `true` دائماً.
 
-The existing top header is hidden behind the desktop sidebar layout on mobile. Ensure the launcher's own search box is the primary discovery surface on mobile. No change to desktop.
+### 3) شاشة المصفوفة `src/routes/_authenticated/settings/permissions.tsx`
 
-### 5. Audit Report
+- جدول كبير: الصفوف = الموديولات (مع الصفحات الفرعية قابلة للطي)، الأعمدة = الإجراءات.
+- اختيار المستخدم من Dropdown في الأعلى.
+- Checkboxes شفافة (موروثة) و معتمة (يدوية).
+- زر **"إعادة للوراثة"** لكل مستخدم.
+- زر **"تطبيق صلاحيات الوظيفة"** يجلب من `job_title_permissions`.
 
-After implementation, produce an in-chat report listing every desktop route from `GROUPS` + `settingsGroup` mapped to:
-- Mobile visibility: ✅ Bottom nav / ✅ Launcher category / ❌ Missing
-- Navigation path (e.g. "More → الذكاء → ذكاء العملاء")
+### 4) ترقية شاشة المستخدمين الحالية
 
-Goal: 0 missing modules.
+في `src/routes/_authenticated/settings/users.tsx`:
+- إضافة عمود **"المدير المباشر"** (حقل `manager_id` في `profiles` — migration صغيرة).
+- زر **"الصلاحيات"** بجانب كل مستخدم يفتح شاشة المصفوفة عليه مباشرة.
+- Tooltip يعرض ملخص الصلاحيات (الإدارة + الوظيفة + أهم 5 صلاحيات ممنوحة + أهم 3 ممنوعة).
 
-### Out of scope
+---
 
-- No backend / DB changes
-- No desktop sidebar changes
-- No new icons (reuse lucide-react already imported)
-- No changes to routing or auth
+## مخرجات نهاية المرحلة 1
+
+- جداول الصلاحيات جاهزة مع RLS وكتالوج كامل بـ 22 موديول.
+- دالة `has_permission` تعمل من الـ DB.
+- Hook `usePermissions` يعمل في الواجهة.
+- شاشة مصفوفة كاملة قابلة للتعديل لكل مستخدم.
+- Migration واحدة + ~5 ملفات Frontend جديدة/معدّلة.
+
+بعد موافقتك على هذه المرحلة سأنفّذها، ثم ننتقل للمرحلة 2 (تطبيق `can()` على شاشات النظام الفعلية).
+
+هل أبدأ بالمرحلة 1؟

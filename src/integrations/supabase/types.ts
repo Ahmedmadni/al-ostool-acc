@@ -1522,6 +1522,52 @@ export type Database = {
           },
         ]
       }
+      job_title_permissions: {
+        Row: {
+          action_key: string
+          granted: boolean
+          id: string
+          job_title_id: string
+          module_key: string
+        }
+        Insert: {
+          action_key: string
+          granted?: boolean
+          id?: string
+          job_title_id: string
+          module_key: string
+        }
+        Update: {
+          action_key?: string
+          granted?: boolean
+          id?: string
+          job_title_id?: string
+          module_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_title_permissions_action_key_fkey"
+            columns: ["action_key"]
+            isOneToOne: false
+            referencedRelation: "permission_actions"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "job_title_permissions_job_title_id_fkey"
+            columns: ["job_title_id"]
+            isOneToOne: false
+            referencedRelation: "job_titles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_title_permissions_module_key_fkey"
+            columns: ["module_key"]
+            isOneToOne: false
+            referencedRelation: "permission_modules"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
       job_titles: {
         Row: {
           code: string | null
@@ -1731,6 +1777,95 @@ export type Database = {
           },
         ]
       }
+      permission_actions: {
+        Row: {
+          key: string
+          name_ar: string
+          sort_order: number
+        }
+        Insert: {
+          key: string
+          name_ar: string
+          sort_order?: number
+        }
+        Update: {
+          key?: string
+          name_ar?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      permission_audit_log: {
+        Row: {
+          action_key: string
+          changed_at: string
+          changed_by: string | null
+          id: string
+          module_key: string
+          new_value: boolean | null
+          old_value: boolean | null
+          user_id: string
+        }
+        Insert: {
+          action_key: string
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          module_key: string
+          new_value?: boolean | null
+          old_value?: boolean | null
+          user_id: string
+        }
+        Update: {
+          action_key?: string
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          module_key?: string
+          new_value?: boolean | null
+          old_value?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      permission_modules: {
+        Row: {
+          category: string | null
+          created_at: string
+          key: string
+          name_ar: string
+          name_en: string | null
+          parent_key: string | null
+          sort_order: number
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          key: string
+          name_ar: string
+          name_en?: string | null
+          parent_key?: string | null
+          sort_order?: number
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          key?: string
+          name_ar?: string
+          name_en?: string | null
+          parent_key?: string | null
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permission_modules_parent_key_fkey"
+            columns: ["parent_key"]
+            isOneToOne: false
+            referencedRelation: "permission_modules"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
       personal_notes: {
         Row: {
           color: string
@@ -1788,6 +1923,7 @@ export type Database = {
           full_name: string | null
           id: string
           job_title_id: string | null
+          manager_id: string | null
           phone: string | null
           status: string
           updated_at: string
@@ -1803,6 +1939,7 @@ export type Database = {
           full_name?: string | null
           id: string
           job_title_id?: string | null
+          manager_id?: string | null
           phone?: string | null
           status?: string
           updated_at?: string
@@ -1818,6 +1955,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           job_title_id?: string | null
+          manager_id?: string | null
           phone?: string | null
           status?: string
           updated_at?: string
@@ -2571,6 +2709,54 @@ export type Database = {
           },
         ]
       }
+      user_permissions: {
+        Row: {
+          action_key: string
+          granted: boolean
+          granted_at: string
+          granted_by: string | null
+          id: string
+          module_key: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          action_key: string
+          granted?: boolean
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          module_key: string
+          source?: string
+          user_id: string
+        }
+        Update: {
+          action_key?: string
+          granted?: boolean
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          module_key?: string
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_permissions_action_key_fkey"
+            columns: ["action_key"]
+            isOneToOne: false
+            referencedRelation: "permission_actions"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "user_permissions_module_key_fkey"
+            columns: ["module_key"]
+            isOneToOne: false
+            referencedRelation: "permission_modules"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -2734,6 +2920,10 @@ export type Database = {
           _user_id: string
         }
         Returns: undefined
+      }
+      has_permission: {
+        Args: { _action: string; _module: string; _user_id: string }
+        Returns: boolean
       }
       has_role: {
         Args: {
