@@ -115,7 +115,7 @@ export function FloatingCopilot() {
           <div className="flex items-center justify-between p-3 border-b bg-gradient-to-l from-primary/10 to-accent/10">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-white" />
+                <Bot className="w-4 h-4 text-white" />
               </div>
               <div>
                 <div className="font-bold text-sm">{t("copilot")}</div>
