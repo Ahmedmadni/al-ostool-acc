@@ -198,6 +198,11 @@ function Page() {
 
   const save = async () => {
     if (!form.title.trim()) { toast.error("العنوان مطلوب"); return; }
+    if (!form.planned_start_date) { toast.error("تاريخ البداية المخططة مطلوب"); return; }
+    if (!form.planned_end_date) { toast.error("تاريخ النهاية المخططة مطلوب"); return; }
+    if (new Date(form.planned_end_date) < new Date(form.planned_start_date)) {
+      toast.error("تاريخ النهاية المخططة قبل تاريخ البداية"); return;
+    }
     if (form.is_group_task && form.assignee_ids.length === 0) {
       toast.error("اختر مكلَّفًا واحدًا على الأقل للمهمة الجماعية"); return;
     }
@@ -207,6 +212,13 @@ function Page() {
     if (form.visibility === "department" && !form.department_id) {
       toast.error("اختر الإدارة"); return;
     }
+    const items = form.checklist.filter((c) => c.title.trim());
+    if (items.length > 0) {
+      const total = items.reduce((s, c) => s + (Number(c.weight) || 0), 0);
+      if (Math.round(total) !== 100) {
+        toast.error(`مجموع أوزان البنود يجب أن يساوي 100% (الحالي: ${total}%)`); return;
+      }
+    }
 
     const payload: any = {
       title: form.title.trim(),
@@ -214,7 +226,9 @@ function Page() {
       type: form.type,
       status: form.status,
       priority: form.priority,
-      due_date: form.due_date || null,
+      due_date: form.due_date || form.planned_end_date || null,
+      planned_start_date: form.planned_start_date,
+      planned_end_date: form.planned_end_date,
       visibility: form.visibility,
       is_group_task: form.is_group_task,
       department_id: form.visibility === "department" ? form.department_id : null,
@@ -227,17 +241,16 @@ function Page() {
     if (error) { toast.error(error.message); return; }
     const taskId = inserted!.id;
 
-    // Group assignees
     if (form.is_group_task && form.assignee_ids.length > 0) {
       const rows = form.assignee_ids.map((uid) => ({ task_id: taskId, user_id: uid }));
       const { error: aerr } = await supabase.from("task_assignees").insert(rows);
       if (aerr) toast.error(aerr.message);
     }
 
-    // Checklist items
-    const items = form.checklist.filter((c) => c.title.trim());
     if (items.length > 0) {
-      const rows = items.map((c, idx) => ({ task_id: taskId, title: c.title.trim(), order_index: idx + 1 }));
+      const rows = items.map((c, idx) => ({
+        task_id: taskId, title: c.title.trim(), order_index: idx + 1, weight: c.weight,
+      }));
       const { error: cerr } = await supabase.from("task_checklist_items").insert(rows);
       if (cerr) toast.error(cerr.message);
     }
