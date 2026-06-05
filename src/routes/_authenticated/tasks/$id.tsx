@@ -16,11 +16,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   ArrowRight, Send, CheckCircle2, CalendarClock, UserPlus, Star,
-  Paperclip, AlertTriangle, MessageSquare, Trash2,
+  Paperclip, AlertTriangle, MessageSquare, Trash2, Download, Eye,
+  Upload, FileText, Image as ImageIcon, RotateCcw, ThumbsUp,
 } from "lucide-react";
 import { taskTypeLabel, taskStatusLabel } from "@/lib/labels";
 import { fmtDate } from "@/lib/format";
 import { toast } from "sonner";
+import {
+  ACCEPTED_ATTACHMENT_TYPES, MAX_ATTACHMENT_BYTES, formatBytes,
+  isImage, isPdf, checklistCompletion, finalScore,
+  plannedDuration, remainingDays, delayDays,
+} from "@/lib/task-scoring";
 
 export const Route = createFileRoute("/_authenticated/tasks/$id")({ component: Page });
 
