@@ -8,7 +8,8 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
-import { Info, Star } from "lucide-react";
+import { Info, Star, Trophy } from "lucide-react";
+import { checklistCompletion, finalScore } from "@/lib/task-scoring";
 
 export const Route = createFileRoute("/_authenticated/tasks/team")({ component: Page });
 
