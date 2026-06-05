@@ -459,28 +459,88 @@ function Page() {
             <div className="font-semibold mb-3 flex items-center gap-2">
               <Paperclip className="w-4 h-4" /> المرفقات ({attachments.length})
             </div>
-            <Input
-              type="file"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) uploadAttachment(f);
-                e.target.value = "";
+
+            <label
+              htmlFor="task-file-input"
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragOver(false);
+                if (e.dataTransfer.files?.length) handleFilesDropped(e.dataTransfer.files);
               }}
-              className="mb-3"
-            />
-            <div className="space-y-2">
-              {attachments.map((a: any) => (
-                <div key={a.id} className="flex items-center gap-2 p-2 border rounded-md text-sm">
-                  <Paperclip className="w-4 h-4 text-muted-foreground" />
-                  <button className="flex-1 text-right hover:underline" onClick={() => downloadAttachment(a)}>
-                    {a.file_name}
-                  </button>
-                  <Button size="icon" variant="ghost" onClick={() => removeAttachment(a)}>
-                    <Trash2 className="w-4 h-4 text-destructive" />
-                  </Button>
+              className={`block border-2 border-dashed rounded-md p-4 text-center text-sm cursor-pointer transition-colors mb-3 ${
+                dragOver ? "border-primary bg-primary/5" : "border-border hover:bg-muted/30"
+              }`}
+            >
+              <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+              <div className="font-medium">اسحب وأفلت الملفات هنا، أو اضغط للاختيار</div>
+              <div className="text-[11px] text-muted-foreground mt-1">
+                JPG / PNG / WEBP · PDF · XLSX / XLS · DOCX · ZIP — حتى {formatBytes(MAX_ATTACHMENT_BYTES)}
+              </div>
+              <input
+                id="task-file-input"
+                type="file"
+                multiple
+                accept=".jpg,.jpeg,.png,.webp,.pdf,.xlsx,.xls,.docx,.zip,image/*,application/pdf"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files?.length) handleFilesDropped(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+
+            {uploadingName && (
+              <div className="mb-3 p-2 rounded border bg-info/5 border-info/30">
+                <div className="text-xs mb-1 flex justify-between">
+                  <span className="truncate">جارٍ رفع: {uploadingName}</span>
+                  <span>{uploadProgress}%</span>
                 </div>
-              ))}
-              {attachments.length === 0 && <div className="text-xs text-muted-foreground">لا توجد مرفقات</div>}
+                <Progress value={uploadProgress} className="h-1.5" />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              {attachments.map((a: any) => {
+                const uploader = profileById[a.uploaded_by];
+                const img = isImage(a.mime_type);
+                const pdf = isPdf(a.mime_type);
+                return (
+                  <div key={a.id} className="flex items-center gap-2 p-2 border rounded-md text-sm">
+                    {img ? <ImageIcon className="w-5 h-5 text-info shrink-0" />
+                      : pdf ? <FileText className="w-5 h-5 text-destructive shrink-0" />
+                      : <Paperclip className="w-5 h-5 text-muted-foreground shrink-0" />}
+                    <div className="flex-1 min-w-0">
+                      <button className="block w-full text-right hover:underline truncate font-medium"
+                        onClick={() => (img || pdf) ? openPreview(a) : downloadAttachment(a)}>
+                        {a.file_name}
+                      </button>
+                      <div className="text-[10px] text-muted-foreground flex gap-2 flex-wrap">
+                        <span>{formatBytes(a.size_bytes)}</span>
+                        <span>•</span>
+                        <span>{uploader?.full_name || uploader?.email || "—"}</span>
+                        <span>•</span>
+                        <span>{fmtDate(a.created_at)}</span>
+                      </div>
+                    </div>
+                    {(img || pdf) && (
+                      <Button size="icon" variant="ghost" onClick={() => openPreview(a)} title="معاينة">
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                    )}
+                    <Button size="icon" variant="ghost" onClick={() => downloadAttachment(a)} title="تحميل">
+                      <Download className="w-4 h-4" />
+                    </Button>
+                    {(a.uploaded_by === user?.id || isAdmin || isCreator) && (
+                      <Button size="icon" variant="ghost" onClick={() => removeAttachment(a)} title="حذف">
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+              {attachments.length === 0 && <div className="text-xs text-muted-foreground text-center py-3">لا توجد مرفقات</div>}
             </div>
           </Card>
         </div>
