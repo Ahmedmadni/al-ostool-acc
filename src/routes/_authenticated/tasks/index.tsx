@@ -344,9 +344,11 @@ function Page() {
                 profileById={profileById}
                 currentUserId={user?.id ?? ""}
                 showAssignmentInfo={tab !== "mine"}
+                canManage={canSeeAll}
                 onStart={() => startTask(t.id)}
                 onDone={() => markDone(t.id)}
                 onToggleItem={toggleChecklistItem}
+                onDelete={() => deleteTask(t.id)}
               />
             ))}
           </div>
