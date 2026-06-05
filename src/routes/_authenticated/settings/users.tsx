@@ -12,10 +12,11 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { roleLabel } from "@/lib/labels";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Pencil, Check, Plus, Trash2, Shield } from "lucide-react";
+import { Pencil, Check, Plus, Trash2, Shield, Info } from "lucide-react";
 import { createUserByAdmin, deleteUserByAdmin } from "@/lib/admin-users.functions";
 
 export const Route = createFileRoute("/_authenticated/settings/users")({ component: Page });
@@ -48,7 +49,19 @@ function Page() {
 
   const { data: profiles = [] } = useQuery({
     queryKey: ["profiles-admin"],
-    queryFn: async () => (await (supabase as any).from("profiles").select("*, departments(name_ar), job_titles(name_ar)").order("created_at", { ascending: false })).data ?? [],
+    queryFn: async () => (await (supabase as any).from("profiles").select("*, departments(name_ar), job_titles(name_ar), manager:manager_id(full_name)").order("created_at", { ascending: false })).data ?? [],
+  });
+  const { data: permCounts = {} } = useQuery({
+    queryKey: ["perm-counts"],
+    queryFn: async () => {
+      const { data } = await (supabase as any).from("user_permissions").select("user_id, granted");
+      const out: Record<string, { allow: number; deny: number }> = {};
+      for (const r of data ?? []) {
+        out[r.user_id] = out[r.user_id] ?? { allow: 0, deny: 0 };
+        if (r.granted) out[r.user_id].allow++; else out[r.user_id].deny++;
+      }
+      return out;
+    },
   });
   const { data: userRoles = [] } = useQuery({
     queryKey: ["all-roles"],
@@ -73,6 +86,11 @@ function Page() {
     const { error } = await (supabase as any).from("profiles").update({ status }).eq("id", userId);
     if (error) toast.error(error.message);
     else { toast.success("تم تحديث الحالة"); qc.invalidateQueries({ queryKey: ["profiles-admin"] }); }
+  };
+  const changeManager = async (userId: string, manager_id: string | null) => {
+    const { error } = await (supabase as any).from("profiles").update({ manager_id }).eq("id", userId);
+    if (error) toast.error(error.message);
+    else { toast.success("تم تحديث المدير المباشر"); qc.invalidateQueries({ queryKey: ["profiles-admin"] }); }
   };
   const saveEmp = async (userId: string) => {
     const { error } = await (supabase as any).from("profiles").update({ employee_id: editEmp }).eq("id", userId);
@@ -128,6 +146,7 @@ function Page() {
               <TableHead>البريد</TableHead>
               <TableHead>الإدارة</TableHead>
               <TableHead>الوظيفة</TableHead>
+              <TableHead>المدير المباشر</TableHead>
               <TableHead>الحالة</TableHead>
               <TableHead>الدور</TableHead>
               <TableHead></TableHead>
@@ -135,7 +154,7 @@ function Page() {
           </TableHeader>
           <TableBody>
             {profiles.length === 0 ? (
-              <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">لا يوجد مستخدمون بعد</TableCell></TableRow>
+              <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">لا يوجد مستخدمون بعد</TableCell></TableRow>
             ) : profiles.map((p: any) => {
               const role = userRoles.find((r: any) => r.user_id === p.id)?.role ?? "accountant";
               const s = statusLabel[p.status ?? "active"] ?? { label: p.status, variant: "outline" as const };
@@ -159,6 +178,17 @@ function Page() {
                   <TableCell className="text-xs">{p.departments?.name_ar ?? "—"}</TableCell>
                   <TableCell className="text-xs">{p.job_titles?.name_ar ?? "—"}</TableCell>
                   <TableCell>
+                    <Select value={p.manager_id ?? "__none__"} onValueChange={(v) => changeManager(p.id, v === "__none__" ? null : v)}>
+                      <SelectTrigger className="w-44 h-8"><SelectValue placeholder="—" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">— بدون —</SelectItem>
+                        {profiles.filter((x: any) => x.id !== p.id).map((x: any) => (
+                          <SelectItem key={x.id} value={x.id}>{x.full_name ?? x.email}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
                     <Select value={p.status ?? "active"} onValueChange={(v) => changeStatus(p.id, v)}>
                       <SelectTrigger className="w-32 h-8"><SelectValue><Badge variant={s.variant}>{s.label}</Badge></SelectValue></SelectTrigger>
                       <SelectContent>
@@ -175,7 +205,26 @@ function Page() {
                     </Select>
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 items-center">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="text-muted-foreground"><Info className="w-4 h-4" /></span>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs text-right">
+                            <div className="space-y-1 text-xs">
+                              <div><b>الإدارة:</b> {p.departments?.name_ar ?? "—"}</div>
+                              <div><b>الوظيفة:</b> {p.job_titles?.name_ar ?? "—"}</div>
+                              <div><b>المدير:</b> {p.manager?.full_name ?? "—"}</div>
+                              <div><b>الدور:</b> {roleLabel[role as keyof typeof roleLabel] ?? role}</div>
+                              <div className="pt-1 border-t border-border/30">
+                                <b>صلاحيات يدوية:</b> {(permCounts as any)[p.id]?.allow ?? 0} مسموح ·
+                                {" "}{(permCounts as any)[p.id]?.deny ?? 0} ممنوع
+                              </div>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       <Button asChild size="icon" variant="ghost" className="h-8 w-8" title="إدارة الصلاحيات">
                         <Link to="/settings/permissions"><Shield className="w-4 h-4" /></Link>
                       </Button>
