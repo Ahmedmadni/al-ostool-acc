@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { X, Send, Sparkles, Loader2 } from "lucide-react";
+import { X, Send, Bot, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -106,7 +106,7 @@ export function FloatingCopilot() {
           className={`fixed bottom-6 ${side} z-50 h-14 w-14 rounded-full shadow-2xl bg-gradient-to-br from-primary to-accent no-print`}
           title={t("copilot")}
         >
-          <Sparkles className="w-6 h-6" />
+          <Bot className="w-6 h-6" />
         </Button>
       )}
 
@@ -115,7 +115,7 @@ export function FloatingCopilot() {
           <div className="flex items-center justify-between p-3 border-b bg-gradient-to-l from-primary/10 to-accent/10">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-white" />
+                <Bot className="w-4 h-4 text-white" />
               </div>
               <div>
                 <div className="font-bold text-sm">{t("copilot")}</div>
