@@ -372,8 +372,10 @@ function Page() {
         departments={departments}
         onSave={save}
         addChecklistItem={addChecklistItem}
-        updateChecklist={updateChecklist}
+        updateChecklistTitle={updateChecklistTitle}
+        updateChecklistWeight={updateChecklistWeight}
         removeChecklistItem={removeChecklistItem}
+        totalWeight={totalWeight}
       />
     </div>
   );
