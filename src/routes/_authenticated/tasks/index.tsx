@@ -33,7 +33,7 @@ const priorityColor: Record<string, string> = {
   urgent: "bg-destructive/15 text-destructive",
 };
 
-type ChecklistDraft = { title: string };
+type ChecklistDraft = { title: string; weight: number };
 
 function emptyForm() {
   return {
@@ -45,6 +45,8 @@ function emptyForm() {
     title: "",
     description: "",
     due_date: "",
+    planned_start_date: "",
+    planned_end_date: "",
     assigned_to: "",
     assignee_ids: [] as string[],
     department_id: "",
