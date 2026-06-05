@@ -30,7 +30,7 @@ function AuthLayout() {
   return (
     <I18nProvider>
       <RegionalProvider>
-        <AppShell><Outlet /></AppShell>
+        <AppShell><RoutePermissionGate><Outlet /></RoutePermissionGate></AppShell>
         <MobileBottomNav onOpenLauncher={() => setLauncherOpen(true)} />
         <MobileAppLauncher open={launcherOpen} onOpenChange={setLauncherOpen} />
         <FloatingCopilot />
