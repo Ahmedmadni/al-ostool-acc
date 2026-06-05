@@ -743,6 +743,43 @@ function Page() {
           qc.invalidateQueries({ queryKey: ["all-tasks-team"] });
         }}
       />
+      <ManagerEvalDialog
+        open={managerEvalOpen}
+        onOpenChange={setManagerEvalOpen}
+        taskId={id}
+        currentValue={task.manager_evaluation_score ?? 0}
+        currentNotes={task.manager_evaluation_notes ?? ""}
+        onSaved={() => {
+          setManagerEvalOpen(false);
+          qc.invalidateQueries({ queryKey: ["task", id] });
+          qc.invalidateQueries({ queryKey: ["all-tasks-team"] });
+        }}
+      />
+      <ReturnDialog
+        open={returnOpen}
+        onOpenChange={setReturnOpen}
+        taskId={id}
+        onSaved={() => {
+          setReturnOpen(false);
+          qc.invalidateQueries({ queryKey: ["task", id] });
+          qc.invalidateQueries({ queryKey: ["tasks"] });
+        }}
+      />
+      <Dialog open={!!previewAtt} onOpenChange={(o) => { if (!o) { setPreviewAtt(null); setPreviewUrl(null); } }}>
+        <DialogContent dir="rtl" className="max-w-4xl max-h-[90vh]">
+          <DialogHeader><DialogTitle className="truncate">{previewAtt?.file_name}</DialogTitle></DialogHeader>
+          {previewUrl && previewAtt && (isImage(previewAtt.mime_type) ? (
+            <img src={previewUrl} alt={previewAtt.file_name} className="max-h-[70vh] mx-auto object-contain" />
+          ) : isPdf(previewAtt.mime_type) ? (
+            <iframe src={previewUrl} className="w-full h-[70vh] border rounded" title={previewAtt.file_name} />
+          ) : (
+            <div className="text-center text-sm text-muted-foreground p-8">المعاينة غير متاحة لهذا النوع — استخدم زر التحميل.</div>
+          ))}
+          <DialogFooter>
+            {previewUrl && <Button variant="outline" onClick={() => window.open(previewUrl!, "_blank")}>فتح في تبويب جديد</Button>}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
