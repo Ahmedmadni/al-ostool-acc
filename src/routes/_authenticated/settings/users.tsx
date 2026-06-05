@@ -178,6 +178,17 @@ function Page() {
                   <TableCell className="text-xs">{p.departments?.name_ar ?? "—"}</TableCell>
                   <TableCell className="text-xs">{p.job_titles?.name_ar ?? "—"}</TableCell>
                   <TableCell>
+                    <Select value={p.manager_id ?? "__none__"} onValueChange={(v) => changeManager(p.id, v === "__none__" ? null : v)}>
+                      <SelectTrigger className="w-44 h-8"><SelectValue placeholder="—" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">— بدون —</SelectItem>
+                        {profiles.filter((x: any) => x.id !== p.id).map((x: any) => (
+                          <SelectItem key={x.id} value={x.id}>{x.full_name ?? x.email}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
                     <Select value={p.status ?? "active"} onValueChange={(v) => changeStatus(p.id, v)}>
                       <SelectTrigger className="w-32 h-8"><SelectValue><Badge variant={s.variant}>{s.label}</Badge></SelectValue></SelectTrigger>
                       <SelectContent>
@@ -194,7 +205,26 @@ function Page() {
                     </Select>
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 items-center">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="text-muted-foreground"><Info className="w-4 h-4" /></span>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs text-right">
+                            <div className="space-y-1 text-xs">
+                              <div><b>الإدارة:</b> {p.departments?.name_ar ?? "—"}</div>
+                              <div><b>الوظيفة:</b> {p.job_titles?.name_ar ?? "—"}</div>
+                              <div><b>المدير:</b> {p.manager?.full_name ?? "—"}</div>
+                              <div><b>الدور:</b> {roleLabel[role as keyof typeof roleLabel] ?? role}</div>
+                              <div className="pt-1 border-t border-border/30">
+                                <b>صلاحيات يدوية:</b> {(permCounts as any)[p.id]?.allow ?? 0} مسموح ·
+                                {" "}{(permCounts as any)[p.id]?.deny ?? 0} ممنوع
+                              </div>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       <Button asChild size="icon" variant="ghost" className="h-8 w-8" title="إدارة الصلاحيات">
                         <Link to="/settings/permissions"><Shield className="w-4 h-4" /></Link>
                       </Button>
