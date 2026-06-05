@@ -591,6 +591,9 @@ function Page() {
                   : "اعتماد نسبة إنجاز"}
               </Button>
             </Card>
+          )}
+
+
 
           {/* Manager evaluation 0-100 (NEW: half of final score) */}
           {(isCreator || isAdmin) && (
