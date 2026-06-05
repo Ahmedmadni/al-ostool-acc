@@ -37,7 +37,7 @@ export function MobileAppLauncher({ open, onOpenChange }: Props) {
       if (!mod) return true;
       return can(mod, "view");
     }),
-    [isAdmin, can, pathToModule],
+    [isAdmin, can],
   );
 
   const filtered = useMemo(() => {
