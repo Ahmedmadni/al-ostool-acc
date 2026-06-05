@@ -140,6 +140,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { theme, toggle } = useTheme();
   const { lang, setLang } = useI18n();
   const { user, roles, isAdmin } = useAuth();
+  const { can } = usePermissions();
   const router = useRouter();
   const path = useRouterState({ select: (s) => s.location.pathname });
 
