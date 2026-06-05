@@ -22,8 +22,7 @@ interface Props {
 
 export function MobileAppLauncher({ open, onOpenChange }: Props) {
   const { isAdmin } = useAuth();
-  const { can } = (require("@/hooks/use-permissions") as typeof import("@/hooks/use-permissions")).usePermissions();
-  const { pathToModule } = require("@/lib/route-permissions") as typeof import("@/lib/route-permissions");
+  const { can } = usePermissions();
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [favs, setFavs] = useState<string[]>([]);
