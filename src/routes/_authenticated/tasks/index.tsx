@@ -548,7 +548,20 @@ function NewTaskDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>تاريخ الاستحقاق</Label>
+              <Label>بداية مخططة *</Label>
+              <Input type="date" value={form.planned_start_date}
+                onChange={(e) => setForm({ ...form, planned_start_date: e.target.value })} />
+            </div>
+            <div>
+              <Label>نهاية مخططة *</Label>
+              <Input type="date" value={form.planned_end_date}
+                onChange={(e) => setForm({ ...form, planned_end_date: e.target.value })} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>تاريخ الاستحقاق (اختياري)</Label>
               <Input type="datetime-local" value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} />
             </div>
             <div>
