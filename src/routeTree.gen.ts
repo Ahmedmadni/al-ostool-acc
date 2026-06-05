@@ -50,6 +50,7 @@ import { Route as AuthenticatedTasksTeamRouteImport } from './routes/_authentica
 import { Route as AuthenticatedTasksIdRouteImport } from './routes/_authenticated/tasks/$id'
 import { Route as AuthenticatedSettingsUsersRouteImport } from './routes/_authenticated/settings/users'
 import { Route as AuthenticatedSettingsRegionalRouteImport } from './routes/_authenticated/settings/regional'
+import { Route as AuthenticatedSettingsPermissionsRouteImport } from './routes/_authenticated/settings/permissions'
 import { Route as AuthenticatedSettingsApprovalsRouteImport } from './routes/_authenticated/settings/approvals'
 import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
 import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
@@ -300,6 +301,12 @@ const AuthenticatedSettingsRegionalRoute =
     path: '/settings/regional',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedSettingsPermissionsRoute =
+  AuthenticatedSettingsPermissionsRouteImport.update({
+    id: '/settings/permissions',
+    path: '/settings/permissions',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSettingsApprovalsRoute =
   AuthenticatedSettingsApprovalsRouteImport.update({
     id: '/settings/approvals',
@@ -424,6 +431,7 @@ export interface FileRoutesByFullPath {
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
+  '/settings/permissions': typeof AuthenticatedSettingsPermissionsRoute
   '/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/tasks/$id': typeof AuthenticatedTasksIdRoute
@@ -483,6 +491,7 @@ export interface FileRoutesByTo {
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
+  '/settings/permissions': typeof AuthenticatedSettingsPermissionsRoute
   '/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/tasks/$id': typeof AuthenticatedTasksIdRoute
@@ -544,6 +553,7 @@ export interface FileRoutesById {
   '/_authenticated/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/_authenticated/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
+  '/_authenticated/settings/permissions': typeof AuthenticatedSettingsPermissionsRoute
   '/_authenticated/settings/regional': typeof AuthenticatedSettingsRegionalRoute
   '/_authenticated/settings/users': typeof AuthenticatedSettingsUsersRoute
   '/_authenticated/tasks/$id': typeof AuthenticatedTasksIdRoute
@@ -605,6 +615,7 @@ export interface FileRouteTypes {
     | '/projects/progress'
     | '/receivables/aging'
     | '/settings/approvals'
+    | '/settings/permissions'
     | '/settings/regional'
     | '/settings/users'
     | '/tasks/$id'
@@ -664,6 +675,7 @@ export interface FileRouteTypes {
     | '/projects/progress'
     | '/receivables/aging'
     | '/settings/approvals'
+    | '/settings/permissions'
     | '/settings/regional'
     | '/settings/users'
     | '/tasks/$id'
@@ -724,6 +736,7 @@ export interface FileRouteTypes {
     | '/_authenticated/projects/progress'
     | '/_authenticated/receivables/aging'
     | '/_authenticated/settings/approvals'
+    | '/_authenticated/settings/permissions'
     | '/_authenticated/settings/regional'
     | '/_authenticated/settings/users'
     | '/_authenticated/tasks/$id'
@@ -1058,6 +1071,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRegionalRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/settings/permissions': {
+      id: '/_authenticated/settings/permissions'
+      path: '/settings/permissions'
+      fullPath: '/settings/permissions'
+      preLoaderRoute: typeof AuthenticatedSettingsPermissionsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/settings/approvals': {
       id: '/_authenticated/settings/approvals'
       path: '/settings/approvals'
@@ -1199,6 +1219,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedProjectsProgressRoute: typeof AuthenticatedProjectsProgressRoute
   AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
   AuthenticatedSettingsApprovalsRoute: typeof AuthenticatedSettingsApprovalsRoute
+  AuthenticatedSettingsPermissionsRoute: typeof AuthenticatedSettingsPermissionsRoute
   AuthenticatedSettingsRegionalRoute: typeof AuthenticatedSettingsRegionalRoute
   AuthenticatedSettingsUsersRoute: typeof AuthenticatedSettingsUsersRoute
   AuthenticatedTasksIdRoute: typeof AuthenticatedTasksIdRoute
@@ -1260,6 +1281,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedProjectsProgressRoute: AuthenticatedProjectsProgressRoute,
   AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
   AuthenticatedSettingsApprovalsRoute: AuthenticatedSettingsApprovalsRoute,
+  AuthenticatedSettingsPermissionsRoute: AuthenticatedSettingsPermissionsRoute,
   AuthenticatedSettingsRegionalRoute: AuthenticatedSettingsRegionalRoute,
   AuthenticatedSettingsUsersRoute: AuthenticatedSettingsUsersRoute,
   AuthenticatedTasksIdRoute: AuthenticatedTasksIdRoute,
