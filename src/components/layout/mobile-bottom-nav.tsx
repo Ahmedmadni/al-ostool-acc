@@ -1,16 +1,18 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Scale, FileText, Building2, Truck, Settings } from "lucide-react";
+import { LayoutDashboard, FolderKanban, Users, FileText, Grid3x3 } from "lucide-react";
 
 const TABS = [
   { to: "/dashboard", label: "الرئيسية", icon: LayoutDashboard },
-  { to: "/financials", label: "المحاسبة", icon: Scale },
+  { to: "/projects", label: "المشاريع", icon: FolderKanban },
+  { to: "/customers", label: "العملاء", icon: Users },
   { to: "/reports", label: "التقارير", icon: FileText },
-  { to: "/fixed-assets", label: "الأصول", icon: Building2 },
-  { to: "/projects", label: "الأسطول", icon: Truck },
-  { to: "/settings/regional", label: "الإعدادات", icon: Settings },
 ];
 
-export function MobileBottomNav() {
+interface Props {
+  onOpenLauncher: () => void;
+}
+
+export function MobileBottomNav({ onOpenLauncher }: Props) {
   const path = useRouterState({ select: (s) => s.location.pathname });
 
   return (
@@ -18,7 +20,7 @@ export function MobileBottomNav() {
       className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-card/95 backdrop-blur border-t border-border no-print"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <ul className="grid grid-cols-6">
+      <ul className="grid grid-cols-5">
         {TABS.map(({ to, label, icon: Icon }) => {
           const active = path === to || (to !== "/" && path.startsWith(to));
           return (
@@ -35,6 +37,16 @@ export function MobileBottomNav() {
             </li>
           );
         })}
+        <li>
+          <button
+            type="button"
+            onClick={onOpenLauncher}
+            className="w-full flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] min-h-[56px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Grid3x3 className="w-5 h-5" />
+            <span>المزيد</span>
+          </button>
+        </li>
       </ul>
     </nav>
   );
