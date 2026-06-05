@@ -591,7 +591,50 @@ function Page() {
                   : "اعتماد نسبة إنجاز"}
               </Button>
             </Card>
+
+          {/* Manager evaluation 0-100 (NEW: half of final score) */}
+          {(isCreator || isAdmin) && (
+            <Card className="p-4 border-primary/40">
+              <div className="font-semibold mb-2 flex items-center gap-2">
+                <Star className="w-4 h-4 text-primary" /> تقييم المدير (0-100)
+              </div>
+              <div className="text-2xl font-bold mb-2">
+                {task.manager_evaluation_score != null ? `${task.manager_evaluation_score}%` : "— لم يُسجّل بعد"}
+              </div>
+              {task.manager_evaluation_notes && (
+                <p className="text-xs text-muted-foreground border-t pt-2 mb-2">{task.manager_evaluation_notes}</p>
+              )}
+              <Button className="w-full" variant="outline" onClick={() => setManagerEvalOpen(true)}>
+                {task.manager_evaluation_score != null ? "تحديث التقييم" : "تسجيل تقييم"}
+              </Button>
+            </Card>
           )}
+
+          {/* Approval workflow (NEW) */}
+          {(isCreator || isAdmin) && (task.status === "done" || task.status === "waiting_review" || task.status === "returned") && (
+            <Card className="p-4 border-success/40 bg-success/5">
+              <div className="font-semibold mb-2 flex items-center gap-2">
+                <ThumbsUp className="w-4 h-4 text-success" /> اعتماد المدير
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                وافق على المهمة لإغلاقها، أو أعدها للموظف مع ملاحظة لإعادة العمل.
+              </p>
+              <div className="flex gap-2">
+                <Button className="flex-1 gap-1" onClick={approveTask}>
+                  <CheckCircle2 className="w-4 h-4" /> موافقة وإغلاق
+                </Button>
+                <Button variant="outline" className="flex-1 gap-1" onClick={() => setReturnOpen(true)}>
+                  <RotateCcw className="w-4 h-4" /> إرجاع لإعادة العمل
+                </Button>
+              </div>
+              {task.return_reason && (
+                <div className="text-xs mt-3 p-2 rounded bg-warning/10 border border-warning/30">
+                  <strong>سبب الإرجاع السابق:</strong> {task.return_reason}
+                </div>
+              )}
+            </Card>
+          )}
+
 
 
           {/* Evaluation */}
