@@ -77,9 +77,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/08baef42-ca80-4f81-92f0-71435a0246a5/id-preview-e27830cd--a159a7c0-1de8-4ddb-bab2-f898c5e8ebac.lovable.app-1780295111820.png" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
+      { name: "theme-color", content: "#0F172A" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Al Ostool" },
+      { name: "mobile-web-app-capable", content: "yes" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/icons/icon-192.png" },
+      { rel: "apple-touch-icon", sizes: "152x152", href: "/icons/icon-152.png" },
+      { rel: "apple-touch-icon", sizes: "192x192", href: "/icons/icon-192.png" },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: "/icons/icon-192.png" },
+      { rel: "icon", type: "image/png", sizes: "512x512", href: "/icons/icon-512.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" },
@@ -120,6 +131,9 @@ function AuthSync() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => {
+    void import("../lib/pwa/register-sw").then((m) => m.registerServiceWorker());
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
