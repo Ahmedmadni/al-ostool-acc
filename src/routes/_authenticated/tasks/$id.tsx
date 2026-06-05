@@ -316,20 +316,64 @@ function Page() {
           </div>
         </div>
 
-        {items.length > 0 && (
-          <div className="mt-4">
-            <div className="flex items-center justify-between mb-1 text-xs text-muted-foreground">
-              <span>تقدّم البنود</span>
-              <span>{doneCount}/{items.length} ({progress}%)</span>
+        {/* Planned dates strip */}
+        {(task.planned_start_date || task.planned_end_date) && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 text-xs">
+            <div className="p-2 rounded border bg-muted/30">
+              <div className="text-muted-foreground">بداية مخططة</div>
+              <div className="font-semibold">{task.planned_start_date ? fmtDate(task.planned_start_date) : "—"}</div>
             </div>
-            <Progress value={progress} className="h-2" />
+            <div className="p-2 rounded border bg-muted/30">
+              <div className="text-muted-foreground">نهاية مخططة</div>
+              <div className="font-semibold">{task.planned_end_date ? fmtDate(task.planned_end_date) : "—"}</div>
+            </div>
+            <div className="p-2 rounded border bg-muted/30">
+              <div className="text-muted-foreground">المدة المخططة (يوم)</div>
+              <div className="font-semibold">{planned ?? "—"}</div>
+            </div>
+            <div className="p-2 rounded border bg-muted/30">
+              <div className="text-muted-foreground">
+                {isDone ? "أيام التأخير عن النهاية" : "متبقي / تأخير (يوم)"}
+              </div>
+              <div className={`font-semibold ${delay > 0 ? "text-destructive" : "text-success"}`}>
+                {isDone ? delay : remaining ?? "—"}
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Manager-approved completion percentage */}
+        {items.length > 0 && (
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-1 text-xs text-muted-foreground">
+              <span>تقدّم البنود (الموزون)</span>
+              <span>{doneCount}/{items.length} — {checklistPct}%</span>
+            </div>
+            <Progress value={checklistPct} className="h-2" />
+          </div>
+        )}
+
+        {/* Final performance score */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+          <div className="p-3 rounded-md border bg-muted/30">
+            <div className="text-xs text-muted-foreground">نسبة إنجاز القائمة (50%)</div>
+            <div className="text-xl font-bold">{checklistPct}%</div>
+          </div>
+          <div className="p-3 rounded-md border bg-muted/30">
+            <div className="text-xs text-muted-foreground">تقييم المدير (50%)</div>
+            <div className="text-xl font-bold">
+              {task.manager_evaluation_score != null ? `${task.manager_evaluation_score}%` : "—"}
+            </div>
+          </div>
+          <div className="p-3 rounded-md border bg-primary/10 border-primary/30">
+            <div className="text-xs text-muted-foreground flex items-center gap-1"><Star className="w-3 h-3" /> النتيجة النهائية</div>
+            <div className="text-2xl font-bold text-primary">{final}%</div>
+          </div>
+        </div>
+
+        {/* Legacy manager-approved completion percentage */}
         <div className="mt-4 p-3 rounded-md border bg-muted/30">
           <div className="flex items-center justify-between mb-1 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1"><Star className="w-3 h-3" /> نسبة الإنجاز المعتمدة من المدير</span>
+            <span className="flex items-center gap-1"><Star className="w-3 h-3" /> نسبة الإنجاز المعتمدة من المدير (تقديرية)</span>
             <span className="font-bold">
               {task.completion_percentage != null ? `${task.completion_percentage}%` : "— لم تُعتمد بعد"}
             </span>
