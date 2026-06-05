@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { X, Send, Sparkles, Loader2 } from "lucide-react";
+import { X, Send, Bot, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
