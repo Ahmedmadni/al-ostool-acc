@@ -182,7 +182,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="w-64 bg-sidebar text-sidebar-foreground flex flex-col fixed inset-y-0 right-0 z-30 no-print">
+      <aside className="w-64 bg-sidebar text-sidebar-foreground flex-col fixed inset-y-0 right-0 z-30 no-print hidden md:flex">
         <div className="p-5 border-b border-sidebar-border flex items-center gap-3">
           <img src={logo} alt="شعار" className="w-10 h-10 rounded-md bg-white p-1" />
           <div>
@@ -249,7 +249,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <div className="flex-1 mr-64 flex flex-col min-w-0">
+      <div className="flex-1 md:mr-64 flex flex-col min-w-0">
         <header className="h-16 bg-card border-b border-border flex items-center px-6 gap-4 sticky top-0 z-20 no-print">
           <div className="flex-1 max-w-md relative">
             <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />

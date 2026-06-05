@@ -152,3 +152,16 @@
   .no-print { display: none !important; }
   body { background: white; color: black; }
 }
+
+@layer base {
+  body {
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
+  }
+  /* Mobile bottom nav clearance + iOS safe areas */
+  @media (max-width: 767px) {
+    main {
+      padding-bottom: calc(72px + env(safe-area-inset-bottom)) !important;
+    }
+  }
+}
