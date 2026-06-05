@@ -166,27 +166,53 @@ function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {modules.map((m) => (
-                <TableRow key={m.key}>
-                  <TableCell className="sticky right-0 bg-card" style={{ paddingRight: `${0.5 + m.depth * 1.25}rem` }}>
-                    {m.depth === 0 ? <span className="font-semibold">{m.name}</span> : <span className="text-sm text-muted-foreground">└ {m.name}</span>}
-                  </TableCell>
-                  {ACTIONS.map((a) => {
-                    const on = isCellOn(m.key, a);
-                    const src = cellSource(m.key, a);
-                    return (
-                      <TableCell key={a} className="text-center p-1">
-                        <div className={src === "inherited" ? "opacity-60" : ""}>
-                          <Checkbox
-                            checked={on}
-                            onCheckedChange={() => scope === "user" ? toggleUser(m.key, a, on) : toggleJob(m.key, a, on)}
-                          />
+              {modules.map((m) => {
+                const specials = getSpecialActions(m.key);
+                return (
+                  <TableRow key={m.key}>
+                    <TableCell className="sticky right-0 bg-card" style={{ paddingRight: `${0.5 + m.depth * 1.25}rem` }}>
+                      {m.depth === 0 ? <span className="font-semibold">{m.name}</span> : <span className="text-sm text-muted-foreground">└ {m.name}</span>}
+                      {specials.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {specials.map((s) => {
+                            const on = isCellOn(m.key, s.key as ActionKey);
+                            return (
+                              <TooltipProvider key={s.key}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      type="button"
+                                      onClick={() => scope === "user" ? toggleUser(m.key, s.key as ActionKey, on) : toggleJob(m.key, s.key as ActionKey, on)}
+                                      className={`text-[10px] px-2 py-0.5 rounded border ${on ? "bg-primary text-primary-foreground border-primary" : "bg-muted text-muted-foreground border-border"}`}
+                                    >
+                                      {s.name}
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>إجراء خاص: {s.name}</TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            );
+                          })}
                         </div>
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))}
+                      )}
+                    </TableCell>
+                    {ACTIONS.map((a) => {
+                      const on = isCellOn(m.key, a);
+                      const src = cellSource(m.key, a);
+                      return (
+                        <TableCell key={a} className="text-center p-1">
+                          <div className={src === "inherited" ? "opacity-60" : ""}>
+                            <Checkbox
+                              checked={on}
+                              onCheckedChange={() => scope === "user" ? toggleUser(m.key, a, on) : toggleJob(m.key, a, on)}
+                            />
+                          </div>
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </Card>
