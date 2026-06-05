@@ -62,3 +62,49 @@ export function flattenModules(): { key: string; name: string; depth: number }[]
   MODULE_TREE.forEach((n) => walk(n, 0));
   return out;
 }
+
+// Special actions per module — beyond the base CRUD set.
+// Rendered as extra checkboxes in the matrix when the module is expanded.
+export const SPECIAL_ACTIONS: Record<string, { key: string; name: string }[]> = {
+  invoices: [
+    { key: "approve_invoice", name: "اعتماد فاتورة" },
+    { key: "cancel_invoice", name: "إلغاء فاتورة" },
+    { key: "send_to_customer", name: "إرسال للعميل" },
+  ],
+  treasury: [
+    { key: "approve_payment", name: "اعتماد دفعة" },
+    { key: "reconcile", name: "تسوية بنكية" },
+  ],
+  banks: [
+    { key: "reconcile", name: "تسوية بنكية" },
+    { key: "transfer", name: "تحويل بين الحسابات" },
+  ],
+  contracts: [
+    { key: "approve_contract", name: "اعتماد عقد" },
+    { key: "terminate", name: "إنهاء عقد" },
+  ],
+  tasks: [
+    { key: "evaluate", name: "تقييم المهام" },
+    { key: "reassign", name: "إعادة إسناد" },
+  ],
+  hr: [
+    { key: "approve_leave", name: "اعتماد إجازة" },
+    { key: "process_payroll", name: "تشغيل الرواتب" },
+  ],
+  projects: [
+    { key: "approve_progress", name: "اعتماد نسبة الإنجاز" },
+    { key: "close_project", name: "إقفال مشروع" },
+  ],
+  reports: [
+    { key: "view_sensitive", name: "تقارير حساسة" },
+  ],
+  settings: [
+    { key: "manage_roles", name: "إدارة الأدوار" },
+    { key: "manage_permissions", name: "إدارة الصلاحيات" },
+  ],
+};
+
+export function getSpecialActions(moduleKey: string) {
+  const root = moduleKey.split(".")[0];
+  return SPECIAL_ACTIONS[root] ?? [];
+}
