@@ -49,7 +49,19 @@ function Page() {
 
   const { data: profiles = [] } = useQuery({
     queryKey: ["profiles-admin"],
-    queryFn: async () => (await (supabase as any).from("profiles").select("*, departments(name_ar), job_titles(name_ar)").order("created_at", { ascending: false })).data ?? [],
+    queryFn: async () => (await (supabase as any).from("profiles").select("*, departments(name_ar), job_titles(name_ar), manager:manager_id(full_name)").order("created_at", { ascending: false })).data ?? [],
+  });
+  const { data: permCounts = {} } = useQuery({
+    queryKey: ["perm-counts"],
+    queryFn: async () => {
+      const { data } = await (supabase as any).from("user_permissions").select("user_id, granted");
+      const out: Record<string, { allow: number; deny: number }> = {};
+      for (const r of data ?? []) {
+        out[r.user_id] = out[r.user_id] ?? { allow: 0, deny: 0 };
+        if (r.granted) out[r.user_id].allow++; else out[r.user_id].deny++;
+      }
+      return out;
+    },
   });
   const { data: userRoles = [] } = useQuery({
     queryKey: ["all-roles"],
