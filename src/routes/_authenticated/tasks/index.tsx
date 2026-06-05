@@ -525,7 +525,7 @@ function TaskCard({
 
 function NewTaskDialog({
   open, onOpenChange, form, setForm, profiles, departments, onSave,
-  addChecklistItem, updateChecklist, removeChecklistItem,
+  addChecklistItem, updateChecklistTitle, updateChecklistWeight, removeChecklistItem, totalWeight,
 }: any) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
