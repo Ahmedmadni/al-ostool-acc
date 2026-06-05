@@ -12,6 +12,8 @@ import {
   MOBILE_MODULES, CATEGORY_LABELS, CATEGORY_ORDER,
   loadFavorites, saveFavorites, type MobileModule,
 } from "@/lib/mobile-modules";
+import { usePermissions } from "@/hooks/use-permissions";
+import { pathToModule } from "@/lib/route-permissions";
 
 interface Props {
   open: boolean;
@@ -20,6 +22,7 @@ interface Props {
 
 export function MobileAppLauncher({ open, onOpenChange }: Props) {
   const { isAdmin } = useAuth();
+  const { can } = usePermissions();
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [favs, setFavs] = useState<string[]>([]);
@@ -27,8 +30,14 @@ export function MobileAppLauncher({ open, onOpenChange }: Props) {
   useEffect(() => { if (open) setFavs(loadFavorites()); }, [open]);
 
   const visibleModules = useMemo(
-    () => MOBILE_MODULES.filter((m) => !m.adminOnly || isAdmin),
-    [isAdmin],
+    () => MOBILE_MODULES.filter((m) => {
+      if (m.adminOnly && !isAdmin) return false;
+      if (isAdmin) return true;
+      const mod = pathToModule(m.to);
+      if (!mod) return true;
+      return can(mod, "view");
+    }),
+    [isAdmin, can],
   );
 
   const filtered = useMemo(() => {
