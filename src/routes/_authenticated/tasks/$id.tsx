@@ -404,9 +404,12 @@ function Page() {
                       className="mt-0.5"
                       disabled={isDone}
                     />
-                    <span className={item.is_done ? "line-through text-muted-foreground" : ""}>
+                    <span className={`flex-1 ${item.is_done ? "line-through text-muted-foreground" : ""}`}>
                       {idx + 1}. {item.title}
                     </span>
+                    {Number(item.weight) > 0 && (
+                      <Badge variant="outline" className="text-[10px] shrink-0">{Number(item.weight)}%</Badge>
+                    )}
                   </label>
                 ))}
               </div>
