@@ -8,6 +8,7 @@ import { FloatingCopilot } from "@/components/copilot/floating-copilot";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { MobileAppLauncher } from "@/components/layout/mobile-app-launcher";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { RoutePermissionGate } from "@/components/permissions/can";
 
 export const Route = createFileRoute("/_authenticated")({ component: AuthLayout });
 
