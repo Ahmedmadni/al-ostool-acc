@@ -162,8 +162,17 @@ function Page() {
   };
 
   const startTask = async () => {
-    await (supabase as any).from("tasks").update({ status: "in_progress" }).eq("id", id);
+    const { error } = await (supabase as any)
+      .from("tasks")
+      .update({ status: "in_progress" })
+      .eq("id", id);
+    if (error) {
+      toast.error("تعذّر بدء المهمة: " + error.message);
+      return;
+    }
+    toast.success("تم بدء العمل على المهمة");
     qc.invalidateQueries({ queryKey: ["task", id] });
+    qc.invalidateQueries({ queryKey: ["tasks"] });
   };
 
   const uploadAttachment = async (file: File) => {
