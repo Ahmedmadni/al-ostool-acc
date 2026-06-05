@@ -10,8 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
-import { flattenModules, ACTIONS, ACTION_LABEL, type ActionKey } from "@/lib/permissions";
+import { flattenModules, ACTIONS, ACTION_LABEL, getSpecialActions, type ActionKey } from "@/lib/permissions";
 import { usePermissions } from "@/hooks/use-permissions";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { RotateCcw, Wand2 } from "lucide-react";
 
