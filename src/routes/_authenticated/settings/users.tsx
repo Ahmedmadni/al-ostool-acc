@@ -87,6 +87,11 @@ function Page() {
     if (error) toast.error(error.message);
     else { toast.success("تم تحديث الحالة"); qc.invalidateQueries({ queryKey: ["profiles-admin"] }); }
   };
+  const changeManager = async (userId: string, manager_id: string | null) => {
+    const { error } = await (supabase as any).from("profiles").update({ manager_id }).eq("id", userId);
+    if (error) toast.error(error.message);
+    else { toast.success("تم تحديث المدير المباشر"); qc.invalidateQueries({ queryKey: ["profiles-admin"] }); }
+  };
   const saveEmp = async (userId: string) => {
     const { error } = await (supabase as any).from("profiles").update({ employee_id: editEmp }).eq("id", userId);
     if (error) toast.error(error.message);
