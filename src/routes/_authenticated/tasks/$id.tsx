@@ -57,7 +57,7 @@ function Page() {
     queryFn: async () =>
       (await (supabase as any)
         .from("tasks")
-        .select("*, customers(name), projects(name), task_assignees(user_id), task_checklist_items(id,title,is_done,order_index)")
+        .select("*, customers(name), projects(name), task_assignees(user_id), task_checklist_items(id,title,is_done,order_index,weight)")
         .eq("id", id)
         .maybeSingle()).data as any,
   });
