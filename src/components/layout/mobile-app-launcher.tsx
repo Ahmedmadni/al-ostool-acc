@@ -20,6 +20,8 @@ interface Props {
 
 export function MobileAppLauncher({ open, onOpenChange }: Props) {
   const { isAdmin } = useAuth();
+  const { can } = (require("@/hooks/use-permissions") as typeof import("@/hooks/use-permissions")).usePermissions();
+  const { pathToModule } = require("@/lib/route-permissions") as typeof import("@/lib/route-permissions");
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [favs, setFavs] = useState<string[]>([]);
@@ -27,8 +29,14 @@ export function MobileAppLauncher({ open, onOpenChange }: Props) {
   useEffect(() => { if (open) setFavs(loadFavorites()); }, [open]);
 
   const visibleModules = useMemo(
-    () => MOBILE_MODULES.filter((m) => !m.adminOnly || isAdmin),
-    [isAdmin],
+    () => MOBILE_MODULES.filter((m) => {
+      if (m.adminOnly && !isAdmin) return false;
+      if (isAdmin) return true;
+      const mod = pathToModule(m.to);
+      if (!mod) return true;
+      return can(mod, "view");
+    }),
+    [isAdmin, can, pathToModule],
   );
 
   const filtered = useMemo(() => {
