@@ -144,11 +144,16 @@ function Page() {
   const isAssignee = task.assigned_to === user?.id;
   const isCreator = task.created_by === user?.id;
   const canView = isAssignee || isCreator || isAdmin;
-  const isDone = task.status === "done";
+  const isDone = task.status === "done" || task.status === "approved";
   const items = (task.task_checklist_items ?? []).slice().sort((a: any, b: any) => a.order_index - b.order_index);
   const doneCount = items.filter((i: any) => i.is_done).length;
+  const checklistPct = checklistCompletion(items);
   const progress = items.length > 0 ? Math.round((doneCount / items.length) * 100) : 0;
   const countdown = dueCountdown(task.due_date);
+  const planned = plannedDuration(task.planned_start_date, task.planned_end_date);
+  const remaining = remainingDays(task.planned_end_date || task.due_date);
+  const delay = delayDays(task.planned_end_date || task.due_date, task.completed_at);
+  const final = finalScore(checklistPct, task.manager_evaluation_score);
 
   const assignee = task.assigned_to ? profileById[task.assigned_to] : null;
   const creator = task.created_by ? profileById[task.created_by] : null;
