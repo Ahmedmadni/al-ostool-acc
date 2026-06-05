@@ -146,6 +146,7 @@ function Page() {
               <TableHead>البريد</TableHead>
               <TableHead>الإدارة</TableHead>
               <TableHead>الوظيفة</TableHead>
+              <TableHead>المدير المباشر</TableHead>
               <TableHead>الحالة</TableHead>
               <TableHead>الدور</TableHead>
               <TableHead></TableHead>
@@ -153,7 +154,7 @@ function Page() {
           </TableHeader>
           <TableBody>
             {profiles.length === 0 ? (
-              <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">لا يوجد مستخدمون بعد</TableCell></TableRow>
+              <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">لا يوجد مستخدمون بعد</TableCell></TableRow>
             ) : profiles.map((p: any) => {
               const role = userRoles.find((r: any) => r.user_id === p.id)?.role ?? "accountant";
               const s = statusLabel[p.status ?? "active"] ?? { label: p.status, variant: "outline" as const };
