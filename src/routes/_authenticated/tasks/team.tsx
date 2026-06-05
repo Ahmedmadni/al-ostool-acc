@@ -140,19 +140,25 @@ function Page() {
               <TableHead>متأخرة (للعلم)</TableHead>
               <TableHead>متوسط تقييم المدير</TableHead>
               <TableHead>نسبة الإنجاز المعتمدة</TableHead>
+              <TableHead>النتيجة النهائية</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {stats.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                   لا توجد مهام مُكلَّفة لأي موظف.
                 </TableCell>
               </TableRow>
             )}
-            {stats.map((s) => (
+            {stats.map((s, idx) => (
               <TableRow key={s.id}>
-                <TableCell className="font-medium">{s.name}</TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-1">
+                    {idx === 0 && s.avgFinal != null && <Trophy className="w-3.5 h-3.5 text-warning" />}
+                    {s.name}
+                  </div>
+                </TableCell>
                 <TableCell>{s.total}</TableCell>
                 <TableCell><Badge variant="default">{s.completed}</Badge></TableCell>
                 <TableCell><Badge variant="secondary">{s.inProgress}</Badge></TableCell>
@@ -181,6 +187,16 @@ function Page() {
                     </div>
                   ) : (
                     <span className="text-xs text-muted-foreground">— لم تُعتمد بعد</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {s.avgFinal != null ? (
+                    <div className="flex items-center gap-2 w-44">
+                      <Progress value={s.avgFinal} className="h-2" />
+                      <span className="text-sm font-bold text-primary whitespace-nowrap">{s.avgFinal}%</span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">—</span>
                   )}
                 </TableCell>
               </TableRow>
