@@ -180,15 +180,21 @@ function Page() {
     };
   }, [tasks]);
 
-  const addChecklistItem = () => setForm({ ...form, checklist: [...form.checklist, { title: "" }] });
-  const updateChecklist = (i: number, title: string) => {
+  const addChecklistItem = () => setForm({ ...form, checklist: [...form.checklist, { title: "", weight: 0 }] });
+  const updateChecklistTitle = (i: number, title: string) => {
     const next = [...form.checklist];
-    next[i] = { title };
+    next[i] = { ...next[i], title };
+    setForm({ ...form, checklist: next });
+  };
+  const updateChecklistWeight = (i: number, weight: number) => {
+    const next = [...form.checklist];
+    next[i] = { ...next[i], weight: Math.max(0, Math.min(100, weight || 0)) };
     setForm({ ...form, checklist: next });
   };
   const removeChecklistItem = (i: number) => {
     setForm({ ...form, checklist: form.checklist.filter((_, idx) => idx !== i) });
   };
+  const totalWeight = form.checklist.reduce((s, c) => s + (Number(c.weight) || 0), 0);
 
   const save = async () => {
     if (!form.title.trim()) { toast.error("العنوان مطلوب"); return; }
