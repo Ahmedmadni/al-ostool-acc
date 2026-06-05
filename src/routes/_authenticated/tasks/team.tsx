@@ -26,17 +26,17 @@ function Page() {
     const now = new Date();
     return profiles.map((p: any) => {
       const my = tasks.filter((t: any) => t.assigned_to === p.id);
-      const completed = my.filter((t: any) => t.status === "completed").length;
+      const completed = my.filter((t: any) => t.status === "done").length;
 
       // Overdue = past due date and not completed/cancelled (regardless of stored status)
       const overdue = my.filter((t: any) =>
-        t.status !== "completed" &&
+        t.status !== "done" &&
         t.status !== "cancelled" &&
         t.due_date && new Date(t.due_date) < now
       ).length;
 
       const inProgress = my.filter((t: any) =>
-        t.status !== "completed" &&
+        t.status !== "done" &&
         t.status !== "cancelled" &&
         !(t.due_date && new Date(t.due_date) < now)
       ).length;
