@@ -12,6 +12,8 @@ import {
   MOBILE_MODULES, CATEGORY_LABELS, CATEGORY_ORDER,
   loadFavorites, saveFavorites, type MobileModule,
 } from "@/lib/mobile-modules";
+import { usePermissions } from "@/hooks/use-permissions";
+import { pathToModule } from "@/lib/route-permissions";
 
 interface Props {
   open: boolean;
