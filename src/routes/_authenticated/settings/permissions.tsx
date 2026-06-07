@@ -14,7 +14,7 @@ import { flattenModules, ACTIONS, ACTION_LABEL, getSpecialActions, type ActionKe
 import { usePermissions } from "@/hooks/use-permissions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { RotateCcw, Wand2, CheckCheck, X } from "lucide-react";
+import { RotateCcw, Wand2, CheckCheck, X, ChevronDown, ChevronLeft, ChevronsDownUp, ChevronsUpDown } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/settings/permissions")({ component: Page });
 
@@ -37,6 +37,21 @@ function Page() {
 
   const perms = usePermissions(selectedUser || undefined);
   const modules = useMemo(() => flattenModules(), []);
+  const parentKeys = useMemo(
+    () => modules.filter((m) => m.depth === 0 && modules.some((c) => c.depth > 0 && c.key.startsWith(`${m.key}.`))).map((m) => m.key),
+    [modules],
+  );
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const toggleCollapse = (k: string) => setCollapsed((s) => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
+  const collapseAll = () => setCollapsed(new Set(parentKeys));
+  const expandAll = () => setCollapsed(new Set());
+  const visibleModules = useMemo(() => {
+    let currentParent: string | null = null;
+    return modules.filter((m) => {
+      if (m.depth === 0) { currentParent = m.key; return true; }
+      return !(currentParent && collapsed.has(currentParent));
+    });
+  }, [modules, collapsed]);
 
   const { data: jobPerms = [] } = useQuery({
     queryKey: ["jt-perms", selectedJob],
@@ -201,7 +216,13 @@ function Page() {
         <Card className="overflow-auto">
           <div className="flex items-center justify-between gap-2 p-3 border-b">
             <div className="text-sm font-medium">إدارة جماعية</div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
+              <Button size="sm" variant="outline" onClick={expandAll} className="gap-2">
+                <ChevronsUpDown className="w-4 h-4" />توسيع الكل
+              </Button>
+              <Button size="sm" variant="outline" onClick={collapseAll} className="gap-2">
+                <ChevronsDownUp className="w-4 h-4" />طي الكل
+              </Button>
               <Button size="sm" variant="default" onClick={() => toggleAllGlobal(true)} className="gap-2">
                 <CheckCheck className="w-4 h-4" />تحديد الكل
               </Button>
@@ -219,12 +240,28 @@ function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {modules.map((m) => {
+              {visibleModules.map((m) => {
                 const specials = getSpecialActions(m.key);
+                const hasChildren = parentKeys.includes(m.key);
+                const isCollapsed = collapsed.has(m.key);
                 return (
                   <TableRow key={m.key}>
                     <TableCell className="sticky right-0 bg-card" style={{ paddingRight: `${0.5 + m.depth * 1.25}rem` }}>
-                      {m.depth === 0 ? <span className="font-semibold">{m.name}</span> : <span className="text-sm text-muted-foreground">└ {m.name}</span>}
+                      <div className="flex items-center gap-1">
+                        {hasChildren ? (
+                          <button
+                            type="button"
+                            onClick={() => toggleCollapse(m.key)}
+                            className="p-0.5 rounded hover:bg-muted"
+                            aria-label={isCollapsed ? "توسيع" : "طي"}
+                          >
+                            {isCollapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </button>
+                        ) : (
+                          <span className="w-5" />
+                        )}
+                        {m.depth === 0 ? <span className="font-semibold">{m.name}</span> : <span className="text-sm text-muted-foreground">└ {m.name}</span>}
+                      </div>
                       {specials.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1">
                           {specials.map((s) => {
