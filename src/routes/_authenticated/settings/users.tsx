@@ -144,6 +144,27 @@ function Page() {
         actions={<Button onClick={() => setOpen(true)} className="gap-2"><Plus className="w-4 h-4" />مستخدم جديد</Button>}
       />
 
+      <Card className="p-3 mb-3">
+        <div className="flex flex-wrap gap-2 items-center">
+          <Input placeholder="بحث بالاسم أو البريد..." value={searchQ} onChange={(e) => setSearchQ(e.target.value)} className="max-w-xs h-9" />
+          <Select value={deptFilter} onValueChange={setDeptFilter}>
+            <SelectTrigger className="w-44 h-9"><SelectValue placeholder="الإدارة" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع الإدارات</SelectItem>
+              {departments.map((d: any) => <SelectItem key={d.id} value={d.id}>{d.name_ar}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="w-44 h-9"><SelectValue placeholder="الدور" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل الأدوار</SelectItem>
+              {Object.entries(roleLabel).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <div className="text-xs text-muted-foreground ms-auto">{profiles.length} مستخدم</div>
+        </div>
+      </Card>
+
       <Card>
         <Table>
           <TableHeader>
@@ -160,9 +181,21 @@ function Page() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {profiles.length === 0 ? (
-              <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">لا يوجد مستخدمون بعد</TableCell></TableRow>
-            ) : profiles.map((p: any) => {
+            {(() => {
+              const q = searchQ.trim().toLowerCase();
+              const filtered = profiles.filter((p: any) => {
+                if (q && !((p.full_name ?? "").toLowerCase().includes(q) || (p.email ?? "").toLowerCase().includes(q) || (p.employee_id ?? "").toLowerCase().includes(q))) return false;
+                if (deptFilter !== "all" && p.department_id !== deptFilter) return false;
+                if (roleFilter !== "all") {
+                  const r = userRoles.find((x: any) => x.user_id === p.id)?.role ?? "accountant";
+                  if (r !== roleFilter) return false;
+                }
+                return true;
+              });
+              if (filtered.length === 0) {
+                return <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">لا يوجد مستخدمون مطابقون</TableCell></TableRow>;
+              }
+              return filtered.map((p: any) => {
               const role = userRoles.find((r: any) => r.user_id === p.id)?.role ?? "accountant";
               const s = statusLabel[p.status ?? "active"] ?? { label: p.status, variant: "outline" as const };
               return (
