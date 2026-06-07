@@ -255,7 +255,6 @@ function Page() {
                             <div className="space-y-1 text-xs">
                               <div><b>الإدارة:</b> {p.departments?.name_ar ?? "—"}</div>
                               <div><b>الوظيفة:</b> {p.job_titles?.name_ar ?? "—"}</div>
-                              <div><b>المدير:</b> {p.manager?.full_name ?? "—"}</div>
                               <div><b>الدور:</b> {roleLabel[role as keyof typeof roleLabel] ?? role}</div>
                               <div className="pt-1 border-t border-border/30">
                                 <b>صلاحيات يدوية:</b> {(permCounts as any)[p.id]?.allow ?? 0} مسموح ·
@@ -265,8 +264,9 @@ function Page() {
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                      <Button asChild size="icon" variant="ghost" className="h-8 w-8" title="إدارة الصلاحيات">
-                        <Link to="/settings/permissions"><Shield className="w-4 h-4" /></Link>
+                      <Button size="icon" variant="ghost" className="h-8 w-8" title="إدارة الصلاحيات"
+                        onClick={() => { setPermUserId(p.id); setPermUserName(p.full_name ?? p.email ?? ""); setPermOpen(true); }}>
+                        <Shield className="w-4 h-4" />
                       </Button>
                       {me?.id !== p.id && (
                         <Button size="icon" variant="ghost" onClick={() => removeUser(p.id)} className="h-8 w-8 text-destructive">
@@ -277,10 +277,13 @@ function Page() {
                   </TableCell>
                 </TableRow>
               );
-            })}
+            });
+            })()}
           </TableBody>
         </Table>
       </Card>
+
+      <UserPermissionsDialog open={permOpen} onOpenChange={setPermOpen} userId={permUserId} userName={permUserName} />
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl">
