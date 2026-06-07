@@ -14,7 +14,7 @@ import { flattenModules, ACTIONS, ACTION_LABEL, getSpecialActions, type ActionKe
 import { usePermissions } from "@/hooks/use-permissions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { RotateCcw, Wand2 } from "lucide-react";
+import { RotateCcw, Wand2, CheckCheck, X } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/settings/permissions")({ component: Page });
 
@@ -92,6 +92,47 @@ function Page() {
     qc.invalidateQueries({ queryKey: ["user-perms", selectedUser] });
   };
 
+  const bulkSet = async (rows: { module: string; action: string }[], granted: boolean) => {
+    if (scope === "user") {
+      if (!selectedUser) return;
+      const payload = rows.map((r) => ({
+        user_id: selectedUser, module_key: r.module, action_key: r.action, granted, source: "manual",
+      }));
+      const { error } = await (supabase as any).from("user_permissions")
+        .upsert(payload, { onConflict: "user_id,module_key,action_key" });
+      if (error) return toast.error(error.message);
+      qc.invalidateQueries({ queryKey: ["user-perms", selectedUser] });
+    } else {
+      if (!selectedJob) return;
+      const payload = rows.map((r) => ({
+        job_title_id: selectedJob, module_key: r.module, action_key: r.action, granted,
+      }));
+      const { error } = await (supabase as any).from("job_title_permissions")
+        .upsert(payload, { onConflict: "job_title_id,module_key,action_key" });
+      if (error) return toast.error(error.message);
+      qc.invalidateQueries({ queryKey: ["jt-perms", selectedJob] });
+    }
+    toast.success(granted ? "تم منح الصلاحيات" : "تم إلغاء الصلاحيات");
+  };
+
+  const toggleAllForModule = (moduleKey: string, granted: boolean) => {
+    const specials = getSpecialActions(moduleKey);
+    const rows = [
+      ...ACTIONS.map((a) => ({ module: moduleKey, action: a as string })),
+      ...specials.map((s) => ({ module: moduleKey, action: s.key })),
+    ];
+    return bulkSet(rows, granted);
+  };
+
+  const toggleAllGlobal = (granted: boolean) => {
+    const rows: { module: string; action: string }[] = [];
+    for (const m of modules) {
+      for (const a of ACTIONS) rows.push({ module: m.key, action: a as string });
+      for (const s of getSpecialActions(m.key)) rows.push({ module: m.key, action: s.key });
+    }
+    return bulkSet(rows, granted);
+  };
+
   if (!isAdmin) return <div className="p-8 text-center text-muted-foreground">للمدراء فقط.</div>;
 
   const isCellOn = (module: string, action: ActionKey): boolean =>
@@ -158,11 +199,23 @@ function Page() {
 
       {((scope === "user" && selectedUser) || (scope === "job" && selectedJob)) && (
         <Card className="overflow-auto">
+          <div className="flex items-center justify-between gap-2 p-3 border-b">
+            <div className="text-sm font-medium">إدارة جماعية</div>
+            <div className="flex gap-2">
+              <Button size="sm" variant="default" onClick={() => toggleAllGlobal(true)} className="gap-2">
+                <CheckCheck className="w-4 h-4" />تحديد الكل
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => toggleAllGlobal(false)} className="gap-2">
+                <X className="w-4 h-4" />إلغاء الكل
+              </Button>
+            </div>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="min-w-64 sticky right-0 bg-card">الموديول / الصفحة</TableHead>
                 {ACTIONS.map((a) => <TableHead key={a} className="text-center text-xs">{ACTION_LABEL[a]}</TableHead>)}
+                <TableHead className="text-center text-xs">الكل</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -210,6 +263,16 @@ function Page() {
                         </TableCell>
                       );
                     })}
+                    <TableCell className="text-center p-1">
+                      <div className="flex gap-1 justify-center">
+                        <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => toggleAllForModule(m.key, true)}>
+                          الكل
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-destructive" onClick={() => toggleAllForModule(m.key, false)}>
+                          لا شيء
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 );
               })}
