@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/page-header";
@@ -8,21 +9,51 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { fmtSAR, fmtDate } from "@/lib/format";
 import { invoiceStatusLabel } from "@/lib/labels";
+import { DataTableToolbar } from "@/components/data-table-toolbar";
 
 export const Route = createFileRoute("/_authenticated/invoices/")({ component: Page });
 
 function Page() {
+  const [search, setSearch] = useState("");
   const { data: invoices = [] } = useQuery({
     queryKey: ["invoices"],
     queryFn: async () => (await supabase.from("invoices").select("*, customers(name)").order("issue_date", { ascending: false })).data ?? [],
   });
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return invoices;
+    return invoices.filter((i: any) =>
+      (i.invoice_number ?? "").toLowerCase().includes(q) ||
+      (i.customers?.name ?? "").toLowerCase().includes(q),
+    );
+  }, [invoices, search]);
+
   const groups = {
-    all: invoices,
-    issued: invoices.filter((i: any) => i.status === "issued"),
-    due: invoices.filter((i: any) => i.status === "due"),
-    overdue: invoices.filter((i: any) => i.status === "overdue"),
-    unbilled: invoices.filter((i: any) => i.status === "unbilled"),
+    all: filtered,
+    issued: filtered.filter((i: any) => i.status === "issued"),
+    due: filtered.filter((i: any) => i.status === "due"),
+    overdue: filtered.filter((i: any) => i.status === "overdue"),
+    unbilled: filtered.filter((i: any) => i.status === "unbilled"),
   };
+
+  const exportRows = filtered.map((i: any) => ({
+    "الرقم": i.invoice_number,
+    "العميل": i.customers?.name ?? "",
+    "تاريخ الإصدار": fmtDate(i.issue_date),
+    "تاريخ الاستحقاق": fmtDate(i.due_date),
+    "المبلغ": Number(i.total_amount ?? 0),
+    "المدفوع": Number(i.paid_amount ?? 0),
+    "المتبقي": Number(i.total_amount ?? 0) - Number(i.paid_amount ?? 0),
+    "الحالة": invoiceStatusLabel[i.status] ?? i.status,
+  }));
+  const exportCols = [
+    { header: "الرقم", dataKey: "الرقم" }, { header: "العميل", dataKey: "العميل" },
+    { header: "تاريخ الإصدار", dataKey: "تاريخ الإصدار" }, { header: "تاريخ الاستحقاق", dataKey: "تاريخ الاستحقاق" },
+    { header: "المبلغ", dataKey: "المبلغ" }, { header: "المدفوع", dataKey: "المدفوع" },
+    { header: "المتبقي", dataKey: "المتبقي" }, { header: "الحالة", dataKey: "الحالة" },
+  ];
+
   const render = (list: any[]) => (
     <Card>
       <Table>
@@ -51,9 +82,15 @@ function Page() {
       </Table>
     </Card>
   );
+
   return (
     <div>
-      <PageHeader title="الفوترة والمطالبات" description={`${invoices.length} فاتورة`} />
+      <PageHeader title="الفوترة والمطالبات" description={`${filtered.length} فاتورة`} />
+      <DataTableToolbar
+        search={search} onSearchChange={setSearch}
+        searchPlaceholder="بحث برقم الفاتورة أو العميل..."
+        rows={exportRows} exportColumns={exportCols} exportTitle="تقرير الفواتير"
+      />
       <Tabs defaultValue="all">
         <TabsList className="mb-4">
           <TabsTrigger value="all">الكل ({groups.all.length})</TabsTrigger>

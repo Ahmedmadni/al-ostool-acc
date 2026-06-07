@@ -4,12 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
-import { Info, Star, Trophy } from "lucide-react";
+import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend, LineChart, Line } from "recharts";
+import { Info, Star, Trophy, Download, FileSpreadsheet, Printer } from "lucide-react";
 import { checklistCompletion, finalScore } from "@/lib/task-scoring";
+import { exportToExcel, exportToPdf } from "@/lib/export";
 
 export const Route = createFileRoute("/_authenticated/tasks/team")({ component: Page });
 
@@ -94,11 +96,62 @@ function Page() {
     "متأخر (للعلم)": s.overdue,
   }));
 
+  // Monthly trend: completed tasks per month for the last 6 months
+  const monthlyTrend = useMemo(() => {
+    const map: Record<string, { month: string; completed: number; total: number }> = {};
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      map[k] = { month: k, completed: 0, total: 0 };
+    }
+    tasks.forEach((t: any) => {
+      const created = t.created_at ? new Date(t.created_at) : null;
+      if (!created) return;
+      const k = `${created.getFullYear()}-${String(created.getMonth() + 1).padStart(2, "0")}`;
+      if (map[k]) {
+        map[k].total += 1;
+        if (t.status === "done") map[k].completed += 1;
+      }
+    });
+    return Object.values(map);
+  }, [tasks]);
+
+  const top5 = stats.filter((s) => s.avgFinal != null).slice(0, 5);
+  const bottom5 = stats.filter((s) => s.avgFinal != null).slice(-5).reverse();
+
+  const exportRows = stats.map((s) => ({
+    "الموظف": s.name,
+    "إجمالي": s.total,
+    "مكتملة": s.completed,
+    "قيد التنفيذ": s.inProgress,
+    "متأخرة": s.overdue,
+    "تقييم المدير": s.avgRating ?? "—",
+    "نسبة الإنجاز": s.avgCompletion ?? "—",
+    "النتيجة النهائية %": s.avgFinal ?? "—",
+  }));
+  const exportCols = [
+    { header: "الموظف", dataKey: "الموظف" }, { header: "إجمالي", dataKey: "إجمالي" },
+    { header: "مكتملة", dataKey: "مكتملة" }, { header: "قيد التنفيذ", dataKey: "قيد التنفيذ" },
+    { header: "متأخرة", dataKey: "متأخرة" }, { header: "تقييم المدير", dataKey: "تقييم المدير" },
+    { header: "نسبة الإنجاز", dataKey: "نسبة الإنجاز" }, { header: "النتيجة النهائية %", dataKey: "النتيجة النهائية %" },
+  ];
+  const handleExcel = () => exportToExcel(exportRows, "تقرير_أداء_الفريق");
+  const handlePdf = () => exportToPdf({ title: "تقرير أداء الفريق", columns: exportCols, rows: exportRows });
+  const handlePrint = () => window.print();
+
   return (
     <div>
       <PageHeader
         title="أداء الفريق — المهام"
         description="متابعة إنتاجية الموظفين بناءً على تقييم المدير ونسبة الإنجاز المعتمدة"
+        actions={
+          <div className="flex gap-2 no-print">
+            <Button variant="outline" size="sm" onClick={handlePdf} className="gap-1"><Download className="w-4 h-4" /> PDF</Button>
+            <Button variant="outline" size="sm" onClick={handleExcel} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
+            <Button variant="outline" size="sm" onClick={handlePrint} className="gap-1"><Printer className="w-4 h-4" /> طباعة</Button>
+          </div>
+        }
       />
 
       <Card className="p-3 mb-4 bg-info/5 border-info/30 flex items-start gap-2 text-sm">
@@ -108,6 +161,52 @@ function Page() {
           ولا تُحتسب سلبًا تلقائيًا — قد يكون التأخّر بسبب أطراف أو ظروف خارجة عن أداء الموظف.
           المقياس الرئيسي هو <strong>متوسط تقييم المدير</strong> و<strong>نسبة الإنجاز المعتمدة</strong>
           من خلال شاشة الاعتماد في صفحة متابعة المهام.
+        </div>
+      </Card>
+
+      <div className="grid md:grid-cols-2 gap-4 mb-5">
+        <Card className="p-4">
+          <div className="font-semibold mb-3 flex items-center gap-2"><Trophy className="w-4 h-4 text-warning" /> أعلى 5 موظفين</div>
+          {top5.length === 0 ? <p className="text-xs text-muted-foreground">لم يُسجَّل تقييم بعد</p> : (
+            <ol className="space-y-1.5">
+              {top5.map((s, i) => (
+                <li key={s.id} className="flex items-center justify-between text-sm border-b pb-1.5 last:border-0">
+                  <span><span className="font-bold text-success">#{i + 1}</span> {s.name}</span>
+                  <Badge variant="default">{s.avgFinal}%</Badge>
+                </li>
+              ))}
+            </ol>
+          )}
+        </Card>
+        <Card className="p-4">
+          <div className="font-semibold mb-3 flex items-center gap-2"><Info className="w-4 h-4 text-destructive" /> أدنى 5 موظفين</div>
+          {bottom5.length === 0 ? <p className="text-xs text-muted-foreground">لم يُسجَّل تقييم بعد</p> : (
+            <ol className="space-y-1.5">
+              {bottom5.map((s, i) => (
+                <li key={s.id} className="flex items-center justify-between text-sm border-b pb-1.5 last:border-0">
+                  <span><span className="font-bold text-destructive">#{i + 1}</span> {s.name}</span>
+                  <Badge variant="destructive">{s.avgFinal}%</Badge>
+                </li>
+              ))}
+            </ol>
+          )}
+        </Card>
+      </div>
+
+      <Card className="p-4 mb-5">
+        <div className="font-semibold mb-3">الاتجاه الشهري — آخر 6 أشهر</div>
+        <div className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={monthlyTrend}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="total" name="إجمالي المهام" stroke="hsl(var(--primary))" />
+              <Line type="monotone" dataKey="completed" name="المكتملة" stroke="hsl(var(--success))" />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </Card>
 

@@ -1,24 +1,44 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { fmtSAR } from "@/lib/format";
 import { projectStatusLabel } from "@/lib/labels";
+import { Plus, Pencil } from "lucide-react";
+import { DataTableToolbar } from "@/components/data-table-toolbar";
+import { AddEditProjectDialog } from "@/components/projects/add-edit-project-dialog";
 
 export const Route = createFileRoute("/_authenticated/projects/")({ component: Page });
 
 function Page() {
+  const [search, setSearch] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<any>(null);
+
   const { data: projects = [] } = useQuery({
     queryKey: ["projects"],
     queryFn: async () =>
       (await supabase.from("projects").select("*, customers(name)").order("created_at", { ascending: false })).data ?? [],
   });
 
-  const totals = projects.reduce(
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return projects;
+    return projects.filter((p: any) =>
+      (p.name ?? "").toLowerCase().includes(q) ||
+      (p.code ?? "").toLowerCase().includes(q) ||
+      (p.contract_number ?? "").toLowerCase().includes(q) ||
+      (p.customers?.name ?? "").toLowerCase().includes(q),
+    );
+  }, [projects, search]);
+
+  const totals = filtered.reduce(
     (acc: any, p: any) => {
       acc.contract += Number(p.contract_value ?? 0);
       acc.billed += Number(p.billed_amount ?? 0);
@@ -29,9 +49,37 @@ function Page() {
     { contract: 0, billed: 0, unbilled: 0, retention: 0 },
   );
 
+  const exportRows = filtered.map((p: any) => ({
+    "الكود": p.code,
+    "المشروع": p.name,
+    "رقم العقد": p.contract_number ?? "",
+    "العميل": p.customers?.name ?? "",
+    "قيمة العقد": Number(p.contract_value ?? 0),
+    "المفوتر": Number(p.billed_amount ?? 0),
+    "المتبقي": Number(p.unbilled_amount ?? 0),
+    "الاحتجاز %": Number(p.retention_pct ?? 0),
+    "الإنجاز %": Number(p.financial_progress ?? 0),
+    "الحالة": projectStatusLabel[p.status ?? "new"],
+  }));
+  const exportCols = [
+    { header: "الكود", dataKey: "الكود" }, { header: "المشروع", dataKey: "المشروع" },
+    { header: "رقم العقد", dataKey: "رقم العقد" }, { header: "العميل", dataKey: "العميل" },
+    { header: "قيمة العقد", dataKey: "قيمة العقد" }, { header: "المفوتر", dataKey: "المفوتر" },
+    { header: "المتبقي", dataKey: "المتبقي" }, { header: "الاحتجاز %", dataKey: "الاحتجاز %" },
+    { header: "الإنجاز %", dataKey: "الإنجاز %" }, { header: "الحالة", dataKey: "الحالة" },
+  ];
+
   return (
     <div>
-      <PageHeader title="إدارة المشاريع والعقود" description={`${projects.length} مشروع`} />
+      <PageHeader
+        title="إدارة المشاريع والعقود"
+        description={`${filtered.length} مشروع`}
+        actions={
+          <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="gap-2">
+            <Plus className="w-4 h-4" />إضافة مشروع جديد
+          </Button>
+        }
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
         <Card className="p-4">
@@ -52,6 +100,12 @@ function Page() {
         </Card>
       </div>
 
+      <DataTableToolbar
+        search={search} onSearchChange={setSearch}
+        searchPlaceholder="بحث في المشاريع..."
+        rows={exportRows} exportColumns={exportCols} exportTitle="تقرير المشاريع"
+      />
+
       <Card>
         <Table>
           <TableHeader>
@@ -66,17 +120,18 @@ function Page() {
               <TableHead>الاحتجاز</TableHead>
               <TableHead className="w-[160px]">الإنجاز المالي</TableHead>
               <TableHead>الحالة</TableHead>
+              <TableHead></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {projects.length === 0 && (
+            {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
-                  لا توجد مشاريع.
+                <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
+                  لا توجد مشاريع. اضغط "إضافة مشروع جديد" لإنشاء أول مشروع.
                 </TableCell>
               </TableRow>
             )}
-            {projects.map((p: any) => {
+            {filtered.map((p: any) => {
               const fp = Number(p.financial_progress ?? 0);
               const retPct = Number(p.retention_pct ?? 0);
               const retAmt = Number(p.retention_amount ?? 0) || (Number(p.billed_amount ?? 0) * retPct) / 100;
@@ -102,12 +157,19 @@ function Page() {
                   <TableCell>
                     <Badge>{projectStatusLabel[p.status ?? "new"]}</Badge>
                   </TableCell>
+                  <TableCell>
+                    <Button size="sm" variant="ghost" onClick={() => { setEditing(p); setDialogOpen(true); }}>
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               );
             })}
           </TableBody>
         </Table>
       </Card>
+
+      <AddEditProjectDialog open={dialogOpen} onOpenChange={setDialogOpen} project={editing} />
     </div>
   );
 }
