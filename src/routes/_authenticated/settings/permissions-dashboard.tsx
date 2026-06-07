@@ -33,6 +33,9 @@ function StatCard({ icon: Icon, label, value, tone = "default" }: { icon: any; l
 function Page() {
   const { isAdmin } = useAuth();
   const modules = useMemo(() => flattenModules(), []);
+  const qc = useQueryClient();
+  const { isAdmin } = useAuth();
+  const modules = useMemo(() => flattenModules(), []);
 
   const { data: users = [] } = useQuery({
     queryKey: ["pdash-users"],
