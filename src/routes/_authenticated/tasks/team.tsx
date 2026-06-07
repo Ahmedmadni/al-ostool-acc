@@ -257,8 +257,10 @@ function Page() {
                 </TableCell>
               </TableRow>
             )}
-            {stats.map((s, idx) => (
-              <TableRow key={s.id}>
+            {stats.map((s, idx) => {
+              const profile = profiles.find((p: any) => p.id === s.id);
+              return (
+              <TableRow key={s.id} className="cursor-pointer hover:bg-muted/40" onClick={() => setSelectedUser(profile)}>
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-1">
                     {idx === 0 && s.avgFinal != null && <Trophy className="w-3.5 h-3.5 text-warning" />}
@@ -306,10 +308,12 @@ function Page() {
                   )}
                 </TableCell>
               </TableRow>
-            ))}
+            );})}
           </TableBody>
         </Table>
       </Card>
+
+      <EmployeePerformanceModal open={!!selectedUser} onOpenChange={(o) => !o && setSelectedUser(null)} user={selectedUser} />
     </div>
   );
 }
