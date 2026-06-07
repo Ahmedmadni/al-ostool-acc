@@ -152,8 +152,41 @@ function LoginPage() {
         <div className="relative text-xs text-white/60">© {new Date().getFullYear()} الأسطول الآلي • جميع الحقوق محفوظة</div>
       </div>
 
-      <div className="flex items-center justify-center p-6 lg:p-12 bg-background overflow-y-auto">
-        <div className="w-full max-w-md">
+      <div className="relative flex items-center justify-center p-6 lg:p-12 bg-background overflow-y-auto">
+        {/* خلفية زخرفية بأشكال عضوية رصاصية فاتحة */}
+        <svg
+          className="pointer-events-none absolute inset-0 w-full h-full text-muted-foreground/15"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 800 800"
+          preserveAspectRatio="xMidYMid slice"
+          aria-hidden="true"
+        >
+          <defs>
+            <pattern id="dotsLogin" x="0" y="0" width="22" height="22" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1.1" fill="currentColor" opacity="0.55" />
+            </pattern>
+            <pattern id="ringsLogin" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+              <circle cx="30" cy="30" r="14" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.45" />
+              <circle cx="30" cy="30" r="6" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.35" />
+            </pattern>
+          </defs>
+          {/* أشكال أوراق/أيدي عضوية كبيرة شفافة */}
+          <path d="M-40 120 C 120 40, 260 140, 240 280 S 80 420, 40 360 -60 240 -40 120 Z"
+            fill="currentColor" opacity="0.18" />
+          <path d="M620 -20 C 760 60, 820 220, 720 320 S 520 360, 500 240 540 60 620 -20 Z"
+            fill="currentColor" opacity="0.14" />
+          <path d="M-20 560 C 120 500, 280 580, 300 700 S 140 820, 40 780 -80 660 -20 560 Z"
+            fill="currentColor" opacity="0.16" />
+          <path d="M520 540 C 660 480, 820 560, 820 700 S 700 820, 600 780 460 660 520 540 Z"
+            fill="currentColor" opacity="0.13" />
+          {/* بصمات/حلقات */}
+          <circle cx="120" cy="640" r="90" fill="url(#ringsLogin)" />
+          <circle cx="680" cy="160" r="110" fill="url(#ringsLogin)" />
+          {/* رقاط */}
+          <rect x="40" y="380" width="180" height="180" fill="url(#dotsLogin)" />
+          <rect x="560" y="380" width="200" height="220" fill="url(#dotsLogin)" />
+        </svg>
+        <div className="relative w-full max-w-md">
           <div className="lg:hidden flex items-center gap-3 mb-8">
             <img src={logo} alt="" className="w-12 h-12 rounded-lg bg-white p-1.5 shadow" />
             <div>
