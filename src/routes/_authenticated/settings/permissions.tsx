@@ -14,7 +14,7 @@ import { flattenModules, ACTIONS, ACTION_LABEL, getSpecialActions, type ActionKe
 import { usePermissions } from "@/hooks/use-permissions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { RotateCcw, Wand2, CheckCheck, X } from "lucide-react";
+import { RotateCcw, Wand2, CheckCheck, X, ChevronDown, ChevronLeft, ChevronsDownUp, ChevronsUpDown } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/settings/permissions")({ component: Page });
 
