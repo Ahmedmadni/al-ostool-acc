@@ -55,6 +55,7 @@ import { Route as AuthenticatedSettingsPermissionsRouteImport } from './routes/_
 import { Route as AuthenticatedSettingsApprovalsRouteImport } from './routes/_authenticated/settings/approvals'
 import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
 import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
+import { Route as AuthenticatedProjectsIdRouteImport } from './routes/_authenticated/projects/$id'
 import { Route as AuthenticatedIntelligenceVendorsRouteImport } from './routes/_authenticated/intelligence/vendors'
 import { Route as AuthenticatedIntelligenceCustomersRouteImport } from './routes/_authenticated/intelligence/customers'
 import { Route as AuthenticatedImportsUploadRouteImport } from './routes/_authenticated/imports/upload'
@@ -69,6 +70,10 @@ import { Route as AuthenticatedControlProjectsRouteImport } from './routes/_auth
 import { Route as AuthenticatedControlCostsRouteImport } from './routes/_authenticated/control/costs'
 import { Route as AuthenticatedCashFlowMatrixRouteImport } from './routes/_authenticated/cash-flow/matrix'
 import { Route as AuthenticatedVendorsStatementIdRouteImport } from './routes/_authenticated/vendors/statement.$id'
+import { Route as AuthenticatedTasksReportsTaskCompletionRouteImport } from './routes/_authenticated/tasks/reports/task-completion'
+import { Route as AuthenticatedTasksReportsEmployeePerformanceRouteImport } from './routes/_authenticated/tasks/reports/employee-performance'
+import { Route as AuthenticatedTasksReportsDepartmentPerformanceRouteImport } from './routes/_authenticated/tasks/reports/department-performance'
+import { Route as AuthenticatedTasksReportsDelayedTasksRouteImport } from './routes/_authenticated/tasks/reports/delayed-tasks'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -332,6 +337,11 @@ const AuthenticatedProjectsProgressRoute =
     path: '/projects/progress',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedProjectsIdRoute = AuthenticatedProjectsIdRouteImport.update({
+  id: '/projects/$id',
+  path: '/projects/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedIntelligenceVendorsRoute =
   AuthenticatedIntelligenceVendorsRouteImport.update({
     id: '/intelligence/vendors',
@@ -416,6 +426,30 @@ const AuthenticatedVendorsStatementIdRoute =
     path: '/vendors/statement/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedTasksReportsTaskCompletionRoute =
+  AuthenticatedTasksReportsTaskCompletionRouteImport.update({
+    id: '/tasks/reports/task-completion',
+    path: '/tasks/reports/task-completion',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedTasksReportsEmployeePerformanceRoute =
+  AuthenticatedTasksReportsEmployeePerformanceRouteImport.update({
+    id: '/tasks/reports/employee-performance',
+    path: '/tasks/reports/employee-performance',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedTasksReportsDepartmentPerformanceRoute =
+  AuthenticatedTasksReportsDepartmentPerformanceRouteImport.update({
+    id: '/tasks/reports/department-performance',
+    path: '/tasks/reports/department-performance',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedTasksReportsDelayedTasksRoute =
+  AuthenticatedTasksReportsDelayedTasksRouteImport.update({
+    id: '/tasks/reports/delayed-tasks',
+    path: '/tasks/reports/delayed-tasks',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -435,6 +469,7 @@ export interface FileRoutesByFullPath {
   '/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/intelligence/customers': typeof AuthenticatedIntelligenceCustomersRoute
   '/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
+  '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
@@ -476,6 +511,10 @@ export interface FileRoutesByFullPath {
   '/treasury/': typeof AuthenticatedTreasuryIndexRoute
   '/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors/': typeof AuthenticatedVendorsIndexRoute
+  '/tasks/reports/delayed-tasks': typeof AuthenticatedTasksReportsDelayedTasksRoute
+  '/tasks/reports/department-performance': typeof AuthenticatedTasksReportsDepartmentPerformanceRoute
+  '/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
+  '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
 }
 export interface FileRoutesByTo {
@@ -496,6 +535,7 @@ export interface FileRoutesByTo {
   '/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/intelligence/customers': typeof AuthenticatedIntelligenceCustomersRoute
   '/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
+  '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
@@ -537,6 +577,10 @@ export interface FileRoutesByTo {
   '/treasury': typeof AuthenticatedTreasuryIndexRoute
   '/trial-balance': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors': typeof AuthenticatedVendorsIndexRoute
+  '/tasks/reports/delayed-tasks': typeof AuthenticatedTasksReportsDelayedTasksRoute
+  '/tasks/reports/department-performance': typeof AuthenticatedTasksReportsDepartmentPerformanceRoute
+  '/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
+  '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
 }
 export interface FileRoutesById {
@@ -559,6 +603,7 @@ export interface FileRoutesById {
   '/_authenticated/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/_authenticated/intelligence/customers': typeof AuthenticatedIntelligenceCustomersRoute
   '/_authenticated/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
+  '/_authenticated/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/_authenticated/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
   '/_authenticated/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
@@ -600,6 +645,10 @@ export interface FileRoutesById {
   '/_authenticated/treasury/': typeof AuthenticatedTreasuryIndexRoute
   '/_authenticated/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/_authenticated/vendors/': typeof AuthenticatedVendorsIndexRoute
+  '/_authenticated/tasks/reports/delayed-tasks': typeof AuthenticatedTasksReportsDelayedTasksRoute
+  '/_authenticated/tasks/reports/department-performance': typeof AuthenticatedTasksReportsDepartmentPerformanceRoute
+  '/_authenticated/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
+  '/_authenticated/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/_authenticated/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
 }
 export interface FileRouteTypes {
@@ -622,6 +671,7 @@ export interface FileRouteTypes {
     | '/imports/upload'
     | '/intelligence/customers'
     | '/intelligence/vendors'
+    | '/projects/$id'
     | '/projects/progress'
     | '/receivables/aging'
     | '/settings/approvals'
@@ -663,6 +713,10 @@ export interface FileRouteTypes {
     | '/treasury/'
     | '/trial-balance/'
     | '/vendors/'
+    | '/tasks/reports/delayed-tasks'
+    | '/tasks/reports/department-performance'
+    | '/tasks/reports/employee-performance'
+    | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -683,6 +737,7 @@ export interface FileRouteTypes {
     | '/imports/upload'
     | '/intelligence/customers'
     | '/intelligence/vendors'
+    | '/projects/$id'
     | '/projects/progress'
     | '/receivables/aging'
     | '/settings/approvals'
@@ -724,6 +779,10 @@ export interface FileRouteTypes {
     | '/treasury'
     | '/trial-balance'
     | '/vendors'
+    | '/tasks/reports/delayed-tasks'
+    | '/tasks/reports/department-performance'
+    | '/tasks/reports/employee-performance'
+    | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
   id:
     | '__root__'
@@ -745,6 +804,7 @@ export interface FileRouteTypes {
     | '/_authenticated/imports/upload'
     | '/_authenticated/intelligence/customers'
     | '/_authenticated/intelligence/vendors'
+    | '/_authenticated/projects/$id'
     | '/_authenticated/projects/progress'
     | '/_authenticated/receivables/aging'
     | '/_authenticated/settings/approvals'
@@ -786,6 +846,10 @@ export interface FileRouteTypes {
     | '/_authenticated/treasury/'
     | '/_authenticated/trial-balance/'
     | '/_authenticated/vendors/'
+    | '/_authenticated/tasks/reports/delayed-tasks'
+    | '/_authenticated/tasks/reports/department-performance'
+    | '/_authenticated/tasks/reports/employee-performance'
+    | '/_authenticated/tasks/reports/task-completion'
     | '/_authenticated/vendors/statement/$id'
   fileRoutesById: FileRoutesById
 }
@@ -1119,6 +1183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsProgressRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/projects/$id': {
+      id: '/_authenticated/projects/$id'
+      path: '/projects/$id'
+      fullPath: '/projects/$id'
+      preLoaderRoute: typeof AuthenticatedProjectsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/intelligence/vendors': {
       id: '/_authenticated/intelligence/vendors'
       path: '/intelligence/vendors'
@@ -1217,6 +1288,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVendorsStatementIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/tasks/reports/task-completion': {
+      id: '/_authenticated/tasks/reports/task-completion'
+      path: '/tasks/reports/task-completion'
+      fullPath: '/tasks/reports/task-completion'
+      preLoaderRoute: typeof AuthenticatedTasksReportsTaskCompletionRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/tasks/reports/employee-performance': {
+      id: '/_authenticated/tasks/reports/employee-performance'
+      path: '/tasks/reports/employee-performance'
+      fullPath: '/tasks/reports/employee-performance'
+      preLoaderRoute: typeof AuthenticatedTasksReportsEmployeePerformanceRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/tasks/reports/department-performance': {
+      id: '/_authenticated/tasks/reports/department-performance'
+      path: '/tasks/reports/department-performance'
+      fullPath: '/tasks/reports/department-performance'
+      preLoaderRoute: typeof AuthenticatedTasksReportsDepartmentPerformanceRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/tasks/reports/delayed-tasks': {
+      id: '/_authenticated/tasks/reports/delayed-tasks'
+      path: '/tasks/reports/delayed-tasks'
+      fullPath: '/tasks/reports/delayed-tasks'
+      preLoaderRoute: typeof AuthenticatedTasksReportsDelayedTasksRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -1236,6 +1335,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedImportsUploadRoute: typeof AuthenticatedImportsUploadRoute
   AuthenticatedIntelligenceCustomersRoute: typeof AuthenticatedIntelligenceCustomersRoute
   AuthenticatedIntelligenceVendorsRoute: typeof AuthenticatedIntelligenceVendorsRoute
+  AuthenticatedProjectsIdRoute: typeof AuthenticatedProjectsIdRoute
   AuthenticatedProjectsProgressRoute: typeof AuthenticatedProjectsProgressRoute
   AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
   AuthenticatedSettingsApprovalsRoute: typeof AuthenticatedSettingsApprovalsRoute
@@ -1277,6 +1377,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTreasuryIndexRoute: typeof AuthenticatedTreasuryIndexRoute
   AuthenticatedTrialBalanceIndexRoute: typeof AuthenticatedTrialBalanceIndexRoute
   AuthenticatedVendorsIndexRoute: typeof AuthenticatedVendorsIndexRoute
+  AuthenticatedTasksReportsDelayedTasksRoute: typeof AuthenticatedTasksReportsDelayedTasksRoute
+  AuthenticatedTasksReportsDepartmentPerformanceRoute: typeof AuthenticatedTasksReportsDepartmentPerformanceRoute
+  AuthenticatedTasksReportsEmployeePerformanceRoute: typeof AuthenticatedTasksReportsEmployeePerformanceRoute
+  AuthenticatedTasksReportsTaskCompletionRoute: typeof AuthenticatedTasksReportsTaskCompletionRoute
   AuthenticatedVendorsStatementIdRoute: typeof AuthenticatedVendorsStatementIdRoute
 }
 
@@ -1299,6 +1403,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIntelligenceCustomersRoute:
     AuthenticatedIntelligenceCustomersRoute,
   AuthenticatedIntelligenceVendorsRoute: AuthenticatedIntelligenceVendorsRoute,
+  AuthenticatedProjectsIdRoute: AuthenticatedProjectsIdRoute,
   AuthenticatedProjectsProgressRoute: AuthenticatedProjectsProgressRoute,
   AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
   AuthenticatedSettingsApprovalsRoute: AuthenticatedSettingsApprovalsRoute,
@@ -1342,6 +1447,14 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTreasuryIndexRoute: AuthenticatedTreasuryIndexRoute,
   AuthenticatedTrialBalanceIndexRoute: AuthenticatedTrialBalanceIndexRoute,
   AuthenticatedVendorsIndexRoute: AuthenticatedVendorsIndexRoute,
+  AuthenticatedTasksReportsDelayedTasksRoute:
+    AuthenticatedTasksReportsDelayedTasksRoute,
+  AuthenticatedTasksReportsDepartmentPerformanceRoute:
+    AuthenticatedTasksReportsDepartmentPerformanceRoute,
+  AuthenticatedTasksReportsEmployeePerformanceRoute:
+    AuthenticatedTasksReportsEmployeePerformanceRoute,
+  AuthenticatedTasksReportsTaskCompletionRoute:
+    AuthenticatedTasksReportsTaskCompletionRoute,
   AuthenticatedVendorsStatementIdRoute: AuthenticatedVendorsStatementIdRoute,
 }
 

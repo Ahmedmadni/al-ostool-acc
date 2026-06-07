@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/hooks/use-auth";
 import { flattenModules, ACTIONS, ACTION_LABEL } from "@/lib/permissions";
-import { ShieldCheck, ShieldAlert, Users, Layers, Key, AlertTriangle, CheckCircle2, XCircle, Info } from "lucide-react";
+import { ShieldCheck, ShieldAlert, Users, Layers, Key, AlertTriangle, CheckCircle2, XCircle, Info, Wrench } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/settings/permissions-dashboard")({ component: Page });
 
@@ -32,6 +33,7 @@ function StatCard({ icon: Icon, label, value, tone = "default" }: { icon: any; l
 function Page() {
   const { isAdmin } = useAuth();
   const modules = useMemo(() => flattenModules(), []);
+  const qc = useQueryClient();
 
   const { data: users = [] } = useQuery({
     queryKey: ["pdash-users"],
@@ -215,6 +217,63 @@ function Page() {
           </ul>
         </CardContent>
       </Card>
+
+      {(() => {
+        const byUserMod = new Map<string, Map<string, Set<string>>>();
+        userPerms.filter((p: any) => p.granted).forEach((p: any) => {
+          if (!byUserMod.has(p.user_id)) byUserMod.set(p.user_id, new Map());
+          const m = byUserMod.get(p.user_id)!;
+          if (!m.has(p.module_key)) m.set(p.module_key, new Set());
+          m.get(p.module_key)!.add(p.action_key);
+        });
+        type Conflict = { userId: string; userName: string; moduleKey: string; moduleName: string; type: string; removeAction: string };
+        const conflicts: Conflict[] = [];
+        byUserMod.forEach((mods, userId) => {
+          const u = users.find((x: any) => x.id === userId);
+          if (!u) return;
+          mods.forEach((acts, modKey) => {
+            const mod = modules.find((m) => m.key === modKey);
+            const modName = mod?.name ?? modKey;
+            if (acts.has("delete") && !acts.has("view")) {
+              conflicts.push({ userId, userName: u.full_name ?? u.email, moduleKey: modKey, moduleName: modName, type: "حذف بدون عرض", removeAction: "delete" });
+            }
+            if (acts.has("approve") && !acts.has("edit")) {
+              conflicts.push({ userId, userName: u.full_name ?? u.email, moduleKey: modKey, moduleName: modName, type: "اعتماد بدون تعديل", removeAction: "approve" });
+            }
+          });
+        });
+
+        const fix = async (c: Conflict) => {
+          const { error } = await (supabase as any).from("user_permissions")
+            .delete().eq("user_id", c.userId).eq("module_key", c.moduleKey).eq("action_key", c.removeAction);
+          if (error) return toast.error(error.message);
+          toast.success("تم إصلاح التعارض");
+          qc.invalidateQueries({ queryKey: ["pdash-up"] });
+        };
+
+        if (conflicts.length === 0) return null;
+        return (
+          <Card className="mb-6 border-amber-500/40">
+            <CardHeader><CardTitle className="flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-amber-600" />صلاحيات متعارضة ({conflicts.length})</CardTitle></CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader><TableRow><TableHead>المستخدم</TableHead><TableHead>الموديول</TableHead><TableHead>نوع التعارض</TableHead><TableHead></TableHead></TableRow></TableHeader>
+                <TableBody>
+                  {conflicts.map((c, i) => (
+                    <TableRow key={i}>
+                      <TableCell>{c.userName}</TableCell>
+                      <TableCell>{c.moduleName}</TableCell>
+                      <TableCell><Badge variant="destructive">{c.type}</Badge></TableCell>
+                      <TableCell><Button size="sm" variant="outline" onClick={() => fix(c)}><Wrench className="w-3.5 h-3.5" /> إصلاح</Button></TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        );
+      })()}
+
 
       <Card>
         <CardHeader><CardTitle>سجل تدقيق الصلاحيات — آخر 50 تغيير</CardTitle></CardHeader>

@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/page-header";
@@ -9,20 +9,22 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend, LineChart, Line } from "recharts";
-import { Info, Star, Trophy, Download, FileSpreadsheet, Printer } from "lucide-react";
+import { Info, Star, Trophy, Download, FileSpreadsheet, Printer, FileText } from "lucide-react";
 import { checklistCompletion, finalScore } from "@/lib/task-scoring";
 import { exportToExcel, exportToPdf } from "@/lib/export";
+import { EmployeePerformanceModal } from "@/components/tasks/employee-performance-modal";
 
 export const Route = createFileRoute("/_authenticated/tasks/team")({ component: Page });
 
 function Page() {
+  const [selectedUser, setSelectedUser] = useState<any>(null);
   const { data: tasks = [] } = useQuery({
     queryKey: ["all-tasks-team"],
     queryFn: async () => (await supabase.from("tasks").select("*, task_checklist_items(is_done,weight)")).data ?? [],
   });
   const { data: profiles = [] } = useQuery({
     queryKey: ["profiles-team"],
-    queryFn: async () => (await supabase.from("profiles").select("id, full_name, email")).data ?? [],
+    queryFn: async () => (await supabase.from("profiles").select("id, full_name, email, department_id, job_title_id")).data ?? [],
   });
 
   const stats = useMemo(() => {
@@ -146,13 +148,18 @@ function Page() {
         title="أداء الفريق — المهام"
         description="متابعة إنتاجية الموظفين بناءً على تقييم المدير ونسبة الإنجاز المعتمدة"
         actions={
-          <div className="flex gap-2 no-print">
+          <div className="flex gap-2 no-print flex-wrap">
+            <Button variant="outline" size="sm" asChild><Link to="/tasks/reports/employee-performance"><FileText className="w-4 h-4" /> أداء الموظفين</Link></Button>
+            <Button variant="outline" size="sm" asChild><Link to="/tasks/reports/task-completion"><FileText className="w-4 h-4" /> إنجاز المهام</Link></Button>
+            <Button variant="outline" size="sm" asChild><Link to="/tasks/reports/delayed-tasks"><FileText className="w-4 h-4" /> المتأخرة</Link></Button>
+            <Button variant="outline" size="sm" asChild><Link to="/tasks/reports/department-performance"><FileText className="w-4 h-4" /> أداء الإدارات</Link></Button>
             <Button variant="outline" size="sm" onClick={handlePdf} className="gap-1"><Download className="w-4 h-4" /> PDF</Button>
             <Button variant="outline" size="sm" onClick={handleExcel} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
             <Button variant="outline" size="sm" onClick={handlePrint} className="gap-1"><Printer className="w-4 h-4" /> طباعة</Button>
           </div>
         }
       />
+
 
       <Card className="p-3 mb-4 bg-info/5 border-info/30 flex items-start gap-2 text-sm">
         <Info className="w-4 h-4 mt-0.5 text-info shrink-0" />
@@ -250,8 +257,10 @@ function Page() {
                 </TableCell>
               </TableRow>
             )}
-            {stats.map((s, idx) => (
-              <TableRow key={s.id}>
+            {stats.map((s, idx) => {
+              const profile = profiles.find((p: any) => p.id === s.id);
+              return (
+              <TableRow key={s.id} className="cursor-pointer hover:bg-muted/40" onClick={() => setSelectedUser(profile)}>
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-1">
                     {idx === 0 && s.avgFinal != null && <Trophy className="w-3.5 h-3.5 text-warning" />}
@@ -299,10 +308,12 @@ function Page() {
                   )}
                 </TableCell>
               </TableRow>
-            ))}
+            );})}
           </TableBody>
         </Table>
       </Card>
+
+      <EmployeePerformanceModal open={!!selectedUser} onOpenChange={(o) => !o && setSelectedUser(null)} user={selectedUser} />
     </div>
   );
 }
