@@ -31,6 +31,7 @@ const GROUPS: NavGroup[] = [
     key: "executive", label: "القيادة التنفيذية", icon: LayoutDashboard,
     links: [
       { to: "/dashboard", label: "لوحة التحكم التنفيذية" },
+      { to: "/dashboard/executive", label: "لوحة الإدارة التنفيذية (CEO/CFO)" },
       { to: "/executive", label: "مركز القيادة (CFO) V2" },
       { to: "/forecasting", label: "محرك التوقعات" },
       { to: "/scenarios", label: "تحليل السيناريوهات" },
