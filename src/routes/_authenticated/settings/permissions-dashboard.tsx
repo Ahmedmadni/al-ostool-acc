@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/hooks/use-auth";
 import { flattenModules, ACTIONS, ACTION_LABEL } from "@/lib/permissions";
-import { ShieldCheck, ShieldAlert, Users, Layers, Key, AlertTriangle, CheckCircle2, XCircle, Info } from "lucide-react";
+import { ShieldCheck, ShieldAlert, Users, Layers, Key, AlertTriangle, CheckCircle2, XCircle, Info, Wrench } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/settings/permissions-dashboard")({ component: Page });
 
