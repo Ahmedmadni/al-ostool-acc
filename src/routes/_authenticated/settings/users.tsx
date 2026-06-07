@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Pencil, Check, Plus, Trash2, Shield, Info } from "lucide-react";
 import { createUserByAdmin, deleteUserByAdmin } from "@/lib/admin-users.functions";
+import { UserPermissionsDialog } from "@/components/settings/user-permissions-dialog";
 
 export const Route = createFileRoute("/_authenticated/settings/users")({ component: Page });
 
@@ -47,9 +48,16 @@ function Page() {
   const createFn = useServerFn(createUserByAdmin);
   const deleteFn = useServerFn(deleteUserByAdmin);
 
+  const [searchQ, setSearchQ] = useState("");
+  const [deptFilter, setDeptFilter] = useState<string>("all");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [permOpen, setPermOpen] = useState(false);
+  const [permUserId, setPermUserId] = useState<string | null>(null);
+  const [permUserName, setPermUserName] = useState<string>("");
+
   const { data: profiles = [] } = useQuery({
     queryKey: ["profiles-admin"],
-    queryFn: async () => (await (supabase as any).from("profiles").select("*, departments(name_ar), job_titles(name_ar), manager:manager_id(full_name)").order("created_at", { ascending: false })).data ?? [],
+    queryFn: async () => (await (supabase as any).from("profiles").select("*, departments(name_ar), job_titles(name_ar)").order("created_at", { ascending: false })).data ?? [],
   });
   const { data: permCounts = {} } = useQuery({
     queryKey: ["perm-counts"],
@@ -137,6 +145,27 @@ function Page() {
         actions={<Button onClick={() => setOpen(true)} className="gap-2"><Plus className="w-4 h-4" />مستخدم جديد</Button>}
       />
 
+      <Card className="p-3 mb-3">
+        <div className="flex flex-wrap gap-2 items-center">
+          <Input placeholder="بحث بالاسم أو البريد..." value={searchQ} onChange={(e) => setSearchQ(e.target.value)} className="max-w-xs h-9" />
+          <Select value={deptFilter} onValueChange={setDeptFilter}>
+            <SelectTrigger className="w-44 h-9"><SelectValue placeholder="الإدارة" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع الإدارات</SelectItem>
+              {departments.map((d: any) => <SelectItem key={d.id} value={d.id}>{d.name_ar}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="w-44 h-9"><SelectValue placeholder="الدور" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل الأدوار</SelectItem>
+              {Object.entries(roleLabel).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <div className="text-xs text-muted-foreground ms-auto">{profiles.length} مستخدم</div>
+        </div>
+      </Card>
+
       <Card>
         <Table>
           <TableHeader>
@@ -153,9 +182,21 @@ function Page() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {profiles.length === 0 ? (
-              <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">لا يوجد مستخدمون بعد</TableCell></TableRow>
-            ) : profiles.map((p: any) => {
+            {(() => {
+              const q = searchQ.trim().toLowerCase();
+              const filtered = profiles.filter((p: any) => {
+                if (q && !((p.full_name ?? "").toLowerCase().includes(q) || (p.email ?? "").toLowerCase().includes(q) || (p.employee_id ?? "").toLowerCase().includes(q))) return false;
+                if (deptFilter !== "all" && p.department_id !== deptFilter) return false;
+                if (roleFilter !== "all") {
+                  const r = userRoles.find((x: any) => x.user_id === p.id)?.role ?? "accountant";
+                  if (r !== roleFilter) return false;
+                }
+                return true;
+              });
+              if (filtered.length === 0) {
+                return <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">لا يوجد مستخدمون مطابقون</TableCell></TableRow>;
+              }
+              return filtered.map((p: any) => {
               const role = userRoles.find((r: any) => r.user_id === p.id)?.role ?? "accountant";
               const s = statusLabel[p.status ?? "active"] ?? { label: p.status, variant: "outline" as const };
               return (
@@ -215,7 +256,6 @@ function Page() {
                             <div className="space-y-1 text-xs">
                               <div><b>الإدارة:</b> {p.departments?.name_ar ?? "—"}</div>
                               <div><b>الوظيفة:</b> {p.job_titles?.name_ar ?? "—"}</div>
-                              <div><b>المدير:</b> {p.manager?.full_name ?? "—"}</div>
                               <div><b>الدور:</b> {roleLabel[role as keyof typeof roleLabel] ?? role}</div>
                               <div className="pt-1 border-t border-border/30">
                                 <b>صلاحيات يدوية:</b> {(permCounts as any)[p.id]?.allow ?? 0} مسموح ·
@@ -225,8 +265,9 @@ function Page() {
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                      <Button asChild size="icon" variant="ghost" className="h-8 w-8" title="إدارة الصلاحيات">
-                        <Link to="/settings/permissions"><Shield className="w-4 h-4" /></Link>
+                      <Button size="icon" variant="ghost" className="h-8 w-8" title="إدارة الصلاحيات"
+                        onClick={() => { setPermUserId(p.id); setPermUserName(p.full_name ?? p.email ?? ""); setPermOpen(true); }}>
+                        <Shield className="w-4 h-4" />
                       </Button>
                       {me?.id !== p.id && (
                         <Button size="icon" variant="ghost" onClick={() => removeUser(p.id)} className="h-8 w-8 text-destructive">
@@ -237,10 +278,13 @@ function Page() {
                   </TableCell>
                 </TableRow>
               );
-            })}
+            });
+            })()}
           </TableBody>
         </Table>
       </Card>
+
+      <UserPermissionsDialog open={permOpen} onOpenChange={setPermOpen} userId={permUserId} userName={permUserName} />
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl">

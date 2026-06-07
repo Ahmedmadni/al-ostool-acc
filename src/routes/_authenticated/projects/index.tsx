@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { fmtSAR } from "@/lib/format";
 import { projectStatusLabel } from "@/lib/labels";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, Eye } from "lucide-react";
 import { DataTableToolbar } from "@/components/data-table-toolbar";
 import { AddEditProjectDialog } from "@/components/projects/add-edit-project-dialog";
 
@@ -158,9 +158,14 @@ function Page() {
                     <Badge>{projectStatusLabel[p.status ?? "new"]}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Button size="sm" variant="ghost" onClick={() => { setEditing(p); setDialogOpen(true); }}>
-                      <Pencil className="w-4 h-4" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button asChild size="sm" variant="ghost" title="عرض">
+                        <Link to="/projects/$id" params={{ id: p.id }}><Eye className="w-4 h-4" /></Link>
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => { setEditing(p); setDialogOpen(true); }} title="تعديل">
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               );
