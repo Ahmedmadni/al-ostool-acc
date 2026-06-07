@@ -24,7 +24,7 @@ function Page() {
   });
   const { data: profiles = [] } = useQuery({
     queryKey: ["profiles-team"],
-    queryFn: async () => (await supabase.from("profiles").select("id, full_name, email")).data ?? [],
+    queryFn: async () => (await supabase.from("profiles").select("id, full_name, email, department_id, job_title_id")).data ?? [],
   });
 
   const stats = useMemo(() => {
