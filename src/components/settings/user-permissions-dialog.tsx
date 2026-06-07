@@ -17,6 +17,7 @@ type Props = {
 };
 
 type PermKey = `${string}:${ActionKey}`;
+const EMPTY_ROWS: any[] = [];
 
 export function UserPermissionsDialog({ open, onOpenChange, userId, userName }: Props) {
   const qc = useQueryClient();
@@ -24,16 +25,17 @@ export function UserPermissionsDialog({ open, onOpenChange, userId, userName }: 
   const [state, setState] = useState<Record<PermKey, boolean>>({});
   const [saving, setSaving] = useState(false);
 
-  const { data: rows = [] } = useQuery({
+  const { data: rows } = useQuery({
     queryKey: ["user-perms-dlg", userId],
     enabled: !!userId && open,
     queryFn: async () => (await (supabase as any).from("user_permissions")
-      .select("module_key, action_key, granted").eq("user_id", userId)).data ?? [],
+      .select("module_key, action_key, granted").eq("user_id", userId)).data ?? EMPTY_ROWS,
   });
 
   useEffect(() => {
+    const list = rows ?? EMPTY_ROWS;
     const init: Record<PermKey, boolean> = {};
-    for (const r of rows as any[]) init[`${r.module_key}:${r.action_key}` as PermKey] = !!r.granted;
+    for (const r of list as any[]) init[`${r.module_key}:${r.action_key}` as PermKey] = !!r.granted;
     setState(init);
   }, [rows, open]);
 

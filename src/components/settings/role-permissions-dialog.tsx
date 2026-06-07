@@ -13,6 +13,7 @@ import { toast } from "sonner";
 
 type Props = { open: boolean; onOpenChange: (o: boolean) => void };
 type PermKey = `${string}:${ActionKey}`;
+const EMPTY_ROWS: any[] = [];
 
 const SYSTEM_ROLES = [
   "admin", "ceo", "cfo", "finance_manager", "chief_accountant",
@@ -26,16 +27,17 @@ export function RolePermissionsDialog({ open, onOpenChange }: Props) {
   const [state, setState] = useState<Record<PermKey, boolean>>({});
   const [saving, setSaving] = useState(false);
 
-  const { data: rows = [] } = useQuery({
+  const { data: rows } = useQuery({
     queryKey: ["role-perms", role],
     enabled: !!role && open,
     queryFn: async () => (await (supabase as any).from("role_permissions")
-      .select("module_key, action_key, granted").eq("role", role)).data ?? [],
+      .select("module_key, action_key, granted").eq("role", role)).data ?? EMPTY_ROWS,
   });
 
   useEffect(() => {
+    const list = rows ?? EMPTY_ROWS;
     const init: Record<PermKey, boolean> = {};
-    for (const r of rows as any[]) init[`${r.module_key}:${r.action_key}` as PermKey] = !!r.granted;
+    for (const r of list as any[]) init[`${r.module_key}:${r.action_key}` as PermKey] = !!r.granted;
     setState(init);
   }, [rows, role, open]);
 
