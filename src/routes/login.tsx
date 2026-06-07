@@ -181,8 +181,17 @@ function LoginPage() {
               </>
             )}
             <div>
-              <Label htmlFor="email">البريد الإلكتروني *</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required dir="ltr" className="mt-1.5" />
+              <Label htmlFor="email">{mode === "login" ? "البريد الإلكتروني أو الرقم الوظيفي *" : "البريد الإلكتروني *"}</Label>
+              <Input
+                id="email"
+                type={mode === "login" ? "text" : "email"}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                dir="ltr"
+                className="mt-1.5"
+                placeholder={mode === "login" ? "name@example.com أو رقم الموظف" : ""}
+              />
             </div>
             {mode === "signup" && (
               <>
