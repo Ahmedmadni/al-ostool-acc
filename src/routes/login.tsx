@@ -217,9 +217,6 @@ function LoginPage() {
             </button>
           </div>
 
-          <div className="mt-8 pt-6 border-t text-center">
-            <p className="text-xs text-muted-foreground">أول مستخدم يتم تسجيله يصبح مدير النظام تلقائياً</p>
-          </div>
         </div>
       </div>
     </div>
