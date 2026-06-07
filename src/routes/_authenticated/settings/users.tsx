@@ -13,10 +13,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { roleLabel } from "@/lib/labels";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Pencil, Check, Plus, Trash2, Shield, Info } from "lucide-react";
+import { Pencil, Check, X, Plus, Trash2, Shield, Info } from "lucide-react";
 import { createUserByAdmin, deleteUserByAdmin } from "@/lib/admin-users.functions";
 import { UserPermissionsDialog } from "@/components/settings/user-permissions-dialog";
 
@@ -30,18 +29,26 @@ const statusLabel: Record<string, { label: string; variant: "default" | "destruc
 
 type NewUser = {
   employee_id: string; full_name: string; email: string; password: string;
-  phone: string; department_id: string; job_title_id: string; role: string;
+  phone: string; department_id: string; job_title_id: string;
 };
 const emptyUser: NewUser = {
   employee_id: "", full_name: "", email: "", password: "",
-  phone: "", department_id: "", job_title_id: "", role: "accountant",
+  phone: "", department_id: "", job_title_id: "",
+};
+
+type EditDraft = {
+  full_name: string;
+  email: string;
+  employee_id: string;
+  department_id: string;
+  job_title_id: string;
 };
 
 function Page() {
   const { isAdmin, user: me } = useAuth();
   const qc = useQueryClient();
   const [editId, setEditId] = useState<string | null>(null);
-  const [editEmp, setEditEmp] = useState("");
+  const [draft, setDraft] = useState<EditDraft | null>(null);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<NewUser>(emptyUser);
   const [saving, setSaving] = useState(false);
@@ -50,7 +57,6 @@ function Page() {
 
   const [searchQ, setSearchQ] = useState("");
   const [deptFilter, setDeptFilter] = useState<string>("all");
-  const [roleFilter, setRoleFilter] = useState<string>("all");
   const [permOpen, setPermOpen] = useState(false);
   const [permUserId, setPermUserId] = useState<string | null>(null);
   const [permUserName, setPermUserName] = useState<string>("");
@@ -71,10 +77,6 @@ function Page() {
       return out;
     },
   });
-  const { data: userRoles = [] } = useQuery({
-    queryKey: ["all-roles"],
-    queryFn: async () => (await supabase.from("user_roles").select("*")).data ?? [],
-  });
   const { data: departments = [] } = useQuery({
     queryKey: ["departments-list"],
     queryFn: async () => (await (supabase as any).from("departments").select("id,name_ar").order("name_ar")).data ?? [],
@@ -84,12 +86,6 @@ function Page() {
     queryFn: async () => (await (supabase as any).from("job_titles").select("id,name_ar").order("name_ar")).data ?? [],
   });
 
-  const changeRole = async (userId: string, role: string) => {
-    await supabase.from("user_roles").delete().eq("user_id", userId);
-    const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: role as any });
-    if (error) toast.error(error.message);
-    else { toast.success("تم تحديث الدور"); qc.invalidateQueries({ queryKey: ["all-roles"] }); }
-  };
   const changeStatus = async (userId: string, status: string) => {
     const { error } = await (supabase as any).from("profiles").update({ status }).eq("id", userId);
     if (error) toast.error(error.message);
@@ -100,10 +96,32 @@ function Page() {
     if (error) toast.error(error.message);
     else { toast.success("تم تحديث المدير المباشر"); qc.invalidateQueries({ queryKey: ["profiles-admin"] }); }
   };
-  const saveEmp = async (userId: string) => {
-    const { error } = await (supabase as any).from("profiles").update({ employee_id: editEmp }).eq("id", userId);
-    if (error) toast.error(error.message);
-    else { toast.success("تم تحديث الرقم الوظيفي"); setEditId(null); qc.invalidateQueries({ queryKey: ["profiles-admin"] }); }
+
+  const startEdit = (p: any) => {
+    setEditId(p.id);
+    setDraft({
+      full_name: p.full_name ?? "",
+      email: p.email ?? "",
+      employee_id: p.employee_id ?? "",
+      department_id: p.department_id ?? "",
+      job_title_id: p.job_title_id ?? "",
+    });
+  };
+  const cancelEdit = () => { setEditId(null); setDraft(null); };
+  const saveEdit = async (userId: string) => {
+    if (!draft) return;
+    const payload: any = {
+      full_name: draft.full_name.trim() || null,
+      email: draft.email.trim() || null,
+      employee_id: draft.employee_id.trim() || null,
+      department_id: draft.department_id || null,
+      job_title_id: draft.job_title_id || null,
+    };
+    const { error } = await (supabase as any).from("profiles").update(payload).eq("id", userId);
+    if (error) return toast.error(error.message);
+    toast.success("تم تحديث بيانات المستخدم");
+    cancelEdit();
+    qc.invalidateQueries({ queryKey: ["profiles-admin"] });
   };
   const removeUser = async (userId: string) => {
     if (!confirm("حذف هذا المستخدم نهائياً؟")) return;
@@ -124,12 +142,11 @@ function Page() {
         email: form.email, password: form.password, full_name: form.full_name,
         employee_id: form.employee_id, phone: form.phone || null,
         department_id: form.department_id || null, job_title_id: form.job_title_id || null,
-        role: form.role,
+        role: "accountant",
       }});
       toast.success("تم إنشاء المستخدم");
       setOpen(false); setForm(emptyUser);
       qc.invalidateQueries({ queryKey: ["profiles-admin"] });
-      qc.invalidateQueries({ queryKey: ["all-roles"] });
     } catch (e: any) {
       toast.error(e?.message ?? "تعذر إنشاء المستخدم");
     } finally { setSaving(false); }
@@ -137,11 +154,14 @@ function Page() {
 
   if (!isAdmin) return <div className="p-8 text-center text-muted-foreground">هذه الصفحة متاحة للمدراء فقط.</div>;
 
+  // Tailwind utility for column borders inside the table (RTL — use border-l between cells)
+  const cellBorder = "border-s border-border/60";
+
   return (
     <div>
       <PageHeader
-        title="إدارة المستخدمين والصلاحيات"
-        description="تعديل الأرقام الوظيفية، الأدوار، والحالات"
+        title="إدارة المستخدمين"
+        description="تعديل بيانات المستخدمين وإدارة الصلاحيات المرتبطة بالوظائف"
         actions={<Button onClick={() => setOpen(true)} className="gap-2"><Plus className="w-4 h-4" />مستخدم جديد</Button>}
       />
 
@@ -155,19 +175,12 @@ function Page() {
               {departments.map((d: any) => <SelectItem key={d.id} value={d.id}>{d.name_ar}</SelectItem>)}
             </SelectContent>
           </Select>
-          <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-44 h-9"><SelectValue placeholder="الدور" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">كل الأدوار</SelectItem>
-              {Object.entries(roleLabel).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
-            </SelectContent>
-          </Select>
           <div className="text-xs text-muted-foreground ms-auto">{profiles.length} مستخدم</div>
         </div>
       </Card>
 
       <Card>
-        <Table>
+        <Table className="border-collapse [&_th]:border-s [&_th]:border-border/60 [&_td]:border-s [&_td]:border-border/60 [&_th:first-child]:border-s-0 [&_td:first-child]:border-s-0">
           <TableHeader>
             <TableRow>
               <TableHead>الرقم الوظيفي</TableHead>
@@ -177,7 +190,6 @@ function Page() {
               <TableHead>الوظيفة</TableHead>
               <TableHead>المدير المباشر</TableHead>
               <TableHead>الحالة</TableHead>
-              <TableHead>الدور</TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -187,37 +199,63 @@ function Page() {
               const filtered = profiles.filter((p: any) => {
                 if (q && !((p.full_name ?? "").toLowerCase().includes(q) || (p.email ?? "").toLowerCase().includes(q) || (p.employee_id ?? "").toLowerCase().includes(q))) return false;
                 if (deptFilter !== "all" && p.department_id !== deptFilter) return false;
-                if (roleFilter !== "all") {
-                  const r = userRoles.find((x: any) => x.user_id === p.id)?.role ?? "accountant";
-                  if (r !== roleFilter) return false;
-                }
                 return true;
               });
               if (filtered.length === 0) {
-                return <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">لا يوجد مستخدمون مطابقون</TableCell></TableRow>;
+                return <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">لا يوجد مستخدمون مطابقون</TableCell></TableRow>;
               }
               return filtered.map((p: any) => {
-                const role = userRoles.find((r: any) => r.user_id === p.id)?.role ?? "accountant";
                 const s = statusLabel[p.status ?? "active"] ?? { label: p.status, variant: "outline" as const };
+                const editing = editId === p.id && draft;
                 return (
                   <TableRow key={p.id}>
                     <TableCell>
-                      {editId === p.id ? (
-                        <div className="flex gap-1">
-                          <Input value={editEmp} onChange={(e) => setEditEmp(e.target.value)} className="w-28 h-8" />
-                          <Button size="icon" variant="ghost" onClick={() => saveEmp(p.id)} className="h-8 w-8"><Check className="w-4 h-4" /></Button>
-                        </div>
+                      {editing ? (
+                        <Input value={draft!.employee_id} onChange={(e) => setDraft({ ...draft!, employee_id: e.target.value })} className="w-28 h-8" />
                       ) : (
-                        <div className="flex gap-1 items-center">
-                          <span className="font-mono">{p.employee_id ?? "—"}</span>
-                          <Button size="icon" variant="ghost" onClick={() => { setEditId(p.id); setEditEmp(p.employee_id ?? ""); }} className="h-7 w-7"><Pencil className="w-3 h-3" /></Button>
-                        </div>
+                        <span className="font-mono">{p.employee_id ?? "—"}</span>
                       )}
                     </TableCell>
-                    <TableCell className="font-medium">{p.full_name ?? "—"}</TableCell>
-                    <TableCell dir="ltr" className="text-right text-xs">{p.email ?? "—"}</TableCell>
-                    <TableCell className="text-xs">{p.departments?.name_ar ?? "—"}</TableCell>
-                    <TableCell className="text-xs">{p.job_titles?.name_ar ?? "—"}</TableCell>
+                    <TableCell className="font-medium">
+                      {editing ? (
+                        <Input value={draft!.full_name} onChange={(e) => setDraft({ ...draft!, full_name: e.target.value })} className="h-8 min-w-40" />
+                      ) : (
+                        p.full_name ?? "—"
+                      )}
+                    </TableCell>
+                    <TableCell dir="ltr" className="text-right text-xs">
+                      {editing ? (
+                        <Input dir="ltr" type="email" value={draft!.email} onChange={(e) => setDraft({ ...draft!, email: e.target.value })} className="h-8 min-w-48" />
+                      ) : (
+                        p.email ?? "—"
+                      )}
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {editing ? (
+                        <Select value={draft!.department_id || "__none__"} onValueChange={(v) => setDraft({ ...draft!, department_id: v === "__none__" ? "" : v })}>
+                          <SelectTrigger className="w-44 h-8"><SelectValue placeholder="—" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="__none__">— بدون —</SelectItem>
+                            {departments.map((d: any) => <SelectItem key={d.id} value={d.id}>{d.name_ar}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        p.departments?.name_ar ?? "—"
+                      )}
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {editing ? (
+                        <Select value={draft!.job_title_id || "__none__"} onValueChange={(v) => setDraft({ ...draft!, job_title_id: v === "__none__" ? "" : v })}>
+                          <SelectTrigger className="w-44 h-8"><SelectValue placeholder="—" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="__none__">— بدون —</SelectItem>
+                            {jobs.map((j: any) => <SelectItem key={j.id} value={j.id}>{j.name_ar}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        p.job_titles?.name_ar ?? "—"
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Select value={p.manager_id ?? "__none__"} onValueChange={(v) => changeManager(p.id, v === "__none__" ? null : v)}>
                         <SelectTrigger className="w-44 h-8"><SelectValue placeholder="—" /></SelectTrigger>
@@ -240,39 +278,48 @@ function Page() {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Select value={role} onValueChange={(v) => changeRole(p.id, v)}>
-                        <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
-                        <SelectContent>{Object.entries(roleLabel).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
                       <div className="flex gap-1 items-center">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="text-muted-foreground"><Info className="w-4 h-4" /></span>
-                            </TooltipTrigger>
-                            <TooltipContent className="max-w-xs text-right">
-                              <div className="space-y-1 text-xs">
-                                <div><b>الإدارة:</b> {p.departments?.name_ar ?? "—"}</div>
-                                <div><b>الوظيفة:</b> {p.job_titles?.name_ar ?? "—"}</div>
-                                <div><b>الدور:</b> {roleLabel[role as keyof typeof roleLabel] ?? role}</div>
-                                <div className="pt-1 border-t border-border/30">
-                                  <b>صلاحيات يدوية:</b> {(permCounts as any)[p.id]?.allow ?? 0} مسموح ·
-                                  {" "}{(permCounts as any)[p.id]?.deny ?? 0} ممنوع
-                                </div>
-                              </div>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        <Button size="icon" variant="ghost" className="h-8 w-8" title="إدارة الصلاحيات"
-                          onClick={() => { setPermUserId(p.id); setPermUserName(p.full_name ?? p.email ?? ""); setPermOpen(true); }}>
-                          <Shield className="w-4 h-4" />
-                        </Button>
-                        {me?.id !== p.id && (
-                          <Button size="icon" variant="ghost" onClick={() => removeUser(p.id)} className="h-8 w-8 text-destructive">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                        {editing ? (
+                          <>
+                            <Button size="icon" variant="ghost" onClick={() => saveEdit(p.id)} className="h-8 w-8 text-primary" title="حفظ">
+                              <Check className="w-4 h-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost" onClick={cancelEdit} className="h-8 w-8" title="إلغاء">
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="text-muted-foreground"><Info className="w-4 h-4" /></span>
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs text-right">
+                                  <div className="space-y-1 text-xs">
+                                    <div><b>الإدارة:</b> {p.departments?.name_ar ?? "—"}</div>
+                                    <div><b>الوظيفة:</b> {p.job_titles?.name_ar ?? "—"}</div>
+                                    <div className="pt-1 border-t border-border/30">
+                                      <b>صلاحيات يدوية:</b> {(permCounts as any)[p.id]?.allow ?? 0} مسموح ·
+                                      {" "}{(permCounts as any)[p.id]?.deny ?? 0} ممنوع
+                                    </div>
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            <Button size="icon" variant="ghost" onClick={() => startEdit(p)} className="h-8 w-8" title="تعديل البيانات">
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost" className="h-8 w-8" title="إدارة الصلاحيات"
+                              onClick={() => { setPermUserId(p.id); setPermUserName(p.full_name ?? p.email ?? ""); setPermOpen(true); }}>
+                              <Shield className="w-4 h-4" />
+                            </Button>
+                            {me?.id !== p.id && (
+                              <Button size="icon" variant="ghost" onClick={() => removeUser(p.id)} className="h-8 w-8 text-destructive" title="حذف">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </>
                         )}
                       </div>
                     </TableCell>
@@ -320,18 +367,14 @@ function Page() {
                 <SelectContent>{jobs.map((j: any) => <SelectItem key={j.id} value={j.id}>{j.name_ar}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <div className="space-y-1">
-              <Label>الدور (الصلاحية) *</Label>
-              <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{Object.entries(roleLabel).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
+            <div className="space-y-1 col-span-2">
               <Label>كلمة المرور المبدئية *</Label>
               <Input dir="ltr" type="text" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="6 أحرف على الأقل" />
             </div>
           </div>
+          <p className="text-xs text-muted-foreground">
+            الصلاحيات تُورَّث تلقائياً من قالب الوظيفة. يمكنك تخصيصها لاحقاً من شاشة الصلاحيات.
+          </p>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>إلغاء</Button>
             <Button onClick={submitCreate} disabled={saving}>{saving ? "جارٍ الحفظ..." : "إنشاء"}</Button>
