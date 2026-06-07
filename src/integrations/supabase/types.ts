@@ -2921,6 +2921,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      get_email_by_employee_id: {
+        Args: { _employee_id: string }
+        Returns: string
+      }
       has_permission: {
         Args: { _action: string; _module: string; _user_id: string }
         Returns: boolean
