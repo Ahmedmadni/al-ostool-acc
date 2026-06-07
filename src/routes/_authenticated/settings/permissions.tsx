@@ -221,8 +221,6 @@ function Page() {
             <TableBody>
               {modules.map((m) => {
                 const specials = getSpecialActions(m.key);
-                const allOn = ACTIONS.every((a) => isCellOn(m.key, a)) &&
-                  specials.every((s) => isCellOn(m.key, s.key as ActionKey));
                 return (
                   <TableRow key={m.key}>
                     <TableCell className="sticky right-0 bg-card" style={{ paddingRight: `${0.5 + m.depth * 1.25}rem` }}>
