@@ -57,6 +57,7 @@ import { Route as AuthenticatedReceivablesIntelligenceRouteImport } from './rout
 import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
 import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
 import { Route as AuthenticatedProjectsIdRouteImport } from './routes/_authenticated/projects/$id'
+import { Route as AuthenticatedPayablesIntelligenceRouteImport } from './routes/_authenticated/payables/intelligence'
 import { Route as AuthenticatedIntelligenceVendorsRouteImport } from './routes/_authenticated/intelligence/vendors'
 import { Route as AuthenticatedIntelligenceCustomersRouteImport } from './routes/_authenticated/intelligence/customers'
 import { Route as AuthenticatedImportsUploadRouteImport } from './routes/_authenticated/imports/upload'
@@ -350,6 +351,12 @@ const AuthenticatedProjectsIdRoute = AuthenticatedProjectsIdRouteImport.update({
   path: '/projects/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedPayablesIntelligenceRoute =
+  AuthenticatedPayablesIntelligenceRouteImport.update({
+    id: '/payables/intelligence',
+    path: '/payables/intelligence',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedIntelligenceVendorsRoute =
   AuthenticatedIntelligenceVendorsRouteImport.update({
     id: '/intelligence/vendors',
@@ -484,6 +491,7 @@ export interface FileRoutesByFullPath {
   '/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/intelligence/customers': typeof AuthenticatedIntelligenceCustomersRoute
   '/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
+  '/payables/intelligence': typeof AuthenticatedPayablesIntelligenceRoute
   '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
@@ -552,6 +560,7 @@ export interface FileRoutesByTo {
   '/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/intelligence/customers': typeof AuthenticatedIntelligenceCustomersRoute
   '/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
+  '/payables/intelligence': typeof AuthenticatedPayablesIntelligenceRoute
   '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
@@ -622,6 +631,7 @@ export interface FileRoutesById {
   '/_authenticated/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/_authenticated/intelligence/customers': typeof AuthenticatedIntelligenceCustomersRoute
   '/_authenticated/intelligence/vendors': typeof AuthenticatedIntelligenceVendorsRoute
+  '/_authenticated/payables/intelligence': typeof AuthenticatedPayablesIntelligenceRoute
   '/_authenticated/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/_authenticated/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
@@ -692,6 +702,7 @@ export interface FileRouteTypes {
     | '/imports/upload'
     | '/intelligence/customers'
     | '/intelligence/vendors'
+    | '/payables/intelligence'
     | '/projects/$id'
     | '/projects/progress'
     | '/receivables/aging'
@@ -760,6 +771,7 @@ export interface FileRouteTypes {
     | '/imports/upload'
     | '/intelligence/customers'
     | '/intelligence/vendors'
+    | '/payables/intelligence'
     | '/projects/$id'
     | '/projects/progress'
     | '/receivables/aging'
@@ -829,6 +841,7 @@ export interface FileRouteTypes {
     | '/_authenticated/imports/upload'
     | '/_authenticated/intelligence/customers'
     | '/_authenticated/intelligence/vendors'
+    | '/_authenticated/payables/intelligence'
     | '/_authenticated/projects/$id'
     | '/_authenticated/projects/progress'
     | '/_authenticated/receivables/aging'
@@ -1223,6 +1236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/payables/intelligence': {
+      id: '/_authenticated/payables/intelligence'
+      path: '/payables/intelligence'
+      fullPath: '/payables/intelligence'
+      preLoaderRoute: typeof AuthenticatedPayablesIntelligenceRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/intelligence/vendors': {
       id: '/_authenticated/intelligence/vendors'
       path: '/intelligence/vendors'
@@ -1389,6 +1409,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedImportsUploadRoute: typeof AuthenticatedImportsUploadRoute
   AuthenticatedIntelligenceCustomersRoute: typeof AuthenticatedIntelligenceCustomersRoute
   AuthenticatedIntelligenceVendorsRoute: typeof AuthenticatedIntelligenceVendorsRoute
+  AuthenticatedPayablesIntelligenceRoute: typeof AuthenticatedPayablesIntelligenceRoute
   AuthenticatedProjectsIdRoute: typeof AuthenticatedProjectsIdRoute
   AuthenticatedProjectsProgressRoute: typeof AuthenticatedProjectsProgressRoute
   AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
@@ -1458,6 +1479,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIntelligenceCustomersRoute:
     AuthenticatedIntelligenceCustomersRoute,
   AuthenticatedIntelligenceVendorsRoute: AuthenticatedIntelligenceVendorsRoute,
+  AuthenticatedPayablesIntelligenceRoute:
+    AuthenticatedPayablesIntelligenceRoute,
   AuthenticatedProjectsIdRoute: AuthenticatedProjectsIdRoute,
   AuthenticatedProjectsProgressRoute: AuthenticatedProjectsProgressRoute,
   AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
