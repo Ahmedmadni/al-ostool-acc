@@ -197,88 +197,88 @@ function Page() {
                 return <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">لا يوجد مستخدمون مطابقون</TableCell></TableRow>;
               }
               return filtered.map((p: any) => {
-              const role = userRoles.find((r: any) => r.user_id === p.id)?.role ?? "accountant";
-              const s = statusLabel[p.status ?? "active"] ?? { label: p.status, variant: "outline" as const };
-              return (
-                <TableRow key={p.id}>
-                  <TableCell>
-                    {editId === p.id ? (
-                      <div className="flex gap-1">
-                        <Input value={editEmp} onChange={(e) => setEditEmp(e.target.value)} className="w-28 h-8" />
-                        <Button size="icon" variant="ghost" onClick={() => saveEmp(p.id)} className="h-8 w-8"><Check className="w-4 h-4" /></Button>
-                      </div>
-                    ) : (
-                      <div className="flex gap-1 items-center">
-                        <span className="font-mono">{p.employee_id ?? "—"}</span>
-                        <Button size="icon" variant="ghost" onClick={() => { setEditId(p.id); setEditEmp(p.employee_id ?? ""); }} className="h-7 w-7"><Pencil className="w-3 h-3" /></Button>
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="font-medium">{p.full_name ?? "—"}</TableCell>
-                  <TableCell dir="ltr" className="text-right text-xs">{p.email ?? "—"}</TableCell>
-                  <TableCell className="text-xs">{p.departments?.name_ar ?? "—"}</TableCell>
-                  <TableCell className="text-xs">{p.job_titles?.name_ar ?? "—"}</TableCell>
-                  <TableCell>
-                    <Select value={p.manager_id ?? "__none__"} onValueChange={(v) => changeManager(p.id, v === "__none__" ? null : v)}>
-                      <SelectTrigger className="w-44 h-8"><SelectValue placeholder="—" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__none__">— بدون —</SelectItem>
-                        {profiles.filter((x: any) => x.id !== p.id).map((x: any) => (
-                          <SelectItem key={x.id} value={x.id}>{x.full_name ?? x.email}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>
-                    <Select value={p.status ?? "active"} onValueChange={(v) => changeStatus(p.id, v)}>
-                      <SelectTrigger className="w-32 h-8"><SelectValue><Badge variant={s.variant}>{s.label}</Badge></SelectValue></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="active">نشط</SelectItem>
-                        <SelectItem value="pending">قيد المراجعة</SelectItem>
-                        <SelectItem value="rejected">مرفوض</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>
-                    <Select value={role} onValueChange={(v) => changeRole(p.id, v)}>
-                      <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
-                      <SelectContent>{Object.entries(roleLabel).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1 items-center">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="text-muted-foreground"><Info className="w-4 h-4" /></span>
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-xs text-right">
-                            <div className="space-y-1 text-xs">
-                              <div><b>الإدارة:</b> {p.departments?.name_ar ?? "—"}</div>
-                              <div><b>الوظيفة:</b> {p.job_titles?.name_ar ?? "—"}</div>
-                              <div><b>الدور:</b> {roleLabel[role as keyof typeof roleLabel] ?? role}</div>
-                              <div className="pt-1 border-t border-border/30">
-                                <b>صلاحيات يدوية:</b> {(permCounts as any)[p.id]?.allow ?? 0} مسموح ·
-                                {" "}{(permCounts as any)[p.id]?.deny ?? 0} ممنوع
-                              </div>
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                      <Button size="icon" variant="ghost" className="h-8 w-8" title="إدارة الصلاحيات"
-                        onClick={() => { setPermUserId(p.id); setPermUserName(p.full_name ?? p.email ?? ""); setPermOpen(true); }}>
-                        <Shield className="w-4 h-4" />
-                      </Button>
-                      {me?.id !== p.id && (
-                        <Button size="icon" variant="ghost" onClick={() => removeUser(p.id)} className="h-8 w-8 text-destructive">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                const role = userRoles.find((r: any) => r.user_id === p.id)?.role ?? "accountant";
+                const s = statusLabel[p.status ?? "active"] ?? { label: p.status, variant: "outline" as const };
+                return (
+                  <TableRow key={p.id}>
+                    <TableCell>
+                      {editId === p.id ? (
+                        <div className="flex gap-1">
+                          <Input value={editEmp} onChange={(e) => setEditEmp(e.target.value)} className="w-28 h-8" />
+                          <Button size="icon" variant="ghost" onClick={() => saveEmp(p.id)} className="h-8 w-8"><Check className="w-4 h-4" /></Button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-1 items-center">
+                          <span className="font-mono">{p.employee_id ?? "—"}</span>
+                          <Button size="icon" variant="ghost" onClick={() => { setEditId(p.id); setEditEmp(p.employee_id ?? ""); }} className="h-7 w-7"><Pencil className="w-3 h-3" /></Button>
+                        </div>
                       )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            });
+                    </TableCell>
+                    <TableCell className="font-medium">{p.full_name ?? "—"}</TableCell>
+                    <TableCell dir="ltr" className="text-right text-xs">{p.email ?? "—"}</TableCell>
+                    <TableCell className="text-xs">{p.departments?.name_ar ?? "—"}</TableCell>
+                    <TableCell className="text-xs">{p.job_titles?.name_ar ?? "—"}</TableCell>
+                    <TableCell>
+                      <Select value={p.manager_id ?? "__none__"} onValueChange={(v) => changeManager(p.id, v === "__none__" ? null : v)}>
+                        <SelectTrigger className="w-44 h-8"><SelectValue placeholder="—" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">— بدون —</SelectItem>
+                          {profiles.filter((x: any) => x.id !== p.id).map((x: any) => (
+                            <SelectItem key={x.id} value={x.id}>{x.full_name ?? x.email}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <Select value={p.status ?? "active"} onValueChange={(v) => changeStatus(p.id, v)}>
+                        <SelectTrigger className="w-32 h-8"><SelectValue><Badge variant={s.variant}>{s.label}</Badge></SelectValue></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">نشط</SelectItem>
+                          <SelectItem value="pending">قيد المراجعة</SelectItem>
+                          <SelectItem value="rejected">مرفوض</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <Select value={role} onValueChange={(v) => changeRole(p.id, v)}>
+                        <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+                        <SelectContent>{Object.entries(roleLabel).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1 items-center">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="text-muted-foreground"><Info className="w-4 h-4" /></span>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs text-right">
+                              <div className="space-y-1 text-xs">
+                                <div><b>الإدارة:</b> {p.departments?.name_ar ?? "—"}</div>
+                                <div><b>الوظيفة:</b> {p.job_titles?.name_ar ?? "—"}</div>
+                                <div><b>الدور:</b> {roleLabel[role as keyof typeof roleLabel] ?? role}</div>
+                                <div className="pt-1 border-t border-border/30">
+                                  <b>صلاحيات يدوية:</b> {(permCounts as any)[p.id]?.allow ?? 0} مسموح ·
+                                  {" "}{(permCounts as any)[p.id]?.deny ?? 0} ممنوع
+                                </div>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" title="إدارة الصلاحيات"
+                          onClick={() => { setPermUserId(p.id); setPermUserName(p.full_name ?? p.email ?? ""); setPermOpen(true); }}>
+                          <Shield className="w-4 h-4" />
+                        </Button>
+                        {me?.id !== p.id && (
+                          <Button size="icon" variant="ghost" onClick={() => removeUser(p.id)} className="h-8 w-8 text-destructive">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              });
             })()}
           </TableBody>
         </Table>
