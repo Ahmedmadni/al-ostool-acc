@@ -45,7 +45,19 @@ function LoginPage() {
     setLoading(true);
     try {
       if (mode === "login") {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        // السماح بتسجيل الدخول بالبريد الإلكتروني أو الرقم الوظيفي
+        let loginEmail = email.trim();
+        if (loginEmail && !loginEmail.includes("@")) {
+          const { data: resolved, error: rpcErr } = await (supabase as any)
+            .rpc("get_email_by_employee_id", { _employee_id: loginEmail });
+          if (rpcErr) throw rpcErr;
+          if (!resolved) {
+            toast.error("لم يتم العثور على حساب بهذا الرقم الوظيفي");
+            return;
+          }
+          loginEmail = resolved as string;
+        }
+        const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
         if (error) throw error;
         // Check profile status
         const { data: prof } = await (supabase as any)
