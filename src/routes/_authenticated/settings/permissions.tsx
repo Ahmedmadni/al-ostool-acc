@@ -37,6 +37,21 @@ function Page() {
 
   const perms = usePermissions(selectedUser || undefined);
   const modules = useMemo(() => flattenModules(), []);
+  const parentKeys = useMemo(
+    () => modules.filter((m) => m.depth === 0 && modules.some((c) => c.depth > 0 && c.key.startsWith(`${m.key}.`))).map((m) => m.key),
+    [modules],
+  );
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const toggleCollapse = (k: string) => setCollapsed((s) => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
+  const collapseAll = () => setCollapsed(new Set(parentKeys));
+  const expandAll = () => setCollapsed(new Set());
+  const visibleModules = useMemo(() => {
+    let currentParent: string | null = null;
+    return modules.filter((m) => {
+      if (m.depth === 0) { currentParent = m.key; return true; }
+      return !(currentParent && collapsed.has(currentParent));
+    });
+  }, [modules, collapsed]);
 
   const { data: jobPerms = [] } = useQuery({
     queryKey: ["jt-perms", selectedJob],
