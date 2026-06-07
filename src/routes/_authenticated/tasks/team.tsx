@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/page-header";
@@ -9,13 +9,15 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend, LineChart, Line } from "recharts";
-import { Info, Star, Trophy, Download, FileSpreadsheet, Printer } from "lucide-react";
+import { Info, Star, Trophy, Download, FileSpreadsheet, Printer, FileText } from "lucide-react";
 import { checklistCompletion, finalScore } from "@/lib/task-scoring";
 import { exportToExcel, exportToPdf } from "@/lib/export";
+import { EmployeePerformanceModal } from "@/components/tasks/employee-performance-modal";
 
 export const Route = createFileRoute("/_authenticated/tasks/team")({ component: Page });
 
 function Page() {
+  const [selectedUser, setSelectedUser] = useState<any>(null);
   const { data: tasks = [] } = useQuery({
     queryKey: ["all-tasks-team"],
     queryFn: async () => (await supabase.from("tasks").select("*, task_checklist_items(is_done,weight)")).data ?? [],
