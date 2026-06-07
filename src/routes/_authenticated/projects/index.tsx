@@ -158,9 +158,14 @@ function Page() {
                     <Badge>{projectStatusLabel[p.status ?? "new"]}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Button size="sm" variant="ghost" onClick={() => { setEditing(p); setDialogOpen(true); }}>
-                      <Pencil className="w-4 h-4" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button asChild size="sm" variant="ghost" title="عرض">
+                        <Link to="/projects/$id" params={{ id: p.id }}><Eye className="w-4 h-4" /></Link>
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => { setEditing(p); setDialogOpen(true); }} title="تعديل">
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               );
