@@ -31,12 +31,12 @@ export function EmployeePerformanceModal({ open, onOpenChange, user }: Props) {
   const { data: dept } = useQuery({
     queryKey: ["emp-dept", user?.department_id],
     enabled: !!user?.department_id,
-    queryFn: async () => (await supabase.from("departments").select("name_ar").eq("id", user!.department_id).maybeSingle()).data,
+    queryFn: async () => (await supabase.from("departments").select("name_ar").eq("id", user!.department_id as string).maybeSingle()).data,
   });
   const { data: job } = useQuery({
     queryKey: ["emp-job", user?.job_title_id],
     enabled: !!user?.job_title_id,
-    queryFn: async () => (await supabase.from("job_titles").select("name_ar").eq("id", user!.job_title_id).maybeSingle()).data,
+    queryFn: async () => (await supabase.from("job_titles").select("name_ar").eq("id", user!.job_title_id as string).maybeSingle()).data,
   });
 
   const rows = useMemo(() => tasks.map((t: any) => {
