@@ -240,12 +240,28 @@ function Page() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {modules.map((m) => {
+              {visibleModules.map((m) => {
                 const specials = getSpecialActions(m.key);
+                const hasChildren = parentKeys.includes(m.key);
+                const isCollapsed = collapsed.has(m.key);
                 return (
                   <TableRow key={m.key}>
                     <TableCell className="sticky right-0 bg-card" style={{ paddingRight: `${0.5 + m.depth * 1.25}rem` }}>
-                      {m.depth === 0 ? <span className="font-semibold">{m.name}</span> : <span className="text-sm text-muted-foreground">└ {m.name}</span>}
+                      <div className="flex items-center gap-1">
+                        {hasChildren ? (
+                          <button
+                            type="button"
+                            onClick={() => toggleCollapse(m.key)}
+                            className="p-0.5 rounded hover:bg-muted"
+                            aria-label={isCollapsed ? "توسيع" : "طي"}
+                          >
+                            {isCollapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </button>
+                        ) : (
+                          <span className="w-5" />
+                        )}
+                        {m.depth === 0 ? <span className="font-semibold">{m.name}</span> : <span className="text-sm text-muted-foreground">└ {m.name}</span>}
+                      </div>
                       {specials.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1">
                           {specials.map((s) => {
