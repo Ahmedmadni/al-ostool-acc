@@ -216,7 +216,13 @@ function Page() {
         <Card className="overflow-auto">
           <div className="flex items-center justify-between gap-2 p-3 border-b">
             <div className="text-sm font-medium">إدارة جماعية</div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
+              <Button size="sm" variant="outline" onClick={expandAll} className="gap-2">
+                <ChevronsUpDown className="w-4 h-4" />توسيع الكل
+              </Button>
+              <Button size="sm" variant="outline" onClick={collapseAll} className="gap-2">
+                <ChevronsDownUp className="w-4 h-4" />طي الكل
+              </Button>
               <Button size="sm" variant="default" onClick={() => toggleAllGlobal(true)} className="gap-2">
                 <CheckCheck className="w-4 h-4" />تحديد الكل
               </Button>
