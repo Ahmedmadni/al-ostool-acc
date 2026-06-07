@@ -132,45 +132,54 @@ function Page() {
     return "none";
   };
 
-  // ===== Mutations =====
-  const toggleUserCell = async (module: string, action: string) => {
-    if (!selectedUser) return;
+  // ===== Unified toggle (single source of truth, no duplication with inheritance) =====
+  const onToggleCell = async (module: string, action: string) => {
     const current = isCellOn(module, action);
     const newVal = !current;
-    // Optimistic update
+
+    if (mode === "job") {
+      if (!selectedJob) return;
+      qc.setQueryData<Row[]>(["jt-perms", selectedJob], (prev = []) => {
+        const filtered = prev.filter((r) => !(r.module_key === module && r.action_key === action));
+        return [...filtered, { module_key: module, action_key: action, granted: newVal }];
+      });
+      const { error } = await (supabase as any).from("job_title_permissions").upsert({
+        job_title_id: selectedJob, module_key: module, action_key: action, granted: newVal,
+      }, { onConflict: "job_title_id,module_key,action_key" });
+      if (error) {
+        toast.error(error.message);
+        qc.invalidateQueries({ queryKey: ["jt-perms", selectedJob] });
+      }
+      return;
+    }
+
+    // mode === "user": if new value matches inherited, remove manual override to avoid duplication
+    if (!selectedUser) return;
+    const k = `${module}:${action}`;
+    const inheritedVal = inheritedMap.has(k) ? !!inheritedMap.get(k) : undefined;
+    const shouldDeleteOverride = inheritedVal !== undefined && inheritedVal === newVal;
+
     qc.setQueryData<Row[]>(["user-perms", selectedUser], (prev = []) => {
       const filtered = prev.filter((r) => !(r.module_key === module && r.action_key === action));
-      return [...filtered, { module_key: module, action_key: action, granted: newVal }];
+      return shouldDeleteOverride
+        ? filtered
+        : [...filtered, { module_key: module, action_key: action, granted: newVal }];
     });
-    const { error } = await (supabase as any).from("user_permissions").upsert({
-      user_id: selectedUser, module_key: module, action_key: action,
-      granted: newVal, source: "manual",
-    }, { onConflict: "user_id,module_key,action_key" });
+
+    const { error } = shouldDeleteOverride
+      ? await (supabase as any).from("user_permissions").delete()
+          .eq("user_id", selectedUser).eq("module_key", module).eq("action_key", action)
+      : await (supabase as any).from("user_permissions").upsert({
+          user_id: selectedUser, module_key: module, action_key: action,
+          granted: newVal, source: "manual",
+        }, { onConflict: "user_id,module_key,action_key" });
+
     if (error) {
       toast.error(error.message);
       qc.invalidateQueries({ queryKey: ["user-perms", selectedUser] });
     }
   };
 
-  const toggleJobCell = async (module: string, action: string) => {
-    if (!selectedJob) return;
-    const current = isCellOn(module, action);
-    const newVal = !current;
-    qc.setQueryData<Row[]>(["jt-perms", selectedJob], (prev = []) => {
-      const filtered = prev.filter((r) => !(r.module_key === module && r.action_key === action));
-      return [...filtered, { module_key: module, action_key: action, granted: newVal }];
-    });
-    const { error } = await (supabase as any).from("job_title_permissions").upsert({
-      job_title_id: selectedJob, module_key: module, action_key: action, granted: newVal,
-    }, { onConflict: "job_title_id,module_key,action_key" });
-    if (error) {
-      toast.error(error.message);
-      qc.invalidateQueries({ queryKey: ["jt-perms", selectedJob] });
-    }
-  };
-
-  const onToggleCell = (module: string, action: string) =>
-    mode === "user" ? toggleUserCell(module, action) : toggleJobCell(module, action);
 
   const bulkSet = async (rows: { module: string; action: string }[], granted: boolean) => {
     if (mode === "user") {
