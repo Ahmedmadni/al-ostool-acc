@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { flattenModules, ACTIONS, ACTION_LABEL } from "@/lib/permissions";
 import { ShieldCheck, ShieldAlert, Users, Layers, Key, AlertTriangle, CheckCircle2, XCircle, Info, Wrench } from "lucide-react";
 import { toast } from "sonner";
+import { RolePermissionsDialog } from "@/components/settings/role-permissions-dialog";
 
 export const Route = createFileRoute("/_authenticated/settings/permissions-dashboard")({ component: Page });
 
