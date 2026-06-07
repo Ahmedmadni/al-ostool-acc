@@ -2276,6 +2276,33 @@ export type Database = {
         }
         Relationships: []
       }
+      role_permissions: {
+        Row: {
+          action_key: string
+          created_at: string
+          granted: boolean
+          id: string
+          module_key: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          action_key: string
+          created_at?: string
+          granted?: boolean
+          id?: string
+          module_key: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          action_key?: string
+          created_at?: string
+          granted?: boolean
+          id?: string
+          module_key?: string
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
       supplier_balances: {
         Row: {
           account_code: string
