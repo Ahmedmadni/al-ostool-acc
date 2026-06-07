@@ -45,6 +45,7 @@ const GROUPS: NavGroup[] = [
     links: [
       { to: "/customers", label: "العملاء" },
       { to: "/intelligence/customers", label: "ذكاء العملاء" },
+      { to: "/receivables/intelligence", label: "ذكاء الذمم المدينة (AR)" },
       { to: "/receivables/aging", label: "أعمار ذمم العملاء" },
     ],
   },

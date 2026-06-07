@@ -53,6 +53,7 @@ import { Route as AuthenticatedSettingsRegionalRouteImport } from './routes/_aut
 import { Route as AuthenticatedSettingsPermissionsDashboardRouteImport } from './routes/_authenticated/settings/permissions-dashboard'
 import { Route as AuthenticatedSettingsPermissionsRouteImport } from './routes/_authenticated/settings/permissions'
 import { Route as AuthenticatedSettingsApprovalsRouteImport } from './routes/_authenticated/settings/approvals'
+import { Route as AuthenticatedReceivablesIntelligenceRouteImport } from './routes/_authenticated/receivables/intelligence'
 import { Route as AuthenticatedReceivablesAgingRouteImport } from './routes/_authenticated/receivables/aging'
 import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
 import { Route as AuthenticatedProjectsIdRouteImport } from './routes/_authenticated/projects/$id'
@@ -326,6 +327,12 @@ const AuthenticatedSettingsApprovalsRoute =
     path: '/settings/approvals',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedReceivablesIntelligenceRoute =
+  AuthenticatedReceivablesIntelligenceRouteImport.update({
+    id: '/receivables/intelligence',
+    path: '/receivables/intelligence',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedReceivablesAgingRoute =
   AuthenticatedReceivablesAgingRouteImport.update({
     id: '/receivables/aging',
@@ -480,6 +487,7 @@ export interface FileRoutesByFullPath {
   '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
+  '/receivables/intelligence': typeof AuthenticatedReceivablesIntelligenceRoute
   '/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
   '/settings/permissions': typeof AuthenticatedSettingsPermissionsRoute
   '/settings/permissions-dashboard': typeof AuthenticatedSettingsPermissionsDashboardRoute
@@ -547,6 +555,7 @@ export interface FileRoutesByTo {
   '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
+  '/receivables/intelligence': typeof AuthenticatedReceivablesIntelligenceRoute
   '/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
   '/settings/permissions': typeof AuthenticatedSettingsPermissionsRoute
   '/settings/permissions-dashboard': typeof AuthenticatedSettingsPermissionsDashboardRoute
@@ -616,6 +625,7 @@ export interface FileRoutesById {
   '/_authenticated/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/_authenticated/projects/progress': typeof AuthenticatedProjectsProgressRoute
   '/_authenticated/receivables/aging': typeof AuthenticatedReceivablesAgingRoute
+  '/_authenticated/receivables/intelligence': typeof AuthenticatedReceivablesIntelligenceRoute
   '/_authenticated/settings/approvals': typeof AuthenticatedSettingsApprovalsRoute
   '/_authenticated/settings/permissions': typeof AuthenticatedSettingsPermissionsRoute
   '/_authenticated/settings/permissions-dashboard': typeof AuthenticatedSettingsPermissionsDashboardRoute
@@ -685,6 +695,7 @@ export interface FileRouteTypes {
     | '/projects/$id'
     | '/projects/progress'
     | '/receivables/aging'
+    | '/receivables/intelligence'
     | '/settings/approvals'
     | '/settings/permissions'
     | '/settings/permissions-dashboard'
@@ -752,6 +763,7 @@ export interface FileRouteTypes {
     | '/projects/$id'
     | '/projects/progress'
     | '/receivables/aging'
+    | '/receivables/intelligence'
     | '/settings/approvals'
     | '/settings/permissions'
     | '/settings/permissions-dashboard'
@@ -820,6 +832,7 @@ export interface FileRouteTypes {
     | '/_authenticated/projects/$id'
     | '/_authenticated/projects/progress'
     | '/_authenticated/receivables/aging'
+    | '/_authenticated/receivables/intelligence'
     | '/_authenticated/settings/approvals'
     | '/_authenticated/settings/permissions'
     | '/_authenticated/settings/permissions-dashboard'
@@ -1182,6 +1195,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsApprovalsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/receivables/intelligence': {
+      id: '/_authenticated/receivables/intelligence'
+      path: '/receivables/intelligence'
+      fullPath: '/receivables/intelligence'
+      preLoaderRoute: typeof AuthenticatedReceivablesIntelligenceRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/receivables/aging': {
       id: '/_authenticated/receivables/aging'
       path: '/receivables/aging'
@@ -1372,6 +1392,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedProjectsIdRoute: typeof AuthenticatedProjectsIdRoute
   AuthenticatedProjectsProgressRoute: typeof AuthenticatedProjectsProgressRoute
   AuthenticatedReceivablesAgingRoute: typeof AuthenticatedReceivablesAgingRoute
+  AuthenticatedReceivablesIntelligenceRoute: typeof AuthenticatedReceivablesIntelligenceRoute
   AuthenticatedSettingsApprovalsRoute: typeof AuthenticatedSettingsApprovalsRoute
   AuthenticatedSettingsPermissionsRoute: typeof AuthenticatedSettingsPermissionsRoute
   AuthenticatedSettingsPermissionsDashboardRoute: typeof AuthenticatedSettingsPermissionsDashboardRoute
@@ -1440,6 +1461,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedProjectsIdRoute: AuthenticatedProjectsIdRoute,
   AuthenticatedProjectsProgressRoute: AuthenticatedProjectsProgressRoute,
   AuthenticatedReceivablesAgingRoute: AuthenticatedReceivablesAgingRoute,
+  AuthenticatedReceivablesIntelligenceRoute:
+    AuthenticatedReceivablesIntelligenceRoute,
   AuthenticatedSettingsApprovalsRoute: AuthenticatedSettingsApprovalsRoute,
   AuthenticatedSettingsPermissionsRoute: AuthenticatedSettingsPermissionsRoute,
   AuthenticatedSettingsPermissionsDashboardRoute:
