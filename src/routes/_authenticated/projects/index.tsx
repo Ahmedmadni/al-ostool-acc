@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { fmtSAR } from "@/lib/format";
 import { projectStatusLabel } from "@/lib/labels";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, Eye } from "lucide-react";
 import { DataTableToolbar } from "@/components/data-table-toolbar";
 import { AddEditProjectDialog } from "@/components/projects/add-edit-project-dialog";
 
