@@ -148,13 +148,18 @@ function Page() {
         title="أداء الفريق — المهام"
         description="متابعة إنتاجية الموظفين بناءً على تقييم المدير ونسبة الإنجاز المعتمدة"
         actions={
-          <div className="flex gap-2 no-print">
+          <div className="flex gap-2 no-print flex-wrap">
+            <Button variant="outline" size="sm" asChild><Link to="/tasks/reports/employee-performance"><FileText className="w-4 h-4" /> أداء الموظفين</Link></Button>
+            <Button variant="outline" size="sm" asChild><Link to="/tasks/reports/task-completion"><FileText className="w-4 h-4" /> إنجاز المهام</Link></Button>
+            <Button variant="outline" size="sm" asChild><Link to="/tasks/reports/delayed-tasks"><FileText className="w-4 h-4" /> المتأخرة</Link></Button>
+            <Button variant="outline" size="sm" asChild><Link to="/tasks/reports/department-performance"><FileText className="w-4 h-4" /> أداء الإدارات</Link></Button>
             <Button variant="outline" size="sm" onClick={handlePdf} className="gap-1"><Download className="w-4 h-4" /> PDF</Button>
             <Button variant="outline" size="sm" onClick={handleExcel} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
             <Button variant="outline" size="sm" onClick={handlePrint} className="gap-1"><Printer className="w-4 h-4" /> طباعة</Button>
           </div>
         }
       />
+
 
       <Card className="p-3 mb-4 bg-info/5 border-info/30 flex items-start gap-2 text-sm">
         <Info className="w-4 h-4 mt-0.5 text-info shrink-0" />
