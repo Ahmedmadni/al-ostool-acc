@@ -219,30 +219,37 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <button
                   type="button"
                   onClick={() => toggleGroup(group.key)}
-                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
+                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors border ${
                     groupActive
-                      ? "bg-sidebar-accent text-sidebar-foreground font-semibold"
-                      : "hover:bg-sidebar-accent/60 text-sidebar-foreground/90"
+                      ? "bg-sidebar-accent text-sidebar-foreground font-semibold border-accent/60"
+                      : "hover:bg-sidebar-accent/60 text-sidebar-foreground/90 border-transparent"
                   }`}
                 >
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span className="flex-1 text-right">{group.label}</span>
+                  <span className={`flex items-center justify-center w-7 h-7 rounded-md border shrink-0 ${
+                    groupActive
+                      ? "bg-accent/20 border-accent/70 text-accent"
+                      : "bg-sidebar-accent/40 border-sidebar-border/60 text-accent/90"
+                  }`}>
+                    <Icon className="w-4 h-4" />
+                  </span>
+                  <span className="flex-1 text-right font-semibold">{group.label}</span>
                   <ChevronDown className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`} />
                 </button>
                 {open && (
-                  <div className="mt-1 mr-3 ms-1 border-r border-sidebar-border/40 pr-2 space-y-0.5">
+                  <div className="mt-1 mr-3 ms-1 border-r-2 border-sidebar-border/40 pr-2 space-y-0.5">
                     {group.links.map((link) => {
                       const active = path === link.to || (link.to !== "/dashboard" && path.startsWith(link.to) && path.split("/").length === link.to.split("/").length);
                       return (
                         <Link
                           key={link.to}
                           to={link.to}
-                          className={`flex items-center justify-between gap-2 px-3 py-1.5 rounded-md text-[13px] transition-colors ${
+                          className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] transition-colors border border-transparent ${
                             active
-                              ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold"
-                              : "hover:bg-sidebar-accent/40 text-sidebar-foreground/80"
+                              ? "bg-sidebar-primary/15 text-sidebar-primary-foreground font-medium border-r-2 !border-r-primary"
+                              : "hover:bg-sidebar-accent/40 text-sidebar-foreground/75"
                           }`}
                         >
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${active ? "bg-primary" : "bg-sidebar-foreground/30"}`} />
                           <span className="flex-1">{link.label}</span>
                           {active && <ChevronLeft className="w-3 h-3" />}
                         </Link>
