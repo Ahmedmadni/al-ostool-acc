@@ -38,6 +38,7 @@ const GROUPS: NavGroup[] = [
       { to: "/alerts", label: "مركز التنبيهات" },
       { to: "/board", label: "تقارير مجلس الإدارة" },
       { to: "/insights", label: "تحليلات تنفيذية AI" },
+      { to: "/copilot", label: "المساعد الذكي (Copilot) 🤖" },
     ],
   },
   {
