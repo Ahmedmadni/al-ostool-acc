@@ -54,6 +54,7 @@ const GROUPS: NavGroup[] = [
     links: [
       { to: "/vendors", label: "الموردين (بيانات أساسية)" },
       { to: "/intelligence/vendors", label: "ذكاء الموردين" },
+      { to: "/payables/intelligence", label: "ذكاء الذمم الدائنة (AP)" },
       { to: "/vendors/aging", label: "أعمار ذمم الموردين" },
       { to: "/vendors/top", label: "أعلى الموردين والاعتمادية" },
       { to: "/suppliers", label: "أرصدة موردين (تحليلية)" },
