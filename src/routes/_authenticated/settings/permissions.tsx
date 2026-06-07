@@ -11,18 +11,22 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { flattenModules, ACTIONS, ACTION_LABEL, getSpecialActions, type ActionKey } from "@/lib/permissions";
-import { usePermissions } from "@/hooks/use-permissions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { RotateCcw, Wand2, CheckCheck, X, ChevronDown, ChevronLeft, ChevronsDownUp, ChevronsUpDown } from "lucide-react";
+import {
+  RotateCcw, Wand2, CheckCheck, X, ChevronDown, ChevronLeft, ChevronsDownUp, ChevronsUpDown,
+  ShieldCheck, Settings2, Briefcase, User as UserIcon,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/settings/permissions")({ component: Page });
+
+type Row = { module_key: string; action_key: string; granted: boolean };
 
 function Page() {
   const { isAdmin } = useAuth();
   const qc = useQueryClient();
+  const [mode, setMode] = useState<"user" | "job">("user");
   const [selectedUser, setSelectedUser] = useState<string>("");
-  const [scope, setScope] = useState<"user" | "job">("user");
   const [selectedJob, setSelectedJob] = useState<string>("");
 
   const { data: users = [] } = useQuery({
@@ -35,7 +39,66 @@ function Page() {
     queryFn: async () => (await (supabase as any).from("job_titles").select("id, name_ar").order("name_ar")).data ?? [],
   });
 
-  const perms = usePermissions(selectedUser || undefined);
+  // Selected user roles (to detect admin)
+  const { data: selectedUserRoles = [] } = useQuery({
+    queryKey: ["user-roles", selectedUser],
+    enabled: !!selectedUser,
+    queryFn: async () => {
+      const { data } = await (supabase as any).from("user_roles")
+        .select("role").eq("user_id", selectedUser);
+      return (data ?? []).map((r: any) => r.role as string);
+    },
+  });
+  const selectedIsAdmin = selectedUserRoles.includes("admin");
+
+  // Selected user's manual permissions
+  const { data: userManual = [] } = useQuery({
+    queryKey: ["user-perms", selectedUser],
+    enabled: !!selectedUser,
+    queryFn: async () => {
+      const { data } = await (supabase as any).from("user_permissions")
+        .select("module_key, action_key, granted").eq("user_id", selectedUser);
+      return (data ?? []) as Row[];
+    },
+  });
+
+  // Job template inherited permissions for the selected user's job
+  const selectedUserObj = users.find((u: any) => u.id === selectedUser);
+  const selectedUserJobId = selectedUserObj?.job_title_id as string | undefined;
+  const { data: userInherited = [] } = useQuery({
+    queryKey: ["job-perms", selectedUserJobId],
+    enabled: !!selectedUserJobId,
+    queryFn: async () => {
+      const { data } = await (supabase as any).from("job_title_permissions")
+        .select("module_key, action_key, granted").eq("job_title_id", selectedUserJobId);
+      return (data ?? []) as Row[];
+    },
+  });
+
+  // Job template permissions (when editing a template)
+  const { data: jobPerms = [] } = useQuery({
+    queryKey: ["jt-perms", selectedJob],
+    enabled: mode === "job" && !!selectedJob,
+    queryFn: async () => {
+      const { data } = await (supabase as any).from("job_title_permissions")
+        .select("module_key, action_key, granted").eq("job_title_id", selectedJob);
+      return (data ?? []) as Row[];
+    },
+  });
+
+  const manualMap = useMemo(
+    () => new Map(userManual.map((r) => [`${r.module_key}:${r.action_key}`, r.granted])),
+    [userManual],
+  );
+  const inheritedMap = useMemo(
+    () => new Map(userInherited.map((r) => [`${r.module_key}:${r.action_key}`, r.granted])),
+    [userInherited],
+  );
+  const jobMap = useMemo(
+    () => new Map(jobPerms.map((r) => [`${r.module_key}:${r.action_key}`, r.granted])),
+    [jobPerms],
+  );
+
   const modules = useMemo(() => flattenModules(), []);
   const parentKeys = useMemo(
     () => modules.filter((m) => m.depth === 0 && modules.some((c) => c.depth > 0 && c.key.startsWith(`${m.key}.`))).map((m) => m.key),
@@ -53,62 +116,64 @@ function Page() {
     });
   }, [modules, collapsed]);
 
-  const { data: jobPerms = [] } = useQuery({
-    queryKey: ["jt-perms", selectedJob],
-    enabled: scope === "job" && !!selectedJob,
-    queryFn: async () => (await (supabase as any).from("job_title_permissions")
-      .select("module_key, action_key, granted").eq("job_title_id", selectedJob)).data ?? [],
-  });
-  const jobMap = new Map(jobPerms.map((r: any) => [`${r.module_key}:${r.action_key}`, r.granted]));
+  // ===== Cell state (does NOT use current user's isAdmin) =====
+  const isCellOn = (module: string, action: string): boolean => {
+    const k = `${module}:${action}`;
+    if (mode === "job") return !!jobMap.get(k);
+    if (manualMap.has(k)) return !!manualMap.get(k);
+    if (inheritedMap.has(k)) return !!inheritedMap.get(k);
+    return false;
+  };
+  const cellSource = (module: string, action: string): "manual" | "inherited" | "none" => {
+    const k = `${module}:${action}`;
+    if (mode === "job") return jobMap.has(k) ? "manual" : "none";
+    if (manualMap.has(k)) return "manual";
+    if (inheritedMap.has(k)) return "inherited";
+    return "none";
+  };
 
-  const toggleUser = async (module: string, action: ActionKey, current: boolean) => {
+  // ===== Mutations =====
+  const toggleUserCell = async (module: string, action: string) => {
     if (!selectedUser) return;
+    const current = isCellOn(module, action);
     const newVal = !current;
+    // Optimistic update
+    qc.setQueryData<Row[]>(["user-perms", selectedUser], (prev = []) => {
+      const filtered = prev.filter((r) => !(r.module_key === module && r.action_key === action));
+      return [...filtered, { module_key: module, action_key: action, granted: newVal }];
+    });
     const { error } = await (supabase as any).from("user_permissions").upsert({
       user_id: selectedUser, module_key: module, action_key: action,
       granted: newVal, source: "manual",
     }, { onConflict: "user_id,module_key,action_key" });
-    if (error) return toast.error(error.message);
-    qc.invalidateQueries({ queryKey: ["user-perms", selectedUser] });
+    if (error) {
+      toast.error(error.message);
+      qc.invalidateQueries({ queryKey: ["user-perms", selectedUser] });
+    }
   };
 
-  const toggleJob = async (module: string, action: ActionKey, current: boolean) => {
+  const toggleJobCell = async (module: string, action: string) => {
     if (!selectedJob) return;
+    const current = isCellOn(module, action);
+    const newVal = !current;
+    qc.setQueryData<Row[]>(["jt-perms", selectedJob], (prev = []) => {
+      const filtered = prev.filter((r) => !(r.module_key === module && r.action_key === action));
+      return [...filtered, { module_key: module, action_key: action, granted: newVal }];
+    });
     const { error } = await (supabase as any).from("job_title_permissions").upsert({
-      job_title_id: selectedJob, module_key: module, action_key: action, granted: !current,
+      job_title_id: selectedJob, module_key: module, action_key: action, granted: newVal,
     }, { onConflict: "job_title_id,module_key,action_key" });
-    if (error) return toast.error(error.message);
-    qc.invalidateQueries({ queryKey: ["jt-perms", selectedJob] });
+    if (error) {
+      toast.error(error.message);
+      qc.invalidateQueries({ queryKey: ["jt-perms", selectedJob] });
+    }
   };
 
-  const resetToInherited = async () => {
-    if (!selectedUser) return;
-    if (!confirm("سيتم حذف جميع التخصيصات اليدوية والاعتماد على صلاحيات الوظيفة فقط. متابعة؟")) return;
-    const { error } = await (supabase as any).from("user_permissions").delete().eq("user_id", selectedUser);
-    if (error) return toast.error(error.message);
-    toast.success("تمت إعادة الضبط");
-    qc.invalidateQueries({ queryKey: ["user-perms", selectedUser] });
-  };
-
-  const applyJobDefaults = async () => {
-    if (!selectedUser) return;
-    const u = users.find((x: any) => x.id === selectedUser);
-    if (!u?.job_title_id) return toast.error("المستخدم بدون وظيفة محددة");
-    const { data: jp } = await (supabase as any).from("job_title_permissions")
-      .select("module_key, action_key, granted").eq("job_title_id", u.job_title_id);
-    if (!jp?.length) return toast.error("لا توجد صلاحيات افتراضية لهذه الوظيفة");
-    const rows = jp.map((r: any) => ({
-      user_id: selectedUser, module_key: r.module_key, action_key: r.action_key,
-      granted: r.granted, source: "manual",
-    }));
-    const { error } = await (supabase as any).from("user_permissions").upsert(rows, { onConflict: "user_id,module_key,action_key" });
-    if (error) return toast.error(error.message);
-    toast.success("تم تطبيق صلاحيات الوظيفة");
-    qc.invalidateQueries({ queryKey: ["user-perms", selectedUser] });
-  };
+  const onToggleCell = (module: string, action: string) =>
+    mode === "user" ? toggleUserCell(module, action) : toggleJobCell(module, action);
 
   const bulkSet = async (rows: { module: string; action: string }[], granted: boolean) => {
-    if (scope === "user") {
+    if (mode === "user") {
       if (!selectedUser) return;
       const payload = rows.map((r) => ({
         user_id: selectedUser, module_key: r.module, action_key: r.action, granted, source: "manual",
@@ -148,71 +213,171 @@ function Page() {
     return bulkSet(rows, granted);
   };
 
+  // ===== System Admin / Custom buttons =====
+  const makeSystemAdmin = async () => {
+    if (!selectedUser) return;
+    if (!confirm("سيتم منح هذا المستخدم صلاحيات مدير النظام الكاملة وحذف أي تخصيصات يدوية. متابعة؟")) return;
+    const { error: e1 } = await (supabase as any).from("user_roles")
+      .upsert({ user_id: selectedUser, role: "admin" }, { onConflict: "user_id,role" });
+    if (e1) return toast.error(e1.message);
+    await (supabase as any).from("user_permissions").delete().eq("user_id", selectedUser);
+    toast.success("تم تعيين المستخدم كمدير نظام");
+    qc.invalidateQueries({ queryKey: ["user-roles", selectedUser] });
+    qc.invalidateQueries({ queryKey: ["user-perms", selectedUser] });
+  };
+
+  const makeCustom = async () => {
+    if (!selectedUser) return;
+    if (selectedIsAdmin) {
+      if (!confirm("سيتم إلغاء صلاحيات مدير النظام لهذا المستخدم والاعتماد على قالب الوظيفة أو التخصيص اليدوي. متابعة؟")) return;
+      const { error } = await (supabase as any).from("user_roles")
+        .delete().eq("user_id", selectedUser).eq("role", "admin");
+      if (error) return toast.error(error.message);
+      toast.success("تم التحويل إلى صلاحيات مخصصة");
+      qc.invalidateQueries({ queryKey: ["user-roles", selectedUser] });
+    }
+  };
+
+  const resetToInherited = async () => {
+    if (!selectedUser) return;
+    if (!confirm("سيتم حذف جميع التخصيصات اليدوية والاعتماد على صلاحيات الوظيفة فقط. متابعة؟")) return;
+    const { error } = await (supabase as any).from("user_permissions").delete().eq("user_id", selectedUser);
+    if (error) return toast.error(error.message);
+    toast.success("تمت إعادة الضبط");
+    qc.invalidateQueries({ queryKey: ["user-perms", selectedUser] });
+  };
+
+  const applyJobDefaults = async () => {
+    if (!selectedUser) return;
+    if (!selectedUserJobId) return toast.error("المستخدم بدون وظيفة محددة");
+    const { data: jp } = await (supabase as any).from("job_title_permissions")
+      .select("module_key, action_key, granted").eq("job_title_id", selectedUserJobId);
+    if (!jp?.length) return toast.error("لا توجد صلاحيات افتراضية لهذه الوظيفة");
+    const rows = jp.map((r: any) => ({
+      user_id: selectedUser, module_key: r.module_key, action_key: r.action_key,
+      granted: r.granted, source: "manual",
+    }));
+    const { error } = await (supabase as any).from("user_permissions").upsert(rows, { onConflict: "user_id,module_key,action_key" });
+    if (error) return toast.error(error.message);
+    toast.success("تم تطبيق صلاحيات الوظيفة");
+    qc.invalidateQueries({ queryKey: ["user-perms", selectedUser] });
+  };
+
   if (!isAdmin) return <div className="p-8 text-center text-muted-foreground">للمدراء فقط.</div>;
 
-  const isCellOn = (module: string, action: ActionKey): boolean =>
-    scope === "user" ? perms.can(module, action) : !!jobMap.get(`${module}:${action}`);
-  const cellSource = (module: string, action: ActionKey) =>
-    scope === "user" ? perms.getSource(module, action) : (jobMap.has(`${module}:${action}`) ? "manual" : "none");
+  const showMatrix =
+    (mode === "user" && !!selectedUser && !selectedIsAdmin) ||
+    (mode === "job" && !!selectedJob);
 
   return (
     <div>
-      <PageHeader title="مصفوفة الصلاحيات" description="إدارة صلاحيات الموديولات والصفحات والإجراءات" />
+      <PageHeader title="مصفوفة الصلاحيات" description="إدارة صلاحيات المستخدمين وقوالب الوظائف" />
+
+      {/* Mode toggle */}
+      <div className="flex gap-2 mb-4">
+        <Button
+          variant={mode === "user" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setMode("user")}
+          className="gap-2"
+        >
+          <UserIcon className="w-4 h-4" />صلاحيات مستخدم
+        </Button>
+        <Button
+          variant={mode === "job" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setMode("job")}
+          className="gap-2"
+        >
+          <Briefcase className="w-4 h-4" />قوالب الوظائف
+        </Button>
+      </div>
 
       <Card className="p-4 mb-4">
-        <div className="flex flex-wrap gap-3 items-end">
-          <div className="space-y-1">
-            <label className="text-xs text-muted-foreground">النطاق</label>
-            <Select value={scope} onValueChange={(v: any) => setScope(v)}>
-              <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="user">مستخدم محدد</SelectItem>
-                <SelectItem value="job">قالب وظيفة (افتراضي)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {scope === "user" ? (
-            <>
-              <div className="space-y-1 flex-1 min-w-64">
-                <label className="text-xs text-muted-foreground">المستخدم</label>
-                <Select value={selectedUser} onValueChange={setSelectedUser}>
-                  <SelectTrigger><SelectValue placeholder="اختر مستخدماً" /></SelectTrigger>
-                  <SelectContent>
-                    {users.map((u: any) => (
-                      <SelectItem key={u.id} value={u.id}>
-                        {u.full_name ?? u.email} {u.job_titles?.name_ar ? `— ${u.job_titles.name_ar}` : ""}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button variant="outline" size="sm" onClick={applyJobDefaults} disabled={!selectedUser} className="gap-2">
-                <Wand2 className="w-4 h-4" />تطبيق صلاحيات الوظيفة
-              </Button>
-              <Button variant="outline" size="sm" onClick={resetToInherited} disabled={!selectedUser} className="gap-2">
-                <RotateCcw className="w-4 h-4" />إعادة للوراثة
-              </Button>
-            </>
-          ) : (
-            <div className="space-y-1 flex-1 min-w-64">
-              <label className="text-xs text-muted-foreground">الوظيفة</label>
-              <Select value={selectedJob} onValueChange={setSelectedJob}>
-                <SelectTrigger><SelectValue placeholder="اختر الوظيفة" /></SelectTrigger>
+        {mode === "user" ? (
+          <>
+            <div className="space-y-1 mb-3">
+              <label className="text-xs text-muted-foreground">المستخدم</label>
+              <Select value={selectedUser} onValueChange={setSelectedUser}>
+                <SelectTrigger><SelectValue placeholder="اختر مستخدماً" /></SelectTrigger>
                 <SelectContent>
-                  {jobs.map((j: any) => <SelectItem key={j.id} value={j.id}>{j.name_ar}</SelectItem>)}
+                  {users.map((u: any) => (
+                    <SelectItem key={u.id} value={u.id}>
+                      {u.full_name ?? u.email} {u.job_titles?.name_ar ? `— ${u.job_titles.name_ar}` : ""}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
-          )}
-        </div>
-        <div className="flex gap-3 mt-3 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1"><span className="w-3 h-3 bg-primary rounded-sm" />يدوية</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 bg-primary/40 rounded-sm" />موروثة من الوظيفة</span>
-        </div>
+
+            {selectedUser && (
+              <>
+                <div className="flex flex-wrap gap-2 items-center pt-2 border-t">
+                  <span className="text-xs text-muted-foreground ml-2">نوع الصلاحيات:</span>
+                  <Button
+                    variant={selectedIsAdmin ? "default" : "outline"}
+                    size="sm"
+                    onClick={makeSystemAdmin}
+                    disabled={selectedIsAdmin}
+                    className="gap-2"
+                  >
+                    <ShieldCheck className="w-4 h-4" />مدير النظام
+                  </Button>
+                  <Button
+                    variant={!selectedIsAdmin ? "default" : "outline"}
+                    size="sm"
+                    onClick={makeCustom}
+                    className="gap-2"
+                  >
+                    <Settings2 className="w-4 h-4" />مخصص
+                  </Button>
+
+                  {!selectedIsAdmin && (
+                    <>
+                      <div className="flex-1" />
+                      <Button variant="outline" size="sm" onClick={applyJobDefaults} className="gap-2">
+                        <Wand2 className="w-4 h-4" />تطبيق صلاحيات الوظيفة
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={resetToInherited} className="gap-2">
+                        <RotateCcw className="w-4 h-4" />إعادة للوراثة
+                      </Button>
+                    </>
+                  )}
+                </div>
+
+                {selectedIsAdmin && (
+                  <div className="mt-3 p-3 rounded-md bg-primary/5 border border-primary/20 text-sm flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-primary" />
+                    هذا المستخدم <strong>مدير نظام</strong> ولديه صلاحيات كاملة على كل الموديولات. اضغط "مخصص" للتحويل إلى صلاحيات قابلة للتعديل.
+                  </div>
+                )}
+
+                {!selectedIsAdmin && (
+                  <div className="flex gap-3 mt-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1"><span className="w-3 h-3 bg-primary rounded-sm" />يدوية</span>
+                    <span className="flex items-center gap-1"><span className="w-3 h-3 bg-primary/40 rounded-sm" />موروثة من قالب الوظيفة</span>
+                  </div>
+                )}
+              </>
+            )}
+          </>
+        ) : (
+          <div className="space-y-1">
+            <label className="text-xs text-muted-foreground">قالب الوظيفة</label>
+            <Select value={selectedJob} onValueChange={setSelectedJob}>
+              <SelectTrigger><SelectValue placeholder="اختر الوظيفة" /></SelectTrigger>
+              <SelectContent>
+                {jobs.map((j: any) => <SelectItem key={j.id} value={j.id}>{j.name_ar}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground mt-2">
+              الصلاحيات المعتمدة هنا تطبَّق تلقائياً على جميع المستخدمين ذوي نفس الوظيفة عند اختيارهم "مخصص".
+            </p>
+          </div>
+        )}
       </Card>
 
-      {((scope === "user" && selectedUser) || (scope === "job" && selectedJob)) && (
+      {showMatrix && (
         <Card className="overflow-auto">
           <div className="flex items-center justify-between gap-2 p-3 border-b">
             <div className="text-sm font-medium">إدارة جماعية</div>
@@ -265,14 +430,14 @@ function Page() {
                       {specials.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1">
                           {specials.map((s) => {
-                            const on = isCellOn(m.key, s.key as ActionKey);
+                            const on = isCellOn(m.key, s.key);
                             return (
                               <TooltipProvider key={s.key}>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <button
                                       type="button"
-                                      onClick={() => scope === "user" ? toggleUser(m.key, s.key as ActionKey, on) : toggleJob(m.key, s.key as ActionKey, on)}
+                                      onClick={() => onToggleCell(m.key, s.key)}
                                       className={`text-[10px] px-2 py-0.5 rounded border ${on ? "bg-primary text-primary-foreground border-primary" : "bg-muted text-muted-foreground border-border"}`}
                                     >
                                       {s.name}
@@ -294,7 +459,7 @@ function Page() {
                           <div className={src === "inherited" ? "opacity-60" : ""}>
                             <Checkbox
                               checked={on}
-                              onCheckedChange={() => scope === "user" ? toggleUser(m.key, a, on) : toggleJob(m.key, a, on)}
+                              onCheckedChange={() => onToggleCell(m.key, a)}
                             />
                           </div>
                         </TableCell>
@@ -318,13 +483,13 @@ function Page() {
         </Card>
       )}
 
-      {scope === "user" && selectedUser && (
+      {mode === "user" && selectedUser && !selectedIsAdmin && (
         <Card className="p-4 mt-4">
-          <h3 className="font-semibold mb-2">ملخص</h3>
+          <h3 className="font-semibold mb-2">ملخص الصلاحيات الفعّالة</h3>
           <div className="flex flex-wrap gap-2">
-            {modules.flatMap((m) => ACTIONS.filter((a) => perms.can(m.key, a)).map((a) => (
+            {modules.flatMap((m) => (ACTIONS as readonly string[]).filter((a) => isCellOn(m.key, a)).map((a) => (
               <Badge key={`${m.key}-${a}`} variant="secondary" className="text-xs">
-                {m.name} · {ACTION_LABEL[a]}
+                {m.name} · {ACTION_LABEL[a as ActionKey]}
               </Badge>
             ))).slice(0, 30)}
           </div>
