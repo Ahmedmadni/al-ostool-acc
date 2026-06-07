@@ -5,10 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/hooks/use-auth";
 import { flattenModules, ACTIONS, ACTION_LABEL } from "@/lib/permissions";
-import { ShieldCheck, ShieldAlert, Users, Layers, Key, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { ShieldCheck, ShieldAlert, Users, Layers, Key, AlertTriangle, CheckCircle2, XCircle, Info } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/settings/permissions-dashboard")({ component: Page });
 
@@ -116,15 +118,51 @@ function Page() {
               <p className="text-sm text-muted-foreground">لا يوجد</p>
             ) : (
               <ul className="space-y-2">
-                {elevatedUsers.map((u: any) => (
-                  <li key={u.id} className="flex items-center justify-between text-sm border-b pb-2 last:border-0">
-                    <span>{u.full_name ?? u.email}</span>
-                    <div className="flex gap-1">
-                      {adminIds.has(u.id) && <Badge variant="destructive" className="text-xs">Admin</Badge>}
-                      {(grantsByUser.get(u.id) ?? 0) > 30 && <Badge variant="secondary" className="text-xs">{grantsByUser.get(u.id)} صلاحية</Badge>}
-                    </div>
-                  </li>
-                ))}
+                {elevatedUsers.map((u: any) => {
+                  const dept = departments.find((d: any) => d.id === u.department_id);
+                  const job = jobs.find((j: any) => j.id === u.job_title_id);
+                  const userRoles = roles.filter((r: any) => r.user_id === u.id).map((r: any) => r.role);
+                  const userGrants = userPerms.filter((p: any) => p.user_id === u.id && p.granted)
+                    .map((p: any) => modules.find((m) => m.key === p.module_key)?.name ?? p.module_key);
+                  const topGranted = [...new Set(userGrants)].slice(0, 5);
+                  return (
+                    <li key={u.id} className="flex items-center justify-between text-sm border-b pb-2 last:border-0">
+                      <div className="flex items-center gap-1.5">
+                        <span>{u.full_name ?? u.email}</span>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button size="icon" variant="ghost" className="h-6 w-6"><Info className="w-3.5 h-3.5" /></Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-72 text-sm" dir="rtl">
+                            <div className="space-y-1.5">
+                              <div className="font-semibold">{u.full_name ?? u.email}</div>
+                              <div className="text-xs text-muted-foreground">{u.email}</div>
+                              <div className="border-t pt-1.5 space-y-0.5 text-xs">
+                                <div>الإدارة: <span className="font-medium">{dept?.name_ar ?? "—"}</span></div>
+                                <div>الوظيفة: <span className="font-medium">{job?.name_ar ?? "—"}</span></div>
+                                <div>الأدوار: <span className="font-medium">{userRoles.length ? userRoles.join(", ") : "—"}</span></div>
+                              </div>
+                              <div className="border-t pt-1.5">
+                                <div className="text-xs font-semibold mb-1">أبرز الصلاحيات الممنوحة</div>
+                                {topGranted.length === 0 ? (
+                                  <div className="text-xs text-muted-foreground">— لا يوجد —</div>
+                                ) : (
+                                  <div className="flex flex-wrap gap-1">
+                                    {topGranted.map((g, i) => <Badge key={i} variant="secondary" className="text-[10px]">{g}</Badge>)}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div className="flex gap-1">
+                        {adminIds.has(u.id) && <Badge variant="destructive" className="text-xs">Admin</Badge>}
+                        {(grantsByUser.get(u.id) ?? 0) > 30 && <Badge variant="secondary" className="text-xs">{grantsByUser.get(u.id)} صلاحية</Badge>}
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </CardContent>
