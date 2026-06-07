@@ -143,7 +143,7 @@ function LoginPage() {
       <div className="flex items-center justify-center p-6 lg:p-12 bg-background overflow-y-auto">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <img src={logo} alt="" className="w-12 h-12 rounded-lg bg-primary p-1.5" />
+            <img src={logo} alt="" className="w-12 h-12 rounded-lg bg-white p-1.5 shadow" />
             <div>
               <div className="font-bold">الأسطول الآلي</div>
               <div className="text-xs text-muted-foreground">منصة الذكاء المالي</div>
