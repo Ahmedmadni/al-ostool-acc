@@ -124,7 +124,7 @@ function Page() {
                   const userRoles = roles.filter((r: any) => r.user_id === u.id).map((r: any) => r.role);
                   const userGrants = userPerms.filter((p: any) => p.user_id === u.id && p.granted)
                     .map((p: any) => modules.find((m) => m.key === p.module_key)?.name ?? p.module_key);
-                  const topGranted = [...new Set(userGrants)].slice(0, 5);
+                  const topGranted: string[] = [...new Set(userGrants as string[])].slice(0, 5);
                   return (
                     <li key={u.id} className="flex items-center justify-between text-sm border-b pb-2 last:border-0">
                       <div className="flex items-center gap-1.5">
