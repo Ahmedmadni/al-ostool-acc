@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,8 +34,6 @@ function Page() {
   const { isAdmin } = useAuth();
   const modules = useMemo(() => flattenModules(), []);
   const qc = useQueryClient();
-  const { isAdmin } = useAuth();
-  const modules = useMemo(() => flattenModules(), []);
 
   const { data: users = [] } = useQuery({
     queryKey: ["pdash-users"],
