@@ -22,6 +22,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { taskTypeLabel, taskStatusLabel, taskVisibilityLabel } from "@/lib/labels";
 import { fmtDate } from "@/lib/format";
 import { toast } from "sonner";
+import { EditTaskDialog } from "@/components/tasks/edit-task-dialog";
 
 export const Route = createFileRoute("/_authenticated/tasks/")({ component: Page });
 
@@ -64,6 +65,7 @@ function Page() {
   const [tab, setTab] = useState("mine");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [hideDone, setHideDone] = useState(false);
+  const [editTaskId, setEditTaskId] = useState<string | null>(null);
 
   const { data: tasks = [] } = useQuery({
     queryKey: ["tasks"],
@@ -365,11 +367,12 @@ function Page() {
                 profileById={profileById}
                 currentUserId={user?.id ?? ""}
                 showAssignmentInfo={tab !== "mine"}
-                canManage={canSeeAll}
+                canManage={canSeeAll || t.created_by === user?.id}
                 onStart={() => startTask(t.id)}
                 onDone={() => markDone(t.id)}
                 onToggleItem={toggleChecklistItem}
                 onDelete={() => deleteTask(t.id)}
+                onEdit={() => setEditTaskId(t.id)}
               />
             ))}
           </div>
@@ -390,17 +393,23 @@ function Page() {
         removeChecklistItem={removeChecklistItem}
         totalWeight={totalWeight}
       />
+
+      <EditTaskDialog
+        open={!!editTaskId}
+        onOpenChange={(o) => { if (!o) setEditTaskId(null); }}
+        taskId={editTaskId}
+      />
     </div>
   );
 }
 
 function TaskCard({
-  task: t, profileById, currentUserId, showAssignmentInfo, canManage, onStart, onDone, onToggleItem, onDelete,
+  task: t, profileById, currentUserId, showAssignmentInfo, canManage, onStart, onDone, onToggleItem, onDelete, onEdit,
 }: {
   task: any; profileById: Record<string, any>; currentUserId: string; showAssignmentInfo: boolean;
   canManage: boolean;
   onStart: () => void; onDone: () => void; onToggleItem: (id: string, checked: boolean) => void;
-  onDelete: () => void;
+  onDelete: () => void; onEdit: () => void;
 }) {
   const isDone = t.status === "done";
   const overdue = !isDone && t.status !== "cancelled" && t.due_date && new Date(t.due_date) < new Date();
@@ -490,10 +499,8 @@ function TaskCard({
         )}
         {canManage && (
           <>
-            <Button asChild size="sm" variant="outline" className="gap-1">
-              <Link to="/tasks/$id" params={{ id: t.id }}>
-                <Pencil className="w-4 h-4" />تعديل
-              </Link>
+            <Button size="sm" variant="outline" className="gap-1" onClick={onEdit}>
+              <Pencil className="w-4 h-4" />تعديل
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
