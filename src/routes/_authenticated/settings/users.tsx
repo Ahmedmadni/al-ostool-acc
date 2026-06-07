@@ -47,9 +47,16 @@ function Page() {
   const createFn = useServerFn(createUserByAdmin);
   const deleteFn = useServerFn(deleteUserByAdmin);
 
+  const [searchQ, setSearchQ] = useState("");
+  const [deptFilter, setDeptFilter] = useState<string>("all");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [permOpen, setPermOpen] = useState(false);
+  const [permUserId, setPermUserId] = useState<string | null>(null);
+  const [permUserName, setPermUserName] = useState<string>("");
+
   const { data: profiles = [] } = useQuery({
     queryKey: ["profiles-admin"],
-    queryFn: async () => (await (supabase as any).from("profiles").select("*, departments(name_ar), job_titles(name_ar), manager:manager_id(full_name)").order("created_at", { ascending: false })).data ?? [],
+    queryFn: async () => (await (supabase as any).from("profiles").select("*, departments(name_ar), job_titles(name_ar)").order("created_at", { ascending: false })).data ?? [],
   });
   const { data: permCounts = {} } = useQuery({
     queryKey: ["perm-counts"],
