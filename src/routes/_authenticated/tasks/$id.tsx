@@ -112,6 +112,8 @@ function Page() {
   }, [profiles]);
 
   const [newComment, setNewComment] = useState("");
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [sendingComment, setSendingComment] = useState(false);
   const [requestOpen, setRequestOpen] = useState(false);
   const [requestKind, setRequestKind] = useState<"reschedule" | "reassign">("reschedule");
   const [completionOpen, setCompletionOpen] = useState(false);
