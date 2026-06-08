@@ -663,7 +663,7 @@ function Page() {
                   </div>
                 );
               })}
-              {attachments.length === 0 && <div className="text-xs text-muted-foreground text-center py-3">لا توجد مرفقات</div>}
+              {attachments.filter((a: any) => !a.comment_id).length === 0 && <div className="text-xs text-muted-foreground text-center py-3">لا توجد مرفقات مستقلة — استخدم زر الإرفاق بجوار الرسالة</div>}
             </div>
           </Card>
         </div>
