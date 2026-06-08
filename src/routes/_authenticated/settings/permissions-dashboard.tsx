@@ -108,12 +108,14 @@ function Page() {
         title="لوحة الصلاحيات والجاهزية الأمنية"
         description="نظرة شاملة على الصلاحيات وسجل التدقيق وتقرير الجاهزية"
         actions={
-          <Button onClick={() => setRolesOpen(true)} className="gap-2">
-            <Key className="w-4 h-4" /> إدارة أدوار النظام
+          <Button asChild className="gap-2">
+            <Link to="/settings/permissions" search={{ mode: "job" }}>
+              <Key className="w-4 h-4" /> إدارة قوالب الوظائف
+            </Link>
           </Button>
         }
       />
-      <RolePermissionsDialog open={rolesOpen} onOpenChange={setRolesOpen} />
+
 
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
