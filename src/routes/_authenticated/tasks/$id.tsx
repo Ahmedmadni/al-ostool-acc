@@ -577,10 +577,10 @@ function Page() {
           </Card>
 
 
-          {/* Attachments */}
+          {/* Attachments — only files uploaded directly (not sent with a message) */}
           <Card className="p-4">
             <div className="font-semibold mb-3 flex items-center gap-2">
-              <Paperclip className="w-4 h-4" /> المرفقات ({attachments.length})
+              <Paperclip className="w-4 h-4" /> المرفقات ({attachments.filter((a: any) => !a.comment_id).length})
             </div>
 
             <label
