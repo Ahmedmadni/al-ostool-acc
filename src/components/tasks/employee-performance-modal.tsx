@@ -78,12 +78,12 @@ export function EmployeePerformanceModal({ open, onOpenChange, user }: Props) {
 
   const exportRows = rows.map((r) => ({
     "المهمة": r.title, "البداية": fmtDate(r.start), "النهاية": fmtDate(r.end),
-    "Checklist %": r.cl, "تقييم المدير %": r.mgr ?? "—", "النهائي %": r.fs ?? "—",
+    "نسبة إنجاز البنود %": r.cl, "النهائي %": r.fs ?? "—",
     "الحالة": taskStatusLabel[r.status as string] ?? r.status,
   }));
   const exportCols = [
     { header: "المهمة", dataKey: "المهمة" }, { header: "البداية", dataKey: "البداية" }, { header: "النهاية", dataKey: "النهاية" },
-    { header: "Checklist %", dataKey: "Checklist %" }, { header: "تقييم المدير %", dataKey: "تقييم المدير %" },
+    { header: "نسبة إنجاز البنود %", dataKey: "نسبة إنجاز البنود %" },
     { header: "النهائي %", dataKey: "النهائي %" }, { header: "الحالة", dataKey: "الحالة" },
   ];
   const name = user.full_name ?? user.email ?? "موظف";
