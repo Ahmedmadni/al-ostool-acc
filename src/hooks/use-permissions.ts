@@ -44,9 +44,14 @@ export function usePermissions(userId?: string) {
 
   const can = (module: string, action: ActionKey): boolean => {
     if (isAdmin) return true;
-    const k = `${module}:${action}`;
-    if (manualMap.has(k)) return manualMap.get(k)!;
-    if (inheritedMap.has(k)) return inheritedMap.get(k)!;
+    // Check module + all ancestor modules (e.g. settings.users → settings.users, settings)
+    const parts = module.split(".");
+    for (let i = parts.length; i >= 1; i--) {
+      const key = parts.slice(0, i).join(".");
+      const k = `${key}:${action}`;
+      if (manualMap.has(k)) return manualMap.get(k)!;
+      if (inheritedMap.has(k)) return inheritedMap.get(k)!;
+    }
     return false;
   };
 
