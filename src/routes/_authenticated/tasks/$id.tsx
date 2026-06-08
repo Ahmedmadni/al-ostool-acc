@@ -167,16 +167,20 @@ function Page() {
     if ((!newComment.trim() && !pendingFile) || !user || sendingComment) return;
     setSendingComment(true);
     try {
-      if (pendingFile) await uploadAttachment(pendingFile);
-      if (newComment.trim()) {
-        const { error } = await (supabase as any).from("task_comments").insert({
-          task_id: id, user_id: user.id, body: newComment.trim(),
-        });
+      let commentId: string | null = null;
+      const body = newComment.trim() || (pendingFile ? `📎 ${pendingFile.name}` : "");
+      if (body) {
+        const { data, error } = await (supabase as any).from("task_comments").insert({
+          task_id: id, user_id: user.id, body,
+        }).select("id").single();
         if (error) { toast.error(error.message); return; }
+        commentId = data?.id ?? null;
       }
+      if (pendingFile) await uploadAttachment(pendingFile, commentId);
       setNewComment("");
       setPendingFile(null);
       refetchComments();
+      refetchAttachments();
     } finally {
       setSendingComment(false);
     }
