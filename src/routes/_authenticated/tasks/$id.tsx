@@ -725,25 +725,6 @@ function Page() {
 
 
 
-          {/* Evaluation */}
-          {isDone && isCreator && !task.rating && (
-            <Card className="p-4 border-warning bg-warning/5">
-              <div className="font-semibold mb-2 flex items-center gap-2">
-                <Star className="w-4 h-4 text-warning" /> بانتظار تقييمك
-              </div>
-              <p className="text-sm text-muted-foreground mb-3">قم بتقييم أداء الموظف في هذه المهمة (1-10)</p>
-              <Button className="w-full" onClick={() => setEvalOpen(true)}>تقييم المهمة</Button>
-            </Card>
-          )}
-          {task.rating && (
-            <Card className="p-4 border-success bg-success/5">
-              <div className="font-semibold mb-2 flex items-center gap-2">
-                <Star className="w-4 h-4 text-success" /> التقييم
-              </div>
-              <div className="text-3xl font-bold text-center my-2">{task.rating}<span className="text-base text-muted-foreground">/10</span></div>
-              {task.rating_note && <div className="text-sm text-muted-foreground border-t pt-2 mt-2">{task.rating_note}</div>}
-            </Card>
-          )}
 
           {/* Pending requests */}
           {pendingRequests.length > 0 && (
