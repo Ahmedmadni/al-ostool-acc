@@ -15,9 +15,9 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  ArrowRight, Send, CheckCircle2, CalendarClock, UserPlus, Star,
+  ArrowRight, Send, CheckCircle2, CalendarClock, UserPlus,
   Paperclip, AlertTriangle, MessageSquare, Trash2, Download, Eye,
-  Upload, FileText, Image as ImageIcon, RotateCcw, ThumbsUp, X, Shield,
+  Upload, FileText, Image as ImageIcon, RotateCcw, ThumbsUp, X, Shield, Plus, Pencil,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { taskTypeLabel, taskStatusLabel } from "@/lib/labels";
