@@ -96,7 +96,8 @@ export const MOBILE_MODULES: MobileModule[] = [
   { to: "/account", label: "حسابي", icon: UserCircle, category: "admin" },
   { to: "/settings/regional", label: "الإعدادات الإقليمية", icon: Settings, category: "admin" },
   { to: "/settings/approvals", label: "اعتماد المستخدمين", icon: ShieldCheck, category: "admin", adminOnly: true },
-  { to: "/settings/users", label: "إدارة المستخدمين", icon: UserCog, category: "admin", adminOnly: true },
+  { to: "/settings/users", label: "إدارة المستخدمين", icon: UserCog, category: "admin" },
+  { to: "/settings/permissions", label: "الصلاحيات", icon: ShieldCheck, category: "admin" },
 ];
 
 const FAV_KEY = "mobile-launcher-favorites";

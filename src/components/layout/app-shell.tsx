@@ -159,15 +159,12 @@ export function AppShell({ children }: { children: ReactNode }) {
     key: "settings", label: "الإعدادات", icon: Settings,
     links: [
       { to: "/settings/regional", label: "الإعدادات الإقليمية" },
-      ...(isAdmin ? [
-        { to: "/settings/approvals", label: "اعتماد المستخدمين الجدد" },
-        { to: "/settings/users", label: "إدارة المستخدمين" },
-        { to: "/settings/permissions", label: "الصلاحيات" },
-        { to: "/settings/permissions-dashboard", label: "لوحة الصلاحيات والجاهزية" },
-      ] : []),
-
+      { to: "/settings/approvals", label: "اعتماد المستخدمين الجدد" },
+      { to: "/settings/users", label: "إدارة المستخدمين" },
+      { to: "/settings/permissions", label: "الصلاحيات" },
+      { to: "/settings/permissions-dashboard", label: "لوحة الصلاحيات والجاهزية" },
     ],
-  }), [isAdmin]);
+  }), []);
 
   const filterLink = (to: string) => {
     if (isAdmin) return true;
