@@ -280,10 +280,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <div className="flex-1 md:mr-64 flex flex-col min-w-0">
         <header className="h-16 bg-card border-b border-border flex items-center px-6 gap-4 sticky top-0 z-20 no-print">
-          <div className="flex-1 max-w-md relative">
+          <div className="max-w-md w-full relative">
             <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input placeholder="بحث عام في النظام..." className="pr-10" />
           </div>
+          <div className="ms-auto flex items-center gap-2" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" title="Language" className="font-semibold gap-1">
