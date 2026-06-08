@@ -66,8 +66,10 @@ function Page() {
       const path = `${user!.id}/avatar-${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
       if (upErr) throw upErr;
-      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-      const { error } = await (supabase as any).from("profiles").update({ avatar_url: data.publicUrl }).eq("id", user!.id);
+      // Bucket is private — generate a long-lived signed URL (10 years)
+      const { data: signed, error: sErr } = await supabase.storage.from("avatars").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      if (sErr) throw sErr;
+      const { error } = await (supabase as any).from("profiles").update({ avatar_url: signed.signedUrl }).eq("id", user!.id);
       if (error) throw error;
       toast.success("تم تحديث الصورة");
       qc.invalidateQueries({ queryKey: ["my-profile"] });
