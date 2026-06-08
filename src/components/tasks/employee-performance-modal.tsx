@@ -24,7 +24,7 @@ export function EmployeePerformanceModal({ open, onOpenChange, user }: Props) {
     queryKey: ["emp-perf-tasks", user?.id],
     enabled: !!user?.id && open,
     queryFn: async () => (await supabase.from("tasks")
-      .select("id, title, status, planned_start_date, planned_end_date, due_date, completed_at, rating, manager_evaluation_score, completion_percentage, task_checklist_items(is_done,weight)")
+      .select("id, title, status, planned_start_date, planned_end_date, due_date, completed_at, task_checklist_items(is_done,weight)")
       .eq("assigned_to", user!.id)
       .order("created_at", { ascending: false })).data ?? [],
   });
