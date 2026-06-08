@@ -35,7 +35,6 @@ function Page() {
   const { isAdmin } = useAuth();
   const modules = useMemo(() => flattenModules(), []);
   const qc = useQueryClient();
-  const [rolesOpen, setRolesOpen] = useState(false);
 
   const { data: users = [] } = useQuery({
     queryKey: ["pdash-users"],
