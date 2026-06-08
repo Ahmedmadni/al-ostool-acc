@@ -329,7 +329,7 @@ function Page() {
         </Table>
       </Card>
 
-      <UserPermissionsDialog open={permOpen} onOpenChange={setPermOpen} userId={permUserId} userName={permUserName} />
+
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl">
