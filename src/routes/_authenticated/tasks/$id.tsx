@@ -117,19 +117,14 @@ function Page() {
   const [requestOpen, setRequestOpen] = useState(false);
   const [requestKind, setRequestKind] = useState<"reschedule" | "reassign">("reschedule");
   const [completionOpen, setCompletionOpen] = useState(false);
-  const [evalOpen, setEvalOpen] = useState(false);
-  const [approvalOpen, setApprovalOpen] = useState(false);
-  const [managerEvalOpen, setManagerEvalOpen] = useState(false);
   const [returnOpen, setReturnOpen] = useState(false);
+  const [checklistEditOpen, setChecklistEditOpen] = useState(false);
   const [uploadingName, setUploadingName] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dragOver, setDragOver] = useState(false);
   const [previewAtt, setPreviewAtt] = useState<any | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // Open the manager's progress-approval screen automatically after any
-  // dialog/action that should prompt them to confirm a completion %.
-  const promptApproval = () => { if (isCreator || isAdmin) setApprovalOpen(true); };
 
 
   if (isLoading) {
