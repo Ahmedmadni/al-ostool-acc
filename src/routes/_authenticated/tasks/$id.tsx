@@ -164,13 +164,22 @@ function Page() {
   const pendingRequests = requests.filter((r: any) => r.status === "pending");
 
   const addComment = async () => {
-    if (!newComment.trim() || !user) return;
-    const { error } = await (supabase as any).from("task_comments").insert({
-      task_id: id, user_id: user.id, body: newComment.trim(),
-    });
-    if (error) { toast.error(error.message); return; }
-    setNewComment("");
-    refetchComments();
+    if ((!newComment.trim() && !pendingFile) || !user || sendingComment) return;
+    setSendingComment(true);
+    try {
+      if (pendingFile) await uploadAttachment(pendingFile);
+      if (newComment.trim()) {
+        const { error } = await (supabase as any).from("task_comments").insert({
+          task_id: id, user_id: user.id, body: newComment.trim(),
+        });
+        if (error) { toast.error(error.message); return; }
+      }
+      setNewComment("");
+      setPendingFile(null);
+      refetchComments();
+    } finally {
+      setSendingComment(false);
+    }
   };
 
   const toggleItem = async (itemId: string, checked: boolean) => {
