@@ -110,15 +110,12 @@ function Page() {
     "مكتملة": s.completed,
     "قيد التنفيذ": s.inProgress,
     "متأخرة": s.overdue,
-    "تقييم المدير": s.avgRating ?? "—",
-    "نسبة الإنجاز": s.avgCompletion ?? "—",
-    "النتيجة النهائية %": s.avgFinal ?? "—",
+    "نسبة إنجاز البنود %": s.avgFinal ?? "—",
   }));
   const exportCols = [
     { header: "الموظف", dataKey: "الموظف" }, { header: "إجمالي", dataKey: "إجمالي" },
     { header: "مكتملة", dataKey: "مكتملة" }, { header: "قيد التنفيذ", dataKey: "قيد التنفيذ" },
-    { header: "متأخرة", dataKey: "متأخرة" }, { header: "تقييم المدير", dataKey: "تقييم المدير" },
-    { header: "نسبة الإنجاز", dataKey: "نسبة الإنجاز" }, { header: "النتيجة النهائية %", dataKey: "النتيجة النهائية %" },
+    { header: "متأخرة", dataKey: "متأخرة" }, { header: "نسبة إنجاز البنود %", dataKey: "نسبة إنجاز البنود %" },
   ];
   const handleExcel = () => exportToExcel(exportRows, "تقرير_أداء_الفريق");
   const handlePdf = () => exportToPdf({ title: "تقرير أداء الفريق", columns: exportCols, rows: exportRows });
