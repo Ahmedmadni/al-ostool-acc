@@ -975,148 +975,171 @@ function CompletionDialog({ open, onOpenChange, taskId, onSaved }: any) {
   );
 }
 
-function EvaluationDialog({ open, onOpenChange, taskId, userId, onSaved }: any) {
-  const [rating, setRating] = useState(8);
-  const [note, setNote] = useState("");
-  const save = async () => {
-    const { error } = await (supabase as any).from("tasks").update({
-      rating, rating_note: note || null, rated_by: userId, rated_at: new Date().toISOString(),
-    }).eq("id", taskId);
-    if (error) { toast.error(error.message); return; }
-    toast.success("تم حفظ التقييم");
-    onSaved();
-  };
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent dir="rtl">
-        <DialogHeader><DialogTitle>تقييم أداء الموظف في المهمة</DialogTitle></DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label>الدرجة (1-10): <span className="text-2xl font-bold text-primary mr-2">{rating}</span></Label>
-            <input
-              type="range" min={1} max={10} value={rating}
-              onChange={(e) => setRating(parseInt(e.target.value))}
-              className="w-full mt-2"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground mt-1">
-              <span>1 ضعيف</span><span>10 ممتاز</span>
-            </div>
-          </div>
-          <div>
-            <Label>ملاحظة للتقييم</Label>
-            <Textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>إلغاء</Button>
-          <Button onClick={save}>حفظ التقييم</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
+type ChecklistRow = {
+  id?: string;
+  _localKey: string;
+  title: string;
+  weight: number;
+  is_done: boolean;
+  order_index: number;
+  _isNew?: boolean;
+  _toDelete?: boolean;
+};
 
-function ProgressApprovalDialog({ open, onOpenChange, taskId, userId, currentValue, onSaved }: any) {
-  const [percentage, setPercentage] = useState<number>(currentValue ?? 0);
-  const [note, setNote] = useState("");
-  useEffect(() => { setPercentage(currentValue ?? 0); }, [currentValue, open]);
+function ChecklistEditDialog({ open, onOpenChange, taskId, items, onSaved }: any) {
+  const [rows, setRows] = useState<ChecklistRow[]>([]);
+  const [saving, setSaving] = useState(false);
 
-  const save = async () => {
-    const { error } = await (supabase as any).from("tasks").update({
-      completion_percentage: percentage,
-      completion_approval_note: note || null,
-      completion_approved_by: userId,
-      completion_approved_at: new Date().toISOString(),
-    }).eq("id", taskId);
-    if (error) { toast.error(error.message); return; }
-    toast.success(`تم اعتماد نسبة الإنجاز: ${percentage}%`);
-    setNote("");
-    onSaved();
+  useEffect(() => {
+    if (!open) return;
+    setRows(
+      (items as any[]).map((it) => ({
+        id: it.id,
+        _localKey: it.id,
+        title: it.title ?? "",
+        weight: Number(it.weight ?? 0),
+        is_done: !!it.is_done,
+        order_index: Number(it.order_index ?? 0),
+      }))
+    );
+  }, [open, items]);
+
+  const visible = rows.filter((r) => !r._toDelete);
+  const totalWeight = visible.reduce((s, r) => s + (Number(r.weight) || 0), 0);
+
+  const addRow = () => {
+    setRows((rs) => [
+      ...rs,
+      {
+        _localKey: `new-${Date.now()}-${Math.random()}`,
+        title: "",
+        weight: 0,
+        is_done: false,
+        order_index: (rs[rs.length - 1]?.order_index ?? rs.length - 1) + 1,
+        _isNew: true,
+      },
+    ]);
   };
 
+  const updateRow = (key: string, patch: Partial<ChecklistRow>) => {
+    setRows((rs) => rs.map((r) => (r._localKey === key ? { ...r, ...patch } : r)));
+  };
+
+  const removeRow = (key: string) => {
+    setRows((rs) =>
+      rs
+        .map((r) => (r._localKey === key ? (r.id ? { ...r, _toDelete: true } : null) : r))
+        .filter(Boolean) as ChecklistRow[]
+    );
+  };
+
+  const save = async () => {
+    const cleaned = visible.filter((r) => r.title.trim().length > 0);
+    if (cleaned.length === 0) {
+      toast.error("يجب إضافة بند واحد على الأقل");
+      return;
+    }
+    setSaving(true);
+    try {
+      // Deletes
+      const toDelete = rows.filter((r) => r._toDelete && r.id).map((r) => r.id as string);
+      if (toDelete.length) {
+        const { error } = await (supabase as any).from("task_checklist_items").delete().in("id", toDelete);
+        if (error) throw error;
+      }
+      // Inserts
+      const toInsert = cleaned
+        .filter((r) => !r.id)
+        .map((r, idx) => ({
+          task_id: taskId,
+          title: r.title.trim(),
+          weight: Number(r.weight) || 0,
+          order_index: r.order_index ?? idx,
+          is_done: false,
+        }));
+      if (toInsert.length) {
+        const { error } = await (supabase as any).from("task_checklist_items").insert(toInsert);
+        if (error) throw error;
+      }
+      // Updates
+      for (const r of cleaned.filter((r) => r.id)) {
+        const { error } = await (supabase as any)
+          .from("task_checklist_items")
+          .update({
+            title: r.title.trim(),
+            weight: Number(r.weight) || 0,
+            order_index: r.order_index,
+          })
+          .eq("id", r.id);
+        if (error) throw error;
+      }
+      toast.success("تم حفظ تعديلات البنود");
+      onOpenChange(false);
+      onSaved();
+    } catch (e: any) {
+      toast.error(e?.message || "فشل الحفظ");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent dir="rtl">
+      <DialogContent dir="rtl" className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>اعتماد نسبة إنجاز المهمة</DialogTitle>
+          <DialogTitle>تحرير بنود المهمة ونسبها</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <p className="text-xs text-muted-foreground">
-            بعد المناقشة، اعتمد النسبة التي ترى أنها تعكس الإنجاز الفعلي للموظف في هذه المهمة.
-            هذه النسبة هي ما يظهر في صفحة أداء الفريق.
-          </p>
-          <div>
-            <Label>
-              النسبة المعتمدة:{" "}
-              <span className="text-2xl font-bold text-primary mr-2">{percentage}%</span>
-            </Label>
-            <input
-              type="range" min={0} max={100} step={5} value={percentage}
-              onChange={(e) => setPercentage(parseInt(e.target.value))}
-              className="w-full mt-2"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground mt-1">
-              <span>0%</span><span>50%</span><span>100%</span>
-            </div>
+        <div className="space-y-3">
+          <div className="text-xs text-muted-foreground">
+            النسبة الإجمالية للبنود: <strong className={totalWeight === 100 ? "text-success" : "text-warning"}>{totalWeight}%</strong>
+            {totalWeight !== 100 && <span> — يُفضّل أن يكون المجموع 100%</span>}
           </div>
-          <div>
-            <Label>ملاحظة (اختياري)</Label>
-            <Textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3}
-              placeholder="مثلاً: تم إنجاز الجزء الأكبر، ينقص فقط التوثيق…" />
+          <div className="space-y-2">
+            {visible.map((r, idx) => (
+              <div key={r._localKey} className="flex items-start gap-2 p-2 border rounded-md bg-card">
+                <span className="text-xs font-semibold w-6 text-center mt-2 text-muted-foreground">{idx + 1}</span>
+                <Input
+                  value={r.title}
+                  onChange={(e) => updateRow(r._localKey, { title: e.target.value })}
+                  placeholder="عنوان البند..."
+                  className="flex-1"
+                />
+                <div className="flex items-center gap-1 shrink-0">
+                  <Input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={r.weight}
+                    onChange={(e) => updateRow(r._localKey, { weight: Number(e.target.value) || 0 })}
+                    className="w-20"
+                  />
+                  <span className="text-xs text-muted-foreground">%</span>
+                </div>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => removeRow(r._localKey)}
+                  title="حذف"
+                >
+                  <Trash2 className="w-4 h-4 text-destructive" />
+                </Button>
+              </div>
+            ))}
           </div>
+          <Button type="button" variant="outline" className="w-full gap-2" onClick={addRow}>
+            <Plus className="w-4 h-4" /> إضافة بند
+          </Button>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>لاحقًا</Button>
-          <Button onClick={save}>اعتماد النسبة</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>إلغاء</Button>
+          <Button onClick={save} disabled={saving}>{saving ? "جارٍ الحفظ..." : "حفظ"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-function ManagerEvalDialog({ open, onOpenChange, taskId, currentValue, currentNotes, onSaved }: any) {
-  const [score, setScore] = useState<number>(currentValue ?? 0);
-  const [notes, setNotes] = useState<string>(currentNotes ?? "");
-  useEffect(() => { setScore(currentValue ?? 0); setNotes(currentNotes ?? ""); }, [currentValue, currentNotes, open]);
-  const save = async () => {
-    const { error } = await (supabase as any).from("tasks").update({
-      manager_evaluation_score: score,
-      manager_evaluation_notes: notes || null,
-    }).eq("id", taskId);
-    if (error) { toast.error(error.message); return; }
-    toast.success(`تم حفظ تقييم المدير: ${score}%`);
-    onSaved();
-  };
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent dir="rtl">
-        <DialogHeader><DialogTitle>تقييم المدير (0 - 100%)</DialogTitle></DialogHeader>
-        <div className="space-y-4">
-          <p className="text-xs text-muted-foreground">
-            قيّم الجودة والدقة والالتزام والتواصل والتنفيذ. هذا التقييم يمثل 50% من النتيجة النهائية للموظف.
-          </p>
-          <div>
-            <Label>الدرجة: <span className="text-2xl font-bold text-primary mr-2">{score}%</span></Label>
-            <input type="range" min={0} max={100} step={5} value={score}
-              onChange={(e) => setScore(parseInt(e.target.value))} className="w-full mt-2" />
-            <div className="flex justify-between text-xs text-muted-foreground mt-1">
-              <span>0%</span><span>50%</span><span>100%</span>
-            </div>
-          </div>
-          <div>
-            <Label>ملاحظات التقييم</Label>
-            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3}
-              placeholder="مثلاً: تنفيذ ممتاز، ينقص التزام بالمواعيد..." />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>إلغاء</Button>
-          <Button onClick={save}>حفظ التقييم</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 function ReturnDialog({ open, onOpenChange, taskId, onSaved }: any) {
   const [reason, setReason] = useState("");
