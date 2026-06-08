@@ -17,7 +17,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Pencil, Check, X, Plus, Trash2, Shield, Info } from "lucide-react";
 import { createUserByAdmin, deleteUserByAdmin } from "@/lib/admin-users.functions";
-import { UserPermissionsDialog } from "@/components/settings/user-permissions-dialog";
+
 
 export const Route = createFileRoute("/_authenticated/settings/users")({ component: Page });
 
