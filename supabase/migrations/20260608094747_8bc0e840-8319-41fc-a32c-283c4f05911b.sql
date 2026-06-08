@@ -1,0 +1,2 @@
+ALTER TABLE public.task_attachments ADD COLUMN IF NOT EXISTS comment_id uuid REFERENCES public.task_comments(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_task_attachments_comment ON public.task_attachments(comment_id);

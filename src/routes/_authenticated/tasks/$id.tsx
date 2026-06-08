@@ -167,16 +167,20 @@ function Page() {
     if ((!newComment.trim() && !pendingFile) || !user || sendingComment) return;
     setSendingComment(true);
     try {
-      if (pendingFile) await uploadAttachment(pendingFile);
-      if (newComment.trim()) {
-        const { error } = await (supabase as any).from("task_comments").insert({
-          task_id: id, user_id: user.id, body: newComment.trim(),
-        });
+      let commentId: string | null = null;
+      const body = newComment.trim() || (pendingFile ? `📎 ${pendingFile.name}` : "");
+      if (body) {
+        const { data, error } = await (supabase as any).from("task_comments").insert({
+          task_id: id, user_id: user.id, body,
+        }).select("id").single();
         if (error) { toast.error(error.message); return; }
+        commentId = data?.id ?? null;
       }
+      if (pendingFile) await uploadAttachment(pendingFile, commentId);
       setNewComment("");
       setPendingFile(null);
       refetchComments();
+      refetchAttachments();
     } finally {
       setSendingComment(false);
     }
@@ -205,7 +209,7 @@ function Page() {
     qc.invalidateQueries({ queryKey: ["tasks"] });
   };
 
-  const uploadAttachment = async (file: File) => {
+  const uploadAttachment = async (file: File, commentId: string | null = null) => {
     if (!user) return;
     if (!ACCEPTED_ATTACHMENT_TYPES.includes(file.type) && !/\.(zip|xls|xlsx|docx|pdf|png|jpe?g|webp)$/i.test(file.name)) {
       toast.error(`نوع الملف غير مسموح: ${file.type || file.name}`);
@@ -234,6 +238,7 @@ function Page() {
       mime_type: file.type || "application/octet-stream",
       size_bytes: file.size,
       uploaded_by: user.id,
+      comment_id: commentId,
     });
     setUploadProgress(100);
     setTimeout(() => { setUploadingName(null); setUploadProgress(0); }, 400);
@@ -445,6 +450,7 @@ function Page() {
                 const isManagerMsg = c.user_id === task.created_by;
                 const name = p?.full_name || p?.email || "مستخدم";
                 const initial = (name || "?").slice(0, 1);
+                const msgAtts = attachments.filter((a: any) => a.comment_id === c.id);
                 return (
                   <div key={c.id} className={`flex items-end gap-2 ${mine ? "flex-row-reverse" : "flex-row"}`}>
                     <Avatar className={`w-9 h-9 shrink-0 ring-2 ${isManagerMsg ? "ring-amber-400" : "ring-transparent"}`}>
@@ -469,6 +475,48 @@ function Page() {
                         )}
                       </div>
                       <div className="text-sm whitespace-pre-wrap break-words">{c.body}</div>
+                      {msgAtts.map((a: any) => {
+                        const img = isImage(a.mime_type);
+                        const pdf = isPdf(a.mime_type);
+                        const canDelete = a.uploaded_by === user?.id || isAdmin || isCreator;
+                        const tonedBtn = isManagerMsg
+                          ? "hover:bg-amber-200/60"
+                          : mine
+                            ? "hover:bg-primary-foreground/15 text-primary-foreground"
+                            : "hover:bg-muted";
+                        const tonedCard = isManagerMsg
+                          ? "bg-amber-100/60 border-amber-300"
+                          : mine
+                            ? "bg-primary-foreground/10 border-primary-foreground/20"
+                            : "bg-muted/50 border-border";
+                        return (
+                          <div key={a.id} className={`mt-2 flex items-center gap-1.5 rounded-lg border px-2 py-1.5 ${tonedCard}`}>
+                            {img ? <ImageIcon className="w-4 h-4 shrink-0" />
+                              : pdf ? <FileText className="w-4 h-4 shrink-0" />
+                              : <Paperclip className="w-4 h-4 shrink-0" />}
+                            <div className="flex-1 min-w-0">
+                              <div className="text-[12px] font-medium truncate">{a.file_name}</div>
+                              <div className={`text-[10px] ${mine && !isManagerMsg ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{formatBytes(a.size_bytes)}</div>
+                            </div>
+                            {(img || pdf) && (
+                              <button type="button" onClick={() => openPreview(a)} title="معاينة"
+                                className={`p-1 rounded ${tonedBtn}`}>
+                                <Eye className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                            <button type="button" onClick={() => downloadAttachment(a)} title="تنزيل"
+                              className={`p-1 rounded ${tonedBtn}`}>
+                              <Download className="w-3.5 h-3.5" />
+                            </button>
+                            {canDelete && (
+                              <button type="button" onClick={() => removeAttachment(a)} title="حذف"
+                                className={`p-1 rounded ${tonedBtn}`}>
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
                       <div className={`text-[10px] mt-1 text-end ${mine && !isManagerMsg ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
                         {fmtDate(c.created_at)}
                       </div>
@@ -529,10 +577,10 @@ function Page() {
           </Card>
 
 
-          {/* Attachments */}
+          {/* Attachments — only files uploaded directly (not sent with a message) */}
           <Card className="p-4">
             <div className="font-semibold mb-3 flex items-center gap-2">
-              <Paperclip className="w-4 h-4" /> المرفقات ({attachments.length})
+              <Paperclip className="w-4 h-4" /> المرفقات ({attachments.filter((a: any) => !a.comment_id).length})
             </div>
 
             <label
@@ -577,7 +625,7 @@ function Page() {
             )}
 
             <div className="space-y-2">
-              {attachments.map((a: any) => {
+              {attachments.filter((a: any) => !a.comment_id).map((a: any) => {
                 const uploader = profileById[a.uploaded_by];
                 const img = isImage(a.mime_type);
                 const pdf = isPdf(a.mime_type);
@@ -615,7 +663,7 @@ function Page() {
                   </div>
                 );
               })}
-              {attachments.length === 0 && <div className="text-xs text-muted-foreground text-center py-3">لا توجد مرفقات</div>}
+              {attachments.filter((a: any) => !a.comment_id).length === 0 && <div className="text-xs text-muted-foreground text-center py-3">لا توجد مرفقات مستقلة — استخدم زر الإرفاق بجوار الرسالة</div>}
             </div>
           </Card>
         </div>
