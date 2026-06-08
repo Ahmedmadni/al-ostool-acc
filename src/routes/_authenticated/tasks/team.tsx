@@ -9,8 +9,8 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend, LineChart, Line } from "recharts";
-import { Info, Star, Trophy, Download, FileSpreadsheet, Printer, FileText } from "lucide-react";
-import { checklistCompletion, finalScore } from "@/lib/task-scoring";
+import { Info, Trophy, Download, FileSpreadsheet, Printer, FileText } from "lucide-react";
+import { checklistCompletion } from "@/lib/task-scoring";
 import { exportToExcel, exportToPdf } from "@/lib/export";
 import { EmployeePerformanceModal } from "@/components/tasks/employee-performance-modal";
 
@@ -46,26 +46,12 @@ function Page() {
         !(t.due_date && new Date(t.due_date) < now)
       ).length;
 
-      // Manager-rated tasks only
-      const rated = my.filter((t: any) => typeof t.rating === "number" && t.rating != null);
-      const avgRating = rated.length
-        ? Math.round((rated.reduce((s: number, t: any) => s + (t.rating ?? 0), 0) / rated.length) * 10) / 10
-        : null;
-
-      // Manager-approved completion percentages
-      const approved = my.filter((t: any) => typeof t.completion_percentage === "number" && t.completion_percentage != null);
-      const avgCompletion = approved.length
-        ? Math.round(approved.reduce((s: number, t: any) => s + (t.completion_percentage ?? 0), 0) / approved.length)
-        : null;
-
-      // Final score per task = checklist(weighted) * 0.5 + manager_eval * 0.5
+      // Final score per task = weighted checklist completion only
       const finalsList = my
         .map((t: any) => {
           const items = (t.task_checklist_items ?? []) as Array<{ is_done: boolean; weight?: number | null }>;
-          const checklistPct = checklistCompletion(items);
-          const mgr = typeof t.manager_evaluation_score === "number" ? t.manager_evaluation_score : null;
-          if (mgr == null && items.length === 0) return null;
-          return finalScore(checklistPct, mgr);
+          if (items.length === 0) return null;
+          return checklistCompletion(items);
         })
         .filter((v: any) => typeof v === "number") as number[];
       const avgFinal = finalsList.length
@@ -79,10 +65,6 @@ function Page() {
         completed,
         inProgress,
         overdue,
-        avgRating,
-        ratedCount: rated.length,
-        avgCompletion,
-        approvedCount: approved.length,
         avgFinal,
         scoredCount: finalsList.length,
       };
@@ -128,15 +110,12 @@ function Page() {
     "مكتملة": s.completed,
     "قيد التنفيذ": s.inProgress,
     "متأخرة": s.overdue,
-    "تقييم المدير": s.avgRating ?? "—",
-    "نسبة الإنجاز": s.avgCompletion ?? "—",
-    "النتيجة النهائية %": s.avgFinal ?? "—",
+    "نسبة إنجاز البنود %": s.avgFinal ?? "—",
   }));
   const exportCols = [
     { header: "الموظف", dataKey: "الموظف" }, { header: "إجمالي", dataKey: "إجمالي" },
     { header: "مكتملة", dataKey: "مكتملة" }, { header: "قيد التنفيذ", dataKey: "قيد التنفيذ" },
-    { header: "متأخرة", dataKey: "متأخرة" }, { header: "تقييم المدير", dataKey: "تقييم المدير" },
-    { header: "نسبة الإنجاز", dataKey: "نسبة الإنجاز" }, { header: "النتيجة النهائية %", dataKey: "النتيجة النهائية %" },
+    { header: "متأخرة", dataKey: "متأخرة" }, { header: "نسبة إنجاز البنود %", dataKey: "نسبة إنجاز البنود %" },
   ];
   const handleExcel = () => exportToExcel(exportRows, "تقرير_أداء_الفريق");
   const handlePdf = () => exportToPdf({ title: "تقرير أداء الفريق", columns: exportCols, rows: exportRows });
@@ -146,7 +125,7 @@ function Page() {
     <div>
       <PageHeader
         title="أداء الفريق — المهام"
-        description="متابعة إنتاجية الموظفين بناءً على تقييم المدير ونسبة الإنجاز المعتمدة"
+        description="متابعة إنتاجية الموظفين بناءً على نسبة إنجاز بنود المهمة الموزونة"
         actions={
           <div className="flex gap-2 no-print flex-wrap">
             <Button variant="outline" size="sm" asChild><Link to="/tasks/reports/employee-performance"><FileText className="w-4 h-4" /> أداء الموظفين</Link></Button>
@@ -165,9 +144,8 @@ function Page() {
         <Info className="w-4 h-4 mt-0.5 text-info shrink-0" />
         <div>
           <strong>كيف يُحتسب الأداء؟</strong> المهام التي تجاوزت تاريخ الاستحقاق تُعرض «متأخرة» للعلم فقط
-          ولا تُحتسب سلبًا تلقائيًا — قد يكون التأخّر بسبب أطراف أو ظروف خارجة عن أداء الموظف.
-          المقياس الرئيسي هو <strong>متوسط تقييم المدير</strong> و<strong>نسبة الإنجاز المعتمدة</strong>
-          من خلال شاشة الاعتماد في صفحة متابعة المهام.
+          ولا تُحتسب سلبًا تلقائيًا. <strong>النتيجة النهائية</strong> هي متوسط نسب إنجاز بنود المهام
+          الموزونة وفق النسب المعتمدة عند إنشاء كل مهمة. يستطيع منشئ المهمة تعديل البنود ونسبها في أي وقت.
         </div>
       </Card>
 
@@ -244,15 +222,13 @@ function Page() {
               <TableHead>مكتملة</TableHead>
               <TableHead>قيد التنفيذ</TableHead>
               <TableHead>متأخرة (للعلم)</TableHead>
-              <TableHead>متوسط تقييم المدير</TableHead>
-              <TableHead>نسبة الإنجاز المعتمدة</TableHead>
-              <TableHead>النتيجة النهائية</TableHead>
+              <TableHead>نسبة إنجاز البنود</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {stats.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                   لا توجد مهام مُكلَّفة لأي موظف.
                 </TableCell>
               </TableRow>
@@ -276,32 +252,11 @@ function Page() {
                     : <span className="text-muted-foreground">0</span>}
                 </TableCell>
                 <TableCell>
-                  {s.avgRating != null ? (
-                    <div className="flex items-center gap-1">
-                      <Star className="w-3.5 h-3.5 text-warning fill-warning" />
-                      <span className="font-bold">{s.avgRating}</span>
-                      <span className="text-xs text-muted-foreground">/10</span>
-                      <span className="text-[10px] text-muted-foreground mr-1">({s.ratedCount} مهمة)</span>
-                    </div>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">— لم تُقيَّم بعد</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {s.avgCompletion != null ? (
-                    <div className="flex items-center gap-2 w-44">
-                      <Progress value={s.avgCompletion} className="h-2" />
-                      <span className="text-xs font-semibold whitespace-nowrap">{s.avgCompletion}%</span>
-                    </div>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">— لم تُعتمد بعد</span>
-                  )}
-                </TableCell>
-                <TableCell>
                   {s.avgFinal != null ? (
                     <div className="flex items-center gap-2 w-44">
                       <Progress value={s.avgFinal} className="h-2" />
                       <span className="text-sm font-bold text-primary whitespace-nowrap">{s.avgFinal}%</span>
+                      <span className="text-[10px] text-muted-foreground">({s.scoredCount})</span>
                     </div>
                   ) : (
                     <span className="text-xs text-muted-foreground">—</span>
@@ -312,6 +267,7 @@ function Page() {
           </TableBody>
         </Table>
       </Card>
+
 
       <EmployeePerformanceModal open={!!selectedUser} onOpenChange={(o) => !o && setSelectedUser(null)} user={selectedUser} />
     </div>

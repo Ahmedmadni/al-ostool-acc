@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 import { Download, FileSpreadsheet } from "lucide-react";
-import { checklistCompletion, finalScore } from "@/lib/task-scoring";
+import { checklistCompletion } from "@/lib/task-scoring";
 import { exportToExcel, exportToPdf } from "@/lib/export";
 import { fmtDate } from "@/lib/format";
 import { taskStatusLabel } from "@/lib/labels";
@@ -24,7 +24,7 @@ export function EmployeePerformanceModal({ open, onOpenChange, user }: Props) {
     queryKey: ["emp-perf-tasks", user?.id],
     enabled: !!user?.id && open,
     queryFn: async () => (await supabase.from("tasks")
-      .select("id, title, status, planned_start_date, planned_end_date, due_date, completed_at, rating, manager_evaluation_score, completion_percentage, task_checklist_items(is_done,weight)")
+      .select("id, title, status, planned_start_date, planned_end_date, due_date, completed_at, task_checklist_items(is_done,weight)")
       .eq("assigned_to", user!.id)
       .order("created_at", { ascending: false })).data ?? [],
   });
@@ -42,9 +42,8 @@ export function EmployeePerformanceModal({ open, onOpenChange, user }: Props) {
   const rows = useMemo(() => tasks.map((t: any) => {
     const items = t.task_checklist_items ?? [];
     const cl = checklistCompletion(items);
-    const mgr = typeof t.manager_evaluation_score === "number" ? t.manager_evaluation_score : null;
-    const fs = mgr != null || items.length > 0 ? finalScore(cl, mgr) : null;
-    return { id: t.id, title: t.title, start: t.planned_start_date, end: t.planned_end_date ?? t.due_date, cl, mgr, fs, status: t.status };
+    const fs = items.length > 0 ? cl : null;
+    return { id: t.id, title: t.title, start: t.planned_start_date, end: t.planned_end_date ?? t.due_date, cl, fs, status: t.status };
   }), [tasks]);
 
   const total = rows.length;
@@ -55,8 +54,6 @@ export function EmployeePerformanceModal({ open, onOpenChange, user }: Props) {
   const scored = rows.filter((r) => r.fs != null);
   const avgFinal = scored.length ? Math.round(scored.reduce((s, r) => s + (r.fs ?? 0), 0) / scored.length) : null;
   const avgCl = rows.length ? Math.round(rows.reduce((s, r) => s + r.cl, 0) / rows.length) : 0;
-  const mgrRows = rows.filter((r) => r.mgr != null);
-  const avgMgr = mgrRows.length ? Math.round(mgrRows.reduce((s, r) => s + (r.mgr ?? 0), 0) / mgrRows.length) : null;
 
   const trend = useMemo(() => {
     const map: Record<string, { month: string; completed: number; total: number }> = {};
@@ -81,12 +78,12 @@ export function EmployeePerformanceModal({ open, onOpenChange, user }: Props) {
 
   const exportRows = rows.map((r) => ({
     "المهمة": r.title, "البداية": fmtDate(r.start), "النهاية": fmtDate(r.end),
-    "Checklist %": r.cl, "تقييم المدير %": r.mgr ?? "—", "النهائي %": r.fs ?? "—",
+    "نسبة إنجاز البنود %": r.cl, "النهائي %": r.fs ?? "—",
     "الحالة": taskStatusLabel[r.status as string] ?? r.status,
   }));
   const exportCols = [
     { header: "المهمة", dataKey: "المهمة" }, { header: "البداية", dataKey: "البداية" }, { header: "النهاية", dataKey: "النهاية" },
-    { header: "Checklist %", dataKey: "Checklist %" }, { header: "تقييم المدير %", dataKey: "تقييم المدير %" },
+    { header: "نسبة إنجاز البنود %", dataKey: "نسبة إنجاز البنود %" },
     { header: "النهائي %", dataKey: "النهائي %" }, { header: "الحالة", dataKey: "الحالة" },
   ];
   const name = user.full_name ?? user.email ?? "موظف";
@@ -117,9 +114,8 @@ export function EmployeePerformanceModal({ open, onOpenChange, user }: Props) {
           <Card className="p-3"><div className="text-xs text-muted-foreground">النهائي</div><div className="text-xl font-bold">{avgFinal ?? "—"}%</div></Card>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          <Card className="p-3"><div className="text-xs text-muted-foreground">متوسط Checklist</div><div className="text-lg font-bold">{avgCl}%</div></Card>
-          <Card className="p-3"><div className="text-xs text-muted-foreground">متوسط تقييم المدير</div><div className="text-lg font-bold">{avgMgr ?? "—"}%</div></Card>
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <Card className="p-3"><div className="text-xs text-muted-foreground">متوسط نسبة إنجاز البنود</div><div className="text-lg font-bold">{avgCl}%</div></Card>
           <Card className="p-3"><div className="text-xs text-muted-foreground">النتيجة النهائية</div><div className="text-lg font-bold text-primary">{avgFinal ?? "—"}%</div></Card>
         </div>
 
@@ -141,17 +137,16 @@ export function EmployeePerformanceModal({ open, onOpenChange, user }: Props) {
           <Table>
             <TableHeader><TableRow>
               <TableHead>المهمة</TableHead><TableHead>البداية</TableHead><TableHead>النهاية</TableHead>
-              <TableHead>Checklist</TableHead><TableHead>المدير</TableHead><TableHead>النهائي</TableHead><TableHead>الحالة</TableHead>
+              <TableHead>نسبة إنجاز البنود</TableHead><TableHead>النهائي</TableHead><TableHead>الحالة</TableHead>
             </TableRow></TableHeader>
             <TableBody>
-              {rows.length === 0 && <TableRow><TableCell colSpan={7} className="text-center py-6 text-muted-foreground">لا توجد مهام.</TableCell></TableRow>}
+              {rows.length === 0 && <TableRow><TableCell colSpan={6} className="text-center py-6 text-muted-foreground">لا توجد مهام.</TableCell></TableRow>}
               {rows.map((r) => (
                 <TableRow key={r.id}>
                   <TableCell className="font-medium">{r.title}</TableCell>
                   <TableCell>{fmtDate(r.start)}</TableCell>
                   <TableCell>{fmtDate(r.end)}</TableCell>
                   <TableCell>{r.cl}%</TableCell>
-                  <TableCell>{r.mgr ?? "—"}{r.mgr != null && "%"}</TableCell>
                   <TableCell className="font-bold text-primary">{r.fs ?? "—"}{r.fs != null && "%"}</TableCell>
                   <TableCell><Badge variant="secondary">{taskStatusLabel[r.status as string] ?? r.status}</Badge></TableCell>
                 </TableRow>
