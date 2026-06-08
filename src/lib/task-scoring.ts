@@ -42,10 +42,9 @@ export function checklistCompletion(items: Array<{ is_done: boolean; weight?: nu
   return Math.round((done / items.length) * 100);
 }
 
-// Final score = checklist*0.5 + managerEval*0.5
-export function finalScore(checklistPct: number, managerPct: number | null | undefined): number {
-  const m = typeof managerPct === "number" ? managerPct : 0;
-  return Math.round(checklistPct * 0.5 + m * 0.5);
+// Final score = weighted checklist completion (manager evaluation removed)
+export function finalScore(checklistPct: number, _ignored?: number | null | undefined): number {
+  return Math.round(checklistPct);
 }
 
 export function plannedDuration(start?: string | null, end?: string | null): number | null {
