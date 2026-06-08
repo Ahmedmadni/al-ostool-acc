@@ -45,7 +45,9 @@ type EditDraft = {
 };
 
 function Page() {
-  const { isAdmin, user: me } = useAuth();
+  const { isAdmin: isAdminAuth, user: me } = useAuth();
+  const { can } = usePermissions();
+  const isAdmin = isAdminAuth || can("settings.users", "view") || can("settings", "view");
   const qc = useQueryClient();
   const [editId, setEditId] = useState<string | null>(null);
   const [draft, setDraft] = useState<EditDraft | null>(null);
