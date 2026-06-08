@@ -625,7 +625,7 @@ function Page() {
             )}
 
             <div className="space-y-2">
-              {attachments.map((a: any) => {
+              {attachments.filter((a: any) => !a.comment_id).map((a: any) => {
                 const uploader = profileById[a.uploaded_by];
                 const img = isImage(a.mime_type);
                 const pdf = isPdf(a.mime_type);
