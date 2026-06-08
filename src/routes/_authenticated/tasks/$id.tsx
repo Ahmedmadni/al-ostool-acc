@@ -25,7 +25,7 @@ import { fmtDate } from "@/lib/format";
 import { toast } from "sonner";
 import {
   ACCEPTED_ATTACHMENT_TYPES, MAX_ATTACHMENT_BYTES, formatBytes,
-  isImage, isPdf, checklistCompletion, finalScore,
+  isImage, isPdf, checklistCompletion,
   plannedDuration, remainingDays, delayDays,
 } from "@/lib/task-scoring";
 
