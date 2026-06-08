@@ -114,9 +114,8 @@ export function EmployeePerformanceModal({ open, onOpenChange, user }: Props) {
           <Card className="p-3"><div className="text-xs text-muted-foreground">النهائي</div><div className="text-xl font-bold">{avgFinal ?? "—"}%</div></Card>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          <Card className="p-3"><div className="text-xs text-muted-foreground">متوسط Checklist</div><div className="text-lg font-bold">{avgCl}%</div></Card>
-          <Card className="p-3"><div className="text-xs text-muted-foreground">متوسط تقييم المدير</div><div className="text-lg font-bold">{avgMgr ?? "—"}%</div></Card>
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <Card className="p-3"><div className="text-xs text-muted-foreground">متوسط نسبة إنجاز البنود</div><div className="text-lg font-bold">{avgCl}%</div></Card>
           <Card className="p-3"><div className="text-xs text-muted-foreground">النتيجة النهائية</div><div className="text-lg font-bold text-primary">{avgFinal ?? "—"}%</div></Card>
         </div>
 
