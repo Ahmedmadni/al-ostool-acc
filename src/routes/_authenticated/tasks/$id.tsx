@@ -151,7 +151,7 @@ function Page() {
   const planned = plannedDuration(task.planned_start_date, task.planned_end_date);
   const remaining = remainingDays(task.planned_end_date || task.due_date);
   const delay = delayDays(task.planned_end_date || task.due_date, task.completed_at);
-  const final = finalScore(checklistPct, task.manager_evaluation_score);
+  void progress;
 
   const assignee = task.assigned_to ? profileById[task.assigned_to] : null;
   const creator = task.created_by ? profileById[task.created_by] : null;
