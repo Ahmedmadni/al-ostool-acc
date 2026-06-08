@@ -18,7 +18,16 @@ import {
   ShieldCheck, Settings2, Briefcase, User as UserIcon,
 } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/settings/permissions")({ component: Page });
+type PermSearch = { user?: string; job?: string; mode?: "user" | "job" };
+
+export const Route = createFileRoute("/_authenticated/settings/permissions")({
+  component: Page,
+  validateSearch: (s: Record<string, unknown>): PermSearch => ({
+    user: typeof s.user === "string" ? s.user : undefined,
+    job: typeof s.job === "string" ? s.job : undefined,
+    mode: s.mode === "job" || s.mode === "user" ? s.mode : undefined,
+  }),
+});
 
 type Row = { module_key: string; action_key: string; granted: boolean };
 
