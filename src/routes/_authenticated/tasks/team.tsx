@@ -125,7 +125,7 @@ function Page() {
     <div>
       <PageHeader
         title="أداء الفريق — المهام"
-        description="متابعة إنتاجية الموظفين بناءً على تقييم المدير ونسبة الإنجاز المعتمدة"
+        description="متابعة إنتاجية الموظفين بناءً على نسبة إنجاز بنود المهمة الموزونة"
         actions={
           <div className="flex gap-2 no-print flex-wrap">
             <Button variant="outline" size="sm" asChild><Link to="/tasks/reports/employee-performance"><FileText className="w-4 h-4" /> أداء الموظفين</Link></Button>
