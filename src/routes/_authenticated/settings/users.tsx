@@ -57,9 +57,6 @@ function Page() {
 
   const [searchQ, setSearchQ] = useState("");
   const [deptFilter, setDeptFilter] = useState<string>("all");
-  const [permOpen, setPermOpen] = useState(false);
-  const [permUserId, setPermUserId] = useState<string | null>(null);
-  const [permUserName, setPermUserName] = useState<string>("");
 
   const { data: profiles = [] } = useQuery({
     queryKey: ["profiles-admin"],
