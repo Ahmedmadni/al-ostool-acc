@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 import { Download, FileSpreadsheet } from "lucide-react";
-import { checklistCompletion, finalScore } from "@/lib/task-scoring";
+import { checklistCompletion } from "@/lib/task-scoring";
 import { exportToExcel, exportToPdf } from "@/lib/export";
 import { fmtDate } from "@/lib/format";
 import { taskStatusLabel } from "@/lib/labels";
