@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -17,7 +17,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Pencil, Check, X, Plus, Trash2, Shield, Info } from "lucide-react";
 import { createUserByAdmin, deleteUserByAdmin } from "@/lib/admin-users.functions";
-import { UserPermissionsDialog } from "@/components/settings/user-permissions-dialog";
+
 
 export const Route = createFileRoute("/_authenticated/settings/users")({ component: Page });
 
@@ -57,9 +57,6 @@ function Page() {
 
   const [searchQ, setSearchQ] = useState("");
   const [deptFilter, setDeptFilter] = useState<string>("all");
-  const [permOpen, setPermOpen] = useState(false);
-  const [permUserId, setPermUserId] = useState<string | null>(null);
-  const [permUserName, setPermUserName] = useState<string>("");
 
   const { data: profiles = [] } = useQuery({
     queryKey: ["profiles-admin"],
@@ -310,9 +307,10 @@ function Page() {
                             <Button size="icon" variant="ghost" onClick={() => startEdit(p)} className="h-8 w-8" title="تعديل البيانات">
                               <Pencil className="w-4 h-4" />
                             </Button>
-                            <Button size="icon" variant="ghost" className="h-8 w-8" title="إدارة الصلاحيات"
-                              onClick={() => { setPermUserId(p.id); setPermUserName(p.full_name ?? p.email ?? ""); setPermOpen(true); }}>
-                              <Shield className="w-4 h-4" />
+                            <Button asChild size="icon" variant="ghost" className="h-8 w-8" title="إدارة الصلاحيات">
+                              <Link to="/settings/permissions" search={{ user: p.id }}>
+                                <Shield className="w-4 h-4" />
+                              </Link>
                             </Button>
                             {me?.id !== p.id && (
                               <Button size="icon" variant="ghost" onClick={() => removeUser(p.id)} className="h-8 w-8 text-destructive" title="حذف">
@@ -331,7 +329,7 @@ function Page() {
         </Table>
       </Card>
 
-      <UserPermissionsDialog open={permOpen} onOpenChange={setPermOpen} userId={permUserId} userName={permUserName} />
+
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl">

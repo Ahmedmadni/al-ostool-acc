@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/page-header";
@@ -18,16 +18,31 @@ import {
   ShieldCheck, Settings2, Briefcase, User as UserIcon,
 } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/settings/permissions")({ component: Page });
+type PermSearch = { user?: string; job?: string; mode?: "user" | "job" };
+
+export const Route = createFileRoute("/_authenticated/settings/permissions")({
+  component: Page,
+  validateSearch: (s: Record<string, unknown>): PermSearch => ({
+    user: typeof s.user === "string" ? s.user : undefined,
+    job: typeof s.job === "string" ? s.job : undefined,
+    mode: s.mode === "job" || s.mode === "user" ? s.mode : undefined,
+  }),
+});
 
 type Row = { module_key: string; action_key: string; granted: boolean };
 
 function Page() {
   const { isAdmin } = useAuth();
   const qc = useQueryClient();
-  const [mode, setMode] = useState<"user" | "job">("user");
-  const [selectedUser, setSelectedUser] = useState<string>("");
-  const [selectedJob, setSelectedJob] = useState<string>("");
+  const search = Route.useSearch();
+  const [mode, setMode] = useState<"user" | "job">(search.mode ?? (search.job ? "job" : "user"));
+  const [selectedUser, setSelectedUser] = useState<string>(search.user ?? "");
+  const [selectedJob, setSelectedJob] = useState<string>(search.job ?? "");
+
+  useEffect(() => {
+    if (search.user) { setMode("user"); setSelectedUser(search.user); }
+    if (search.job) { setMode("job"); setSelectedJob(search.job); }
+  }, [search.user, search.job]);
 
   const { data: users = [] } = useQuery({
     queryKey: ["perm-users"],

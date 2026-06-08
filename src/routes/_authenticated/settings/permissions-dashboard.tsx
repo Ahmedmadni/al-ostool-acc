@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/page-header";
@@ -12,7 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { flattenModules, ACTIONS, ACTION_LABEL } from "@/lib/permissions";
 import { ShieldCheck, ShieldAlert, Users, Layers, Key, AlertTriangle, CheckCircle2, XCircle, Info, Wrench } from "lucide-react";
 import { toast } from "sonner";
-import { RolePermissionsDialog } from "@/components/settings/role-permissions-dialog";
+
 
 export const Route = createFileRoute("/_authenticated/settings/permissions-dashboard")({ component: Page });
 
@@ -35,7 +35,6 @@ function Page() {
   const { isAdmin } = useAuth();
   const modules = useMemo(() => flattenModules(), []);
   const qc = useQueryClient();
-  const [rolesOpen, setRolesOpen] = useState(false);
 
   const { data: users = [] } = useQuery({
     queryKey: ["pdash-users"],
@@ -109,12 +108,14 @@ function Page() {
         title="لوحة الصلاحيات والجاهزية الأمنية"
         description="نظرة شاملة على الصلاحيات وسجل التدقيق وتقرير الجاهزية"
         actions={
-          <Button onClick={() => setRolesOpen(true)} className="gap-2">
-            <Key className="w-4 h-4" /> إدارة أدوار النظام
+          <Button asChild className="gap-2">
+            <Link to="/settings/permissions" search={{ mode: "job" }}>
+              <Key className="w-4 h-4" /> إدارة قوالب الوظائف
+            </Link>
           </Button>
         }
       />
-      <RolePermissionsDialog open={rolesOpen} onOpenChange={setRolesOpen} />
+
 
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
