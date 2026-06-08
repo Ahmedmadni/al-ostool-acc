@@ -2379,6 +2379,7 @@ export type Database = {
       }
       task_attachments: {
         Row: {
+          comment_id: string | null
           created_at: string
           file_name: string
           id: string
@@ -2389,6 +2390,7 @@ export type Database = {
           uploaded_by: string
         }
         Insert: {
+          comment_id?: string | null
           created_at?: string
           file_name: string
           id?: string
@@ -2399,6 +2401,7 @@ export type Database = {
           uploaded_by: string
         }
         Update: {
+          comment_id?: string | null
           created_at?: string
           file_name?: string
           id?: string
@@ -2409,6 +2412,13 @@ export type Database = {
           uploaded_by?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "task_attachments_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "task_comments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "task_attachments_task_id_fkey"
             columns: ["task_id"]
