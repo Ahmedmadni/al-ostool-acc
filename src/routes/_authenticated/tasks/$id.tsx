@@ -682,42 +682,21 @@ function Page() {
             </Card>
           )}
 
-          {/* Manager-only: approve completion percentage at any time */}
+          {/* Manager-only: edit checklist items + weights at any time */}
           {(isCreator || isAdmin) && (
             <Card className="p-4 border-primary/40">
               <div className="font-semibold mb-2 flex items-center gap-2">
-                <Star className="w-4 h-4 text-primary" /> اعتماد نسبة الإنجاز
+                <Pencil className="w-4 h-4 text-primary" /> تحرير بنود المهمة ونسبها
               </div>
               <p className="text-xs text-muted-foreground mb-3">
-                تظهر هذه الشاشة تلقائيًا بعد كل إجراء حواري (طلب، إنهاء…) ليعتمد المدير النسبة الحالية.
+                النتيجة النهائية تُحتسب آليًا من نسب البنود الموزونة. يمكنك إضافة/تعديل/حذف البنود وتعديل نسبها متى شئت.
               </p>
-              <Button className="w-full" variant="outline" onClick={() => setApprovalOpen(true)}>
-                {task.completion_percentage != null
-                  ? `تحديث النسبة المعتمدة (${task.completion_percentage}%)`
-                  : "اعتماد نسبة إنجاز"}
+              <Button className="w-full gap-2" variant="outline" onClick={() => setChecklistEditOpen(true)}>
+                <Pencil className="w-4 h-4" /> فتح محرّر البنود
               </Button>
             </Card>
           )}
 
-
-
-          {/* Manager evaluation 0-100 (NEW: half of final score) */}
-          {(isCreator || isAdmin) && (
-            <Card className="p-4 border-primary/40">
-              <div className="font-semibold mb-2 flex items-center gap-2">
-                <Star className="w-4 h-4 text-primary" /> تقييم المدير (0-100)
-              </div>
-              <div className="text-2xl font-bold mb-2">
-                {task.manager_evaluation_score != null ? `${task.manager_evaluation_score}%` : "— لم يُسجّل بعد"}
-              </div>
-              {task.manager_evaluation_notes && (
-                <p className="text-xs text-muted-foreground border-t pt-2 mb-2">{task.manager_evaluation_notes}</p>
-              )}
-              <Button className="w-full" variant="outline" onClick={() => setManagerEvalOpen(true)}>
-                {task.manager_evaluation_score != null ? "تحديث التقييم" : "تسجيل تقييم"}
-              </Button>
-            </Card>
-          )}
 
           {/* Approval workflow (NEW) */}
           {(isCreator || isAdmin) && (task.status === "done" || task.status === "waiting_review" || task.status === "returned") && (
