@@ -46,26 +46,12 @@ function Page() {
         !(t.due_date && new Date(t.due_date) < now)
       ).length;
 
-      // Manager-rated tasks only
-      const rated = my.filter((t: any) => typeof t.rating === "number" && t.rating != null);
-      const avgRating = rated.length
-        ? Math.round((rated.reduce((s: number, t: any) => s + (t.rating ?? 0), 0) / rated.length) * 10) / 10
-        : null;
-
-      // Manager-approved completion percentages
-      const approved = my.filter((t: any) => typeof t.completion_percentage === "number" && t.completion_percentage != null);
-      const avgCompletion = approved.length
-        ? Math.round(approved.reduce((s: number, t: any) => s + (t.completion_percentage ?? 0), 0) / approved.length)
-        : null;
-
-      // Final score per task = checklist(weighted) * 0.5 + manager_eval * 0.5
+      // Final score per task = weighted checklist completion only
       const finalsList = my
         .map((t: any) => {
           const items = (t.task_checklist_items ?? []) as Array<{ is_done: boolean; weight?: number | null }>;
-          const checklistPct = checklistCompletion(items);
-          const mgr = typeof t.manager_evaluation_score === "number" ? t.manager_evaluation_score : null;
-          if (mgr == null && items.length === 0) return null;
-          return finalScore(checklistPct, mgr);
+          if (items.length === 0) return null;
+          return checklistCompletion(items);
         })
         .filter((v: any) => typeof v === "number") as number[];
       const avgFinal = finalsList.length
@@ -79,10 +65,6 @@ function Page() {
         completed,
         inProgress,
         overdue,
-        avgRating,
-        ratedCount: rated.length,
-        avgCompletion,
-        approvedCount: approved.length,
         avgFinal,
         scoredCount: finalsList.length,
       };
