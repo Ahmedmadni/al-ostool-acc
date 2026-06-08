@@ -369,37 +369,20 @@ function Page() {
           </div>
         )}
 
-        {/* Final performance score */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
-          <div className="p-3 rounded-md border bg-muted/30">
-            <div className="text-xs text-muted-foreground">نسبة إنجاز القائمة (50%)</div>
-            <div className="text-xl font-bold">{checklistPct}%</div>
-          </div>
-          <div className="p-3 rounded-md border bg-muted/30">
-            <div className="text-xs text-muted-foreground">تقييم المدير (50%)</div>
-            <div className="text-xl font-bold">
-              {task.manager_evaluation_score != null ? `${task.manager_evaluation_score}%` : "—"}
+        {/* Final score = weighted checklist completion only */}
+        <div className="mt-4 p-4 rounded-md border bg-primary/10 border-primary/30">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-sm font-semibold flex items-center gap-1">
+              <CheckCircle2 className="w-4 h-4" /> النتيجة النهائية — نسبة إنجاز البنود الموزونة
             </div>
+            <div className="text-3xl font-bold text-primary">{checklistPct}%</div>
           </div>
-          <div className="p-3 rounded-md border bg-primary/10 border-primary/30">
-            <div className="text-xs text-muted-foreground flex items-center gap-1"><Star className="w-3 h-3" /> النتيجة النهائية</div>
-            <div className="text-2xl font-bold text-primary">{final}%</div>
-          </div>
+          <Progress value={checklistPct} className="h-2" />
+          <p className="text-[11px] text-muted-foreground mt-2">
+            تُحتسب آليًا من نسب البنود المعتمدة عند إنشاء المهمة. يستطيع منشئ المهمة تعديل البنود ونسبها في أي وقت.
+          </p>
         </div>
 
-        {/* Legacy manager-approved completion percentage */}
-        <div className="mt-4 p-3 rounded-md border bg-muted/30">
-          <div className="flex items-center justify-between mb-1 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1"><Star className="w-3 h-3" /> نسبة الإنجاز المعتمدة من المدير (تقديرية)</span>
-            <span className="font-bold">
-              {task.completion_percentage != null ? `${task.completion_percentage}%` : "— لم تُعتمد بعد"}
-            </span>
-          </div>
-          <Progress value={task.completion_percentage ?? 0} className="h-2" />
-          {task.completion_approved_at && (
-            <div className="text-[10px] text-muted-foreground mt-1">آخر اعتماد: {fmtDate(task.completion_approved_at)}</div>
-          )}
-        </div>
 
       </Card>
 
