@@ -17,8 +17,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   ArrowRight, Send, CheckCircle2, CalendarClock, UserPlus, Star,
   Paperclip, AlertTriangle, MessageSquare, Trash2, Download, Eye,
-  Upload, FileText, Image as ImageIcon, RotateCcw, ThumbsUp,
+  Upload, FileText, Image as ImageIcon, RotateCcw, ThumbsUp, X, Shield,
 } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { taskTypeLabel, taskStatusLabel } from "@/lib/labels";
 import { fmtDate } from "@/lib/format";
 import { toast } from "sonner";
@@ -63,7 +64,7 @@ function Page() {
   });
   const { data: profiles = [] } = useQuery({
     queryKey: ["profiles-min"],
-    queryFn: async () => (await supabase.from("profiles").select("id, full_name, email")).data ?? [],
+    queryFn: async () => (await supabase.from("profiles").select("id, full_name, email, avatar_url")).data ?? [],
   });
   const { data: comments = [], refetch: refetchComments } = useQuery({
     queryKey: ["task-comments", id],
