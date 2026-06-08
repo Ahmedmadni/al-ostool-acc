@@ -34,9 +34,15 @@ type Row = { module_key: string; action_key: string; granted: boolean };
 function Page() {
   const { isAdmin } = useAuth();
   const qc = useQueryClient();
-  const [mode, setMode] = useState<"user" | "job">("user");
-  const [selectedUser, setSelectedUser] = useState<string>("");
-  const [selectedJob, setSelectedJob] = useState<string>("");
+  const search = Route.useSearch();
+  const [mode, setMode] = useState<"user" | "job">(search.mode ?? (search.job ? "job" : "user"));
+  const [selectedUser, setSelectedUser] = useState<string>(search.user ?? "");
+  const [selectedJob, setSelectedJob] = useState<string>(search.job ?? "");
+
+  useEffect(() => {
+    if (search.user) { setMode("user"); setSelectedUser(search.user); }
+    if (search.job) { setMode("job"); setSelectedJob(search.job); }
+  }, [search.user, search.job]);
 
   const { data: users = [] } = useQuery({
     queryKey: ["perm-users"],
