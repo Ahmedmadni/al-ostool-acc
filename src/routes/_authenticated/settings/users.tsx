@@ -307,9 +307,10 @@ function Page() {
                             <Button size="icon" variant="ghost" onClick={() => startEdit(p)} className="h-8 w-8" title="تعديل البيانات">
                               <Pencil className="w-4 h-4" />
                             </Button>
-                            <Button size="icon" variant="ghost" className="h-8 w-8" title="إدارة الصلاحيات"
-                              onClick={() => { setPermUserId(p.id); setPermUserName(p.full_name ?? p.email ?? ""); setPermOpen(true); }}>
-                              <Shield className="w-4 h-4" />
+                            <Button asChild size="icon" variant="ghost" className="h-8 w-8" title="إدارة الصلاحيات">
+                              <Link to="/settings/permissions" search={{ user: p.id }}>
+                                <Shield className="w-4 h-4" />
+                              </Link>
                             </Button>
                             {me?.id !== p.id && (
                               <Button size="icon" variant="ghost" onClick={() => removeUser(p.id)} className="h-8 w-8 text-destructive" title="حذف">
