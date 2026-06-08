@@ -9,8 +9,8 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend, LineChart, Line } from "recharts";
-import { Info, Star, Trophy, Download, FileSpreadsheet, Printer, FileText } from "lucide-react";
-import { checklistCompletion, finalScore } from "@/lib/task-scoring";
+import { Info, Trophy, Download, FileSpreadsheet, Printer, FileText } from "lucide-react";
+import { checklistCompletion } from "@/lib/task-scoring";
 import { exportToExcel, exportToPdf } from "@/lib/export";
 import { EmployeePerformanceModal } from "@/components/tasks/employee-performance-modal";
 
