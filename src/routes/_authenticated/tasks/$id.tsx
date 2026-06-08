@@ -778,39 +778,14 @@ function Page() {
           setCompletionOpen(false);
           qc.invalidateQueries({ queryKey: ["task", id] });
           qc.invalidateQueries({ queryKey: ["tasks"] });
-          promptApproval();
         }}
       />
-      <EvaluationDialog
-        open={evalOpen}
-        onOpenChange={setEvalOpen}
+      <ChecklistEditDialog
+        open={checklistEditOpen}
+        onOpenChange={setChecklistEditOpen}
         taskId={id}
-        userId={user?.id ?? ""}
+        items={items}
         onSaved={() => {
-          setEvalOpen(false);
-          qc.invalidateQueries({ queryKey: ["task", id] });
-        }}
-      />
-      <ProgressApprovalDialog
-        open={approvalOpen}
-        onOpenChange={setApprovalOpen}
-        taskId={id}
-        userId={user?.id ?? ""}
-        currentValue={task.completion_percentage ?? 0}
-        onSaved={() => {
-          setApprovalOpen(false);
-          qc.invalidateQueries({ queryKey: ["task", id] });
-          qc.invalidateQueries({ queryKey: ["all-tasks-team"] });
-        }}
-      />
-      <ManagerEvalDialog
-        open={managerEvalOpen}
-        onOpenChange={setManagerEvalOpen}
-        taskId={id}
-        currentValue={task.manager_evaluation_score ?? 0}
-        currentNotes={task.manager_evaluation_notes ?? ""}
-        onSaved={() => {
-          setManagerEvalOpen(false);
           qc.invalidateQueries({ queryKey: ["task", id] });
           qc.invalidateQueries({ queryKey: ["all-tasks-team"] });
         }}
