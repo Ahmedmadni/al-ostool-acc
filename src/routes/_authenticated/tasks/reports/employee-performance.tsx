@@ -35,9 +35,8 @@ function Page() {
       const delayed = my.filter((t: any) => t.status !== "done" && t.status !== "cancelled" && t.due_date && new Date(t.due_date) < now).length;
       const finals = my.map((t: any) => {
         const items = t.task_checklist_items ?? [];
-        const cl = checklistCompletion(items);
-        const mgr = typeof t.manager_evaluation_score === "number" ? t.manager_evaluation_score : null;
-        return mgr == null && items.length === 0 ? null : finalScore(cl, mgr);
+        if (items.length === 0) return null;
+        return checklistCompletion(items);
       }).filter((v: any) => typeof v === "number") as number[];
       const avg = finals.length ? Math.round(finals.reduce((s, v) => s + v, 0) / finals.length) : null;
       return { id: p.id, name: p.full_name ?? p.email, dept: departments.find((d: any) => d.id === p.department_id)?.name_ar ?? "—", deptId: p.department_id, total: my.length, completed, delayed, avg };
