@@ -42,9 +42,8 @@ export function EmployeePerformanceModal({ open, onOpenChange, user }: Props) {
   const rows = useMemo(() => tasks.map((t: any) => {
     const items = t.task_checklist_items ?? [];
     const cl = checklistCompletion(items);
-    const mgr = typeof t.manager_evaluation_score === "number" ? t.manager_evaluation_score : null;
-    const fs = mgr != null || items.length > 0 ? finalScore(cl, mgr) : null;
-    return { id: t.id, title: t.title, start: t.planned_start_date, end: t.planned_end_date ?? t.due_date, cl, mgr, fs, status: t.status };
+    const fs = items.length > 0 ? cl : null;
+    return { id: t.id, title: t.title, start: t.planned_start_date, end: t.planned_end_date ?? t.due_date, cl, fs, status: t.status };
   }), [tasks]);
 
   const total = rows.length;
@@ -55,8 +54,6 @@ export function EmployeePerformanceModal({ open, onOpenChange, user }: Props) {
   const scored = rows.filter((r) => r.fs != null);
   const avgFinal = scored.length ? Math.round(scored.reduce((s, r) => s + (r.fs ?? 0), 0) / scored.length) : null;
   const avgCl = rows.length ? Math.round(rows.reduce((s, r) => s + r.cl, 0) / rows.length) : 0;
-  const mgrRows = rows.filter((r) => r.mgr != null);
-  const avgMgr = mgrRows.length ? Math.round(mgrRows.reduce((s, r) => s + (r.mgr ?? 0), 0) / mgrRows.length) : null;
 
   const trend = useMemo(() => {
     const map: Record<string, { month: string; completed: number; total: number }> = {};
