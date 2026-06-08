@@ -223,15 +223,13 @@ function Page() {
               <TableHead>مكتملة</TableHead>
               <TableHead>قيد التنفيذ</TableHead>
               <TableHead>متأخرة (للعلم)</TableHead>
-              <TableHead>متوسط تقييم المدير</TableHead>
-              <TableHead>نسبة الإنجاز المعتمدة</TableHead>
-              <TableHead>النتيجة النهائية</TableHead>
+              <TableHead>نسبة إنجاز البنود</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {stats.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                   لا توجد مهام مُكلَّفة لأي موظف.
                 </TableCell>
               </TableRow>
@@ -255,32 +253,11 @@ function Page() {
                     : <span className="text-muted-foreground">0</span>}
                 </TableCell>
                 <TableCell>
-                  {s.avgRating != null ? (
-                    <div className="flex items-center gap-1">
-                      <Star className="w-3.5 h-3.5 text-warning fill-warning" />
-                      <span className="font-bold">{s.avgRating}</span>
-                      <span className="text-xs text-muted-foreground">/10</span>
-                      <span className="text-[10px] text-muted-foreground mr-1">({s.ratedCount} مهمة)</span>
-                    </div>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">— لم تُقيَّم بعد</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {s.avgCompletion != null ? (
-                    <div className="flex items-center gap-2 w-44">
-                      <Progress value={s.avgCompletion} className="h-2" />
-                      <span className="text-xs font-semibold whitespace-nowrap">{s.avgCompletion}%</span>
-                    </div>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">— لم تُعتمد بعد</span>
-                  )}
-                </TableCell>
-                <TableCell>
                   {s.avgFinal != null ? (
                     <div className="flex items-center gap-2 w-44">
                       <Progress value={s.avgFinal} className="h-2" />
                       <span className="text-sm font-bold text-primary whitespace-nowrap">{s.avgFinal}%</span>
+                      <span className="text-[10px] text-muted-foreground">({s.scoredCount})</span>
                     </div>
                   ) : (
                     <span className="text-xs text-muted-foreground">—</span>
@@ -291,6 +268,7 @@ function Page() {
           </TableBody>
         </Table>
       </Card>
+
 
       <EmployeePerformanceModal open={!!selectedUser} onOpenChange={(o) => !o && setSelectedUser(null)} user={selectedUser} />
     </div>
