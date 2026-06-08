@@ -428,43 +428,106 @@ function Page() {
             </Card>
           )}
 
-          {/* Comments */}
-          <Card className="p-4">
-            <div className="font-semibold mb-3 flex items-center gap-2">
+          {/* Comments — WhatsApp-style chat */}
+          <Card className="p-0 overflow-hidden">
+            <div className="px-4 py-3 border-b bg-muted/40 font-semibold flex items-center gap-2">
               <MessageSquare className="w-4 h-4" /> المتابعة والتعليقات ({comments.length})
             </div>
-            <div className="space-y-3 mb-4 max-h-96 overflow-y-auto">
+            <div
+              className="p-4 space-y-3 max-h-[28rem] overflow-y-auto bg-[repeating-linear-gradient(45deg,hsl(var(--muted)/0.15)_0_2px,transparent_2px_14px)]"
+            >
               {comments.length === 0 && (
-                <div className="text-sm text-muted-foreground text-center py-6">لا توجد تعليقات بعد</div>
+                <div className="text-sm text-muted-foreground text-center py-8">ابدأ المحادثة — لا توجد رسائل بعد</div>
               )}
               {comments.map((c: any) => {
                 const p = profileById[c.user_id];
                 const mine = c.user_id === user?.id;
+                const isManagerMsg = c.user_id === task.created_by;
+                const name = p?.full_name || p?.email || "مستخدم";
+                const initial = (name || "?").slice(0, 1);
                 return (
-                  <div key={c.id} className={`p-3 rounded-md border ${mine ? "bg-primary/5 border-primary/20" : "bg-muted/40"}`}>
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="text-xs font-semibold">{p?.full_name || p?.email || "مستخدم"}</div>
-                      <div className="text-[10px] text-muted-foreground">{fmtDate(c.created_at)}</div>
+                  <div key={c.id} className={`flex items-end gap-2 ${mine ? "flex-row-reverse" : "flex-row"}`}>
+                    <Avatar className={`w-9 h-9 shrink-0 ring-2 ${isManagerMsg ? "ring-amber-400" : "ring-transparent"}`}>
+                      <AvatarImage src={p?.avatar_url} alt={name} />
+                      <AvatarFallback className="text-xs">{initial}</AvatarFallback>
+                    </Avatar>
+                    <div className={`max-w-[78%] rounded-2xl px-3.5 py-2 shadow-sm ${
+                      isManagerMsg
+                        ? "bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-400 text-foreground rounded-tr-sm"
+                        : mine
+                          ? "bg-primary text-primary-foreground rounded-tr-sm"
+                          : "bg-card border rounded-tl-sm"
+                    }`}>
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span className={`text-[11px] font-bold ${isManagerMsg ? "text-amber-700 dark:text-amber-300" : mine ? "text-primary-foreground/90" : "text-foreground/80"}`}>
+                          {name}
+                        </span>
+                        {isManagerMsg && (
+                          <span className="inline-flex items-center gap-0.5 text-[9px] font-bold bg-amber-400 text-amber-950 px-1.5 py-0.5 rounded-full">
+                            <Shield className="w-2.5 h-2.5" /> المدير
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm whitespace-pre-wrap break-words">{c.body}</div>
+                      <div className={`text-[10px] mt-1 text-end ${mine && !isManagerMsg ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                        {fmtDate(c.created_at)}
+                      </div>
                     </div>
-                    <div className="text-sm whitespace-pre-wrap">{c.body}</div>
                   </div>
                 );
               })}
             </div>
-            <div className="flex gap-2">
-              <Textarea
-                placeholder="اكتب تعليقًا أو تحديثًا..."
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                rows={2}
-                className="flex-1"
-              />
-              <Button onClick={addComment} className="gap-1">
-                <Send className="w-4 h-4" />
-                إرسال
-              </Button>
+            <div className="border-t bg-muted/30 p-3">
+              {pendingFile && (
+                <div className="mb-2 flex items-center gap-2 text-xs bg-card border rounded-md px-2 py-1.5">
+                  <Paperclip className="w-3.5 h-3.5 text-primary shrink-0" />
+                  <span className="flex-1 truncate">{pendingFile.name}</span>
+                  <span className="text-muted-foreground">{formatBytes(pendingFile.size)}</span>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setPendingFile(null)}>
+                    <X className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              )}
+              <div className="flex items-end gap-2">
+                <label htmlFor="comment-attach-input" className="cursor-pointer">
+                  <input
+                    id="comment-attach-input"
+                    type="file"
+                    className="hidden"
+                    accept=".jpg,.jpeg,.png,.webp,.pdf,.xlsx,.xls,.docx,.zip,image/*,application/pdf"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) setPendingFile(f);
+                      e.target.value = "";
+                    }}
+                  />
+                  <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-card border hover:bg-muted transition-colors" title="إرفاق ملف">
+                    <Paperclip className="w-4 h-4" />
+                  </span>
+                </label>
+                <Textarea
+                  placeholder="اكتب رسالة..."
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addComment(); }
+                  }}
+                  rows={1}
+                  className="flex-1 min-h-[40px] max-h-32 resize-none rounded-2xl bg-card"
+                />
+                <Button
+                  onClick={addComment}
+                  disabled={sendingComment || (!newComment.trim() && !pendingFile)}
+                  size="icon"
+                  className="rounded-full w-10 h-10 shrink-0"
+                  title="إرسال"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </Card>
+
 
           {/* Attachments */}
           <Card className="p-4">
