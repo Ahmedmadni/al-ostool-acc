@@ -209,7 +209,7 @@ function Page() {
     qc.invalidateQueries({ queryKey: ["tasks"] });
   };
 
-  const uploadAttachment = async (file: File) => {
+  const uploadAttachment = async (file: File, commentId: string | null = null) => {
     if (!user) return;
     if (!ACCEPTED_ATTACHMENT_TYPES.includes(file.type) && !/\.(zip|xls|xlsx|docx|pdf|png|jpe?g|webp)$/i.test(file.name)) {
       toast.error(`نوع الملف غير مسموح: ${file.type || file.name}`);
@@ -238,6 +238,7 @@ function Page() {
       mime_type: file.type || "application/octet-stream",
       size_bytes: file.size,
       uploaded_by: user.id,
+      comment_id: commentId,
     });
     setUploadProgress(100);
     setTimeout(() => { setUploadingName(null); setUploadProgress(0); }, 400);
