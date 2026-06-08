@@ -137,17 +137,16 @@ export function EmployeePerformanceModal({ open, onOpenChange, user }: Props) {
           <Table>
             <TableHeader><TableRow>
               <TableHead>المهمة</TableHead><TableHead>البداية</TableHead><TableHead>النهاية</TableHead>
-              <TableHead>Checklist</TableHead><TableHead>المدير</TableHead><TableHead>النهائي</TableHead><TableHead>الحالة</TableHead>
+              <TableHead>نسبة إنجاز البنود</TableHead><TableHead>النهائي</TableHead><TableHead>الحالة</TableHead>
             </TableRow></TableHeader>
             <TableBody>
-              {rows.length === 0 && <TableRow><TableCell colSpan={7} className="text-center py-6 text-muted-foreground">لا توجد مهام.</TableCell></TableRow>}
+              {rows.length === 0 && <TableRow><TableCell colSpan={6} className="text-center py-6 text-muted-foreground">لا توجد مهام.</TableCell></TableRow>}
               {rows.map((r) => (
                 <TableRow key={r.id}>
                   <TableCell className="font-medium">{r.title}</TableCell>
                   <TableCell>{fmtDate(r.start)}</TableCell>
                   <TableCell>{fmtDate(r.end)}</TableCell>
                   <TableCell>{r.cl}%</TableCell>
-                  <TableCell>{r.mgr ?? "—"}{r.mgr != null && "%"}</TableCell>
                   <TableCell className="font-bold text-primary">{r.fs ?? "—"}{r.fs != null && "%"}</TableCell>
                   <TableCell><Badge variant="secondary">{taskStatusLabel[r.status as string] ?? r.status}</Badge></TableCell>
                 </TableRow>
