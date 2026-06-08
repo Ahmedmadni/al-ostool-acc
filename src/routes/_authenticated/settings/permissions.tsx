@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
+import { usePermissions } from "@/hooks/use-permissions";
 import { flattenModules, ACTIONS, ACTION_LABEL, getSpecialActions, type ActionKey } from "@/lib/permissions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
@@ -32,7 +33,9 @@ export const Route = createFileRoute("/_authenticated/settings/permissions")({
 type Row = { module_key: string; action_key: string; granted: boolean };
 
 function Page() {
-  const { isAdmin } = useAuth();
+  const { isAdmin: isAdminAuth } = useAuth();
+  const { can } = usePermissions();
+  const isAdmin = isAdminAuth || can("settings.permissions", "view") || can("settings", "view");
   const qc = useQueryClient();
   const search = Route.useSearch();
   const [mode, setMode] = useState<"user" | "job">(search.mode ?? (search.job ? "job" : "user"));

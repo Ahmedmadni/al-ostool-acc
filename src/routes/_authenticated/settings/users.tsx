@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/use-auth";
+import { usePermissions } from "@/hooks/use-permissions";
 import { toast } from "sonner";
 import { Pencil, Check, X, Plus, Trash2, Shield, Info } from "lucide-react";
 import { createUserByAdmin, deleteUserByAdmin } from "@/lib/admin-users.functions";
@@ -45,7 +46,9 @@ type EditDraft = {
 };
 
 function Page() {
-  const { isAdmin, user: me } = useAuth();
+  const { isAdmin: isAdminAuth, user: me } = useAuth();
+  const { can } = usePermissions();
+  const isAdmin = isAdminAuth || can("settings.users", "view") || can("settings", "view");
   const qc = useQueryClient();
   const [editId, setEditId] = useState<string | null>(null);
   const [draft, setDraft] = useState<EditDraft | null>(null);
