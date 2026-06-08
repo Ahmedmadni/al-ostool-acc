@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Download, FileSpreadsheet, Printer } from "lucide-react";
-import { checklistCompletion, finalScore } from "@/lib/task-scoring";
+import { checklistCompletion } from "@/lib/task-scoring";
 import { exportToExcel, exportToPdf } from "@/lib/export";
 
 export const Route = createFileRoute("/_authenticated/tasks/reports/department-performance")({ component: Page });
