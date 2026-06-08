@@ -737,7 +737,6 @@ function Page() {
                     onDecided={() => {
                       refetchRequests();
                       qc.invalidateQueries({ queryKey: ["task", id] });
-                      promptApproval();
                     }}
                   />
                 ))}
