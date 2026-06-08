@@ -29,9 +29,8 @@ function Page() {
         const tm = my.filter((t: any) => t.assigned_to === m.id);
         const finals = tm.map((t: any) => {
           const items = t.task_checklist_items ?? [];
-          const cl = checklistCompletion(items);
-          const mgr = typeof t.manager_evaluation_score === "number" ? t.manager_evaluation_score : null;
-          return mgr == null && items.length === 0 ? null : finalScore(cl, mgr);
+          if (items.length === 0) return null;
+          return checklistCompletion(items);
         }).filter((v: any) => typeof v === "number") as number[];
         const avg = finals.length ? Math.round(finals.reduce((s, v) => s + v, 0) / finals.length) : null;
         return { name: m.full_name ?? m.email, avg };
