@@ -1,9 +1,9 @@
 import {
   LayoutDashboard, Users, FolderKanban, Receipt, FileText, BarChart3,
   Calculator, Calendar, Settings, TrendingUp, Activity,
-  Truck, Building2, Landmark, Layers, Trophy, Waves, Vault, Upload,
+  Truck, Building2, Landmark, Layers, Waves, Vault, Upload,
   Scale, PieChart, Bell, Telescope, GitBranch, ClipboardList, ShieldCheck,
-  Sparkles, FileBarChart, BookOpen, AlertTriangle, Briefcase, UserCog,
+  Sparkles, FileBarChart, BookOpen, AlertTriangle, UserCog,
   StickyNote, UserCircle, Bot, FileSpreadsheet, LineChart, Wallet,
   type LucideIcon,
 } from "lucide-react";
