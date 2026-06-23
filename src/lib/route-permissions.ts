@@ -23,30 +23,31 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/insights", module: "dashboard" },
   { prefix: "/copilot", module: "dashboard" },
 
-  // ===== Customers group =====
-  { prefix: "/intelligence/customers", module: "customers" },
-  { prefix: "/receivables/intelligence", module: "customers" },
-  { prefix: "/receivables/aging", module: "customers" },
-  { prefix: "/receivables", module: "customers" },
+  // ===== Customers (AR) group =====
+  { prefix: "/customers/contracts", module: "customers" },
+  { prefix: "/customers/invoices", module: "customers" },
+  { prefix: "/customers/collections", module: "customers" },
+  { prefix: "/customers/retention", module: "customers" },
+  { prefix: "/customers/aging", module: "customers" },
+  { prefix: "/customers/intelligence", module: "customers" },
+  { prefix: "/customers/reports", module: "customers" },
   { prefix: "/customers", module: "customers" },
 
-  // ===== Vendors group =====
-  { prefix: "/intelligence/vendors", module: "vendors" },
-  { prefix: "/payables/intelligence", module: "vendors" },
-  { prefix: "/payables", module: "vendors" },
+  // ===== Vendors (AP) group =====
+  { prefix: "/vendors/contracts", module: "vendors" },
+  { prefix: "/vendors/invoices", module: "vendors" },
+  { prefix: "/vendors/payments", module: "vendors" },
   { prefix: "/vendors/aging", module: "vendors" },
-  { prefix: "/vendors/top", module: "vendors" },
+  { prefix: "/vendors/intelligence", module: "vendors" },
+  { prefix: "/vendors/reports", module: "vendors" },
   { prefix: "/vendors", module: "vendors" },
-  { prefix: "/suppliers", module: "vendors" },
 
-  // ===== Projects & Contracts group =====
+  // ===== Projects group =====
   { prefix: "/projects/progress", module: "projects" },
   { prefix: "/control/projects", module: "projects" },
   { prefix: "/projects", module: "projects" },
-  { prefix: "/contracts", module: "projects" },
 
-  // ===== Billing & Costs group =====
-  { prefix: "/invoices", module: "invoices" },
+  // ===== Costs group =====
   { prefix: "/control/costs", module: "invoices" },
   { prefix: "/costs", module: "invoices" },
   { prefix: "/control", module: "invoices" },
