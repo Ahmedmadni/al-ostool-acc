@@ -33,11 +33,12 @@ function Page() {
   const [q, setQ] = useState("");
 
   const { data: contracts = [] } = useQuery<any[]>({
-    queryKey: ["contracts-dashboard"],
+    queryKey: ["contracts-customer"],
     queryFn: async () =>
       (await supabase
         .from("contracts")
         .select("*, customers(name), projects(code, name, billed_amount, financial_progress)")
+        .eq("party_type", "customer")
         .order("created_at", { ascending: false })
         .limit(1000)).data ?? [],
   });

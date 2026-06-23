@@ -58,6 +58,7 @@ import { Route as AuthenticatedFinancialsCashFlowRouteImport } from './routes/_a
 import { Route as AuthenticatedFinancialsBalanceSheetRouteImport } from './routes/_authenticated/financials/balance-sheet'
 import { Route as AuthenticatedDashboardExecutiveRouteImport } from './routes/_authenticated/dashboard/executive'
 import { Route as AuthenticatedCustomersRetentionRouteImport } from './routes/_authenticated/customers/retention'
+import { Route as AuthenticatedCustomersReportsRouteImport } from './routes/_authenticated/customers/reports'
 import { Route as AuthenticatedCustomersInvoicesRouteImport } from './routes/_authenticated/customers/invoices'
 import { Route as AuthenticatedCustomersIntelligenceRouteImport } from './routes/_authenticated/customers/intelligence'
 import { Route as AuthenticatedCustomersImportRouteImport } from './routes/_authenticated/customers/import'
@@ -354,6 +355,12 @@ const AuthenticatedCustomersRetentionRoute =
     path: '/customers/retention',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedCustomersReportsRoute =
+  AuthenticatedCustomersReportsRouteImport.update({
+    id: '/customers/reports',
+    path: '/customers/reports',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCustomersInvoicesRoute =
   AuthenticatedCustomersInvoicesRouteImport.update({
     id: '/customers/invoices',
@@ -460,6 +467,7 @@ export interface FileRoutesByFullPath {
   '/customers/import': typeof AuthenticatedCustomersImportRoute
   '/customers/intelligence': typeof AuthenticatedCustomersIntelligenceRoute
   '/customers/invoices': typeof AuthenticatedCustomersInvoicesRoute
+  '/customers/reports': typeof AuthenticatedCustomersReportsRoute
   '/customers/retention': typeof AuthenticatedCustomersRetentionRoute
   '/dashboard/executive': typeof AuthenticatedDashboardExecutiveRoute
   '/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
@@ -525,6 +533,7 @@ export interface FileRoutesByTo {
   '/customers/import': typeof AuthenticatedCustomersImportRoute
   '/customers/intelligence': typeof AuthenticatedCustomersIntelligenceRoute
   '/customers/invoices': typeof AuthenticatedCustomersInvoicesRoute
+  '/customers/reports': typeof AuthenticatedCustomersReportsRoute
   '/customers/retention': typeof AuthenticatedCustomersRetentionRoute
   '/dashboard/executive': typeof AuthenticatedDashboardExecutiveRoute
   '/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
@@ -592,6 +601,7 @@ export interface FileRoutesById {
   '/_authenticated/customers/import': typeof AuthenticatedCustomersImportRoute
   '/_authenticated/customers/intelligence': typeof AuthenticatedCustomersIntelligenceRoute
   '/_authenticated/customers/invoices': typeof AuthenticatedCustomersInvoicesRoute
+  '/_authenticated/customers/reports': typeof AuthenticatedCustomersReportsRoute
   '/_authenticated/customers/retention': typeof AuthenticatedCustomersRetentionRoute
   '/_authenticated/dashboard/executive': typeof AuthenticatedDashboardExecutiveRoute
   '/_authenticated/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
@@ -659,6 +669,7 @@ export interface FileRouteTypes {
     | '/customers/import'
     | '/customers/intelligence'
     | '/customers/invoices'
+    | '/customers/reports'
     | '/customers/retention'
     | '/dashboard/executive'
     | '/financials/balance-sheet'
@@ -724,6 +735,7 @@ export interface FileRouteTypes {
     | '/customers/import'
     | '/customers/intelligence'
     | '/customers/invoices'
+    | '/customers/reports'
     | '/customers/retention'
     | '/dashboard/executive'
     | '/financials/balance-sheet'
@@ -790,6 +802,7 @@ export interface FileRouteTypes {
     | '/_authenticated/customers/import'
     | '/_authenticated/customers/intelligence'
     | '/_authenticated/customers/invoices'
+    | '/_authenticated/customers/reports'
     | '/_authenticated/customers/retention'
     | '/_authenticated/dashboard/executive'
     | '/_authenticated/financials/balance-sheet'
@@ -1192,6 +1205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersRetentionRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/customers/reports': {
+      id: '/_authenticated/customers/reports'
+      path: '/customers/reports'
+      fullPath: '/customers/reports'
+      preLoaderRoute: typeof AuthenticatedCustomersReportsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/customers/invoices': {
       id: '/_authenticated/customers/invoices'
       path: '/customers/invoices'
@@ -1327,6 +1347,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCustomersImportRoute: typeof AuthenticatedCustomersImportRoute
   AuthenticatedCustomersIntelligenceRoute: typeof AuthenticatedCustomersIntelligenceRoute
   AuthenticatedCustomersInvoicesRoute: typeof AuthenticatedCustomersInvoicesRoute
+  AuthenticatedCustomersReportsRoute: typeof AuthenticatedCustomersReportsRoute
   AuthenticatedCustomersRetentionRoute: typeof AuthenticatedCustomersRetentionRoute
   AuthenticatedFinancialsBalanceSheetRoute: typeof AuthenticatedFinancialsBalanceSheetRoute
   AuthenticatedFinancialsCashFlowRoute: typeof AuthenticatedFinancialsCashFlowRoute
@@ -1392,6 +1413,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCustomersIntelligenceRoute:
     AuthenticatedCustomersIntelligenceRoute,
   AuthenticatedCustomersInvoicesRoute: AuthenticatedCustomersInvoicesRoute,
+  AuthenticatedCustomersReportsRoute: AuthenticatedCustomersReportsRoute,
   AuthenticatedCustomersRetentionRoute: AuthenticatedCustomersRetentionRoute,
   AuthenticatedFinancialsBalanceSheetRoute:
     AuthenticatedFinancialsBalanceSheetRoute,
