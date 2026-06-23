@@ -87,8 +87,8 @@ function Page() {
   return (
     <div>
       <PageHeader
-        title="لوحة العقود"
-        description="Contract Dashboard — قيمة العقود، المفوتر، المتبقي، الاحتجازات، وتنبيهات الانتهاء"
+        title="عقود العملاء"
+        description="Customer Contracts — قيمة العقود، المفوتر، المتبقي، الاحتجازات، وتنبيهات الانتهاء"
         actions={
           <Button
             variant="outline"
