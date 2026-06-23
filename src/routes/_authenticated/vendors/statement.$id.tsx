@@ -85,7 +85,7 @@ function VendorStatementPage() {
         description={`الكود: ${vendor.code}${vendor.category ? ` • ${vendor.category}` : ""}`}
         actions={
           <Button asChild variant="outline" size="sm">
-            <Link to="/vendors/top"><ArrowRight className="w-4 h-4 ml-1" /> رجوع</Link>
+            <Link to="/vendors"><ArrowRight className="w-4 h-4 ml-1" /> رجوع</Link>
           </Button>
         }
       />

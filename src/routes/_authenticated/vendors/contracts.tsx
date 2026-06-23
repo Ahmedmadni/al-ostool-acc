@@ -1,0 +1,135 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { PageHeader, KpiCard } from "@/components/layout/page-header";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { fmtSAR, daysBetween } from "@/lib/format";
+import { exportToExcel } from "@/lib/export";
+import { FileText, Wallet, AlertTriangle, CheckCircle2, FileSpreadsheet, Search } from "lucide-react";
+
+export const Route = createFileRoute("/_authenticated/vendors/contracts")({ component: Page });
+
+const statusLabel: Record<string, string> = { draft: "مسودة", active: "ساري", on_hold: "معلق", completed: "منتهي", cancelled: "ملغي" };
+function statusVariant(s: string): "default" | "destructive" | "outline" | "secondary" {
+  if (s === "active") return "default"; if (s === "completed") return "outline";
+  if (s === "cancelled") return "destructive"; return "secondary";
+}
+
+function Page() {
+  const [q, setQ] = useState("");
+
+  const { data: contracts = [] } = useQuery<any[]>({
+    queryKey: ["contracts-vendor"],
+    queryFn: async () => (await supabase
+      .from("contracts")
+      .select("*, vendors(name, code), projects(code, name)")
+      .eq("party_type", "vendor")
+      .order("created_at", { ascending: false })
+      .limit(1000)).data ?? [],
+  });
+
+  const enriched = useMemo(() => contracts.map((c) => {
+    const cv = Number(c.contract_value ?? 0);
+    const retPct = Number(c.retention_pct ?? 0);
+    const retAmt = Number(c.retention_amount ?? 0) || (cv * retPct) / 100;
+    const daysLeft = c.end_date ? daysBetween(new Date(), c.end_date) : null;
+    const expiringSoon = daysLeft !== null && daysLeft >= 0 && daysLeft <= 30 && c.status === "active";
+    const expired = daysLeft !== null && daysLeft < 0 && c.status === "active";
+    return { ...c, _cv: cv, _retAmt: retAmt, _daysLeft: daysLeft, _expiringSoon: expiringSoon, _expired: expired };
+  }), [contracts]);
+
+  const filtered = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (!s) return enriched;
+    return enriched.filter((c) =>
+      c.contract_number?.toLowerCase().includes(s) ||
+      c.title?.toLowerCase().includes(s) ||
+      c.vendors?.name?.toLowerCase().includes(s) ||
+      c.projects?.name?.toLowerCase().includes(s),
+    );
+  }, [enriched, q]);
+
+  const totals = useMemo(() => ({
+    count: enriched.length,
+    value: enriched.reduce((s, c) => s + c._cv, 0),
+    retention: enriched.reduce((s, c) => s + c._retAmt, 0),
+    active: enriched.filter((c) => c.status === "active").length,
+    expiring: enriched.filter((c) => c._expiringSoon).length,
+    expired: enriched.filter((c) => c._expired).length,
+  }), [enriched]);
+
+  return (
+    <div>
+      <PageHeader
+        title="عقود الموردين"
+        description="Vendor Contracts — قيمة العقود مع الموردين والاحتجازات"
+        actions={
+          <Button variant="outline" className="gap-2" onClick={() =>
+            exportToExcel(filtered.map((c) => ({
+              number: c.contract_number, title: c.title, vendor: c.vendors?.name, project: c.projects?.name,
+              value: c._cv, retention_amount: c._retAmt, status: c.status, start: c.start_date, end: c.end_date,
+            })), "vendor-contracts")
+          }>
+            <FileSpreadsheet className="w-4 h-4" />تصدير
+          </Button>
+        }
+      />
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+        <KpiCard title="عدد العقود" value={String(totals.count)} icon={FileText} color="primary" />
+        <KpiCard title="القيمة الإجمالية" value={fmtSAR(totals.value)} icon={Wallet} color="info" />
+        <KpiCard title="الاحتجازات" value={fmtSAR(totals.retention)} icon={Wallet} color="warning" />
+        <KpiCard title="ساري المفعول" value={String(totals.active)} icon={CheckCircle2} color="success" />
+        <KpiCard title="قارب على الانتهاء" value={String(totals.expiring)} icon={AlertTriangle} color="warning" />
+        <KpiCard title="منتهي" value={String(totals.expired)} icon={AlertTriangle} color={totals.expired > 0 ? "destructive" : "success"} />
+      </div>
+      <Card className="mb-4 p-3">
+        <div className="relative">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="بحث برقم العقد، العنوان، المورد، المشروع..." className="pr-9" />
+        </div>
+      </Card>
+      <Card>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>رقم العقد</TableHead><TableHead>العنوان</TableHead><TableHead>المورد</TableHead>
+              <TableHead>المشروع</TableHead>
+              <TableHead className="text-left">قيمة العقد</TableHead>
+              <TableHead className="text-left">الاحتجاز</TableHead>
+              <TableHead>التواريخ</TableHead><TableHead>الحالة</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.length === 0 && (
+              <TableRow><TableCell colSpan={8} className="text-center py-10 text-muted-foreground">لا توجد عقود</TableCell></TableRow>
+            )}
+            {filtered.map((c) => (
+              <TableRow key={c.id}>
+                <TableCell className="font-mono text-xs">{c.contract_number}</TableCell>
+                <TableCell className="font-medium">{c.title}</TableCell>
+                <TableCell>{c.vendors?.name ?? "—"}</TableCell>
+                <TableCell className="text-xs">{c.projects?.name ?? "—"}</TableCell>
+                <TableCell className="text-left font-mono">{fmtSAR(c._cv)}</TableCell>
+                <TableCell className="text-left font-mono">{fmtSAR(c._retAmt)}</TableCell>
+                <TableCell className="text-xs">
+                  <div>{c.start_date ?? "—"}</div>
+                  <div className={c._expired ? "text-destructive" : c._expiringSoon ? "text-warning" : "text-muted-foreground"}>
+                    {c.end_date ?? "—"}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={statusVariant(c.status ?? "draft")}>{statusLabel[c.status ?? "draft"] ?? c.status}</Badge>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
+    </div>
+  );
+}

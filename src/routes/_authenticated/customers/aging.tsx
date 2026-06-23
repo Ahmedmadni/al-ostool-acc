@@ -9,7 +9,7 @@ import { fmtSAR, daysBetween } from "@/lib/format";
 import { exportToExcel } from "@/lib/export";
 import { FileSpreadsheet } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/receivables/aging")({ component: Page });
+export const Route = createFileRoute("/_authenticated/customers/aging")({ component: Page });
 
 function Page() {
   const { data: invoices = [] } = useQuery({

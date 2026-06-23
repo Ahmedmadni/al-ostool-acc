@@ -12,7 +12,7 @@ import { fmtSAR, daysBetween } from "@/lib/format";
 import { exportToExcel } from "@/lib/export";
 import { FileText, Wallet, AlertTriangle, CheckCircle2, FileSpreadsheet, Search } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/contracts/")({ component: Page });
+export const Route = createFileRoute("/_authenticated/customers/contracts")({ component: Page });
 
 const statusLabel: Record<string, string> = {
   draft: "مسودة",
@@ -33,11 +33,12 @@ function Page() {
   const [q, setQ] = useState("");
 
   const { data: contracts = [] } = useQuery<any[]>({
-    queryKey: ["contracts-dashboard"],
+    queryKey: ["contracts-customer"],
     queryFn: async () =>
       (await supabase
         .from("contracts")
         .select("*, customers(name), projects(code, name, billed_amount, financial_progress)")
+        .eq("party_type", "customer")
         .order("created_at", { ascending: false })
         .limit(1000)).data ?? [],
   });
@@ -86,8 +87,8 @@ function Page() {
   return (
     <div>
       <PageHeader
-        title="لوحة العقود"
-        description="Contract Dashboard — قيمة العقود، المفوتر، المتبقي، الاحتجازات، وتنبيهات الانتهاء"
+        title="عقود العملاء"
+        description="Customer Contracts — قيمة العقود، المفوتر، المتبقي، الاحتجازات، وتنبيهات الانتهاء"
         actions={
           <Button
             variant="outline"

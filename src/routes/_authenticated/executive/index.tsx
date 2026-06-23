@@ -188,8 +188,8 @@ function ExecutivePage() {
             { to: "/scenarios", label: "تحليل السيناريوهات" },
             { to: "/alerts", label: "مركز التنبيهات" },
             { to: "/board", label: "تقارير مجلس الإدارة" },
-            { to: "/intelligence/customers", label: "ذكاء العملاء V2" },
-            { to: "/intelligence/vendors", label: "ذكاء الموردين V2" },
+            { to: "/customers/intelligence", label: "ذكاء العملاء V2" },
+            { to: "/vendors/intelligence", label: "ذكاء الموردين V2" },
             { to: "/control/projects", label: "ذكاء المشاريع" },
             { to: "/control/costs", label: "ذكاء التكاليف" },
           ].map((l) => (

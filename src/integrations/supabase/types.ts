@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      adjustments: {
+        Row: {
+          adjustment_date: string
+          amount: number
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          id: string
+          notes: string | null
+          party_type: string
+          reason: string | null
+          type: string
+          updated_at: string
+          vendor_id: string | null
+        }
+        Insert: {
+          adjustment_date?: string
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          id?: string
+          notes?: string | null
+          party_type: string
+          reason?: string | null
+          type?: string
+          updated_at?: string
+          vendor_id?: string | null
+        }
+        Update: {
+          adjustment_date?: string
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          id?: string
+          notes?: string | null
+          party_type?: string
+          reason?: string | null
+          type?: string
+          updated_at?: string
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "adjustments_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "adjustments_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aging_buckets: {
         Row: {
           current_amt: number | null
@@ -506,6 +566,7 @@ export type Database = {
           end_date: string | null
           id: string
           notes: string | null
+          party_type: string
           project_id: string | null
           retention_amount: number | null
           retention_pct: number | null
@@ -514,6 +575,7 @@ export type Database = {
           status: Database["public"]["Enums"]["contract_status"] | null
           title: string
           updated_at: string
+          vendor_id: string | null
         }
         Insert: {
           contract_number: string
@@ -526,6 +588,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           notes?: string | null
+          party_type?: string
           project_id?: string | null
           retention_amount?: number | null
           retention_pct?: number | null
@@ -534,6 +597,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["contract_status"] | null
           title: string
           updated_at?: string
+          vendor_id?: string | null
         }
         Update: {
           contract_number?: string
@@ -546,6 +610,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           notes?: string | null
+          party_type?: string
           project_id?: string | null
           retention_amount?: number | null
           retention_pct?: number | null
@@ -554,6 +619,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["contract_status"] | null
           title?: string
           updated_at?: string
+          vendor_id?: string | null
         }
         Relationships: [
           {
@@ -568,6 +634,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
         ]
@@ -774,6 +847,7 @@ export type Database = {
           mobile: string | null
           name: string
           name_en: string | null
+          opening_balance: number
           payment_period: number | null
           phone: string | null
           risk_level: Database["public"]["Enums"]["customer_risk"] | null
@@ -805,6 +879,7 @@ export type Database = {
           mobile?: string | null
           name: string
           name_en?: string | null
+          opening_balance?: number
           payment_period?: number | null
           phone?: string | null
           risk_level?: Database["public"]["Enums"]["customer_risk"] | null
@@ -836,6 +911,7 @@ export type Database = {
           mobile?: string | null
           name?: string
           name_en?: string | null
+          opening_balance?: number
           payment_period?: number | null
           phone?: string | null
           risk_level?: Database["public"]["Enums"]["customer_risk"] | null
@@ -1456,6 +1532,55 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_allocations: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          invoice_id: string | null
+          payment_id: string
+          purchase_invoice_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          invoice_id?: string | null
+          payment_id: string
+          purchase_invoice_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          invoice_id?: string | null
+          payment_id?: string
+          purchase_invoice_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_allocations_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_allocations_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_allocations_purchase_invoice_id_fkey"
+            columns: ["purchase_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           amount: number | null
@@ -1468,6 +1593,7 @@ export type Database = {
           notes: string | null
           paid_amount: number | null
           project_id: string | null
+          retention_amount: number
           status: Database["public"]["Enums"]["invoice_status"] | null
           total_amount: number | null
           updated_at: string
@@ -1484,6 +1610,7 @@ export type Database = {
           notes?: string | null
           paid_amount?: number | null
           project_id?: string | null
+          retention_amount?: number
           status?: Database["public"]["Enums"]["invoice_status"] | null
           total_amount?: number | null
           updated_at?: string
@@ -1500,6 +1627,7 @@ export type Database = {
           notes?: string | null
           paid_amount?: number | null
           project_id?: string | null
+          retention_amount?: number
           status?: Database["public"]["Enums"]["invoice_status"] | null
           total_amount?: number | null
           updated_at?: string
@@ -2276,6 +2404,70 @@ export type Database = {
         }
         Relationships: []
       }
+      retention_guarantees: {
+        Row: {
+          contract_id: string | null
+          created_at: string
+          customer_id: string | null
+          due_date: string | null
+          id: string
+          notes: string | null
+          project_id: string | null
+          released_amount: number
+          status: string
+          total_retention: number
+          updated_at: string
+        }
+        Insert: {
+          contract_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          project_id?: string | null
+          released_amount?: number
+          status?: string
+          total_retention?: number
+          updated_at?: string
+        }
+        Update: {
+          contract_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          project_id?: string | null
+          released_amount?: number
+          status?: string
+          total_retention?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "retention_guarantees_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "retention_guarantees_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "retention_guarantees_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_permissions: {
         Row: {
           action_key: string
@@ -2871,6 +3063,7 @@ export type Database = {
           mobile: string | null
           name: string
           name_en: string | null
+          opening_balance: number
           payment_period: number | null
           phone: string | null
           region: string | null
@@ -2897,6 +3090,7 @@ export type Database = {
           mobile?: string | null
           name: string
           name_en?: string | null
+          opening_balance?: number
           payment_period?: number | null
           phone?: string | null
           region?: string | null
@@ -2923,6 +3117,7 @@ export type Database = {
           mobile?: string | null
           name?: string
           name_en?: string | null
+          opening_balance?: number
           payment_period?: number | null
           phone?: string | null
           region?: string | null
@@ -2939,6 +3134,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calc_customer_balance: { Args: { _customer_id: string }; Returns: number }
+      calc_vendor_balance: { Args: { _vendor_id: string }; Returns: number }
       can_delete_master: { Args: { _user_id: string }; Returns: boolean }
       can_read_business: { Args: { _user_id: string }; Returns: boolean }
       can_read_sensitive_finance: {
