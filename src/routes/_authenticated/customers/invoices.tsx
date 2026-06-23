@@ -11,7 +11,7 @@ import { fmtSAR, fmtDate } from "@/lib/format";
 import { invoiceStatusLabel } from "@/lib/labels";
 import { DataTableToolbar } from "@/components/data-table-toolbar";
 
-export const Route = createFileRoute("/_authenticated/invoices/")({ component: Page });
+export const Route = createFileRoute("/_authenticated/customers/invoices")({ component: Page });
 
 function Page() {
   const [search, setSearch] = useState("");
