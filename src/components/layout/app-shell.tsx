@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, FolderKanban, Receipt, FileText, BarChart3,
   Calculator, FileBarChart, Sparkles, Calendar, Settings, LogOut,
   Moon, Sun, Search, ChevronLeft, ChevronDown, TrendingUp, Activity,
-  Truck, Building2, Landmark, Layers, Trophy, Waves, Vault, Upload,
+  Truck, Building2, Landmark, Layers, Waves, Vault, Upload,
   Scale, PieChart, Bell as BellIcon, Telescope, GitBranch, ClipboardList, ShieldCheck,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
