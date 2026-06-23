@@ -41,14 +41,14 @@ const REPORTS: ReportDef[] = [
   { key: "kpis", title: "تقرير المؤشرات المالية (KPIs)", desc: "Financial KPIs Dashboard", category: "financial", icon: Activity, link: "/financials/kpis" },
 
   { key: "customers", title: "قائمة العملاء", desc: "كل العملاء وأرصدتهم", category: "receivables", icon: Users },
-  { key: "ar-aging", title: "أعمار ذمم العملاء", desc: "AR Aging Report", category: "receivables", icon: Users, link: "/receivables/aging" },
+  { key: "ar-aging", title: "أعمار ذمم العملاء", desc: "AR Aging Report", category: "receivables", icon: Users, link: "/customers/aging" },
   { key: "high-risk-customers", title: "العملاء عالي المخاطر", desc: "تصنيف Risk = High", category: "receivables", icon: Users },
-  { key: "customer-intelligence", title: "ذكاء العملاء", desc: "DSO، تركيز، تنبؤ تحصيل", category: "receivables", icon: Activity, link: "/intelligence/customers" },
+  { key: "customer-intelligence", title: "ذكاء العملاء", desc: "DSO، تركيز، تنبؤ تحصيل", category: "receivables", icon: Activity, link: "/customers/intelligence" },
 
   { key: "vendors", title: "قائمة الموردين", desc: "كل الموردين وأرصدتهم", category: "payables", icon: Truck },
   { key: "ap-aging", title: "أعمار ذمم الموردين", desc: "AP Aging Report", category: "payables", icon: Truck, link: "/vendors/aging" },
   { key: "top-vendors", title: "أعلى الموردين", desc: "Top 10 by spend", category: "payables", icon: Truck, link: "/vendors/top" },
-  { key: "vendor-intelligence", title: "ذكاء الموردين", desc: "DPO، تركيز، اعتمادية", category: "payables", icon: Activity, link: "/intelligence/vendors" },
+  { key: "vendor-intelligence", title: "ذكاء الموردين", desc: "DPO، تركيز، اعتمادية", category: "payables", icon: Activity, link: "/vendors/intelligence" },
 
   { key: "projects", title: "قائمة المشاريع", desc: "كل المشاريع والحالات", category: "projects", icon: FolderKanban },
   { key: "project-control", title: "تحكم المشاريع", desc: "Health Score + تنبيهات", category: "projects", icon: FolderKanban, link: "/control/projects" },
