@@ -93,8 +93,6 @@ export const MOBILE_MODULES: MobileModule[] = [
 
   // Operations
   { to: "/dashboard", label: "لوحة التحكم", icon: LayoutDashboard, category: "operations" },
-  { to: "/customers", label: "العملاء", icon: Users, category: "operations" },
-  { to: "/vendors", label: "الموردين", icon: Truck, category: "operations" },
   { to: "/tasks", label: "المهام والتقويم", icon: ClipboardList, category: "operations" },
   { to: "/tasks/team", label: "أداء الفريق", icon: Calendar, category: "operations" },
   { to: "/reports", label: "مركز التقارير", icon: FileText, category: "operations" },
