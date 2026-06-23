@@ -60,6 +60,7 @@ import { Route as AuthenticatedDashboardExecutiveRouteImport } from './routes/_a
 import { Route as AuthenticatedCustomersInvoicesRouteImport } from './routes/_authenticated/customers/invoices'
 import { Route as AuthenticatedCustomersImportRouteImport } from './routes/_authenticated/customers/import'
 import { Route as AuthenticatedCustomersContractsRouteImport } from './routes/_authenticated/customers/contracts'
+import { Route as AuthenticatedCustomersCollectionsRouteImport } from './routes/_authenticated/customers/collections'
 import { Route as AuthenticatedCustomersAgingRouteImport } from './routes/_authenticated/customers/aging'
 import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenticated/customers/$id'
 import { Route as AuthenticatedControlProjectsRouteImport } from './routes/_authenticated/control/projects'
@@ -363,6 +364,12 @@ const AuthenticatedCustomersContractsRoute =
     path: '/customers/contracts',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedCustomersCollectionsRoute =
+  AuthenticatedCustomersCollectionsRouteImport.update({
+    id: '/customers/collections',
+    path: '/customers/collections',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCustomersAgingRoute =
   AuthenticatedCustomersAgingRouteImport.update({
     id: '/customers/aging',
@@ -434,6 +441,7 @@ export interface FileRoutesByFullPath {
   '/control/projects': typeof AuthenticatedControlProjectsRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers/aging': typeof AuthenticatedCustomersAgingRoute
+  '/customers/collections': typeof AuthenticatedCustomersCollectionsRoute
   '/customers/contracts': typeof AuthenticatedCustomersContractsRoute
   '/customers/import': typeof AuthenticatedCustomersImportRoute
   '/customers/invoices': typeof AuthenticatedCustomersInvoicesRoute
@@ -496,6 +504,7 @@ export interface FileRoutesByTo {
   '/control/projects': typeof AuthenticatedControlProjectsRoute
   '/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/customers/aging': typeof AuthenticatedCustomersAgingRoute
+  '/customers/collections': typeof AuthenticatedCustomersCollectionsRoute
   '/customers/contracts': typeof AuthenticatedCustomersContractsRoute
   '/customers/import': typeof AuthenticatedCustomersImportRoute
   '/customers/invoices': typeof AuthenticatedCustomersInvoicesRoute
@@ -560,6 +569,7 @@ export interface FileRoutesById {
   '/_authenticated/control/projects': typeof AuthenticatedControlProjectsRoute
   '/_authenticated/customers/$id': typeof AuthenticatedCustomersIdRoute
   '/_authenticated/customers/aging': typeof AuthenticatedCustomersAgingRoute
+  '/_authenticated/customers/collections': typeof AuthenticatedCustomersCollectionsRoute
   '/_authenticated/customers/contracts': typeof AuthenticatedCustomersContractsRoute
   '/_authenticated/customers/import': typeof AuthenticatedCustomersImportRoute
   '/_authenticated/customers/invoices': typeof AuthenticatedCustomersInvoicesRoute
@@ -624,6 +634,7 @@ export interface FileRouteTypes {
     | '/control/projects'
     | '/customers/$id'
     | '/customers/aging'
+    | '/customers/collections'
     | '/customers/contracts'
     | '/customers/import'
     | '/customers/invoices'
@@ -686,6 +697,7 @@ export interface FileRouteTypes {
     | '/control/projects'
     | '/customers/$id'
     | '/customers/aging'
+    | '/customers/collections'
     | '/customers/contracts'
     | '/customers/import'
     | '/customers/invoices'
@@ -749,6 +761,7 @@ export interface FileRouteTypes {
     | '/_authenticated/control/projects'
     | '/_authenticated/customers/$id'
     | '/_authenticated/customers/aging'
+    | '/_authenticated/customers/collections'
     | '/_authenticated/customers/contracts'
     | '/_authenticated/customers/import'
     | '/_authenticated/customers/invoices'
@@ -1167,6 +1180,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomersContractsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/customers/collections': {
+      id: '/_authenticated/customers/collections'
+      path: '/customers/collections'
+      fullPath: '/customers/collections'
+      preLoaderRoute: typeof AuthenticatedCustomersCollectionsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/customers/aging': {
       id: '/_authenticated/customers/aging'
       path: '/customers/aging'
@@ -1262,6 +1282,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedControlProjectsRoute: typeof AuthenticatedControlProjectsRoute
   AuthenticatedCustomersIdRoute: typeof AuthenticatedCustomersIdRoute
   AuthenticatedCustomersAgingRoute: typeof AuthenticatedCustomersAgingRoute
+  AuthenticatedCustomersCollectionsRoute: typeof AuthenticatedCustomersCollectionsRoute
   AuthenticatedCustomersContractsRoute: typeof AuthenticatedCustomersContractsRoute
   AuthenticatedCustomersImportRoute: typeof AuthenticatedCustomersImportRoute
   AuthenticatedCustomersInvoicesRoute: typeof AuthenticatedCustomersInvoicesRoute
@@ -1322,6 +1343,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedControlProjectsRoute: AuthenticatedControlProjectsRoute,
   AuthenticatedCustomersIdRoute: AuthenticatedCustomersIdRoute,
   AuthenticatedCustomersAgingRoute: AuthenticatedCustomersAgingRoute,
+  AuthenticatedCustomersCollectionsRoute:
+    AuthenticatedCustomersCollectionsRoute,
   AuthenticatedCustomersContractsRoute: AuthenticatedCustomersContractsRoute,
   AuthenticatedCustomersImportRoute: AuthenticatedCustomersImportRoute,
   AuthenticatedCustomersInvoicesRoute: AuthenticatedCustomersInvoicesRoute,
