@@ -39,6 +39,7 @@ import { Route as AuthenticatedControlIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedBoardIndexRouteImport } from './routes/_authenticated/board/index'
 import { Route as AuthenticatedBanksIndexRouteImport } from './routes/_authenticated/banks/index'
 import { Route as AuthenticatedAlertsIndexRouteImport } from './routes/_authenticated/alerts/index'
+import { Route as AuthenticatedVendorsReportsRouteImport } from './routes/_authenticated/vendors/reports'
 import { Route as AuthenticatedVendorsPaymentsRouteImport } from './routes/_authenticated/vendors/payments'
 import { Route as AuthenticatedVendorsInvoicesRouteImport } from './routes/_authenticated/vendors/invoices'
 import { Route as AuthenticatedVendorsIntelligenceRouteImport } from './routes/_authenticated/vendors/intelligence'
@@ -246,6 +247,12 @@ const AuthenticatedAlertsIndexRoute =
   AuthenticatedAlertsIndexRouteImport.update({
     id: '/alerts/',
     path: '/alerts/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedVendorsReportsRoute =
+  AuthenticatedVendorsReportsRouteImport.update({
+    id: '/vendors/reports',
+    path: '/vendors/reports',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedVendorsPaymentsRoute =
@@ -519,6 +526,7 @@ export interface FileRoutesByFullPath {
   '/vendors/intelligence': typeof AuthenticatedVendorsIntelligenceRoute
   '/vendors/invoices': typeof AuthenticatedVendorsInvoicesRoute
   '/vendors/payments': typeof AuthenticatedVendorsPaymentsRoute
+  '/vendors/reports': typeof AuthenticatedVendorsReportsRoute
   '/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/banks/': typeof AuthenticatedBanksIndexRoute
   '/board/': typeof AuthenticatedBoardIndexRoute
@@ -589,6 +597,7 @@ export interface FileRoutesByTo {
   '/vendors/intelligence': typeof AuthenticatedVendorsIntelligenceRoute
   '/vendors/invoices': typeof AuthenticatedVendorsInvoicesRoute
   '/vendors/payments': typeof AuthenticatedVendorsPaymentsRoute
+  '/vendors/reports': typeof AuthenticatedVendorsReportsRoute
   '/alerts': typeof AuthenticatedAlertsIndexRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
   '/board': typeof AuthenticatedBoardIndexRoute
@@ -661,6 +670,7 @@ export interface FileRoutesById {
   '/_authenticated/vendors/intelligence': typeof AuthenticatedVendorsIntelligenceRoute
   '/_authenticated/vendors/invoices': typeof AuthenticatedVendorsInvoicesRoute
   '/_authenticated/vendors/payments': typeof AuthenticatedVendorsPaymentsRoute
+  '/_authenticated/vendors/reports': typeof AuthenticatedVendorsReportsRoute
   '/_authenticated/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/_authenticated/banks/': typeof AuthenticatedBanksIndexRoute
   '/_authenticated/board/': typeof AuthenticatedBoardIndexRoute
@@ -733,6 +743,7 @@ export interface FileRouteTypes {
     | '/vendors/intelligence'
     | '/vendors/invoices'
     | '/vendors/payments'
+    | '/vendors/reports'
     | '/alerts/'
     | '/banks/'
     | '/board/'
@@ -803,6 +814,7 @@ export interface FileRouteTypes {
     | '/vendors/intelligence'
     | '/vendors/invoices'
     | '/vendors/payments'
+    | '/vendors/reports'
     | '/alerts'
     | '/banks'
     | '/board'
@@ -874,6 +886,7 @@ export interface FileRouteTypes {
     | '/_authenticated/vendors/intelligence'
     | '/_authenticated/vendors/invoices'
     | '/_authenticated/vendors/payments'
+    | '/_authenticated/vendors/reports'
     | '/_authenticated/alerts/'
     | '/_authenticated/banks/'
     | '/_authenticated/board/'
@@ -1122,6 +1135,13 @@ declare module '@tanstack/react-router' {
       path: '/alerts'
       fullPath: '/alerts/'
       preLoaderRoute: typeof AuthenticatedAlertsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/vendors/reports': {
+      id: '/_authenticated/vendors/reports'
+      path: '/vendors/reports'
+      fullPath: '/vendors/reports'
+      preLoaderRoute: typeof AuthenticatedVendorsReportsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/vendors/payments': {
@@ -1450,6 +1470,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedVendorsIntelligenceRoute: typeof AuthenticatedVendorsIntelligenceRoute
   AuthenticatedVendorsInvoicesRoute: typeof AuthenticatedVendorsInvoicesRoute
   AuthenticatedVendorsPaymentsRoute: typeof AuthenticatedVendorsPaymentsRoute
+  AuthenticatedVendorsReportsRoute: typeof AuthenticatedVendorsReportsRoute
   AuthenticatedAlertsIndexRoute: typeof AuthenticatedAlertsIndexRoute
   AuthenticatedBanksIndexRoute: typeof AuthenticatedBanksIndexRoute
   AuthenticatedBoardIndexRoute: typeof AuthenticatedBoardIndexRoute
@@ -1523,6 +1544,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedVendorsIntelligenceRoute: AuthenticatedVendorsIntelligenceRoute,
   AuthenticatedVendorsInvoicesRoute: AuthenticatedVendorsInvoicesRoute,
   AuthenticatedVendorsPaymentsRoute: AuthenticatedVendorsPaymentsRoute,
+  AuthenticatedVendorsReportsRoute: AuthenticatedVendorsReportsRoute,
   AuthenticatedAlertsIndexRoute: AuthenticatedAlertsIndexRoute,
   AuthenticatedBanksIndexRoute: AuthenticatedBanksIndexRoute,
   AuthenticatedBoardIndexRoute: AuthenticatedBoardIndexRoute,
