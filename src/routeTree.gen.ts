@@ -39,6 +39,7 @@ import { Route as AuthenticatedControlIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedBoardIndexRouteImport } from './routes/_authenticated/board/index'
 import { Route as AuthenticatedBanksIndexRouteImport } from './routes/_authenticated/banks/index'
 import { Route as AuthenticatedAlertsIndexRouteImport } from './routes/_authenticated/alerts/index'
+import { Route as AuthenticatedVendorsContractsRouteImport } from './routes/_authenticated/vendors/contracts'
 import { Route as AuthenticatedVendorsAgingRouteImport } from './routes/_authenticated/vendors/aging'
 import { Route as AuthenticatedTreasuryForecastRouteImport } from './routes/_authenticated/treasury/forecast'
 import { Route as AuthenticatedTasksTeamRouteImport } from './routes/_authenticated/tasks/team'
@@ -242,6 +243,12 @@ const AuthenticatedAlertsIndexRoute =
   AuthenticatedAlertsIndexRouteImport.update({
     id: '/alerts/',
     path: '/alerts/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedVendorsContractsRoute =
+  AuthenticatedVendorsContractsRouteImport.update({
+    id: '/vendors/contracts',
+    path: '/vendors/contracts',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedVendorsAgingRoute =
@@ -487,6 +494,7 @@ export interface FileRoutesByFullPath {
   '/tasks/team': typeof AuthenticatedTasksTeamRoute
   '/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
+  '/vendors/contracts': typeof AuthenticatedVendorsContractsRoute
   '/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/banks/': typeof AuthenticatedBanksIndexRoute
   '/board/': typeof AuthenticatedBoardIndexRoute
@@ -553,6 +561,7 @@ export interface FileRoutesByTo {
   '/tasks/team': typeof AuthenticatedTasksTeamRoute
   '/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
+  '/vendors/contracts': typeof AuthenticatedVendorsContractsRoute
   '/alerts': typeof AuthenticatedAlertsIndexRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
   '/board': typeof AuthenticatedBoardIndexRoute
@@ -621,6 +630,7 @@ export interface FileRoutesById {
   '/_authenticated/tasks/team': typeof AuthenticatedTasksTeamRoute
   '/_authenticated/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/_authenticated/vendors/aging': typeof AuthenticatedVendorsAgingRoute
+  '/_authenticated/vendors/contracts': typeof AuthenticatedVendorsContractsRoute
   '/_authenticated/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/_authenticated/banks/': typeof AuthenticatedBanksIndexRoute
   '/_authenticated/board/': typeof AuthenticatedBoardIndexRoute
@@ -689,6 +699,7 @@ export interface FileRouteTypes {
     | '/tasks/team'
     | '/treasury/forecast'
     | '/vendors/aging'
+    | '/vendors/contracts'
     | '/alerts/'
     | '/banks/'
     | '/board/'
@@ -755,6 +766,7 @@ export interface FileRouteTypes {
     | '/tasks/team'
     | '/treasury/forecast'
     | '/vendors/aging'
+    | '/vendors/contracts'
     | '/alerts'
     | '/banks'
     | '/board'
@@ -822,6 +834,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tasks/team'
     | '/_authenticated/treasury/forecast'
     | '/_authenticated/vendors/aging'
+    | '/_authenticated/vendors/contracts'
     | '/_authenticated/alerts/'
     | '/_authenticated/banks/'
     | '/_authenticated/board/'
@@ -1070,6 +1083,13 @@ declare module '@tanstack/react-router' {
       path: '/alerts'
       fullPath: '/alerts/'
       preLoaderRoute: typeof AuthenticatedAlertsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/vendors/contracts': {
+      id: '/_authenticated/vendors/contracts'
+      path: '/vendors/contracts'
+      fullPath: '/vendors/contracts'
+      preLoaderRoute: typeof AuthenticatedVendorsContractsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/vendors/aging': {
@@ -1366,6 +1386,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTasksTeamRoute: typeof AuthenticatedTasksTeamRoute
   AuthenticatedTreasuryForecastRoute: typeof AuthenticatedTreasuryForecastRoute
   AuthenticatedVendorsAgingRoute: typeof AuthenticatedVendorsAgingRoute
+  AuthenticatedVendorsContractsRoute: typeof AuthenticatedVendorsContractsRoute
   AuthenticatedAlertsIndexRoute: typeof AuthenticatedAlertsIndexRoute
   AuthenticatedBanksIndexRoute: typeof AuthenticatedBanksIndexRoute
   AuthenticatedBoardIndexRoute: typeof AuthenticatedBoardIndexRoute
@@ -1435,6 +1456,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTasksTeamRoute: AuthenticatedTasksTeamRoute,
   AuthenticatedTreasuryForecastRoute: AuthenticatedTreasuryForecastRoute,
   AuthenticatedVendorsAgingRoute: AuthenticatedVendorsAgingRoute,
+  AuthenticatedVendorsContractsRoute: AuthenticatedVendorsContractsRoute,
   AuthenticatedAlertsIndexRoute: AuthenticatedAlertsIndexRoute,
   AuthenticatedBanksIndexRoute: AuthenticatedBanksIndexRoute,
   AuthenticatedBoardIndexRoute: AuthenticatedBoardIndexRoute,
