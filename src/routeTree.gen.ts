@@ -41,6 +41,7 @@ import { Route as AuthenticatedBanksIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAlertsIndexRouteImport } from './routes/_authenticated/alerts/index'
 import { Route as AuthenticatedVendorsPaymentsRouteImport } from './routes/_authenticated/vendors/payments'
 import { Route as AuthenticatedVendorsInvoicesRouteImport } from './routes/_authenticated/vendors/invoices'
+import { Route as AuthenticatedVendorsIntelligenceRouteImport } from './routes/_authenticated/vendors/intelligence'
 import { Route as AuthenticatedVendorsContractsRouteImport } from './routes/_authenticated/vendors/contracts'
 import { Route as AuthenticatedVendorsAgingRouteImport } from './routes/_authenticated/vendors/aging'
 import { Route as AuthenticatedTreasuryForecastRouteImport } from './routes/_authenticated/treasury/forecast'
@@ -257,6 +258,12 @@ const AuthenticatedVendorsInvoicesRoute =
   AuthenticatedVendorsInvoicesRouteImport.update({
     id: '/vendors/invoices',
     path: '/vendors/invoices',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedVendorsIntelligenceRoute =
+  AuthenticatedVendorsIntelligenceRouteImport.update({
+    id: '/vendors/intelligence',
+    path: '/vendors/intelligence',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedVendorsContractsRoute =
@@ -509,6 +516,7 @@ export interface FileRoutesByFullPath {
   '/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
   '/vendors/contracts': typeof AuthenticatedVendorsContractsRoute
+  '/vendors/intelligence': typeof AuthenticatedVendorsIntelligenceRoute
   '/vendors/invoices': typeof AuthenticatedVendorsInvoicesRoute
   '/vendors/payments': typeof AuthenticatedVendorsPaymentsRoute
   '/alerts/': typeof AuthenticatedAlertsIndexRoute
@@ -578,6 +586,7 @@ export interface FileRoutesByTo {
   '/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/vendors/aging': typeof AuthenticatedVendorsAgingRoute
   '/vendors/contracts': typeof AuthenticatedVendorsContractsRoute
+  '/vendors/intelligence': typeof AuthenticatedVendorsIntelligenceRoute
   '/vendors/invoices': typeof AuthenticatedVendorsInvoicesRoute
   '/vendors/payments': typeof AuthenticatedVendorsPaymentsRoute
   '/alerts': typeof AuthenticatedAlertsIndexRoute
@@ -649,6 +658,7 @@ export interface FileRoutesById {
   '/_authenticated/treasury/forecast': typeof AuthenticatedTreasuryForecastRoute
   '/_authenticated/vendors/aging': typeof AuthenticatedVendorsAgingRoute
   '/_authenticated/vendors/contracts': typeof AuthenticatedVendorsContractsRoute
+  '/_authenticated/vendors/intelligence': typeof AuthenticatedVendorsIntelligenceRoute
   '/_authenticated/vendors/invoices': typeof AuthenticatedVendorsInvoicesRoute
   '/_authenticated/vendors/payments': typeof AuthenticatedVendorsPaymentsRoute
   '/_authenticated/alerts/': typeof AuthenticatedAlertsIndexRoute
@@ -720,6 +730,7 @@ export interface FileRouteTypes {
     | '/treasury/forecast'
     | '/vendors/aging'
     | '/vendors/contracts'
+    | '/vendors/intelligence'
     | '/vendors/invoices'
     | '/vendors/payments'
     | '/alerts/'
@@ -789,6 +800,7 @@ export interface FileRouteTypes {
     | '/treasury/forecast'
     | '/vendors/aging'
     | '/vendors/contracts'
+    | '/vendors/intelligence'
     | '/vendors/invoices'
     | '/vendors/payments'
     | '/alerts'
@@ -859,6 +871,7 @@ export interface FileRouteTypes {
     | '/_authenticated/treasury/forecast'
     | '/_authenticated/vendors/aging'
     | '/_authenticated/vendors/contracts'
+    | '/_authenticated/vendors/intelligence'
     | '/_authenticated/vendors/invoices'
     | '/_authenticated/vendors/payments'
     | '/_authenticated/alerts/'
@@ -1123,6 +1136,13 @@ declare module '@tanstack/react-router' {
       path: '/vendors/invoices'
       fullPath: '/vendors/invoices'
       preLoaderRoute: typeof AuthenticatedVendorsInvoicesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/vendors/intelligence': {
+      id: '/_authenticated/vendors/intelligence'
+      path: '/vendors/intelligence'
+      fullPath: '/vendors/intelligence'
+      preLoaderRoute: typeof AuthenticatedVendorsIntelligenceRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/vendors/contracts': {
@@ -1427,6 +1447,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTreasuryForecastRoute: typeof AuthenticatedTreasuryForecastRoute
   AuthenticatedVendorsAgingRoute: typeof AuthenticatedVendorsAgingRoute
   AuthenticatedVendorsContractsRoute: typeof AuthenticatedVendorsContractsRoute
+  AuthenticatedVendorsIntelligenceRoute: typeof AuthenticatedVendorsIntelligenceRoute
   AuthenticatedVendorsInvoicesRoute: typeof AuthenticatedVendorsInvoicesRoute
   AuthenticatedVendorsPaymentsRoute: typeof AuthenticatedVendorsPaymentsRoute
   AuthenticatedAlertsIndexRoute: typeof AuthenticatedAlertsIndexRoute
@@ -1499,6 +1520,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTreasuryForecastRoute: AuthenticatedTreasuryForecastRoute,
   AuthenticatedVendorsAgingRoute: AuthenticatedVendorsAgingRoute,
   AuthenticatedVendorsContractsRoute: AuthenticatedVendorsContractsRoute,
+  AuthenticatedVendorsIntelligenceRoute: AuthenticatedVendorsIntelligenceRoute,
   AuthenticatedVendorsInvoicesRoute: AuthenticatedVendorsInvoicesRoute,
   AuthenticatedVendorsPaymentsRoute: AuthenticatedVendorsPaymentsRoute,
   AuthenticatedAlertsIndexRoute: AuthenticatedAlertsIndexRoute,
