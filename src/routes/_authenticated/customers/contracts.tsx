@@ -12,7 +12,7 @@ import { fmtSAR, daysBetween } from "@/lib/format";
 import { exportToExcel } from "@/lib/export";
 import { FileText, Wallet, AlertTriangle, CheckCircle2, FileSpreadsheet, Search } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/contracts/")({ component: Page });
+export const Route = createFileRoute("/_authenticated/customers/contracts")({ component: Page });
 
 const statusLabel: Record<string, string> = {
   draft: "مسودة",
