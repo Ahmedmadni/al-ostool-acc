@@ -47,7 +47,7 @@ const REPORTS: ReportDef[] = [
 
   { key: "vendors", title: "قائمة الموردين", desc: "كل الموردين وأرصدتهم", category: "payables", icon: Truck },
   { key: "ap-aging", title: "أعمار ذمم الموردين", desc: "AP Aging Report", category: "payables", icon: Truck, link: "/vendors/aging" },
-  { key: "top-vendors", title: "أعلى الموردين", desc: "Top 10 by spend", category: "payables", icon: Truck, link: "/vendors/top" },
+  { key: "top-vendors", title: "أعلى الموردين", desc: "Top 10 by spend", category: "payables", icon: Truck, link: "/vendors/intelligence" },
   { key: "vendor-intelligence", title: "ذكاء الموردين", desc: "DPO، تركيز، اعتمادية", category: "payables", icon: Activity, link: "/vendors/intelligence" },
 
   { key: "projects", title: "قائمة المشاريع", desc: "كل المشاريع والحالات", category: "projects", icon: FolderKanban },
