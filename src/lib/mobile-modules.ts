@@ -39,9 +39,6 @@ export const CATEGORY_ORDER: ModuleCategory[] = [
 
 export const MOBILE_MODULES: MobileModule[] = [
   // Financial
-  { to: "/invoices", label: "الفوترة", icon: Receipt, category: "financial" },
-  { to: "/receivables/aging", label: "أعمار ذمم العملاء", icon: BarChart3, category: "financial" },
-  { to: "/vendors/aging", label: "أعمار ذمم الموردين", icon: BarChart3, category: "financial" },
   { to: "/banks", label: "البنوك والنقدية", icon: Landmark, category: "financial" },
   { to: "/treasury", label: "الخزينة", icon: Vault, category: "financial" },
   { to: "/treasury/forecast", label: "توقعات السيولة", icon: Waves, category: "financial" },
@@ -56,9 +53,27 @@ export const MOBILE_MODULES: MobileModule[] = [
   { to: "/trial-balance", label: "ميزان المراجعة", icon: BookOpen, category: "financial" },
   { to: "/tax-tools", label: "الزكاة والضريبة", icon: Calculator, category: "financial" },
 
+  // Customers (AR)
+  { to: "/customers", label: "العملاء", icon: Users, category: "operations" },
+  { to: "/customers/contracts", label: "عقود العملاء", icon: FileText, category: "operations" },
+  { to: "/customers/invoices", label: "فواتير البيع", icon: Receipt, category: "financial" },
+  { to: "/customers/collections", label: "التحصيلات", icon: Wallet, category: "financial" },
+  { to: "/customers/retention", label: "ضمانات الاحتجاز", icon: ShieldCheck, category: "financial" },
+  { to: "/customers/aging", label: "أعمار ذمم العملاء", icon: BarChart3, category: "financial" },
+  { to: "/customers/intelligence", label: "ذكاء العملاء والذمم", icon: Sparkles, category: "intelligence" },
+  { to: "/customers/reports", label: "تقارير العملاء", icon: FileBarChart, category: "operations" },
+
+  // Vendors (AP)
+  { to: "/vendors", label: "الموردين", icon: Truck, category: "operations" },
+  { to: "/vendors/contracts", label: "عقود الموردين", icon: FileText, category: "operations" },
+  { to: "/vendors/invoices", label: "فواتير الشراء", icon: Receipt, category: "financial" },
+  { to: "/vendors/payments", label: "مدفوعات الموردين", icon: Wallet, category: "financial" },
+  { to: "/vendors/aging", label: "أعمار ذمم الموردين", icon: BarChart3, category: "financial" },
+  { to: "/vendors/intelligence", label: "ذكاء الموردين والذمم", icon: Sparkles, category: "intelligence" },
+  { to: "/vendors/reports", label: "تقارير الموردين", icon: FileBarChart, category: "operations" },
+
   // Projects
   { to: "/projects", label: "المشاريع", icon: FolderKanban, category: "projects" },
-  { to: "/contracts", label: "العقود", icon: FileText, category: "projects" },
   { to: "/projects/progress", label: "متابعة الإنجاز", icon: TrendingUp, category: "projects" },
   { to: "/control/projects", label: "التحكم بالمشاريع", icon: ShieldCheck, category: "projects" },
   { to: "/fixed-assets", label: "الأصول الثابتة", icon: Building2, category: "projects" },
@@ -66,13 +81,9 @@ export const MOBILE_MODULES: MobileModule[] = [
   // Costs
   { to: "/costs", label: "ذكاء التكاليف", icon: Layers, category: "costs" },
   { to: "/control/costs", label: "التحكم بالتكاليف", icon: ShieldCheck, category: "costs" },
-  { to: "/vendors/top", label: "أعلى الموردين", icon: Trophy, category: "costs" },
-  { to: "/suppliers", label: "أرصدة الموردين", icon: Briefcase, category: "costs" },
 
   // Intelligence
   { to: "/executive", label: "مركز CFO", icon: LayoutDashboard, category: "intelligence" },
-  { to: "/intelligence/customers", label: "ذكاء العملاء", icon: Users, category: "intelligence" },
-  { to: "/intelligence/vendors", label: "ذكاء الموردين", icon: Truck, category: "intelligence" },
   { to: "/insights", label: "تحليلات AI", icon: Sparkles, category: "intelligence" },
   { to: "/forecasting", label: "محرك التوقعات", icon: Telescope, category: "intelligence" },
   { to: "/scenarios", label: "السيناريوهات", icon: GitBranch, category: "intelligence" },
