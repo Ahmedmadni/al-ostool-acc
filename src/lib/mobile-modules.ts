@@ -82,8 +82,7 @@ export const MOBILE_MODULES: MobileModule[] = [
   { to: "/control/costs", label: "التحكم بالتكاليف", icon: ShieldCheck, category: "costs" },
 
   // Intelligence
-  { to: "/executive", label: "مركز CFO", icon: LayoutDashboard, category: "intelligence" },
-  { to: "/insights", label: "تحليلات AI", icon: Sparkles, category: "intelligence" },
+  { to: "/executive", label: "مركز القيادة التنفيذي", icon: LayoutDashboard, category: "intelligence" },
   { to: "/forecasting", label: "محرك التوقعات", icon: Telescope, category: "intelligence" },
   { to: "/scenarios", label: "السيناريوهات", icon: GitBranch, category: "intelligence" },
   { to: "/board", label: "تقارير مجلس الإدارة", icon: FileBarChart, category: "intelligence" },
