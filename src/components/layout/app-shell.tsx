@@ -103,7 +103,6 @@ const GROUPS: NavGroup[] = [
       { to: "/financials/cash-flow", label: "قائمة التدفقات النقدية" },
       { to: "/financials/equity", label: "قائمة حقوق الملكية" },
       { to: "/financials/kpis", label: "محرك المؤشرات (KPI)" },
-      { to: "/financial-indicators", label: "المؤشرات المالية (قديم)" },
     ],
   },
   {
