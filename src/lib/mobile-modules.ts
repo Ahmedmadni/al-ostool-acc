@@ -90,7 +90,6 @@ export const MOBILE_MODULES: MobileModule[] = [
   { to: "/copilot", label: "المساعد الذكي", icon: Bot, category: "intelligence" },
 
   // Operations
-  { to: "/dashboard", label: "لوحة التحكم", icon: LayoutDashboard, category: "operations" },
   { to: "/tasks", label: "المهام والتقويم", icon: ClipboardList, category: "operations" },
   { to: "/tasks/team", label: "أداء الفريق", icon: Calendar, category: "operations" },
   { to: "/reports", label: "مركز التقارير", icon: FileText, category: "operations" },
