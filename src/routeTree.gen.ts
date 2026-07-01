@@ -25,12 +25,10 @@ import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authenticated/projects/index'
 import { Route as AuthenticatedNotificationsIndexRouteImport } from './routes/_authenticated/notifications/index'
 import { Route as AuthenticatedNotesIndexRouteImport } from './routes/_authenticated/notes/index'
-import { Route as AuthenticatedInsightsIndexRouteImport } from './routes/_authenticated/insights/index'
 import { Route as AuthenticatedImportsIndexRouteImport } from './routes/_authenticated/imports/index'
 import { Route as AuthenticatedForecastingIndexRouteImport } from './routes/_authenticated/forecasting/index'
 import { Route as AuthenticatedFixedAssetsIndexRouteImport } from './routes/_authenticated/fixed-assets/index'
 import { Route as AuthenticatedFinancialsIndexRouteImport } from './routes/_authenticated/financials/index'
-import { Route as AuthenticatedFinancialIndicatorsIndexRouteImport } from './routes/_authenticated/financial-indicators/index'
 import { Route as AuthenticatedExecutiveIndexRouteImport } from './routes/_authenticated/executive/index'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
 import { Route as AuthenticatedCostsIndexRouteImport } from './routes/_authenticated/costs/index'
@@ -61,7 +59,6 @@ import { Route as AuthenticatedFinancialsIncomeStatementRouteImport } from './ro
 import { Route as AuthenticatedFinancialsEquityRouteImport } from './routes/_authenticated/financials/equity'
 import { Route as AuthenticatedFinancialsCashFlowRouteImport } from './routes/_authenticated/financials/cash-flow'
 import { Route as AuthenticatedFinancialsBalanceSheetRouteImport } from './routes/_authenticated/financials/balance-sheet'
-import { Route as AuthenticatedDashboardExecutiveRouteImport } from './routes/_authenticated/dashboard/executive'
 import { Route as AuthenticatedCustomersRetentionRouteImport } from './routes/_authenticated/customers/retention'
 import { Route as AuthenticatedCustomersReportsRouteImport } from './routes/_authenticated/customers/reports'
 import { Route as AuthenticatedCustomersInvoicesRouteImport } from './routes/_authenticated/customers/invoices'
@@ -168,12 +165,6 @@ const AuthenticatedNotesIndexRoute = AuthenticatedNotesIndexRouteImport.update({
   path: '/notes/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedInsightsIndexRoute =
-  AuthenticatedInsightsIndexRouteImport.update({
-    id: '/insights/',
-    path: '/insights/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedImportsIndexRoute =
   AuthenticatedImportsIndexRouteImport.update({
     id: '/imports/',
@@ -196,12 +187,6 @@ const AuthenticatedFinancialsIndexRoute =
   AuthenticatedFinancialsIndexRouteImport.update({
     id: '/financials/',
     path: '/financials/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedFinancialIndicatorsIndexRoute =
-  AuthenticatedFinancialIndicatorsIndexRouteImport.update({
-    id: '/financial-indicators/',
-    path: '/financial-indicators/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedExecutiveIndexRoute =
@@ -378,12 +363,6 @@ const AuthenticatedFinancialsBalanceSheetRoute =
     path: '/financials/balance-sheet',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedDashboardExecutiveRoute =
-  AuthenticatedDashboardExecutiveRouteImport.update({
-    id: '/executive',
-    path: '/executive',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
 const AuthenticatedCustomersRetentionRoute =
   AuthenticatedCustomersRetentionRouteImport.update({
     id: '/customers/retention',
@@ -491,7 +470,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/account': typeof AuthenticatedAccountRoute
-  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/control/costs': typeof AuthenticatedControlCostsRoute
   '/control/projects': typeof AuthenticatedControlProjectsRoute
@@ -504,7 +483,6 @@ export interface FileRoutesByFullPath {
   '/customers/invoices': typeof AuthenticatedCustomersInvoicesRoute
   '/customers/reports': typeof AuthenticatedCustomersReportsRoute
   '/customers/retention': typeof AuthenticatedCustomersRetentionRoute
-  '/dashboard/executive': typeof AuthenticatedDashboardExecutiveRoute
   '/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
   '/financials/cash-flow': typeof AuthenticatedFinancialsCashFlowRoute
   '/financials/equity': typeof AuthenticatedFinancialsEquityRoute
@@ -535,12 +513,10 @@ export interface FileRoutesByFullPath {
   '/costs/': typeof AuthenticatedCostsIndexRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/executive/': typeof AuthenticatedExecutiveIndexRoute
-  '/financial-indicators/': typeof AuthenticatedFinancialIndicatorsIndexRoute
   '/financials/': typeof AuthenticatedFinancialsIndexRoute
   '/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
   '/forecasting/': typeof AuthenticatedForecastingIndexRoute
   '/imports/': typeof AuthenticatedImportsIndexRoute
-  '/insights/': typeof AuthenticatedInsightsIndexRoute
   '/notes/': typeof AuthenticatedNotesIndexRoute
   '/notifications/': typeof AuthenticatedNotificationsIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
@@ -562,7 +538,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/account': typeof AuthenticatedAccountRoute
-  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/control/costs': typeof AuthenticatedControlCostsRoute
   '/control/projects': typeof AuthenticatedControlProjectsRoute
@@ -575,7 +551,6 @@ export interface FileRoutesByTo {
   '/customers/invoices': typeof AuthenticatedCustomersInvoicesRoute
   '/customers/reports': typeof AuthenticatedCustomersReportsRoute
   '/customers/retention': typeof AuthenticatedCustomersRetentionRoute
-  '/dashboard/executive': typeof AuthenticatedDashboardExecutiveRoute
   '/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
   '/financials/cash-flow': typeof AuthenticatedFinancialsCashFlowRoute
   '/financials/equity': typeof AuthenticatedFinancialsEquityRoute
@@ -606,12 +581,10 @@ export interface FileRoutesByTo {
   '/costs': typeof AuthenticatedCostsIndexRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/executive': typeof AuthenticatedExecutiveIndexRoute
-  '/financial-indicators': typeof AuthenticatedFinancialIndicatorsIndexRoute
   '/financials': typeof AuthenticatedFinancialsIndexRoute
   '/fixed-assets': typeof AuthenticatedFixedAssetsIndexRoute
   '/forecasting': typeof AuthenticatedForecastingIndexRoute
   '/imports': typeof AuthenticatedImportsIndexRoute
-  '/insights': typeof AuthenticatedInsightsIndexRoute
   '/notes': typeof AuthenticatedNotesIndexRoute
   '/notifications': typeof AuthenticatedNotificationsIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
@@ -635,7 +608,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/_authenticated/control/costs': typeof AuthenticatedControlCostsRoute
   '/_authenticated/control/projects': typeof AuthenticatedControlProjectsRoute
@@ -648,7 +621,6 @@ export interface FileRoutesById {
   '/_authenticated/customers/invoices': typeof AuthenticatedCustomersInvoicesRoute
   '/_authenticated/customers/reports': typeof AuthenticatedCustomersReportsRoute
   '/_authenticated/customers/retention': typeof AuthenticatedCustomersRetentionRoute
-  '/_authenticated/dashboard/executive': typeof AuthenticatedDashboardExecutiveRoute
   '/_authenticated/financials/balance-sheet': typeof AuthenticatedFinancialsBalanceSheetRoute
   '/_authenticated/financials/cash-flow': typeof AuthenticatedFinancialsCashFlowRoute
   '/_authenticated/financials/equity': typeof AuthenticatedFinancialsEquityRoute
@@ -679,12 +651,10 @@ export interface FileRoutesById {
   '/_authenticated/costs/': typeof AuthenticatedCostsIndexRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/executive/': typeof AuthenticatedExecutiveIndexRoute
-  '/_authenticated/financial-indicators/': typeof AuthenticatedFinancialIndicatorsIndexRoute
   '/_authenticated/financials/': typeof AuthenticatedFinancialsIndexRoute
   '/_authenticated/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
   '/_authenticated/forecasting/': typeof AuthenticatedForecastingIndexRoute
   '/_authenticated/imports/': typeof AuthenticatedImportsIndexRoute
-  '/_authenticated/insights/': typeof AuthenticatedInsightsIndexRoute
   '/_authenticated/notes/': typeof AuthenticatedNotesIndexRoute
   '/_authenticated/notifications/': typeof AuthenticatedNotificationsIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
@@ -721,7 +691,6 @@ export interface FileRouteTypes {
     | '/customers/invoices'
     | '/customers/reports'
     | '/customers/retention'
-    | '/dashboard/executive'
     | '/financials/balance-sheet'
     | '/financials/cash-flow'
     | '/financials/equity'
@@ -752,12 +721,10 @@ export interface FileRouteTypes {
     | '/costs/'
     | '/customers/'
     | '/executive/'
-    | '/financial-indicators/'
     | '/financials/'
     | '/fixed-assets/'
     | '/forecasting/'
     | '/imports/'
-    | '/insights/'
     | '/notes/'
     | '/notifications/'
     | '/projects/'
@@ -792,7 +759,6 @@ export interface FileRouteTypes {
     | '/customers/invoices'
     | '/customers/reports'
     | '/customers/retention'
-    | '/dashboard/executive'
     | '/financials/balance-sheet'
     | '/financials/cash-flow'
     | '/financials/equity'
@@ -823,12 +789,10 @@ export interface FileRouteTypes {
     | '/costs'
     | '/customers'
     | '/executive'
-    | '/financial-indicators'
     | '/financials'
     | '/fixed-assets'
     | '/forecasting'
     | '/imports'
-    | '/insights'
     | '/notes'
     | '/notifications'
     | '/projects'
@@ -864,7 +828,6 @@ export interface FileRouteTypes {
     | '/_authenticated/customers/invoices'
     | '/_authenticated/customers/reports'
     | '/_authenticated/customers/retention'
-    | '/_authenticated/dashboard/executive'
     | '/_authenticated/financials/balance-sheet'
     | '/_authenticated/financials/cash-flow'
     | '/_authenticated/financials/equity'
@@ -895,12 +858,10 @@ export interface FileRouteTypes {
     | '/_authenticated/costs/'
     | '/_authenticated/customers/'
     | '/_authenticated/executive/'
-    | '/_authenticated/financial-indicators/'
     | '/_authenticated/financials/'
     | '/_authenticated/fixed-assets/'
     | '/_authenticated/forecasting/'
     | '/_authenticated/imports/'
-    | '/_authenticated/insights/'
     | '/_authenticated/notes/'
     | '/_authenticated/notifications/'
     | '/_authenticated/projects/'
@@ -1039,13 +1000,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNotesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/insights/': {
-      id: '/_authenticated/insights/'
-      path: '/insights'
-      fullPath: '/insights/'
-      preLoaderRoute: typeof AuthenticatedInsightsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/imports/': {
       id: '/_authenticated/imports/'
       path: '/imports'
@@ -1072,13 +1026,6 @@ declare module '@tanstack/react-router' {
       path: '/financials'
       fullPath: '/financials/'
       preLoaderRoute: typeof AuthenticatedFinancialsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/financial-indicators/': {
-      id: '/_authenticated/financial-indicators/'
-      path: '/financial-indicators'
-      fullPath: '/financial-indicators/'
-      preLoaderRoute: typeof AuthenticatedFinancialIndicatorsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/executive/': {
@@ -1291,13 +1238,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFinancialsBalanceSheetRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/dashboard/executive': {
-      id: '/_authenticated/dashboard/executive'
-      path: '/executive'
-      fullPath: '/dashboard/executive'
-      preLoaderRoute: typeof AuthenticatedDashboardExecutiveRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
-    }
     '/_authenticated/customers/retention': {
       id: '/_authenticated/customers/retention'
       path: '/customers/retention'
@@ -1420,23 +1360,9 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthenticatedDashboardRouteChildren {
-  AuthenticatedDashboardExecutiveRoute: typeof AuthenticatedDashboardExecutiveRoute
-}
-
-const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
-  {
-    AuthenticatedDashboardExecutiveRoute: AuthenticatedDashboardExecutiveRoute,
-  }
-
-const AuthenticatedDashboardRouteWithChildren =
-  AuthenticatedDashboardRoute._addFileChildren(
-    AuthenticatedDashboardRouteChildren,
-  )
-
 interface AuthenticatedRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedCashFlowMatrixRoute: typeof AuthenticatedCashFlowMatrixRoute
   AuthenticatedControlCostsRoute: typeof AuthenticatedControlCostsRoute
   AuthenticatedControlProjectsRoute: typeof AuthenticatedControlProjectsRoute
@@ -1479,12 +1405,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCostsIndexRoute: typeof AuthenticatedCostsIndexRoute
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedExecutiveIndexRoute: typeof AuthenticatedExecutiveIndexRoute
-  AuthenticatedFinancialIndicatorsIndexRoute: typeof AuthenticatedFinancialIndicatorsIndexRoute
   AuthenticatedFinancialsIndexRoute: typeof AuthenticatedFinancialsIndexRoute
   AuthenticatedFixedAssetsIndexRoute: typeof AuthenticatedFixedAssetsIndexRoute
   AuthenticatedForecastingIndexRoute: typeof AuthenticatedForecastingIndexRoute
   AuthenticatedImportsIndexRoute: typeof AuthenticatedImportsIndexRoute
-  AuthenticatedInsightsIndexRoute: typeof AuthenticatedInsightsIndexRoute
   AuthenticatedNotesIndexRoute: typeof AuthenticatedNotesIndexRoute
   AuthenticatedNotificationsIndexRoute: typeof AuthenticatedNotificationsIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
@@ -1505,7 +1429,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedCashFlowMatrixRoute: AuthenticatedCashFlowMatrixRoute,
   AuthenticatedControlCostsRoute: AuthenticatedControlCostsRoute,
   AuthenticatedControlProjectsRoute: AuthenticatedControlProjectsRoute,
@@ -1553,13 +1477,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCostsIndexRoute: AuthenticatedCostsIndexRoute,
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedExecutiveIndexRoute: AuthenticatedExecutiveIndexRoute,
-  AuthenticatedFinancialIndicatorsIndexRoute:
-    AuthenticatedFinancialIndicatorsIndexRoute,
   AuthenticatedFinancialsIndexRoute: AuthenticatedFinancialsIndexRoute,
   AuthenticatedFixedAssetsIndexRoute: AuthenticatedFixedAssetsIndexRoute,
   AuthenticatedForecastingIndexRoute: AuthenticatedForecastingIndexRoute,
   AuthenticatedImportsIndexRoute: AuthenticatedImportsIndexRoute,
-  AuthenticatedInsightsIndexRoute: AuthenticatedInsightsIndexRoute,
   AuthenticatedNotesIndexRoute: AuthenticatedNotesIndexRoute,
   AuthenticatedNotificationsIndexRoute: AuthenticatedNotificationsIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
