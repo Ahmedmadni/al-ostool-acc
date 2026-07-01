@@ -13,14 +13,12 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/settings", module: "settings" },
 
   // ===== Executive Leadership group → dashboard =====
-  { prefix: "/dashboard/executive", module: "dashboard" },
   { prefix: "/dashboard", module: "dashboard" },
   { prefix: "/executive", module: "dashboard" },
   { prefix: "/board", module: "dashboard" },
   { prefix: "/forecasting", module: "dashboard" },
   { prefix: "/scenarios", module: "dashboard" },
   { prefix: "/alerts", module: "dashboard" },
-  { prefix: "/insights", module: "dashboard" },
   { prefix: "/copilot", module: "dashboard" },
 
   // ===== Customers (AR) group =====
