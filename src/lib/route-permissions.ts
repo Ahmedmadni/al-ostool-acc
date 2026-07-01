@@ -68,7 +68,6 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/financials/equity", module: "financials" },
   { prefix: "/financials/kpis", module: "financials" },
   { prefix: "/financials", module: "financials" },
-  { prefix: "/financial-indicators", module: "financials" },
 
   // ===== Reports & Imports group =====
   { prefix: "/reports", module: "reports" },
