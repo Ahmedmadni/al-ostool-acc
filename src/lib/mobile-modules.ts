@@ -49,7 +49,6 @@ export const MOBILE_MODULES: MobileModule[] = [
   { to: "/financials/cash-flow", label: "قائمة التدفقات", icon: Wallet, category: "financial" },
   { to: "/financials/equity", label: "حقوق الملكية", icon: PieChart, category: "financial" },
   { to: "/financials/kpis", label: "مؤشرات KPI", icon: LineChart, category: "financial" },
-  { to: "/financial-indicators", label: "مؤشرات مالية", icon: Activity, category: "financial" },
   { to: "/trial-balance", label: "ميزان المراجعة", icon: BookOpen, category: "financial" },
   { to: "/tax-tools", label: "الزكاة والضريبة", icon: Calculator, category: "financial" },
 
@@ -83,8 +82,7 @@ export const MOBILE_MODULES: MobileModule[] = [
   { to: "/control/costs", label: "التحكم بالتكاليف", icon: ShieldCheck, category: "costs" },
 
   // Intelligence
-  { to: "/executive", label: "مركز CFO", icon: LayoutDashboard, category: "intelligence" },
-  { to: "/insights", label: "تحليلات AI", icon: Sparkles, category: "intelligence" },
+  { to: "/executive", label: "مركز القيادة التنفيذي", icon: LayoutDashboard, category: "intelligence" },
   { to: "/forecasting", label: "محرك التوقعات", icon: Telescope, category: "intelligence" },
   { to: "/scenarios", label: "السيناريوهات", icon: GitBranch, category: "intelligence" },
   { to: "/board", label: "تقارير مجلس الإدارة", icon: FileBarChart, category: "intelligence" },
@@ -92,7 +90,6 @@ export const MOBILE_MODULES: MobileModule[] = [
   { to: "/copilot", label: "المساعد الذكي", icon: Bot, category: "intelligence" },
 
   // Operations
-  { to: "/dashboard", label: "لوحة التحكم", icon: LayoutDashboard, category: "operations" },
   { to: "/tasks", label: "المهام والتقويم", icon: ClipboardList, category: "operations" },
   { to: "/tasks/team", label: "أداء الفريق", icon: Calendar, category: "operations" },
   { to: "/reports", label: "مركز التقارير", icon: FileText, category: "operations" },

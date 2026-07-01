@@ -36,7 +36,7 @@ export function NoAccess({ module }: { module?: string }) {
           </p>
         </div>
         <Button asChild variant="outline" size="sm">
-          <Link to="/dashboard">العودة للوحة التحكم</Link>
+          <Link to="/executive">العودة للوحة التنفيذية</Link>
         </Button>
       </Card>
     </div>

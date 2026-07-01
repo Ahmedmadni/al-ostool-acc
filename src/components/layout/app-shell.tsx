@@ -30,14 +30,11 @@ const GROUPS: NavGroup[] = [
   {
     key: "executive", label: "القيادة التنفيذية", icon: LayoutDashboard,
     links: [
-      { to: "/dashboard", label: "لوحة التحكم التنفيذية" },
-      { to: "/dashboard/executive", label: "لوحة الإدارة التنفيذية (CEO/CFO)" },
-      { to: "/executive", label: "مركز القيادة (CFO) V2" },
+      { to: "/executive", label: "مركز القيادة التنفيذي الموحد" },
       { to: "/forecasting", label: "محرك التوقعات" },
       { to: "/scenarios", label: "تحليل السيناريوهات" },
       { to: "/alerts", label: "مركز التنبيهات" },
       { to: "/board", label: "تقارير مجلس الإدارة" },
-      { to: "/insights", label: "تحليلات تنفيذية AI" },
       { to: "/copilot", label: "المساعد الذكي (Copilot) 🤖" },
     ],
   },
@@ -106,7 +103,6 @@ const GROUPS: NavGroup[] = [
       { to: "/financials/cash-flow", label: "قائمة التدفقات النقدية" },
       { to: "/financials/equity", label: "قائمة حقوق الملكية" },
       { to: "/financials/kpis", label: "محرك المؤشرات (KPI)" },
-      { to: "/financial-indicators", label: "المؤشرات المالية (قديم)" },
     ],
   },
   {

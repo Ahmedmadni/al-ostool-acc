@@ -10,15 +10,13 @@ import { useI18n, LANG_FULL_NAME } from "@/lib/i18n";
 import { toast } from "sonner";
 
 const PAGE_LABELS: Record<string, string> = {
-  "/dashboard": "Executive Dashboard",
-  "/executive": "CFO Command Center",
+  "/executive": "Unified Executive Command Center",
   "/customers": "Customers & Receivables",
-  "/customers/intelligence": "Customer Intelligence",
+  "/customers/intelligence": "Customer & AR Intelligence",
   "/vendors": "Vendors & Payables",
-  "/vendors/intelligence": "Vendor Intelligence",
+  "/vendors/intelligence": "Vendor & AP Intelligence",
   "/customers/aging": "Receivables Aging",
   "/vendors/aging": "Payables Aging",
-  "/vendors": "Suppliers",
   "/costs": "Cost Intelligence",
   "/control/projects": "Project Control",
   "/control/costs": "Cost Control",
@@ -35,10 +33,8 @@ const PAGE_LABELS: Record<string, string> = {
   "/financials/income-statement": "Income Statement",
   "/financials/cash-flow": "Cash Flow Statement",
   "/financials/kpis": "KPI Engine",
-  "/financial-indicators": "Financial Indicators",
   "/tax-tools": "VAT & Zakat",
   "/reports": "Reports Hub",
-  "/insights": "AI Executive Insights",
 };
 
 type Msg = { role: "user" | "assistant"; text: string };
