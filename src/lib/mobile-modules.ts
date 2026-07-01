@@ -49,7 +49,6 @@ export const MOBILE_MODULES: MobileModule[] = [
   { to: "/financials/cash-flow", label: "قائمة التدفقات", icon: Wallet, category: "financial" },
   { to: "/financials/equity", label: "حقوق الملكية", icon: PieChart, category: "financial" },
   { to: "/financials/kpis", label: "مؤشرات KPI", icon: LineChart, category: "financial" },
-  { to: "/financial-indicators", label: "مؤشرات مالية", icon: Activity, category: "financial" },
   { to: "/trial-balance", label: "ميزان المراجعة", icon: BookOpen, category: "financial" },
   { to: "/tax-tools", label: "الزكاة والضريبة", icon: Calculator, category: "financial" },
 
