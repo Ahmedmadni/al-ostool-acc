@@ -5,6 +5,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { I18nProvider } from "@/lib/i18n";
 import { RegionalProvider } from "@/lib/regional";
 import { FloatingCopilot } from "@/components/copilot/floating-copilot";
+import { FloatingCalculator } from "@/components/tools/floating-calculator";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { MobileAppLauncher } from "@/components/layout/mobile-app-launcher";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
@@ -34,6 +35,7 @@ function AuthLayout() {
         <MobileBottomNav onOpenLauncher={() => setLauncherOpen(true)} />
         <MobileAppLauncher open={launcherOpen} onOpenChange={setLauncherOpen} />
         <FloatingCopilot />
+        <FloatingCalculator />
         <InstallPrompt />
       </RegionalProvider>
     </I18nProvider>
