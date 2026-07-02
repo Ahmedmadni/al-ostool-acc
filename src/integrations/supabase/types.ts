@@ -1275,6 +1275,205 @@ export type Database = {
           },
         ]
       }
+      hr_assets_assignment: {
+        Row: {
+          asset_name: string
+          asset_type: Database["public"]["Enums"]["hr_asset_type"]
+          assigned_date: string
+          condition_notes: string | null
+          created_at: string
+          created_by: string | null
+          employee_id: string
+          file_path: string | null
+          id: string
+          is_returned: boolean
+          return_date: string | null
+          serial_no: string | null
+          updated_at: string
+          value: number | null
+        }
+        Insert: {
+          asset_name: string
+          asset_type: Database["public"]["Enums"]["hr_asset_type"]
+          assigned_date?: string
+          condition_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          employee_id: string
+          file_path?: string | null
+          id?: string
+          is_returned?: boolean
+          return_date?: string | null
+          serial_no?: string | null
+          updated_at?: string
+          value?: number | null
+        }
+        Update: {
+          asset_name?: string
+          asset_type?: Database["public"]["Enums"]["hr_asset_type"]
+          assigned_date?: string
+          condition_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          employee_id?: string
+          file_path?: string | null
+          id?: string
+          is_returned?: boolean
+          return_date?: string | null
+          serial_no?: string | null
+          updated_at?: string
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_assets_assignment_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hr_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_contract_amendments: {
+        Row: {
+          amendment_date: string
+          amendment_no: string | null
+          amendment_type: string | null
+          contract_id: string
+          created_at: string
+          created_by: string | null
+          file_path: string | null
+          id: string
+          new_values: Json | null
+          old_values: Json | null
+          reason: string | null
+        }
+        Insert: {
+          amendment_date?: string
+          amendment_no?: string | null
+          amendment_type?: string | null
+          contract_id: string
+          created_at?: string
+          created_by?: string | null
+          file_path?: string | null
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          reason?: string | null
+        }
+        Update: {
+          amendment_date?: string
+          amendment_no?: string | null
+          amendment_type?: string | null
+          contract_id?: string
+          created_at?: string
+          created_by?: string | null
+          file_path?: string | null
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_contract_amendments_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "hr_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_contracts: {
+        Row: {
+          annual_leave_days: number | null
+          basic_salary: number
+          contract_no: string
+          contract_type: Database["public"]["Enums"]["hr_contract_type"]
+          created_at: string
+          created_by: string | null
+          employee_id: string
+          end_date: string | null
+          file_path: string | null
+          housing_allowance: number | null
+          id: string
+          notes: string | null
+          notice_period_days: number | null
+          other_allowances: number | null
+          probation_months: number | null
+          project_id: string | null
+          start_date: string
+          status: Database["public"]["Enums"]["hr_contract_status"]
+          transport_allowance: number | null
+          updated_at: string
+          work_location: string | null
+          working_hours_per_week: number | null
+        }
+        Insert: {
+          annual_leave_days?: number | null
+          basic_salary?: number
+          contract_no: string
+          contract_type: Database["public"]["Enums"]["hr_contract_type"]
+          created_at?: string
+          created_by?: string | null
+          employee_id: string
+          end_date?: string | null
+          file_path?: string | null
+          housing_allowance?: number | null
+          id?: string
+          notes?: string | null
+          notice_period_days?: number | null
+          other_allowances?: number | null
+          probation_months?: number | null
+          project_id?: string | null
+          start_date: string
+          status?: Database["public"]["Enums"]["hr_contract_status"]
+          transport_allowance?: number | null
+          updated_at?: string
+          work_location?: string | null
+          working_hours_per_week?: number | null
+        }
+        Update: {
+          annual_leave_days?: number | null
+          basic_salary?: number
+          contract_no?: string
+          contract_type?: Database["public"]["Enums"]["hr_contract_type"]
+          created_at?: string
+          created_by?: string | null
+          employee_id?: string
+          end_date?: string | null
+          file_path?: string | null
+          housing_allowance?: number | null
+          id?: string
+          notes?: string | null
+          notice_period_days?: number | null
+          other_allowances?: number | null
+          probation_months?: number | null
+          project_id?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["hr_contract_status"]
+          transport_allowance?: number | null
+          updated_at?: string
+          work_location?: string | null
+          working_hours_per_week?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_contracts_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hr_employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_contracts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hr_costs: {
         Row: {
           department: string | null
@@ -1368,6 +1567,803 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_employee_documents: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          doc_number: string | null
+          doc_type: Database["public"]["Enums"]["hr_document_type"]
+          employee_id: string
+          expiry_date: string | null
+          file_name: string | null
+          file_path: string | null
+          id: string
+          issue_date: string | null
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          doc_number?: string | null
+          doc_type: Database["public"]["Enums"]["hr_document_type"]
+          employee_id: string
+          expiry_date?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          issue_date?: string | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          doc_number?: string | null
+          doc_type?: Database["public"]["Enums"]["hr_document_type"]
+          employee_id?: string
+          expiry_date?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          issue_date?: string | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_employee_documents_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hr_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_employees: {
+        Row: {
+          address: string | null
+          bank_iban: string | null
+          bank_name: string | null
+          basic_salary: number | null
+          company_id: string | null
+          created_at: string
+          created_by: string | null
+          date_of_birth: string | null
+          department_id: string | null
+          dependents_count: number | null
+          employee_no: string
+          full_name_ar: string
+          full_name_en: string | null
+          gender: string | null
+          gosi_subscription: number | null
+          gross_salary: number | null
+          hire_date: string | null
+          housing_allowance: number | null
+          id: string
+          iqama_expiry: string | null
+          iqama_number: string | null
+          is_saudi: boolean
+          job_title_id: string | null
+          manager_id: string | null
+          marital_status: string | null
+          national_id: string | null
+          nationality: string | null
+          notes: string | null
+          other_allowances: number | null
+          passport_expiry: string | null
+          passport_number: string | null
+          personal_email: string | null
+          personal_phone: string | null
+          photo_url: string | null
+          status: Database["public"]["Enums"]["hr_employee_status"]
+          transport_allowance: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          bank_iban?: string | null
+          bank_name?: string | null
+          basic_salary?: number | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          date_of_birth?: string | null
+          department_id?: string | null
+          dependents_count?: number | null
+          employee_no: string
+          full_name_ar: string
+          full_name_en?: string | null
+          gender?: string | null
+          gosi_subscription?: number | null
+          gross_salary?: number | null
+          hire_date?: string | null
+          housing_allowance?: number | null
+          id?: string
+          iqama_expiry?: string | null
+          iqama_number?: string | null
+          is_saudi?: boolean
+          job_title_id?: string | null
+          manager_id?: string | null
+          marital_status?: string | null
+          national_id?: string | null
+          nationality?: string | null
+          notes?: string | null
+          other_allowances?: number | null
+          passport_expiry?: string | null
+          passport_number?: string | null
+          personal_email?: string | null
+          personal_phone?: string | null
+          photo_url?: string | null
+          status?: Database["public"]["Enums"]["hr_employee_status"]
+          transport_allowance?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          bank_iban?: string | null
+          bank_name?: string | null
+          basic_salary?: number | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          date_of_birth?: string | null
+          department_id?: string | null
+          dependents_count?: number | null
+          employee_no?: string
+          full_name_ar?: string
+          full_name_en?: string | null
+          gender?: string | null
+          gosi_subscription?: number | null
+          gross_salary?: number | null
+          hire_date?: string | null
+          housing_allowance?: number | null
+          id?: string
+          iqama_expiry?: string | null
+          iqama_number?: string | null
+          is_saudi?: boolean
+          job_title_id?: string | null
+          manager_id?: string | null
+          marital_status?: string | null
+          national_id?: string | null
+          nationality?: string | null
+          notes?: string | null
+          other_allowances?: number | null
+          passport_expiry?: string | null
+          passport_number?: string | null
+          personal_email?: string | null
+          personal_phone?: string | null
+          photo_url?: string | null
+          status?: Database["public"]["Enums"]["hr_employee_status"]
+          transport_allowance?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_employees_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_employees_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_employees_job_title_id_fkey"
+            columns: ["job_title_id"]
+            isOneToOne: false
+            referencedRelation: "job_titles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_employees_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "hr_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_leave_balances: {
+        Row: {
+          balance_days: number | null
+          employee_id: string
+          entitled_days: number
+          id: string
+          leave_type: Database["public"]["Enums"]["hr_leave_type"]
+          updated_at: string
+          used_days: number
+          year: number
+        }
+        Insert: {
+          balance_days?: number | null
+          employee_id: string
+          entitled_days?: number
+          id?: string
+          leave_type: Database["public"]["Enums"]["hr_leave_type"]
+          updated_at?: string
+          used_days?: number
+          year: number
+        }
+        Update: {
+          balance_days?: number | null
+          employee_id?: string
+          entitled_days?: number
+          id?: string
+          leave_type?: Database["public"]["Enums"]["hr_leave_type"]
+          updated_at?: string
+          used_days?: number
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_leave_balances_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hr_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_leaves: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          attachment_url: string | null
+          created_at: string
+          created_by: string | null
+          days_count: number
+          employee_id: string
+          from_date: string
+          id: string
+          leave_type: Database["public"]["Enums"]["hr_leave_type"]
+          reason: string | null
+          request_id: string | null
+          status: Database["public"]["Enums"]["hr_leave_status"]
+          to_date: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          attachment_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          days_count: number
+          employee_id: string
+          from_date: string
+          id?: string
+          leave_type: Database["public"]["Enums"]["hr_leave_type"]
+          reason?: string | null
+          request_id?: string | null
+          status?: Database["public"]["Enums"]["hr_leave_status"]
+          to_date: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          attachment_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          days_count?: number
+          employee_id?: string
+          from_date?: string
+          id?: string
+          leave_type?: Database["public"]["Enums"]["hr_leave_type"]
+          reason?: string | null
+          request_id?: string | null
+          status?: Database["public"]["Enums"]["hr_leave_status"]
+          to_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_leaves_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hr_employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_leaves_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "hr_workflow_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_loan_installments: {
+        Row: {
+          amount: number
+          due_date: string
+          id: string
+          installment_no: number
+          loan_id: string
+          paid: boolean
+          paid_at: string | null
+          payroll_line_id: string | null
+        }
+        Insert: {
+          amount: number
+          due_date: string
+          id?: string
+          installment_no: number
+          loan_id: string
+          paid?: boolean
+          paid_at?: string | null
+          payroll_line_id?: string | null
+        }
+        Update: {
+          amount?: number
+          due_date?: string
+          id?: string
+          installment_no?: number
+          loan_id?: string
+          paid?: boolean
+          paid_at?: string | null
+          payroll_line_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_loan_installments_loan_id_fkey"
+            columns: ["loan_id"]
+            isOneToOne: false
+            referencedRelation: "hr_loans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_loans: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          employee_id: string
+          id: string
+          installments_count: number
+          loan_date: string
+          loan_no: string
+          monthly_deduction: number
+          paid_amount: number | null
+          reason: string | null
+          remaining_amount: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          employee_id: string
+          id?: string
+          installments_count?: number
+          loan_date?: string
+          loan_no: string
+          monthly_deduction: number
+          paid_amount?: number | null
+          reason?: string | null
+          remaining_amount?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          employee_id?: string
+          id?: string
+          installments_count?: number
+          loan_date?: string
+          loan_no?: string
+          monthly_deduction?: number
+          paid_amount?: number | null
+          reason?: string | null
+          remaining_amount?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_loans_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hr_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_payroll_lines: {
+        Row: {
+          absence_deduction: number | null
+          basic_salary: number | null
+          bonuses: number | null
+          cost_entry_id: string | null
+          created_at: string
+          employee_id: string
+          gosi_employee: number | null
+          gosi_employer: number | null
+          gross_salary: number | null
+          housing_allowance: number | null
+          id: string
+          late_deduction: number | null
+          loan_deduction: number | null
+          net_salary: number | null
+          notes: string | null
+          other_allowances: number | null
+          other_deductions: number | null
+          overtime: number | null
+          project_id: string | null
+          run_id: string
+          total_deductions: number | null
+          transport_allowance: number | null
+          unpaid_leave_deduction: number | null
+          updated_at: string
+        }
+        Insert: {
+          absence_deduction?: number | null
+          basic_salary?: number | null
+          bonuses?: number | null
+          cost_entry_id?: string | null
+          created_at?: string
+          employee_id: string
+          gosi_employee?: number | null
+          gosi_employer?: number | null
+          gross_salary?: number | null
+          housing_allowance?: number | null
+          id?: string
+          late_deduction?: number | null
+          loan_deduction?: number | null
+          net_salary?: number | null
+          notes?: string | null
+          other_allowances?: number | null
+          other_deductions?: number | null
+          overtime?: number | null
+          project_id?: string | null
+          run_id: string
+          total_deductions?: number | null
+          transport_allowance?: number | null
+          unpaid_leave_deduction?: number | null
+          updated_at?: string
+        }
+        Update: {
+          absence_deduction?: number | null
+          basic_salary?: number | null
+          bonuses?: number | null
+          cost_entry_id?: string | null
+          created_at?: string
+          employee_id?: string
+          gosi_employee?: number | null
+          gosi_employer?: number | null
+          gross_salary?: number | null
+          housing_allowance?: number | null
+          id?: string
+          late_deduction?: number | null
+          loan_deduction?: number | null
+          net_salary?: number | null
+          notes?: string | null
+          other_allowances?: number | null
+          other_deductions?: number | null
+          overtime?: number | null
+          project_id?: string | null
+          run_id?: string
+          total_deductions?: number | null
+          transport_allowance?: number | null
+          unpaid_leave_deduction?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_payroll_lines_cost_entry_id_fkey"
+            columns: ["cost_entry_id"]
+            isOneToOne: false
+            referencedRelation: "cost_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_payroll_lines_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hr_employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_payroll_lines_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_payroll_lines_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "hr_payroll_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_payroll_runs: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          employees_count: number | null
+          id: string
+          notes: string | null
+          paid_at: string | null
+          period_month: number
+          period_year: number
+          run_no: string
+          status: Database["public"]["Enums"]["hr_payroll_status"]
+          total_deductions: number | null
+          total_gosi: number | null
+          total_gross: number | null
+          total_net: number | null
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          employees_count?: number | null
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          period_month: number
+          period_year: number
+          run_no: string
+          status?: Database["public"]["Enums"]["hr_payroll_status"]
+          total_deductions?: number | null
+          total_gosi?: number | null
+          total_gross?: number | null
+          total_net?: number | null
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          employees_count?: number | null
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          period_month?: number
+          period_year?: number
+          run_no?: string
+          status?: Database["public"]["Enums"]["hr_payroll_status"]
+          total_deductions?: number | null
+          total_gosi?: number | null
+          total_gross?: number | null
+          total_net?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      hr_terminations: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          clearance_status: Json | null
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          employee_id: string
+          eos_amount: number | null
+          id: string
+          last_working_day: string
+          leave_balance_amount: number | null
+          loan_settlement: number | null
+          net_settlement: number | null
+          other_payables: number | null
+          other_receivables: number | null
+          outstanding_allowances: number | null
+          outstanding_deductions: number | null
+          reason: Database["public"]["Enums"]["hr_termination_reason"]
+          reason_details: string | null
+          request_id: string | null
+          service_years: number | null
+          settlement_details: Json | null
+          status: string
+          termination_no: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          clearance_status?: Json | null
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          employee_id: string
+          eos_amount?: number | null
+          id?: string
+          last_working_day: string
+          leave_balance_amount?: number | null
+          loan_settlement?: number | null
+          net_settlement?: number | null
+          other_payables?: number | null
+          other_receivables?: number | null
+          outstanding_allowances?: number | null
+          outstanding_deductions?: number | null
+          reason: Database["public"]["Enums"]["hr_termination_reason"]
+          reason_details?: string | null
+          request_id?: string | null
+          service_years?: number | null
+          settlement_details?: Json | null
+          status?: string
+          termination_no: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          clearance_status?: Json | null
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          employee_id?: string
+          eos_amount?: number | null
+          id?: string
+          last_working_day?: string
+          leave_balance_amount?: number | null
+          loan_settlement?: number | null
+          net_settlement?: number | null
+          other_payables?: number | null
+          other_receivables?: number | null
+          outstanding_allowances?: number | null
+          outstanding_deductions?: number | null
+          reason?: Database["public"]["Enums"]["hr_termination_reason"]
+          reason_details?: string | null
+          request_id?: string | null
+          service_years?: number | null
+          settlement_details?: Json | null
+          status?: string
+          termination_no?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_terminations_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "hr_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_terminations_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hr_employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_terminations_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "hr_workflow_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_workflow_requests: {
+        Row: {
+          attachments: Json | null
+          completed_at: string | null
+          created_at: string
+          current_step: number | null
+          employee_id: string | null
+          id: string
+          notes: string | null
+          payload: Json | null
+          request_no: string
+          request_type: Database["public"]["Enums"]["hr_request_type"]
+          requested_by: string | null
+          status: Database["public"]["Enums"]["hr_request_status"]
+          subject: string | null
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          attachments?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number | null
+          employee_id?: string | null
+          id?: string
+          notes?: string | null
+          payload?: Json | null
+          request_no: string
+          request_type: Database["public"]["Enums"]["hr_request_type"]
+          requested_by?: string | null
+          status?: Database["public"]["Enums"]["hr_request_status"]
+          subject?: string | null
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attachments?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number | null
+          employee_id?: string | null
+          id?: string
+          notes?: string | null
+          payload?: Json | null
+          request_no?: string
+          request_type?: Database["public"]["Enums"]["hr_request_type"]
+          requested_by?: string | null
+          status?: Database["public"]["Enums"]["hr_request_status"]
+          subject?: string | null
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_workflow_requests_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hr_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_workflow_steps: {
+        Row: {
+          acted_at: string | null
+          action: string | null
+          approver_id: string | null
+          approver_role: string | null
+          comment: string | null
+          created_at: string
+          id: string
+          request_id: string
+          step_order: number
+        }
+        Insert: {
+          acted_at?: string | null
+          action?: string | null
+          approver_id?: string | null
+          approver_role?: string | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          request_id: string
+          step_order: number
+        }
+        Update: {
+          acted_at?: string | null
+          action?: string | null
+          approver_id?: string | null
+          approver_role?: string | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          request_id?: string
+          step_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_workflow_steps_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "hr_workflow_requests"
             referencedColumns: ["id"]
           },
         ]
@@ -3170,6 +4166,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      hr_calc_end_of_service: {
+        Args: { _monthly_wage: number; _reason: string; _service_years: number }
+        Returns: number
+      }
+      hr_calc_gosi: {
+        Args: { _gross_wage: number; _is_saudi: boolean }
+        Returns: {
+          employee_share: number
+          employer_share: number
+        }[]
+      }
+      hr_termination_clearance: {
+        Args: { _employee_id: string }
+        Returns: Json
+      }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_task_participant: {
         Args: { _task_id: string; _user_id: string }
@@ -3220,6 +4231,93 @@ export type Database = {
         | "other_services"
         | "asset_sales"
       customer_size: "small" | "medium" | "large" | "strategic"
+      hr_asset_type:
+        | "vehicle"
+        | "laptop"
+        | "mobile"
+        | "equipment"
+        | "tool"
+        | "card"
+        | "key"
+        | "uniform"
+        | "other"
+      hr_contract_status:
+        | "active"
+        | "expiring_soon"
+        | "expired"
+        | "cancelled"
+        | "draft"
+      hr_contract_type:
+        | "fixed_term"
+        | "unlimited"
+        | "part_time"
+        | "temporary"
+        | "training"
+      hr_document_type:
+        | "national_id"
+        | "iqama"
+        | "passport"
+        | "contract"
+        | "certificate"
+        | "license"
+        | "driving_license"
+        | "other"
+      hr_employee_status: "active" | "on_leave" | "suspended" | "terminated"
+      hr_leave_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "cancelled"
+        | "taken"
+      hr_leave_type:
+        | "annual"
+        | "sick"
+        | "emergency"
+        | "unpaid"
+        | "compensatory"
+        | "maternity"
+        | "paternity"
+        | "hajj"
+        | "study"
+        | "other"
+      hr_payroll_status:
+        | "draft"
+        | "pending_approval"
+        | "approved"
+        | "paid"
+        | "cancelled"
+      hr_request_status:
+        | "draft"
+        | "pending"
+        | "in_progress"
+        | "approved"
+        | "rejected"
+        | "cancelled"
+        | "completed"
+      hr_request_type:
+        | "hiring"
+        | "promotion"
+        | "salary_increase"
+        | "transfer"
+        | "secondment"
+        | "leave"
+        | "return_from_leave"
+        | "resignation"
+        | "termination"
+        | "warning"
+        | "violation"
+        | "loan"
+        | "asset_assignment"
+        | "asset_return"
+        | "other"
+      hr_termination_reason:
+        | "resignation"
+        | "end_of_contract"
+        | "dismissal"
+        | "mutual_agreement"
+        | "retirement"
+        | "death"
+        | "other"
       invoice_status:
         | "draft"
         | "issued"
@@ -3423,6 +4521,103 @@ export const Constants = {
         "asset_sales",
       ],
       customer_size: ["small", "medium", "large", "strategic"],
+      hr_asset_type: [
+        "vehicle",
+        "laptop",
+        "mobile",
+        "equipment",
+        "tool",
+        "card",
+        "key",
+        "uniform",
+        "other",
+      ],
+      hr_contract_status: [
+        "active",
+        "expiring_soon",
+        "expired",
+        "cancelled",
+        "draft",
+      ],
+      hr_contract_type: [
+        "fixed_term",
+        "unlimited",
+        "part_time",
+        "temporary",
+        "training",
+      ],
+      hr_document_type: [
+        "national_id",
+        "iqama",
+        "passport",
+        "contract",
+        "certificate",
+        "license",
+        "driving_license",
+        "other",
+      ],
+      hr_employee_status: ["active", "on_leave", "suspended", "terminated"],
+      hr_leave_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "cancelled",
+        "taken",
+      ],
+      hr_leave_type: [
+        "annual",
+        "sick",
+        "emergency",
+        "unpaid",
+        "compensatory",
+        "maternity",
+        "paternity",
+        "hajj",
+        "study",
+        "other",
+      ],
+      hr_payroll_status: [
+        "draft",
+        "pending_approval",
+        "approved",
+        "paid",
+        "cancelled",
+      ],
+      hr_request_status: [
+        "draft",
+        "pending",
+        "in_progress",
+        "approved",
+        "rejected",
+        "cancelled",
+        "completed",
+      ],
+      hr_request_type: [
+        "hiring",
+        "promotion",
+        "salary_increase",
+        "transfer",
+        "secondment",
+        "leave",
+        "return_from_leave",
+        "resignation",
+        "termination",
+        "warning",
+        "violation",
+        "loan",
+        "asset_assignment",
+        "asset_return",
+        "other",
+      ],
+      hr_termination_reason: [
+        "resignation",
+        "end_of_contract",
+        "dismissal",
+        "mutual_agreement",
+        "retirement",
+        "death",
+        "other",
+      ],
       invoice_status: ["draft", "issued", "due", "overdue", "paid", "unbilled"],
       po_status: ["draft", "approved", "partial", "received", "cancelled"],
       project_status: ["new", "in_progress", "on_hold", "completed", "delayed"],

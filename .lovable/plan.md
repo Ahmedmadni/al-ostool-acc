@@ -1,67 +1,110 @@
+# موديول الموارد البشرية (HCM) — خطة التنفيذ
 
-# دمج الصفحات المتكررة في النظام (المرحلة 2)
+نظراً لضخامة الموديول، سيتم بناؤه على **4 مراحل متتالية** ضمن نفس البنية الحالية (RBAC، مركز التقارير، AI Copilot، التنبيهات، سير العمل) دون تكرار أي مكونات.
 
-بعد توحيد العملاء والموردين، يوجد تكرارات إضافية بنفس الفكرة في لوحات الإدارة والمؤشرات المالية والذكاء التحليلي. الخطة أدناه توحدها في صفحة واحدة لكل وظيفة، مع حذف المسارات القديمة.
+---
 
-## التكرارات المكتشفة
+## المرحلة 1 — قاعدة البيانات والبنية الأساسية
 
-| المكرر | المسار الحالي | الوصف |
-|---|---|---|
-| لوحة تحكم تنفيذية (3 نسخ) | `/dashboard`, `/dashboard/executive`, `/executive` | كلها "نظرة شاملة" تنفيذية بمؤشرات وعملاء ومشاريع |
-| مؤشرات مالية (نسختان) | `/financial-indicators`, `/financials/kpis` | نفس الفئات (سيولة/ربحية/كفاءة/رفع) |
-| ذكاء تحليلي AI (نسختان) | `/insights`, `/executive` (داخلها) | نفس فكرة "توصيات AI من بيانات النظام" |
+### جداول جديدة في Supabase
+- `hr_employees` — بيانات الموظف الكاملة (شخصية، عمل، مالية، بنكية) + `status` (active/on_leave/suspended/terminated) + FK للأقسام والوظائف الموجودة
+- `hr_employee_documents` — المستندات (نوع، رقم، تاريخ انتهاء، ملف مرفق في bucket)
+- `hr_contracts` — العقود متعددة لكل موظف (نوع، مدة، رواتب، بدلات، مشروع، حالة)
+- `hr_contract_amendments` — تعديلات العقود
+- `hr_workflow_requests` — كل الطلبات (تعيين/ترقية/زيادة/نقل/إجازة/استقالة/إنهاء/إنذار) + `type`, `status`, `payload jsonb`
+- `hr_workflow_steps` — خطوات الاعتماد (approver, action, comment, signed_at)
+- `hr_leaves` — الإجازات (نوع، من، إلى، أيام، حالة، رصيد)
+- `hr_leave_balances` — أرصدة الإجازات السنوية
+- `hr_loans` — السلف (مبلغ، أقساط، رصيد، استقطاع شهري)
+- `hr_loan_installments` — الأقساط
+- `hr_assets_assignment` — العهد (نوع، وصف، تاريخ تسليم/استلام)
+- `hr_payroll_runs` — مسيرات الرواتب الشهرية (شهر، حالة، إجمالي)
+- `hr_payroll_lines` — سطور الرواتب (موظف، أساسي، بدلات، خصومات، gosi، صافي)
+- `hr_terminations` — إنهاء الخدمة + `settlement jsonb` (مكافأة، إجازات، مستحقات)
+- `hr_alerts` — تنبيهات (انتهاء عقد/إقامة/جواز/رخصة)
 
-## الدمج المقترح
+### RLS + GRANT
+- كل جدول: RLS مفعّل + سياسات مبنية على `has_permission(auth.uid(), 'hr.*', action)` + سياسة على مستوى الإدارة (مدير الإدارة يرى موظفي إدارته فقط، HR يرى الكل عبر `has_role`)
+- GRANT على جميع الجداول لـ `authenticated` و `service_role`
 
-### 1) مركز القيادة التنفيذي الموحد — `/executive`
-دمج الثلاث لوحات في صفحة واحدة بترتيب من الأعلى أهمية للأدنى:
-- **شريط KPIs الفوري** (من `dashboard/executive`): الإيرادات، صافي الربح، النقد، AR، AP، المشاريع النشطة + اختيار الفترة (شهر/ربع/سنة).
-- **مؤشرات الصحة الاستراتيجية** (من `executive`): 6 درجات صحة (شركة/مالي/سيولة/مشاريع/عملاء/تكاليف).
-- **رسومات بيانية**: الإيرادات والربح 12 شهر + التدفق النقدي 6 أشهر (من `dashboard/executive`).
-- **الملخص التنفيذي AI + رؤى AI** (من `executive` و`/insights`): زر توليد واحد لكل نوع.
-- **مركز التنبيهات** (من `executive`).
-- **جداول جانبية**: صحة المشاريع + أعلى مخاطر التحصيل + الالتزامات القادمة (من `dashboard/executive`).
-- **روابط سريعة**: للذكاء المتخصص (عملاء/موردين/مشاريع/تكاليف/سيناريوهات/توقعات/مجلس الإدارة).
+### Functions
+- `calculate_end_of_service(employee_id)` — حساب مكافأة نهاية الخدمة وفق نظام العمل السعودي (نصف شهر لأول 5 سنوات، شهر كامل بعدها)
+- `calculate_leave_balance(employee_id)` — الرصيد المستحق
+- `calculate_payroll_line(employee_id, month)` — احتساب سطر راتب
+- `check_termination_clearance(employee_id)` — التحقق من إعادة العهد والمهام قبل الإنهاء
 
-حذف: `src/routes/_authenticated/dashboard.tsx`, `src/routes/_authenticated/dashboard/executive.tsx`, `src/routes/_authenticated/insights/index.tsx`.
+---
 
-### 2) المؤشرات المالية الموحدة — `/financials/kpis`
-الاحتفاظ بـ `/financials/kpis` (14 مؤشر فعلي من ميزان المراجعة وشجرة الحسابات) وحذف `/financial-indicators` (نسخة مبسطة بأرقام تقريبية).
+## المرحلة 2 — الواجهات الأساسية للموظفين والعقود
 
-حذف: `src/routes/_authenticated/financial-indicators/index.tsx`.
+### مسارات جديدة تحت `src/routes/_authenticated/hr/`
+- `hr/index.tsx` — لوحة معلومات HR (بطاقات + رسوم بيانية)
+- `hr/employees/index.tsx` — قائمة الموظفين مع فلاتر
+- `hr/employees/$id.tsx` — بطاقة الموظف (شخصي، مالي، عقود، مستندات، إجازات، سلف، عهد، مهام، تكاليف)
+- `hr/employees/new.tsx` — إضافة موظف جديد
+- `hr/contracts/index.tsx` — كل العقود + تنبيهات الانتهاء
+- `hr/contracts/$id.tsx` — تفاصيل العقد + تعديلاته
+- `hr/documents/index.tsx` — كل المستندات + تنبيهات الانتهاء
 
-### 3) تحديث التنقل والصلاحيات
-- `src/components/layout/app-shell.tsx`: إزالة عناصر "لوحة التحكم"، "Insights"، "المؤشرات المالية" المنفصلة وتوجيهها إلى المسارات الموحدة. "/executive" يصبح العنصر الرئيسي.
-- `src/lib/mobile-modules.ts`: نفس التحديثات.
-- `src/lib/route-permissions.ts`: حذف مفاتيح المسارات المحذوفة.
-- `src/components/copilot/floating-copilot.tsx` وأي إشارات إلى `/dashboard` أو `/insights` أو `/financial-indicators`: تعديل الروابط.
+### التنقل
+- إضافة قسم "الموارد البشرية" في `app-shell.tsx` و `mobile-modules.ts`
+- إضافة صلاحيات `hr.employees`, `hr.contracts`, `hr.payroll`, `hr.leaves`, `hr.loans`, `hr.assets`, `hr.termination`, `hr.workflow` في `permissions.ts` و `route-permissions.ts`
 
-### 4) إعادة توجيه الجذر
-- `/` و`/dashboard` يوجّهان للمستخدم المسجّل إلى `/executive` بدلاً من اللوحة المحذوفة.
+---
 
-## القسم التقني
+## المرحلة 3 — سير العمل، الإجازات، السلف، العهد، الرواتب، الإنهاء
 
-### الملفات المحذوفة (4)
-```
-src/routes/_authenticated/dashboard.tsx
-src/routes/_authenticated/dashboard/executive.tsx
-src/routes/_authenticated/insights/index.tsx
-src/routes/_authenticated/financial-indicators/index.tsx
-```
+### الطلبات وسير الاعتماد
+- `hr/workflow/index.tsx` — كل الطلبات
+- `hr/workflow/$id.tsx` — تفاصيل الطلب + رحلة الاعتماد الكاملة (طباعة PDF)
+- استخدام `task_requests` الحالي أو جدول `hr_workflow_requests` الجديد (سيستخدم الجديد لخصوصية HR)
 
-### الملفات المعدّلة
-```
-src/routes/_authenticated/executive/index.tsx     ← إعادة بناء كاملة (دمج الثلاث)
-src/components/layout/app-shell.tsx               ← تحديث القائمة
-src/lib/mobile-modules.ts                         ← تحديث الجوال
-src/lib/route-permissions.ts                      ← حذف المفاتيح القديمة
-src/components/copilot/floating-copilot.tsx       ← تحديث الروابط
-src/routes/index.tsx                              ← redirect إلى /executive
-```
+### الوحدات
+- `hr/leaves/index.tsx` — إدارة الإجازات + طلب جديد
+- `hr/loans/index.tsx` — السلف والأقساط
+- `hr/assets/index.tsx` — العهد
+- `hr/payroll/index.tsx` — مسيرات الرواتب
+- `hr/payroll/$id.tsx` — تفاصيل المسير + اعتماد + تصدير Excel/PDF
+- `hr/termination/index.tsx` — إنهاء الخدمة
+- `hr/termination/$id.tsx` — Settlement Sheet احترافي (طباعة)
 
-### لا حاجة لـ migration — لا تغييرات على قاعدة البيانات.
+### حسابات نظام العمل السعودي
+- محرك حسابات في `src/lib/hr-calculations.ts`:
+  - مكافأة نهاية الخدمة (استقالة/إنهاء بمعرفة صاحب العمل)
+  - رصيد الإجازات المستحق
+  - GOSI (9.75% موظف / 11.75% منشأة للسعوديين، 2% للأجانب)
+  - الاستقطاعات والغياب
 
-## الأسئلة قبل التنفيذ
+---
 
-1. هل أبقي مسار `/dashboard` كـ redirect إلى `/executive` (للحفاظ على الروابط المحفوظة)، أم أحذفه كلياً؟
-2. الصفحة الموحدة `/executive` ستكون طويلة (KPIs + 6 درجات صحة + رسومات + AI + جداول). هل تفضّل تبويبات (Tabs) داخلية أم سكرول طويل واحد؟
+## المرحلة 4 — التقارير، التكامل، AI، التنبيهات
+
+### التكامل مع الوحدات الحالية
+- ترحيل تكلفة الرواتب إلى `cost_entries` (Cost Center = القسم/المشروع)
+- ربط الموظف بالمشروع وعرض تكلفته في صفحة المشروع
+- إنشاء مهام تلقائية في `tasks` عند: طلب تعيين، تجديد عقد، إنهاء خدمة
+- إضافة KPIs الموارد البشرية في `/executive` (تبويب جديد أو ضمن Strategic Health)
+
+### التقارير
+- `hr/reports/index.tsx` — استخدام نفس مركز التقارير الموحد (PDF/Excel/طباعة/مشاركة/حفظ قالب)
+- تقارير: كشف الموظفين، مسير الرواتب، مخالصات، تحليل التكلفة، معدل الدوران، السعودة
+
+### AI Copilot
+- إضافة `HR context` في `src/lib/copilot.functions.ts`:
+  - تحليل الرواتب، معدل الدوران، تكلفة العمالة، ساعات العمل، مخاطر الاستقالة
+  - يستخدم نفس Gateway (`google/gemini-3-flash-preview`)
+
+### التنبيهات
+- إضافة أنواع تنبيهات HR في `/alerts` (انتهاء العقد/الإقامة/الجواز/الرخصة/فترة التجربة/تأخير اعتماد الرواتب)
+
+---
+
+## ملاحظات التنفيذ
+- **لا مكونات مكررة**: إعادة استخدام `data-table-toolbar`, `page-header`, `statement-table`, `edit-task-dialog`, نظام `Can`/`RoutePermissionGate`, نظام التنبيهات والإشعارات، مركز التقارير
+- **التوافق**: كل الحسابات في `hr-calculations.ts` قابلة للتحديث عند تغير اللوائح
+- **قوى/التأمينات/زاتكا**: البنية جاهزة للتكامل المستقبلي عبر API (الحقول متوفرة في العقد والراتب)
+
+---
+
+## سؤال قبل البدء
+هل أبدأ بتنفيذ **المرحلة 1 (قاعدة البيانات + الجداول والصلاحيات)** الآن، ثم ننتقل تباعاً للمراحل 2 و3 و4 في رسائل منفصلة (لضخامة العمل)؟ أم تفضل ترتيباً مختلفاً (مثلاً البدء بالموظفين + العقود فقط كنسخة أولى قابلة للاستخدام ثم توسيعها)؟
