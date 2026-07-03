@@ -26,6 +26,7 @@ import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedNotificationsIndexRouteImport } from './routes/_authenticated/notifications/index'
 import { Route as AuthenticatedNotesIndexRouteImport } from './routes/_authenticated/notes/index'
 import { Route as AuthenticatedImportsIndexRouteImport } from './routes/_authenticated/imports/index'
+import { Route as AuthenticatedHrIndexRouteImport } from './routes/_authenticated/hr/index'
 import { Route as AuthenticatedForecastingIndexRouteImport } from './routes/_authenticated/forecasting/index'
 import { Route as AuthenticatedFixedAssetsIndexRouteImport } from './routes/_authenticated/fixed-assets/index'
 import { Route as AuthenticatedFinancialsIndexRouteImport } from './routes/_authenticated/financials/index'
@@ -171,6 +172,11 @@ const AuthenticatedImportsIndexRoute =
     path: '/imports/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedHrIndexRoute = AuthenticatedHrIndexRouteImport.update({
+  id: '/hr/',
+  path: '/hr/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedForecastingIndexRoute =
   AuthenticatedForecastingIndexRouteImport.update({
     id: '/forecasting/',
@@ -516,6 +522,7 @@ export interface FileRoutesByFullPath {
   '/financials/': typeof AuthenticatedFinancialsIndexRoute
   '/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
   '/forecasting/': typeof AuthenticatedForecastingIndexRoute
+  '/hr/': typeof AuthenticatedHrIndexRoute
   '/imports/': typeof AuthenticatedImportsIndexRoute
   '/notes/': typeof AuthenticatedNotesIndexRoute
   '/notifications/': typeof AuthenticatedNotificationsIndexRoute
@@ -584,6 +591,7 @@ export interface FileRoutesByTo {
   '/financials': typeof AuthenticatedFinancialsIndexRoute
   '/fixed-assets': typeof AuthenticatedFixedAssetsIndexRoute
   '/forecasting': typeof AuthenticatedForecastingIndexRoute
+  '/hr': typeof AuthenticatedHrIndexRoute
   '/imports': typeof AuthenticatedImportsIndexRoute
   '/notes': typeof AuthenticatedNotesIndexRoute
   '/notifications': typeof AuthenticatedNotificationsIndexRoute
@@ -654,6 +662,7 @@ export interface FileRoutesById {
   '/_authenticated/financials/': typeof AuthenticatedFinancialsIndexRoute
   '/_authenticated/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
   '/_authenticated/forecasting/': typeof AuthenticatedForecastingIndexRoute
+  '/_authenticated/hr/': typeof AuthenticatedHrIndexRoute
   '/_authenticated/imports/': typeof AuthenticatedImportsIndexRoute
   '/_authenticated/notes/': typeof AuthenticatedNotesIndexRoute
   '/_authenticated/notifications/': typeof AuthenticatedNotificationsIndexRoute
@@ -724,6 +733,7 @@ export interface FileRouteTypes {
     | '/financials/'
     | '/fixed-assets/'
     | '/forecasting/'
+    | '/hr/'
     | '/imports/'
     | '/notes/'
     | '/notifications/'
@@ -792,6 +802,7 @@ export interface FileRouteTypes {
     | '/financials'
     | '/fixed-assets'
     | '/forecasting'
+    | '/hr'
     | '/imports'
     | '/notes'
     | '/notifications'
@@ -861,6 +872,7 @@ export interface FileRouteTypes {
     | '/_authenticated/financials/'
     | '/_authenticated/fixed-assets/'
     | '/_authenticated/forecasting/'
+    | '/_authenticated/hr/'
     | '/_authenticated/imports/'
     | '/_authenticated/notes/'
     | '/_authenticated/notifications/'
@@ -1005,6 +1017,13 @@ declare module '@tanstack/react-router' {
       path: '/imports'
       fullPath: '/imports/'
       preLoaderRoute: typeof AuthenticatedImportsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hr/': {
+      id: '/_authenticated/hr/'
+      path: '/hr'
+      fullPath: '/hr/'
+      preLoaderRoute: typeof AuthenticatedHrIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/forecasting/': {
@@ -1408,6 +1427,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFinancialsIndexRoute: typeof AuthenticatedFinancialsIndexRoute
   AuthenticatedFixedAssetsIndexRoute: typeof AuthenticatedFixedAssetsIndexRoute
   AuthenticatedForecastingIndexRoute: typeof AuthenticatedForecastingIndexRoute
+  AuthenticatedHrIndexRoute: typeof AuthenticatedHrIndexRoute
   AuthenticatedImportsIndexRoute: typeof AuthenticatedImportsIndexRoute
   AuthenticatedNotesIndexRoute: typeof AuthenticatedNotesIndexRoute
   AuthenticatedNotificationsIndexRoute: typeof AuthenticatedNotificationsIndexRoute
@@ -1480,6 +1500,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFinancialsIndexRoute: AuthenticatedFinancialsIndexRoute,
   AuthenticatedFixedAssetsIndexRoute: AuthenticatedFixedAssetsIndexRoute,
   AuthenticatedForecastingIndexRoute: AuthenticatedForecastingIndexRoute,
+  AuthenticatedHrIndexRoute: AuthenticatedHrIndexRoute,
   AuthenticatedImportsIndexRoute: AuthenticatedImportsIndexRoute,
   AuthenticatedNotesIndexRoute: AuthenticatedNotesIndexRoute,
   AuthenticatedNotificationsIndexRoute: AuthenticatedNotificationsIndexRoute,
