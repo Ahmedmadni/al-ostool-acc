@@ -29,7 +29,7 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: {
 
   const { data: departments = [] } = useQuery({
     queryKey: ["departments"],
-    queryFn: async () => (await supabase.from("departments").select("id, name").order("name")).data ?? [],
+    queryFn: async () => (await supabase.from("departments").select("id, name_ar").order("name_ar")).data ?? [],
   });
   const { data: jobTitles = [] } = useQuery({
     queryKey: ["job_titles"],
