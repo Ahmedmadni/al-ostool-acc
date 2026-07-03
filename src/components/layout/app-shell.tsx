@@ -113,6 +113,14 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
+    key: "hr", label: "الموارد البشرية (HCM)", icon: UserCog,
+    links: [
+      { to: "/hr", label: "لوحة الموارد البشرية" },
+      { to: "/hr/employees", label: "الموظفون" },
+      { to: "/hr/contracts", label: "العقود" },
+    ],
+  },
+  {
     key: "tasks", label: "المهام والتقويم", icon: ClipboardList,
     links: [
       { to: "/tasks", label: "المهام والتقويم" },
