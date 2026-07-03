@@ -170,7 +170,7 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: {
                 <Select value={form.department_id ?? ""} onValueChange={(v) => set("department_id", v)}>
                   <SelectTrigger><SelectValue placeholder="اختر القسم" /></SelectTrigger>
                   <SelectContent>
-                    {(departments as any[]).map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
+                    {(departments as any[]).map((d) => <SelectItem key={d.id} value={d.id}>{d.name_ar}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
