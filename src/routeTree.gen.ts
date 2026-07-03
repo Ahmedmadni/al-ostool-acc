@@ -26,6 +26,7 @@ import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedNotificationsIndexRouteImport } from './routes/_authenticated/notifications/index'
 import { Route as AuthenticatedNotesIndexRouteImport } from './routes/_authenticated/notes/index'
 import { Route as AuthenticatedImportsIndexRouteImport } from './routes/_authenticated/imports/index'
+import { Route as AuthenticatedHrIndexRouteImport } from './routes/_authenticated/hr/index'
 import { Route as AuthenticatedForecastingIndexRouteImport } from './routes/_authenticated/forecasting/index'
 import { Route as AuthenticatedFixedAssetsIndexRouteImport } from './routes/_authenticated/fixed-assets/index'
 import { Route as AuthenticatedFinancialsIndexRouteImport } from './routes/_authenticated/financials/index'
@@ -71,11 +72,14 @@ import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedControlProjectsRouteImport } from './routes/_authenticated/control/projects'
 import { Route as AuthenticatedControlCostsRouteImport } from './routes/_authenticated/control/costs'
 import { Route as AuthenticatedCashFlowMatrixRouteImport } from './routes/_authenticated/cash-flow/matrix'
+import { Route as AuthenticatedHrEmployeesIndexRouteImport } from './routes/_authenticated/hr/employees/index'
+import { Route as AuthenticatedHrContractsIndexRouteImport } from './routes/_authenticated/hr/contracts/index'
 import { Route as AuthenticatedVendorsStatementIdRouteImport } from './routes/_authenticated/vendors/statement.$id'
 import { Route as AuthenticatedTasksReportsTaskCompletionRouteImport } from './routes/_authenticated/tasks/reports/task-completion'
 import { Route as AuthenticatedTasksReportsEmployeePerformanceRouteImport } from './routes/_authenticated/tasks/reports/employee-performance'
 import { Route as AuthenticatedTasksReportsDepartmentPerformanceRouteImport } from './routes/_authenticated/tasks/reports/department-performance'
 import { Route as AuthenticatedTasksReportsDelayedTasksRouteImport } from './routes/_authenticated/tasks/reports/delayed-tasks'
+import { Route as AuthenticatedHrEmployeesIdRouteImport } from './routes/_authenticated/hr/employees/$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -171,6 +175,11 @@ const AuthenticatedImportsIndexRoute =
     path: '/imports/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedHrIndexRoute = AuthenticatedHrIndexRouteImport.update({
+  id: '/hr/',
+  path: '/hr/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedForecastingIndexRoute =
   AuthenticatedForecastingIndexRouteImport.update({
     id: '/forecasting/',
@@ -435,6 +444,18 @@ const AuthenticatedCashFlowMatrixRoute =
     path: '/cash-flow/matrix',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedHrEmployeesIndexRoute =
+  AuthenticatedHrEmployeesIndexRouteImport.update({
+    id: '/hr/employees/',
+    path: '/hr/employees/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedHrContractsIndexRoute =
+  AuthenticatedHrContractsIndexRouteImport.update({
+    id: '/hr/contracts/',
+    path: '/hr/contracts/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedVendorsStatementIdRoute =
   AuthenticatedVendorsStatementIdRouteImport.update({
     id: '/vendors/statement/$id',
@@ -463,6 +484,12 @@ const AuthenticatedTasksReportsDelayedTasksRoute =
   AuthenticatedTasksReportsDelayedTasksRouteImport.update({
     id: '/tasks/reports/delayed-tasks',
     path: '/tasks/reports/delayed-tasks',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedHrEmployeesIdRoute =
+  AuthenticatedHrEmployeesIdRouteImport.update({
+    id: '/hr/employees/$id',
+    path: '/hr/employees/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
@@ -516,6 +543,7 @@ export interface FileRoutesByFullPath {
   '/financials/': typeof AuthenticatedFinancialsIndexRoute
   '/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
   '/forecasting/': typeof AuthenticatedForecastingIndexRoute
+  '/hr/': typeof AuthenticatedHrIndexRoute
   '/imports/': typeof AuthenticatedImportsIndexRoute
   '/notes/': typeof AuthenticatedNotesIndexRoute
   '/notifications/': typeof AuthenticatedNotificationsIndexRoute
@@ -528,11 +556,14 @@ export interface FileRoutesByFullPath {
   '/treasury/': typeof AuthenticatedTreasuryIndexRoute
   '/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors/': typeof AuthenticatedVendorsIndexRoute
+  '/hr/employees/$id': typeof AuthenticatedHrEmployeesIdRoute
   '/tasks/reports/delayed-tasks': typeof AuthenticatedTasksReportsDelayedTasksRoute
   '/tasks/reports/department-performance': typeof AuthenticatedTasksReportsDepartmentPerformanceRoute
   '/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
+  '/hr/contracts/': typeof AuthenticatedHrContractsIndexRoute
+  '/hr/employees/': typeof AuthenticatedHrEmployeesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -584,6 +615,7 @@ export interface FileRoutesByTo {
   '/financials': typeof AuthenticatedFinancialsIndexRoute
   '/fixed-assets': typeof AuthenticatedFixedAssetsIndexRoute
   '/forecasting': typeof AuthenticatedForecastingIndexRoute
+  '/hr': typeof AuthenticatedHrIndexRoute
   '/imports': typeof AuthenticatedImportsIndexRoute
   '/notes': typeof AuthenticatedNotesIndexRoute
   '/notifications': typeof AuthenticatedNotificationsIndexRoute
@@ -596,11 +628,14 @@ export interface FileRoutesByTo {
   '/treasury': typeof AuthenticatedTreasuryIndexRoute
   '/trial-balance': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors': typeof AuthenticatedVendorsIndexRoute
+  '/hr/employees/$id': typeof AuthenticatedHrEmployeesIdRoute
   '/tasks/reports/delayed-tasks': typeof AuthenticatedTasksReportsDelayedTasksRoute
   '/tasks/reports/department-performance': typeof AuthenticatedTasksReportsDepartmentPerformanceRoute
   '/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
+  '/hr/contracts': typeof AuthenticatedHrContractsIndexRoute
+  '/hr/employees': typeof AuthenticatedHrEmployeesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -654,6 +689,7 @@ export interface FileRoutesById {
   '/_authenticated/financials/': typeof AuthenticatedFinancialsIndexRoute
   '/_authenticated/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
   '/_authenticated/forecasting/': typeof AuthenticatedForecastingIndexRoute
+  '/_authenticated/hr/': typeof AuthenticatedHrIndexRoute
   '/_authenticated/imports/': typeof AuthenticatedImportsIndexRoute
   '/_authenticated/notes/': typeof AuthenticatedNotesIndexRoute
   '/_authenticated/notifications/': typeof AuthenticatedNotificationsIndexRoute
@@ -666,11 +702,14 @@ export interface FileRoutesById {
   '/_authenticated/treasury/': typeof AuthenticatedTreasuryIndexRoute
   '/_authenticated/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/_authenticated/vendors/': typeof AuthenticatedVendorsIndexRoute
+  '/_authenticated/hr/employees/$id': typeof AuthenticatedHrEmployeesIdRoute
   '/_authenticated/tasks/reports/delayed-tasks': typeof AuthenticatedTasksReportsDelayedTasksRoute
   '/_authenticated/tasks/reports/department-performance': typeof AuthenticatedTasksReportsDepartmentPerformanceRoute
   '/_authenticated/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   '/_authenticated/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/_authenticated/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
+  '/_authenticated/hr/contracts/': typeof AuthenticatedHrContractsIndexRoute
+  '/_authenticated/hr/employees/': typeof AuthenticatedHrEmployeesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -724,6 +763,7 @@ export interface FileRouteTypes {
     | '/financials/'
     | '/fixed-assets/'
     | '/forecasting/'
+    | '/hr/'
     | '/imports/'
     | '/notes/'
     | '/notifications/'
@@ -736,11 +776,14 @@ export interface FileRouteTypes {
     | '/treasury/'
     | '/trial-balance/'
     | '/vendors/'
+    | '/hr/employees/$id'
     | '/tasks/reports/delayed-tasks'
     | '/tasks/reports/department-performance'
     | '/tasks/reports/employee-performance'
     | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
+    | '/hr/contracts/'
+    | '/hr/employees/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -792,6 +835,7 @@ export interface FileRouteTypes {
     | '/financials'
     | '/fixed-assets'
     | '/forecasting'
+    | '/hr'
     | '/imports'
     | '/notes'
     | '/notifications'
@@ -804,11 +848,14 @@ export interface FileRouteTypes {
     | '/treasury'
     | '/trial-balance'
     | '/vendors'
+    | '/hr/employees/$id'
     | '/tasks/reports/delayed-tasks'
     | '/tasks/reports/department-performance'
     | '/tasks/reports/employee-performance'
     | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
+    | '/hr/contracts'
+    | '/hr/employees'
   id:
     | '__root__'
     | '/'
@@ -861,6 +908,7 @@ export interface FileRouteTypes {
     | '/_authenticated/financials/'
     | '/_authenticated/fixed-assets/'
     | '/_authenticated/forecasting/'
+    | '/_authenticated/hr/'
     | '/_authenticated/imports/'
     | '/_authenticated/notes/'
     | '/_authenticated/notifications/'
@@ -873,11 +921,14 @@ export interface FileRouteTypes {
     | '/_authenticated/treasury/'
     | '/_authenticated/trial-balance/'
     | '/_authenticated/vendors/'
+    | '/_authenticated/hr/employees/$id'
     | '/_authenticated/tasks/reports/delayed-tasks'
     | '/_authenticated/tasks/reports/department-performance'
     | '/_authenticated/tasks/reports/employee-performance'
     | '/_authenticated/tasks/reports/task-completion'
     | '/_authenticated/vendors/statement/$id'
+    | '/_authenticated/hr/contracts/'
+    | '/_authenticated/hr/employees/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1005,6 +1056,13 @@ declare module '@tanstack/react-router' {
       path: '/imports'
       fullPath: '/imports/'
       preLoaderRoute: typeof AuthenticatedImportsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hr/': {
+      id: '/_authenticated/hr/'
+      path: '/hr'
+      fullPath: '/hr/'
+      preLoaderRoute: typeof AuthenticatedHrIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/forecasting/': {
@@ -1322,6 +1380,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCashFlowMatrixRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/hr/employees/': {
+      id: '/_authenticated/hr/employees/'
+      path: '/hr/employees'
+      fullPath: '/hr/employees/'
+      preLoaderRoute: typeof AuthenticatedHrEmployeesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hr/contracts/': {
+      id: '/_authenticated/hr/contracts/'
+      path: '/hr/contracts'
+      fullPath: '/hr/contracts/'
+      preLoaderRoute: typeof AuthenticatedHrContractsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/vendors/statement/$id': {
       id: '/_authenticated/vendors/statement/$id'
       path: '/vendors/statement/$id'
@@ -1355,6 +1427,13 @@ declare module '@tanstack/react-router' {
       path: '/tasks/reports/delayed-tasks'
       fullPath: '/tasks/reports/delayed-tasks'
       preLoaderRoute: typeof AuthenticatedTasksReportsDelayedTasksRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hr/employees/$id': {
+      id: '/_authenticated/hr/employees/$id'
+      path: '/hr/employees/$id'
+      fullPath: '/hr/employees/$id'
+      preLoaderRoute: typeof AuthenticatedHrEmployeesIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
   }
@@ -1408,6 +1487,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFinancialsIndexRoute: typeof AuthenticatedFinancialsIndexRoute
   AuthenticatedFixedAssetsIndexRoute: typeof AuthenticatedFixedAssetsIndexRoute
   AuthenticatedForecastingIndexRoute: typeof AuthenticatedForecastingIndexRoute
+  AuthenticatedHrIndexRoute: typeof AuthenticatedHrIndexRoute
   AuthenticatedImportsIndexRoute: typeof AuthenticatedImportsIndexRoute
   AuthenticatedNotesIndexRoute: typeof AuthenticatedNotesIndexRoute
   AuthenticatedNotificationsIndexRoute: typeof AuthenticatedNotificationsIndexRoute
@@ -1420,11 +1500,14 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTreasuryIndexRoute: typeof AuthenticatedTreasuryIndexRoute
   AuthenticatedTrialBalanceIndexRoute: typeof AuthenticatedTrialBalanceIndexRoute
   AuthenticatedVendorsIndexRoute: typeof AuthenticatedVendorsIndexRoute
+  AuthenticatedHrEmployeesIdRoute: typeof AuthenticatedHrEmployeesIdRoute
   AuthenticatedTasksReportsDelayedTasksRoute: typeof AuthenticatedTasksReportsDelayedTasksRoute
   AuthenticatedTasksReportsDepartmentPerformanceRoute: typeof AuthenticatedTasksReportsDepartmentPerformanceRoute
   AuthenticatedTasksReportsEmployeePerformanceRoute: typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   AuthenticatedTasksReportsTaskCompletionRoute: typeof AuthenticatedTasksReportsTaskCompletionRoute
   AuthenticatedVendorsStatementIdRoute: typeof AuthenticatedVendorsStatementIdRoute
+  AuthenticatedHrContractsIndexRoute: typeof AuthenticatedHrContractsIndexRoute
+  AuthenticatedHrEmployeesIndexRoute: typeof AuthenticatedHrEmployeesIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -1480,6 +1563,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFinancialsIndexRoute: AuthenticatedFinancialsIndexRoute,
   AuthenticatedFixedAssetsIndexRoute: AuthenticatedFixedAssetsIndexRoute,
   AuthenticatedForecastingIndexRoute: AuthenticatedForecastingIndexRoute,
+  AuthenticatedHrIndexRoute: AuthenticatedHrIndexRoute,
   AuthenticatedImportsIndexRoute: AuthenticatedImportsIndexRoute,
   AuthenticatedNotesIndexRoute: AuthenticatedNotesIndexRoute,
   AuthenticatedNotificationsIndexRoute: AuthenticatedNotificationsIndexRoute,
@@ -1492,6 +1576,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTreasuryIndexRoute: AuthenticatedTreasuryIndexRoute,
   AuthenticatedTrialBalanceIndexRoute: AuthenticatedTrialBalanceIndexRoute,
   AuthenticatedVendorsIndexRoute: AuthenticatedVendorsIndexRoute,
+  AuthenticatedHrEmployeesIdRoute: AuthenticatedHrEmployeesIdRoute,
   AuthenticatedTasksReportsDelayedTasksRoute:
     AuthenticatedTasksReportsDelayedTasksRoute,
   AuthenticatedTasksReportsDepartmentPerformanceRoute:
@@ -1501,6 +1586,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTasksReportsTaskCompletionRoute:
     AuthenticatedTasksReportsTaskCompletionRoute,
   AuthenticatedVendorsStatementIdRoute: AuthenticatedVendorsStatementIdRoute,
+  AuthenticatedHrContractsIndexRoute: AuthenticatedHrContractsIndexRoute,
+  AuthenticatedHrEmployeesIndexRoute: AuthenticatedHrEmployeesIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

@@ -81,6 +81,11 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/tax-tools", module: "reports" },
   { prefix: "/templates", module: "reports" },
 
+  // ===== HR group =====
+  { prefix: "/hr/employees", module: "hr" },
+  { prefix: "/hr/contracts", module: "hr" },
+  { prefix: "/hr", module: "hr" },
+
   // ===== Misc =====
   { prefix: "/notifications", module: "notifications" },
 ];
