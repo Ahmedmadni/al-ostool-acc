@@ -72,6 +72,7 @@ import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedControlProjectsRouteImport } from './routes/_authenticated/control/projects'
 import { Route as AuthenticatedControlCostsRouteImport } from './routes/_authenticated/control/costs'
 import { Route as AuthenticatedCashFlowMatrixRouteImport } from './routes/_authenticated/cash-flow/matrix'
+import { Route as AuthenticatedHrEmployeesIndexRouteImport } from './routes/_authenticated/hr/employees/index'
 import { Route as AuthenticatedVendorsStatementIdRouteImport } from './routes/_authenticated/vendors/statement.$id'
 import { Route as AuthenticatedTasksReportsTaskCompletionRouteImport } from './routes/_authenticated/tasks/reports/task-completion'
 import { Route as AuthenticatedTasksReportsEmployeePerformanceRouteImport } from './routes/_authenticated/tasks/reports/employee-performance'
@@ -441,6 +442,12 @@ const AuthenticatedCashFlowMatrixRoute =
     path: '/cash-flow/matrix',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedHrEmployeesIndexRoute =
+  AuthenticatedHrEmployeesIndexRouteImport.update({
+    id: '/hr/employees/',
+    path: '/hr/employees/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedVendorsStatementIdRoute =
   AuthenticatedVendorsStatementIdRouteImport.update({
     id: '/vendors/statement/$id',
@@ -540,6 +547,7 @@ export interface FileRoutesByFullPath {
   '/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
+  '/hr/employees/': typeof AuthenticatedHrEmployeesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -609,6 +617,7 @@ export interface FileRoutesByTo {
   '/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
+  '/hr/employees': typeof AuthenticatedHrEmployeesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -680,6 +689,7 @@ export interface FileRoutesById {
   '/_authenticated/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   '/_authenticated/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/_authenticated/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
+  '/_authenticated/hr/employees/': typeof AuthenticatedHrEmployeesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -751,6 +761,7 @@ export interface FileRouteTypes {
     | '/tasks/reports/employee-performance'
     | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
+    | '/hr/employees/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -820,6 +831,7 @@ export interface FileRouteTypes {
     | '/tasks/reports/employee-performance'
     | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
+    | '/hr/employees'
   id:
     | '__root__'
     | '/'
@@ -890,6 +902,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tasks/reports/employee-performance'
     | '/_authenticated/tasks/reports/task-completion'
     | '/_authenticated/vendors/statement/$id'
+    | '/_authenticated/hr/employees/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1341,6 +1354,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCashFlowMatrixRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/hr/employees/': {
+      id: '/_authenticated/hr/employees/'
+      path: '/hr/employees'
+      fullPath: '/hr/employees/'
+      preLoaderRoute: typeof AuthenticatedHrEmployeesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/vendors/statement/$id': {
       id: '/_authenticated/vendors/statement/$id'
       path: '/vendors/statement/$id'
@@ -1445,6 +1465,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTasksReportsEmployeePerformanceRoute: typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   AuthenticatedTasksReportsTaskCompletionRoute: typeof AuthenticatedTasksReportsTaskCompletionRoute
   AuthenticatedVendorsStatementIdRoute: typeof AuthenticatedVendorsStatementIdRoute
+  AuthenticatedHrEmployeesIndexRoute: typeof AuthenticatedHrEmployeesIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -1522,6 +1543,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTasksReportsTaskCompletionRoute:
     AuthenticatedTasksReportsTaskCompletionRoute,
   AuthenticatedVendorsStatementIdRoute: AuthenticatedVendorsStatementIdRoute,
+  AuthenticatedHrEmployeesIndexRoute: AuthenticatedHrEmployeesIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
