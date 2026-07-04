@@ -69,7 +69,7 @@ function LeavesPage() {
 
   return (
     <div className="p-6 space-y-6" dir="rtl">
-      <PageHeader title="الإجازات" subtitle="إدارة إجازات الموظفين وأرصدتها" actions={
+      <PageHeader title="الإجازات" description="إدارة إجازات الموظفين وأرصدتها" actions={
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />طلب إجازة</Button></DialogTrigger>
           <DialogContent dir="rtl">

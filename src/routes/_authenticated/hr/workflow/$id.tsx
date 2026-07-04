@@ -53,7 +53,7 @@ function WorkflowDetail() {
     <div className="p-6 space-y-6" dir="rtl">
       <PageHeader
         title={`طلب ${req.request_no}`}
-        subtitle={req.subject ?? ""}
+        description={req.subject ?? ""}
         actions={
           <div className="flex gap-2">
             <Link to="/hr/workflow"><Button variant="outline"><ArrowRight className="w-4 h-4 ml-2" />رجوع</Button></Link>

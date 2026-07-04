@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import { formatCurrency } from "@/lib/format";
+import { fmtSAR } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/hr/loans/")({ component: LoansPage });
 
@@ -52,7 +52,7 @@ function LoansPage() {
 
   return (
     <div className="p-6 space-y-6" dir="rtl">
-      <PageHeader title="السلف والقروض" subtitle="إدارة سلف الموظفين وأقساطها الشهرية" actions={
+      <PageHeader title="السلف والقروض" description="إدارة سلف الموظفين وأقساطها الشهرية" actions={
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />سلفة جديدة</Button></DialogTrigger>
           <DialogContent dir="rtl">
@@ -86,11 +86,11 @@ function LoansPage() {
               <TableRow key={l.id}>
                 <TableCell>{l.loan_no}</TableCell>
                 <TableCell>{l.hr_employees?.full_name_ar}</TableCell>
-                <TableCell>{formatCurrency(l.amount)}</TableCell>
+                <TableCell>{fmtSAR(l.amount)}</TableCell>
                 <TableCell>{l.installments_count}</TableCell>
-                <TableCell>{formatCurrency(l.monthly_deduction)}</TableCell>
-                <TableCell>{formatCurrency(l.paid_amount ?? 0)}</TableCell>
-                <TableCell>{formatCurrency(l.remaining_amount ?? l.amount)}</TableCell>
+                <TableCell>{fmtSAR(l.monthly_deduction)}</TableCell>
+                <TableCell>{fmtSAR(l.paid_amount ?? 0)}</TableCell>
+                <TableCell>{fmtSAR(l.remaining_amount ?? l.amount)}</TableCell>
                 <TableCell><Badge variant="outline">{STATUS_LABEL[l.status] ?? l.status}</Badge></TableCell>
               </TableRow>
             ))}

@@ -65,7 +65,7 @@ function WorkflowPage() {
 
   return (
     <div className="p-6 space-y-6" dir="rtl">
-      <PageHeader title="طلبات الموارد البشرية" subtitle="سير الاعتماد لكل طلبات HR" actions={
+      <PageHeader title="طلبات الموارد البشرية" description="سير الاعتماد لكل طلبات HR" actions={
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />طلب جديد</Button></DialogTrigger>
           <DialogContent dir="rtl">

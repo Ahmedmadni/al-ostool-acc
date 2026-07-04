@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import { formatCurrency } from "@/lib/format";
+import { fmtSAR } from "@/lib/format";
 import { calcEndOfService, serviceYears } from "@/lib/hr-calculations";
 
 export const Route = createFileRoute("/_authenticated/hr/termination/")({ component: TerminationPage });
@@ -65,7 +65,7 @@ function TerminationPage() {
 
   return (
     <div className="p-6 space-y-6" dir="rtl">
-      <PageHeader title="إنهاء الخدمة والمخالصات" subtitle="حساب مكافأة نهاية الخدمة وفق نظام العمل السعودي" actions={
+      <PageHeader title="إنهاء الخدمة والمخالصات" description="حساب مكافأة نهاية الخدمة وفق نظام العمل السعودي" actions={
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />إنهاء خدمة</Button></DialogTrigger>
           <DialogContent dir="rtl">
@@ -106,7 +106,7 @@ function TerminationPage() {
                 <TableCell>{REASONS.find((r) => r.v === t.reason)?.l ?? t.reason}</TableCell>
                 <TableCell>{t.last_working_day}</TableCell>
                 <TableCell>{t.service_years}</TableCell>
-                <TableCell className="font-semibold">{formatCurrency(t.eos_amount ?? 0)}</TableCell>
+                <TableCell className="font-semibold">{fmtSAR(t.eos_amount ?? 0)}</TableCell>
                 <TableCell><Badge variant="outline">{t.status}</Badge></TableCell>
                 <TableCell><Link to="/hr/termination/$id" params={{ id: t.id }} className="text-primary text-sm">التفاصيل</Link></TableCell>
               </TableRow>

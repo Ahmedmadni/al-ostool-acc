@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Check, Printer, AlertTriangle } from "lucide-react";
-import { formatCurrency } from "@/lib/format";
+import { fmtSAR } from "@/lib/format";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/hr/termination/$id")({ component: TerminationDetail });
@@ -41,7 +41,7 @@ function TerminationDetail() {
 
   return (
     <div className="p-6 space-y-6" dir="rtl">
-      <PageHeader title={`مخالصة نهاية خدمة — ${t.termination_no}`} subtitle={t.hr_employees?.full_name_ar} actions={
+      <PageHeader title={`مخالصة نهاية خدمة — ${t.termination_no}`} description={t.hr_employees?.full_name_ar} actions={
         <div className="flex gap-2 print:hidden">
           <Link to="/hr/termination"><Button variant="outline"><ArrowRight className="w-4 h-4 ml-2" />رجوع</Button></Link>
           <Button variant="outline" onClick={() => window.print()}><Printer className="w-4 h-4 ml-2" />طباعة</Button>
@@ -54,7 +54,7 @@ function TerminationDetail() {
             <AlertTriangle className="w-4 h-4" />لا يمكن إنهاء الخدمة قبل تسوية العهد
           </div>
           <div className="text-sm">عهد لم تُسترجع: {clr.assets_not_returned ?? 0}</div>
-          <div className="text-sm">سلف قائمة: {clr.loans_open ?? 0} — المتبقي: {formatCurrency(clr.loans_remaining_amount ?? 0)}</div>
+          <div className="text-sm">سلف قائمة: {clr.loans_open ?? 0} — المتبقي: {fmtSAR(clr.loans_remaining_amount ?? 0)}</div>
         </Card>
       )}
 
@@ -78,7 +78,7 @@ function TerminationDetail() {
           <div className="border-t-2 border-primary my-3" />
           <div className="flex justify-between text-lg font-bold text-primary">
             <span>صافي المخالصة</span>
-            <span>{formatCurrency(t.net_settlement ?? 0)}</span>
+            <span>{fmtSAR(t.net_settlement ?? 0)}</span>
           </div>
         </div>
       </Card>
@@ -97,7 +97,7 @@ function Row({ label, value, negative }: { label: string; value?: number | null;
   return (
     <div className="flex justify-between">
       <span className="text-muted-foreground">{label}</span>
-      <span className={negative ? "text-destructive" : ""}>{negative ? "-" : ""}{formatCurrency(value ?? 0)}</span>
+      <span className={negative ? "text-destructive" : ""}>{negative ? "-" : ""}{fmtSAR(value ?? 0)}</span>
     </div>
   );
 }

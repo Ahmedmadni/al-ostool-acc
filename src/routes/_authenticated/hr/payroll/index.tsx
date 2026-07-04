@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import { formatCurrency } from "@/lib/format";
+import { fmtSAR } from "@/lib/format";
 import { calcPayrollLine } from "@/lib/hr-calculations";
 
 export const Route = createFileRoute("/_authenticated/hr/payroll/")({ component: PayrollPage });
@@ -76,7 +76,7 @@ function PayrollPage() {
 
   return (
     <div className="p-6 space-y-6" dir="rtl">
-      <PageHeader title="مسيرات الرواتب" subtitle="إنشاء واعتماد رواتب الموظفين الشهرية" actions={
+      <PageHeader title="مسيرات الرواتب" description="إنشاء واعتماد رواتب الموظفين الشهرية" actions={
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />مسير جديد</Button></DialogTrigger>
           <DialogContent dir="rtl">
@@ -103,9 +103,9 @@ function PayrollPage() {
                 <TableCell className="font-mono">{r.run_no}</TableCell>
                 <TableCell>{r.period_month}/{r.period_year}</TableCell>
                 <TableCell>{r.employees_count ?? 0}</TableCell>
-                <TableCell>{formatCurrency(r.total_gross ?? 0)}</TableCell>
-                <TableCell>{formatCurrency(r.total_deductions ?? 0)}</TableCell>
-                <TableCell className="font-semibold">{formatCurrency(r.total_net ?? 0)}</TableCell>
+                <TableCell>{fmtSAR(r.total_gross ?? 0)}</TableCell>
+                <TableCell>{fmtSAR(r.total_deductions ?? 0)}</TableCell>
+                <TableCell className="font-semibold">{fmtSAR(r.total_net ?? 0)}</TableCell>
                 <TableCell><Badge className={STATUS[r.status]?.c}>{STATUS[r.status]?.l ?? r.status}</Badge></TableCell>
                 <TableCell><Link to="/hr/payroll/$id" params={{ id: r.id }} className="text-primary text-sm">التفاصيل</Link></TableCell>
               </TableRow>

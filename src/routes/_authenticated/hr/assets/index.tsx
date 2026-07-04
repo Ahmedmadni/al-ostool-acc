@@ -59,7 +59,7 @@ function AssetsPage() {
 
   return (
     <div className="p-6 space-y-6" dir="rtl">
-      <PageHeader title="العهد" subtitle="إدارة العهد المسلمة للموظفين" actions={
+      <PageHeader title="العهد" description="إدارة العهد المسلمة للموظفين" actions={
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />تسليم عهدة</Button></DialogTrigger>
           <DialogContent dir="rtl">

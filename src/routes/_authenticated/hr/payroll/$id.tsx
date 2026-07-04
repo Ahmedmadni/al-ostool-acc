@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowRight, Check, FileSpreadsheet, Printer } from "lucide-react";
-import { formatCurrency } from "@/lib/format";
+import { fmtSAR } from "@/lib/format";
 import { exportToExcel } from "@/lib/export";
 import { toast } from "sonner";
 
@@ -58,7 +58,7 @@ function PayrollDetail() {
 
   return (
     <div className="p-6 space-y-6" dir="rtl">
-      <PageHeader title={`مسير الرواتب ${run.run_no}`} subtitle={`الفترة: ${run.period_month}/${run.period_year}`} actions={
+      <PageHeader title={`مسير الرواتب ${run.run_no}`} description={`الفترة: ${run.period_month}/${run.period_year}`} actions={
         <div className="flex gap-2">
           <Link to="/hr/payroll"><Button variant="outline"><ArrowRight className="w-4 h-4 ml-2" />رجوع</Button></Link>
           <Button variant="outline" onClick={() => exportToExcel(exportRows, `payroll-${run.run_no}`)}><FileSpreadsheet className="w-4 h-4 ml-2" />Excel</Button>
@@ -68,9 +68,9 @@ function PayrollDetail() {
 
       <div className="grid md:grid-cols-4 gap-3">
         <Card className="p-4"><div className="text-sm text-muted-foreground">عدد الموظفين</div><div className="text-2xl font-bold">{run.employees_count}</div></Card>
-        <Card className="p-4"><div className="text-sm text-muted-foreground">إجمالي الرواتب</div><div className="text-2xl font-bold">{formatCurrency(run.total_gross ?? 0)}</div></Card>
-        <Card className="p-4"><div className="text-sm text-muted-foreground">الاستقطاعات</div><div className="text-2xl font-bold text-destructive">{formatCurrency(run.total_deductions ?? 0)}</div></Card>
-        <Card className="p-4"><div className="text-sm text-muted-foreground">الصافي</div><div className="text-2xl font-bold text-primary">{formatCurrency(run.total_net ?? 0)}</div></Card>
+        <Card className="p-4"><div className="text-sm text-muted-foreground">إجمالي الرواتب</div><div className="text-2xl font-bold">{fmtSAR(run.total_gross ?? 0)}</div></Card>
+        <Card className="p-4"><div className="text-sm text-muted-foreground">الاستقطاعات</div><div className="text-2xl font-bold text-destructive">{fmtSAR(run.total_deductions ?? 0)}</div></Card>
+        <Card className="p-4"><div className="text-sm text-muted-foreground">الصافي</div><div className="text-2xl font-bold text-primary">{fmtSAR(run.total_net ?? 0)}</div></Card>
       </div>
 
       <div className="flex items-center gap-3">
@@ -94,14 +94,14 @@ function PayrollDetail() {
             {(lines as any[]).map((l) => (
               <TableRow key={l.id}>
                 <TableCell>{l.hr_employees?.full_name_ar} <span className="text-xs text-muted-foreground">({l.hr_employees?.employee_no})</span></TableCell>
-                <TableCell>{formatCurrency(l.basic_salary)}</TableCell>
-                <TableCell>{formatCurrency(l.housing_allowance)}</TableCell>
-                <TableCell>{formatCurrency(l.transport_allowance)}</TableCell>
-                <TableCell>{formatCurrency(l.other_allowances)}</TableCell>
-                <TableCell className="font-semibold">{formatCurrency(l.gross_salary)}</TableCell>
-                <TableCell>{formatCurrency(l.gosi_employee)}</TableCell>
-                <TableCell>{formatCurrency(l.total_deductions)}</TableCell>
-                <TableCell className="font-semibold text-primary">{formatCurrency(l.net_salary)}</TableCell>
+                <TableCell>{fmtSAR(l.basic_salary)}</TableCell>
+                <TableCell>{fmtSAR(l.housing_allowance)}</TableCell>
+                <TableCell>{fmtSAR(l.transport_allowance)}</TableCell>
+                <TableCell>{fmtSAR(l.other_allowances)}</TableCell>
+                <TableCell className="font-semibold">{fmtSAR(l.gross_salary)}</TableCell>
+                <TableCell>{fmtSAR(l.gosi_employee)}</TableCell>
+                <TableCell>{fmtSAR(l.total_deductions)}</TableCell>
+                <TableCell className="font-semibold text-primary">{fmtSAR(l.net_salary)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
