@@ -72,13 +72,22 @@ import { Route as AuthenticatedCustomersIdRouteImport } from './routes/_authenti
 import { Route as AuthenticatedControlProjectsRouteImport } from './routes/_authenticated/control/projects'
 import { Route as AuthenticatedControlCostsRouteImport } from './routes/_authenticated/control/costs'
 import { Route as AuthenticatedCashFlowMatrixRouteImport } from './routes/_authenticated/cash-flow/matrix'
+import { Route as AuthenticatedHrWorkflowIndexRouteImport } from './routes/_authenticated/hr/workflow/index'
+import { Route as AuthenticatedHrTerminationIndexRouteImport } from './routes/_authenticated/hr/termination/index'
+import { Route as AuthenticatedHrPayrollIndexRouteImport } from './routes/_authenticated/hr/payroll/index'
+import { Route as AuthenticatedHrLoansIndexRouteImport } from './routes/_authenticated/hr/loans/index'
+import { Route as AuthenticatedHrLeavesIndexRouteImport } from './routes/_authenticated/hr/leaves/index'
 import { Route as AuthenticatedHrEmployeesIndexRouteImport } from './routes/_authenticated/hr/employees/index'
 import { Route as AuthenticatedHrContractsIndexRouteImport } from './routes/_authenticated/hr/contracts/index'
+import { Route as AuthenticatedHrAssetsIndexRouteImport } from './routes/_authenticated/hr/assets/index'
 import { Route as AuthenticatedVendorsStatementIdRouteImport } from './routes/_authenticated/vendors/statement.$id'
 import { Route as AuthenticatedTasksReportsTaskCompletionRouteImport } from './routes/_authenticated/tasks/reports/task-completion'
 import { Route as AuthenticatedTasksReportsEmployeePerformanceRouteImport } from './routes/_authenticated/tasks/reports/employee-performance'
 import { Route as AuthenticatedTasksReportsDepartmentPerformanceRouteImport } from './routes/_authenticated/tasks/reports/department-performance'
 import { Route as AuthenticatedTasksReportsDelayedTasksRouteImport } from './routes/_authenticated/tasks/reports/delayed-tasks'
+import { Route as AuthenticatedHrWorkflowIdRouteImport } from './routes/_authenticated/hr/workflow/$id'
+import { Route as AuthenticatedHrTerminationIdRouteImport } from './routes/_authenticated/hr/termination/$id'
+import { Route as AuthenticatedHrPayrollIdRouteImport } from './routes/_authenticated/hr/payroll/$id'
 import { Route as AuthenticatedHrEmployeesIdRouteImport } from './routes/_authenticated/hr/employees/$id'
 
 const LoginRoute = LoginRouteImport.update({
@@ -444,6 +453,36 @@ const AuthenticatedCashFlowMatrixRoute =
     path: '/cash-flow/matrix',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedHrWorkflowIndexRoute =
+  AuthenticatedHrWorkflowIndexRouteImport.update({
+    id: '/hr/workflow/',
+    path: '/hr/workflow/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedHrTerminationIndexRoute =
+  AuthenticatedHrTerminationIndexRouteImport.update({
+    id: '/hr/termination/',
+    path: '/hr/termination/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedHrPayrollIndexRoute =
+  AuthenticatedHrPayrollIndexRouteImport.update({
+    id: '/hr/payroll/',
+    path: '/hr/payroll/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedHrLoansIndexRoute =
+  AuthenticatedHrLoansIndexRouteImport.update({
+    id: '/hr/loans/',
+    path: '/hr/loans/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedHrLeavesIndexRoute =
+  AuthenticatedHrLeavesIndexRouteImport.update({
+    id: '/hr/leaves/',
+    path: '/hr/leaves/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedHrEmployeesIndexRoute =
   AuthenticatedHrEmployeesIndexRouteImport.update({
     id: '/hr/employees/',
@@ -454,6 +493,12 @@ const AuthenticatedHrContractsIndexRoute =
   AuthenticatedHrContractsIndexRouteImport.update({
     id: '/hr/contracts/',
     path: '/hr/contracts/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedHrAssetsIndexRoute =
+  AuthenticatedHrAssetsIndexRouteImport.update({
+    id: '/hr/assets/',
+    path: '/hr/assets/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedVendorsStatementIdRoute =
@@ -484,6 +529,24 @@ const AuthenticatedTasksReportsDelayedTasksRoute =
   AuthenticatedTasksReportsDelayedTasksRouteImport.update({
     id: '/tasks/reports/delayed-tasks',
     path: '/tasks/reports/delayed-tasks',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedHrWorkflowIdRoute =
+  AuthenticatedHrWorkflowIdRouteImport.update({
+    id: '/hr/workflow/$id',
+    path: '/hr/workflow/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedHrTerminationIdRoute =
+  AuthenticatedHrTerminationIdRouteImport.update({
+    id: '/hr/termination/$id',
+    path: '/hr/termination/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedHrPayrollIdRoute =
+  AuthenticatedHrPayrollIdRouteImport.update({
+    id: '/hr/payroll/$id',
+    path: '/hr/payroll/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedHrEmployeesIdRoute =
@@ -557,13 +620,22 @@ export interface FileRoutesByFullPath {
   '/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors/': typeof AuthenticatedVendorsIndexRoute
   '/hr/employees/$id': typeof AuthenticatedHrEmployeesIdRoute
+  '/hr/payroll/$id': typeof AuthenticatedHrPayrollIdRoute
+  '/hr/termination/$id': typeof AuthenticatedHrTerminationIdRoute
+  '/hr/workflow/$id': typeof AuthenticatedHrWorkflowIdRoute
   '/tasks/reports/delayed-tasks': typeof AuthenticatedTasksReportsDelayedTasksRoute
   '/tasks/reports/department-performance': typeof AuthenticatedTasksReportsDepartmentPerformanceRoute
   '/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
+  '/hr/assets/': typeof AuthenticatedHrAssetsIndexRoute
   '/hr/contracts/': typeof AuthenticatedHrContractsIndexRoute
   '/hr/employees/': typeof AuthenticatedHrEmployeesIndexRoute
+  '/hr/leaves/': typeof AuthenticatedHrLeavesIndexRoute
+  '/hr/loans/': typeof AuthenticatedHrLoansIndexRoute
+  '/hr/payroll/': typeof AuthenticatedHrPayrollIndexRoute
+  '/hr/termination/': typeof AuthenticatedHrTerminationIndexRoute
+  '/hr/workflow/': typeof AuthenticatedHrWorkflowIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -629,13 +701,22 @@ export interface FileRoutesByTo {
   '/trial-balance': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors': typeof AuthenticatedVendorsIndexRoute
   '/hr/employees/$id': typeof AuthenticatedHrEmployeesIdRoute
+  '/hr/payroll/$id': typeof AuthenticatedHrPayrollIdRoute
+  '/hr/termination/$id': typeof AuthenticatedHrTerminationIdRoute
+  '/hr/workflow/$id': typeof AuthenticatedHrWorkflowIdRoute
   '/tasks/reports/delayed-tasks': typeof AuthenticatedTasksReportsDelayedTasksRoute
   '/tasks/reports/department-performance': typeof AuthenticatedTasksReportsDepartmentPerformanceRoute
   '/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
+  '/hr/assets': typeof AuthenticatedHrAssetsIndexRoute
   '/hr/contracts': typeof AuthenticatedHrContractsIndexRoute
   '/hr/employees': typeof AuthenticatedHrEmployeesIndexRoute
+  '/hr/leaves': typeof AuthenticatedHrLeavesIndexRoute
+  '/hr/loans': typeof AuthenticatedHrLoansIndexRoute
+  '/hr/payroll': typeof AuthenticatedHrPayrollIndexRoute
+  '/hr/termination': typeof AuthenticatedHrTerminationIndexRoute
+  '/hr/workflow': typeof AuthenticatedHrWorkflowIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -703,13 +784,22 @@ export interface FileRoutesById {
   '/_authenticated/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/_authenticated/vendors/': typeof AuthenticatedVendorsIndexRoute
   '/_authenticated/hr/employees/$id': typeof AuthenticatedHrEmployeesIdRoute
+  '/_authenticated/hr/payroll/$id': typeof AuthenticatedHrPayrollIdRoute
+  '/_authenticated/hr/termination/$id': typeof AuthenticatedHrTerminationIdRoute
+  '/_authenticated/hr/workflow/$id': typeof AuthenticatedHrWorkflowIdRoute
   '/_authenticated/tasks/reports/delayed-tasks': typeof AuthenticatedTasksReportsDelayedTasksRoute
   '/_authenticated/tasks/reports/department-performance': typeof AuthenticatedTasksReportsDepartmentPerformanceRoute
   '/_authenticated/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   '/_authenticated/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/_authenticated/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
+  '/_authenticated/hr/assets/': typeof AuthenticatedHrAssetsIndexRoute
   '/_authenticated/hr/contracts/': typeof AuthenticatedHrContractsIndexRoute
   '/_authenticated/hr/employees/': typeof AuthenticatedHrEmployeesIndexRoute
+  '/_authenticated/hr/leaves/': typeof AuthenticatedHrLeavesIndexRoute
+  '/_authenticated/hr/loans/': typeof AuthenticatedHrLoansIndexRoute
+  '/_authenticated/hr/payroll/': typeof AuthenticatedHrPayrollIndexRoute
+  '/_authenticated/hr/termination/': typeof AuthenticatedHrTerminationIndexRoute
+  '/_authenticated/hr/workflow/': typeof AuthenticatedHrWorkflowIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -777,13 +867,22 @@ export interface FileRouteTypes {
     | '/trial-balance/'
     | '/vendors/'
     | '/hr/employees/$id'
+    | '/hr/payroll/$id'
+    | '/hr/termination/$id'
+    | '/hr/workflow/$id'
     | '/tasks/reports/delayed-tasks'
     | '/tasks/reports/department-performance'
     | '/tasks/reports/employee-performance'
     | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
+    | '/hr/assets/'
     | '/hr/contracts/'
     | '/hr/employees/'
+    | '/hr/leaves/'
+    | '/hr/loans/'
+    | '/hr/payroll/'
+    | '/hr/termination/'
+    | '/hr/workflow/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -849,13 +948,22 @@ export interface FileRouteTypes {
     | '/trial-balance'
     | '/vendors'
     | '/hr/employees/$id'
+    | '/hr/payroll/$id'
+    | '/hr/termination/$id'
+    | '/hr/workflow/$id'
     | '/tasks/reports/delayed-tasks'
     | '/tasks/reports/department-performance'
     | '/tasks/reports/employee-performance'
     | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
+    | '/hr/assets'
     | '/hr/contracts'
     | '/hr/employees'
+    | '/hr/leaves'
+    | '/hr/loans'
+    | '/hr/payroll'
+    | '/hr/termination'
+    | '/hr/workflow'
   id:
     | '__root__'
     | '/'
@@ -922,13 +1030,22 @@ export interface FileRouteTypes {
     | '/_authenticated/trial-balance/'
     | '/_authenticated/vendors/'
     | '/_authenticated/hr/employees/$id'
+    | '/_authenticated/hr/payroll/$id'
+    | '/_authenticated/hr/termination/$id'
+    | '/_authenticated/hr/workflow/$id'
     | '/_authenticated/tasks/reports/delayed-tasks'
     | '/_authenticated/tasks/reports/department-performance'
     | '/_authenticated/tasks/reports/employee-performance'
     | '/_authenticated/tasks/reports/task-completion'
     | '/_authenticated/vendors/statement/$id'
+    | '/_authenticated/hr/assets/'
     | '/_authenticated/hr/contracts/'
     | '/_authenticated/hr/employees/'
+    | '/_authenticated/hr/leaves/'
+    | '/_authenticated/hr/loans/'
+    | '/_authenticated/hr/payroll/'
+    | '/_authenticated/hr/termination/'
+    | '/_authenticated/hr/workflow/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1380,6 +1497,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCashFlowMatrixRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/hr/workflow/': {
+      id: '/_authenticated/hr/workflow/'
+      path: '/hr/workflow'
+      fullPath: '/hr/workflow/'
+      preLoaderRoute: typeof AuthenticatedHrWorkflowIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hr/termination/': {
+      id: '/_authenticated/hr/termination/'
+      path: '/hr/termination'
+      fullPath: '/hr/termination/'
+      preLoaderRoute: typeof AuthenticatedHrTerminationIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hr/payroll/': {
+      id: '/_authenticated/hr/payroll/'
+      path: '/hr/payroll'
+      fullPath: '/hr/payroll/'
+      preLoaderRoute: typeof AuthenticatedHrPayrollIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hr/loans/': {
+      id: '/_authenticated/hr/loans/'
+      path: '/hr/loans'
+      fullPath: '/hr/loans/'
+      preLoaderRoute: typeof AuthenticatedHrLoansIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hr/leaves/': {
+      id: '/_authenticated/hr/leaves/'
+      path: '/hr/leaves'
+      fullPath: '/hr/leaves/'
+      preLoaderRoute: typeof AuthenticatedHrLeavesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/hr/employees/': {
       id: '/_authenticated/hr/employees/'
       path: '/hr/employees'
@@ -1392,6 +1544,13 @@ declare module '@tanstack/react-router' {
       path: '/hr/contracts'
       fullPath: '/hr/contracts/'
       preLoaderRoute: typeof AuthenticatedHrContractsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hr/assets/': {
+      id: '/_authenticated/hr/assets/'
+      path: '/hr/assets'
+      fullPath: '/hr/assets/'
+      preLoaderRoute: typeof AuthenticatedHrAssetsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/vendors/statement/$id': {
@@ -1427,6 +1586,27 @@ declare module '@tanstack/react-router' {
       path: '/tasks/reports/delayed-tasks'
       fullPath: '/tasks/reports/delayed-tasks'
       preLoaderRoute: typeof AuthenticatedTasksReportsDelayedTasksRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hr/workflow/$id': {
+      id: '/_authenticated/hr/workflow/$id'
+      path: '/hr/workflow/$id'
+      fullPath: '/hr/workflow/$id'
+      preLoaderRoute: typeof AuthenticatedHrWorkflowIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hr/termination/$id': {
+      id: '/_authenticated/hr/termination/$id'
+      path: '/hr/termination/$id'
+      fullPath: '/hr/termination/$id'
+      preLoaderRoute: typeof AuthenticatedHrTerminationIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/hr/payroll/$id': {
+      id: '/_authenticated/hr/payroll/$id'
+      path: '/hr/payroll/$id'
+      fullPath: '/hr/payroll/$id'
+      preLoaderRoute: typeof AuthenticatedHrPayrollIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/hr/employees/$id': {
@@ -1501,13 +1681,22 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTrialBalanceIndexRoute: typeof AuthenticatedTrialBalanceIndexRoute
   AuthenticatedVendorsIndexRoute: typeof AuthenticatedVendorsIndexRoute
   AuthenticatedHrEmployeesIdRoute: typeof AuthenticatedHrEmployeesIdRoute
+  AuthenticatedHrPayrollIdRoute: typeof AuthenticatedHrPayrollIdRoute
+  AuthenticatedHrTerminationIdRoute: typeof AuthenticatedHrTerminationIdRoute
+  AuthenticatedHrWorkflowIdRoute: typeof AuthenticatedHrWorkflowIdRoute
   AuthenticatedTasksReportsDelayedTasksRoute: typeof AuthenticatedTasksReportsDelayedTasksRoute
   AuthenticatedTasksReportsDepartmentPerformanceRoute: typeof AuthenticatedTasksReportsDepartmentPerformanceRoute
   AuthenticatedTasksReportsEmployeePerformanceRoute: typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   AuthenticatedTasksReportsTaskCompletionRoute: typeof AuthenticatedTasksReportsTaskCompletionRoute
   AuthenticatedVendorsStatementIdRoute: typeof AuthenticatedVendorsStatementIdRoute
+  AuthenticatedHrAssetsIndexRoute: typeof AuthenticatedHrAssetsIndexRoute
   AuthenticatedHrContractsIndexRoute: typeof AuthenticatedHrContractsIndexRoute
   AuthenticatedHrEmployeesIndexRoute: typeof AuthenticatedHrEmployeesIndexRoute
+  AuthenticatedHrLeavesIndexRoute: typeof AuthenticatedHrLeavesIndexRoute
+  AuthenticatedHrLoansIndexRoute: typeof AuthenticatedHrLoansIndexRoute
+  AuthenticatedHrPayrollIndexRoute: typeof AuthenticatedHrPayrollIndexRoute
+  AuthenticatedHrTerminationIndexRoute: typeof AuthenticatedHrTerminationIndexRoute
+  AuthenticatedHrWorkflowIndexRoute: typeof AuthenticatedHrWorkflowIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -1577,6 +1766,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTrialBalanceIndexRoute: AuthenticatedTrialBalanceIndexRoute,
   AuthenticatedVendorsIndexRoute: AuthenticatedVendorsIndexRoute,
   AuthenticatedHrEmployeesIdRoute: AuthenticatedHrEmployeesIdRoute,
+  AuthenticatedHrPayrollIdRoute: AuthenticatedHrPayrollIdRoute,
+  AuthenticatedHrTerminationIdRoute: AuthenticatedHrTerminationIdRoute,
+  AuthenticatedHrWorkflowIdRoute: AuthenticatedHrWorkflowIdRoute,
   AuthenticatedTasksReportsDelayedTasksRoute:
     AuthenticatedTasksReportsDelayedTasksRoute,
   AuthenticatedTasksReportsDepartmentPerformanceRoute:
@@ -1586,8 +1778,14 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTasksReportsTaskCompletionRoute:
     AuthenticatedTasksReportsTaskCompletionRoute,
   AuthenticatedVendorsStatementIdRoute: AuthenticatedVendorsStatementIdRoute,
+  AuthenticatedHrAssetsIndexRoute: AuthenticatedHrAssetsIndexRoute,
   AuthenticatedHrContractsIndexRoute: AuthenticatedHrContractsIndexRoute,
   AuthenticatedHrEmployeesIndexRoute: AuthenticatedHrEmployeesIndexRoute,
+  AuthenticatedHrLeavesIndexRoute: AuthenticatedHrLeavesIndexRoute,
+  AuthenticatedHrLoansIndexRoute: AuthenticatedHrLoansIndexRoute,
+  AuthenticatedHrPayrollIndexRoute: AuthenticatedHrPayrollIndexRoute,
+  AuthenticatedHrTerminationIndexRoute: AuthenticatedHrTerminationIndexRoute,
+  AuthenticatedHrWorkflowIndexRoute: AuthenticatedHrWorkflowIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
