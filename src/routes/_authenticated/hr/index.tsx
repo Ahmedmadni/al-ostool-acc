@@ -66,10 +66,13 @@ function HrIndex() {
           <ul className="text-sm space-y-2">
             <li>• <Link className="text-primary hover:underline" to="/hr/employees">إدارة الموظفين والبطاقة الشاملة</Link></li>
             <li>• <Link className="text-primary hover:underline" to="/hr/contracts">العقود والملاحق</Link></li>
-            <li className="text-muted-foreground">• طلبات العمل والإجازات (المرحلة القادمة)</li>
-            <li className="text-muted-foreground">• السلف والقروض (المرحلة القادمة)</li>
-            <li className="text-muted-foreground">• الرواتب الشهرية (المرحلة القادمة)</li>
-            <li className="text-muted-foreground">• إنهاء الخدمة والمخالصة (المرحلة القادمة)</li>
+            <li>• <Link className="text-primary hover:underline" to="/hr/workflow">طلبات العمل وسير الاعتماد</Link></li>
+            <li>• <Link className="text-primary hover:underline" to="/hr/leaves">الإجازات</Link></li>
+            <li>• <Link className="text-primary hover:underline" to="/hr/loans">السلف والقروض</Link></li>
+            <li>• <Link className="text-primary hover:underline" to="/hr/assets">العهد</Link></li>
+            <li>• <Link className="text-primary hover:underline" to="/hr/payroll">مسيرات الرواتب</Link></li>
+            <li>• <Link className="text-primary hover:underline" to="/hr/termination">إنهاء الخدمة والمخالصة</Link></li>
+            <li>• <Link className="text-primary hover:underline" to="/hr/reports">التقارير الموحدة</Link></li>
           </ul>
         </Card>
         <Card className="p-5">

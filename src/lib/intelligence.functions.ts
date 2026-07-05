@@ -26,7 +26,7 @@ async function callAI(messages: any[], model = "google/gemini-3-flash-preview") 
 }
 
 async function loadCore() {
-  const [customers, vendors, invoices, payments, projects, banks, costs, hr, eq, aging, tb] = await Promise.all([
+  const [customers, vendors, invoices, payments, projects, banks, costs, hr, eq, aging, tb, hrEmp, hrContracts, hrPayroll] = await Promise.all([
     supabaseAdmin.from("customers").select("*").limit(2000),
     (supabaseAdmin.from as any)("vendors").select("*").limit(2000),
     supabaseAdmin.from("invoices").select("*").limit(5000),
@@ -38,6 +38,9 @@ async function loadCore() {
     supabaseAdmin.from("equipment_costs").select("total_cost,period,project,equipment_type").limit(3000),
     supabaseAdmin.from("aging_buckets").select("*").limit(500),
     supabaseAdmin.from("trial_balance_entries").select("account_type,balance,period").limit(2000),
+    (supabaseAdmin.from as any)("hr_employees").select("id,status,is_saudi,gross_salary,iqama_expiry,passport_expiry,hire_date,probation_end_date").limit(5000),
+    (supabaseAdmin.from as any)("hr_contracts").select("id,employee_id,status,end_date").limit(5000),
+    (supabaseAdmin.from as any)("hr_payroll_runs").select("id,period,status,total_net").limit(500),
   ]);
   return {
     customers: customers.data ?? [],
@@ -51,6 +54,9 @@ async function loadCore() {
     eq: eq.data ?? [],
     aging: aging.data ?? [],
     tb: tb.data ?? [],
+    hrEmp: (hrEmp?.data as any[]) ?? [],
+    hrContracts: (hrContracts?.data as any[]) ?? [],
+    hrPayroll: (hrPayroll?.data as any[]) ?? [],
   };
 }
 
@@ -446,6 +452,29 @@ export const alertCenter = createServerFn({ method: "POST" })
     const totalCost = d.projects.reduce((s, p) => s + num(p.actual_cost), 0);
     const margin = totalContract ? ((totalContract - totalCost) / totalContract) * 100 : 0;
     if (margin < 5 && totalContract > 0) alerts.push({ category: "cost", priority: "critical", title: "هامش الربح منخفض جداً", detail: `${margin.toFixed(1)}% فقط`, link: "/control/costs" });
+
+    // ===== HR Alerts =====
+    const in30 = new Date(now); in30.setDate(in30.getDate() + 30);
+    const in90 = new Date(now); in90.setDate(in90.getDate() + 90);
+
+    const iqamaExp = d.hrEmp.filter((e: any) => e.iqama_expiry && new Date(e.iqama_expiry) > now && new Date(e.iqama_expiry) < in30);
+    if (iqamaExp.length) alerts.push({ category: "financial", priority: "high", title: `إقامات تنتهي خلال 30 يوم (${iqamaExp.length})`, detail: `تجديد عاجل مطلوب`, link: "/hr/employees" });
+
+    const passExp = d.hrEmp.filter((e: any) => e.passport_expiry && new Date(e.passport_expiry) > now && new Date(e.passport_expiry) < in90);
+    if (passExp.length) alerts.push({ category: "financial", priority: "medium", title: `جوازات تنتهي خلال 90 يوم (${passExp.length})`, detail: `تنبيه لتجديد الجوازات`, link: "/hr/employees" });
+
+    const cExp = d.hrContracts.filter((c: any) => c.end_date && c.status === "active" && new Date(c.end_date) > now && new Date(c.end_date) < in30);
+    if (cExp.length) alerts.push({ category: "financial", priority: "high", title: `عقود عمل تنتهي خلال 30 يوم (${cExp.length})`, detail: `اتخاذ قرار التجديد أو الإنهاء`, link: "/hr/contracts" });
+
+    const probEnd = d.hrEmp.filter((e: any) => e.probation_end_date && new Date(e.probation_end_date) > now && new Date(e.probation_end_date) < in30);
+    if (probEnd.length) alerts.push({ category: "financial", priority: "medium", title: `فترات تجربة تنتهي (${probEnd.length})`, detail: `تقييم الأداء واتخاذ القرار`, link: "/hr/employees" });
+
+    const draftPay = d.hrPayroll.filter((p: any) => p.status === "draft");
+    if (draftPay.length) alerts.push({ category: "financial", priority: "medium", title: `مسيرات رواتب معلقة (${draftPay.length})`, detail: `في انتظار الاعتماد`, link: "/hr/payroll" });
+
+    const saudis = d.hrEmp.filter((e: any) => e.is_saudi).length;
+    const saudization = d.hrEmp.length ? (saudis / d.hrEmp.length) * 100 : 100;
+    if (d.hrEmp.length >= 6 && saudization < 20) alerts.push({ category: "financial", priority: "high", title: "نسبة السعودة منخفضة", detail: `${saudization.toFixed(1)}% — قد يؤثر على نطاقات وزارة الموارد البشرية`, link: "/hr/reports" });
 
     return { alerts: alerts.sort((a, b) => ({ critical: 0, high: 1, medium: 2, low: 3 }[a.priority] - { critical: 0, high: 1, medium: 2, low: 3 }[b.priority])) };
   });

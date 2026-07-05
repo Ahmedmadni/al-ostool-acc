@@ -90,6 +90,7 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/hr/assets", module: "hr" },
   { prefix: "/hr/payroll", module: "hr" },
   { prefix: "/hr/termination", module: "hr" },
+  { prefix: "/hr/reports", module: "hr" },
   { prefix: "/hr", module: "hr" },
 
   // ===== Misc =====

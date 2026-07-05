@@ -11,7 +11,7 @@ const LANG_INSTRUCTION: Record<string, string> = {
 };
 
 async function loadFinancialContext() {
-  const [tb, costs, aging, banks, hr, eq, customers, vendors, invoices, projects] = await Promise.all([
+  const [tb, costs, aging, banks, hr, eq, customers, vendors, invoices, projects, hrEmp, hrContracts, hrPayroll] = await Promise.all([
     supabaseAdmin.from("trial_balance_entries").select("account_name,account_type,balance").limit(200),
     supabaseAdmin.from("cost_entries").select("category,project,department,amount").limit(500),
     supabaseAdmin.from("aging_buckets").select("customer_name,total_outstanding,days_90,days_180,days_over_360").limit(100),
@@ -22,7 +22,17 @@ async function loadFinancialContext() {
     (supabaseAdmin.from as any)("vendors").select("name,total_outstanding").limit(100),
     supabaseAdmin.from("invoices").select("total_amount,paid_amount,status,due_date,issue_date").limit(500),
     supabaseAdmin.from("projects").select("name,status,contract_value,actual_cost,progress_actual,progress_planned").limit(100),
+    (supabaseAdmin.from as any)("hr_employees").select("status,is_saudi,gross_salary,hire_date,iqama_expiry").limit(3000),
+    (supabaseAdmin.from as any)("hr_contracts").select("status,end_date,contract_type").limit(3000),
+    (supabaseAdmin.from as any)("hr_payroll_runs").select("period,status,total_gross,total_net,total_gosi").limit(50),
   ]);
+  const emps = (hrEmp?.data as any[]) ?? [];
+  const active = emps.filter((e) => e.status === "active");
+  const saudis = emps.filter((e) => e.is_saudi).length;
+  const now = new Date();
+  const in30 = new Date(now); in30.setDate(in30.getDate() + 30);
+  const iqamaExpiring = emps.filter((e) => e.iqama_expiry && new Date(e.iqama_expiry) > now && new Date(e.iqama_expiry) < in30).length;
+  const terminated = emps.filter((e) => e.status === "terminated").length;
   return {
     trial_balance: tb.data,
     cost_entries_sample: costs.data,
@@ -38,6 +48,22 @@ async function loadFinancialContext() {
       paid: invoices.data?.reduce((s, i) => s + Number(i.paid_amount ?? 0), 0),
     },
     projects: projects.data,
+    hr_workforce: {
+      total: emps.length,
+      active: active.length,
+      terminated,
+      saudis,
+      non_saudis: emps.length - saudis,
+      saudization_pct: emps.length ? Math.round((saudis / emps.length) * 1000) / 10 : 0,
+      monthly_payroll: active.reduce((s, e) => s + Number(e.gross_salary ?? 0), 0),
+      iqamas_expiring_30d: iqamaExpiring,
+      turnover_pct: emps.length ? Math.round((terminated / emps.length) * 1000) / 10 : 0,
+    },
+    hr_contracts_summary: {
+      active: ((hrContracts?.data as any[]) ?? []).filter((c) => c.status === "active").length,
+      expiring: ((hrContracts?.data as any[]) ?? []).filter((c) => c.end_date && new Date(c.end_date) > now && new Date(c.end_date) < in30).length,
+    },
+    hr_payroll_runs: hrPayroll?.data ?? [],
   };
 }
 
