@@ -453,6 +453,29 @@ export const alertCenter = createServerFn({ method: "POST" })
     const margin = totalContract ? ((totalContract - totalCost) / totalContract) * 100 : 0;
     if (margin < 5 && totalContract > 0) alerts.push({ category: "cost", priority: "critical", title: "هامش الربح منخفض جداً", detail: `${margin.toFixed(1)}% فقط`, link: "/control/costs" });
 
+    // ===== HR Alerts =====
+    const in30 = new Date(now); in30.setDate(in30.getDate() + 30);
+    const in90 = new Date(now); in90.setDate(in90.getDate() + 90);
+
+    const iqamaExp = d.hrEmp.filter((e: any) => e.iqama_expiry && new Date(e.iqama_expiry) > now && new Date(e.iqama_expiry) < in30);
+    if (iqamaExp.length) alerts.push({ category: "financial", priority: "high", title: `إقامات تنتهي خلال 30 يوم (${iqamaExp.length})`, detail: `تجديد عاجل مطلوب`, link: "/hr/employees" });
+
+    const passExp = d.hrEmp.filter((e: any) => e.passport_expiry && new Date(e.passport_expiry) > now && new Date(e.passport_expiry) < in90);
+    if (passExp.length) alerts.push({ category: "financial", priority: "medium", title: `جوازات تنتهي خلال 90 يوم (${passExp.length})`, detail: `تنبيه لتجديد الجوازات`, link: "/hr/employees" });
+
+    const cExp = d.hrContracts.filter((c: any) => c.end_date && c.status === "active" && new Date(c.end_date) > now && new Date(c.end_date) < in30);
+    if (cExp.length) alerts.push({ category: "financial", priority: "high", title: `عقود عمل تنتهي خلال 30 يوم (${cExp.length})`, detail: `اتخاذ قرار التجديد أو الإنهاء`, link: "/hr/contracts" });
+
+    const probEnd = d.hrEmp.filter((e: any) => e.probation_end_date && new Date(e.probation_end_date) > now && new Date(e.probation_end_date) < in30);
+    if (probEnd.length) alerts.push({ category: "financial", priority: "medium", title: `فترات تجربة تنتهي (${probEnd.length})`, detail: `تقييم الأداء واتخاذ القرار`, link: "/hr/employees" });
+
+    const draftPay = d.hrPayroll.filter((p: any) => p.status === "draft");
+    if (draftPay.length) alerts.push({ category: "financial", priority: "medium", title: `مسيرات رواتب معلقة (${draftPay.length})`, detail: `في انتظار الاعتماد`, link: "/hr/payroll" });
+
+    const saudis = d.hrEmp.filter((e: any) => e.is_saudi).length;
+    const saudization = d.hrEmp.length ? (saudis / d.hrEmp.length) * 100 : 100;
+    if (d.hrEmp.length >= 6 && saudization < 20) alerts.push({ category: "financial", priority: "high", title: "نسبة السعودة منخفضة", detail: `${saudization.toFixed(1)}% — قد يؤثر على نطاقات وزارة الموارد البشرية`, link: "/hr/reports" });
+
     return { alerts: alerts.sort((a, b) => ({ critical: 0, high: 1, medium: 2, low: 3 }[a.priority] - { critical: 0, high: 1, medium: 2, low: 3 }[b.priority])) };
   });
 
