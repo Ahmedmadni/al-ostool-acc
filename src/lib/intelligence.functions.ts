@@ -26,7 +26,7 @@ async function callAI(messages: any[], model = "google/gemini-3-flash-preview") 
 }
 
 async function loadCore() {
-  const [customers, vendors, invoices, payments, projects, banks, costs, hr, eq, aging, tb] = await Promise.all([
+  const [customers, vendors, invoices, payments, projects, banks, costs, hr, eq, aging, tb, hrEmp, hrContracts, hrPayroll] = await Promise.all([
     supabaseAdmin.from("customers").select("*").limit(2000),
     (supabaseAdmin.from as any)("vendors").select("*").limit(2000),
     supabaseAdmin.from("invoices").select("*").limit(5000),
@@ -38,6 +38,9 @@ async function loadCore() {
     supabaseAdmin.from("equipment_costs").select("total_cost,period,project,equipment_type").limit(3000),
     supabaseAdmin.from("aging_buckets").select("*").limit(500),
     supabaseAdmin.from("trial_balance_entries").select("account_type,balance,period").limit(2000),
+    (supabaseAdmin.from as any)("hr_employees").select("id,status,is_saudi,gross_salary,iqama_expiry,passport_expiry,hire_date,probation_end_date").limit(5000),
+    (supabaseAdmin.from as any)("hr_contracts").select("id,employee_id,status,end_date").limit(5000),
+    (supabaseAdmin.from as any)("hr_payroll_runs").select("id,period,status,total_net").limit(500),
   ]);
   return {
     customers: customers.data ?? [],
@@ -51,6 +54,9 @@ async function loadCore() {
     eq: eq.data ?? [],
     aging: aging.data ?? [],
     tb: tb.data ?? [],
+    hrEmp: (hrEmp?.data as any[]) ?? [],
+    hrContracts: (hrContracts?.data as any[]) ?? [],
+    hrPayroll: (hrPayroll?.data as any[]) ?? [],
   };
 }
 
