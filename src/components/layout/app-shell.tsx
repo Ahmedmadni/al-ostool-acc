@@ -124,6 +124,7 @@ const GROUPS: NavGroup[] = [
       { to: "/hr/assets", label: "العهد" },
       { to: "/hr/payroll", label: "مسيرات الرواتب" },
       { to: "/hr/termination", label: "إنهاء الخدمة" },
+      { to: "/hr/qiwa", label: "تكامل قوى" },
       { to: "/hr/reports", label: "التقارير" },
     ],
   },
