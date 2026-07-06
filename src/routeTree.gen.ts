@@ -75,6 +75,7 @@ import { Route as AuthenticatedCashFlowMatrixRouteImport } from './routes/_authe
 import { Route as AuthenticatedHrWorkflowIndexRouteImport } from './routes/_authenticated/hr/workflow/index'
 import { Route as AuthenticatedHrTerminationIndexRouteImport } from './routes/_authenticated/hr/termination/index'
 import { Route as AuthenticatedHrReportsIndexRouteImport } from './routes/_authenticated/hr/reports/index'
+import { Route as AuthenticatedHrQiwaIndexRouteImport } from './routes/_authenticated/hr/qiwa/index'
 import { Route as AuthenticatedHrPayrollIndexRouteImport } from './routes/_authenticated/hr/payroll/index'
 import { Route as AuthenticatedHrLoansIndexRouteImport } from './routes/_authenticated/hr/loans/index'
 import { Route as AuthenticatedHrLeavesIndexRouteImport } from './routes/_authenticated/hr/leaves/index'
@@ -472,6 +473,12 @@ const AuthenticatedHrReportsIndexRoute =
     path: '/hr/reports/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedHrQiwaIndexRoute =
+  AuthenticatedHrQiwaIndexRouteImport.update({
+    id: '/hr/qiwa/',
+    path: '/hr/qiwa/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedHrPayrollIndexRoute =
   AuthenticatedHrPayrollIndexRouteImport.update({
     id: '/hr/payroll/',
@@ -641,6 +648,7 @@ export interface FileRoutesByFullPath {
   '/hr/leaves/': typeof AuthenticatedHrLeavesIndexRoute
   '/hr/loans/': typeof AuthenticatedHrLoansIndexRoute
   '/hr/payroll/': typeof AuthenticatedHrPayrollIndexRoute
+  '/hr/qiwa/': typeof AuthenticatedHrQiwaIndexRoute
   '/hr/reports/': typeof AuthenticatedHrReportsIndexRoute
   '/hr/termination/': typeof AuthenticatedHrTerminationIndexRoute
   '/hr/workflow/': typeof AuthenticatedHrWorkflowIndexRoute
@@ -723,6 +731,7 @@ export interface FileRoutesByTo {
   '/hr/leaves': typeof AuthenticatedHrLeavesIndexRoute
   '/hr/loans': typeof AuthenticatedHrLoansIndexRoute
   '/hr/payroll': typeof AuthenticatedHrPayrollIndexRoute
+  '/hr/qiwa': typeof AuthenticatedHrQiwaIndexRoute
   '/hr/reports': typeof AuthenticatedHrReportsIndexRoute
   '/hr/termination': typeof AuthenticatedHrTerminationIndexRoute
   '/hr/workflow': typeof AuthenticatedHrWorkflowIndexRoute
@@ -807,6 +816,7 @@ export interface FileRoutesById {
   '/_authenticated/hr/leaves/': typeof AuthenticatedHrLeavesIndexRoute
   '/_authenticated/hr/loans/': typeof AuthenticatedHrLoansIndexRoute
   '/_authenticated/hr/payroll/': typeof AuthenticatedHrPayrollIndexRoute
+  '/_authenticated/hr/qiwa/': typeof AuthenticatedHrQiwaIndexRoute
   '/_authenticated/hr/reports/': typeof AuthenticatedHrReportsIndexRoute
   '/_authenticated/hr/termination/': typeof AuthenticatedHrTerminationIndexRoute
   '/_authenticated/hr/workflow/': typeof AuthenticatedHrWorkflowIndexRoute
@@ -891,6 +901,7 @@ export interface FileRouteTypes {
     | '/hr/leaves/'
     | '/hr/loans/'
     | '/hr/payroll/'
+    | '/hr/qiwa/'
     | '/hr/reports/'
     | '/hr/termination/'
     | '/hr/workflow/'
@@ -973,6 +984,7 @@ export interface FileRouteTypes {
     | '/hr/leaves'
     | '/hr/loans'
     | '/hr/payroll'
+    | '/hr/qiwa'
     | '/hr/reports'
     | '/hr/termination'
     | '/hr/workflow'
@@ -1056,6 +1068,7 @@ export interface FileRouteTypes {
     | '/_authenticated/hr/leaves/'
     | '/_authenticated/hr/loans/'
     | '/_authenticated/hr/payroll/'
+    | '/_authenticated/hr/qiwa/'
     | '/_authenticated/hr/reports/'
     | '/_authenticated/hr/termination/'
     | '/_authenticated/hr/workflow/'
@@ -1531,6 +1544,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHrReportsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/hr/qiwa/': {
+      id: '/_authenticated/hr/qiwa/'
+      path: '/hr/qiwa'
+      fullPath: '/hr/qiwa/'
+      preLoaderRoute: typeof AuthenticatedHrQiwaIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/hr/payroll/': {
       id: '/_authenticated/hr/payroll/'
       path: '/hr/payroll'
@@ -1715,6 +1735,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedHrLeavesIndexRoute: typeof AuthenticatedHrLeavesIndexRoute
   AuthenticatedHrLoansIndexRoute: typeof AuthenticatedHrLoansIndexRoute
   AuthenticatedHrPayrollIndexRoute: typeof AuthenticatedHrPayrollIndexRoute
+  AuthenticatedHrQiwaIndexRoute: typeof AuthenticatedHrQiwaIndexRoute
   AuthenticatedHrReportsIndexRoute: typeof AuthenticatedHrReportsIndexRoute
   AuthenticatedHrTerminationIndexRoute: typeof AuthenticatedHrTerminationIndexRoute
   AuthenticatedHrWorkflowIndexRoute: typeof AuthenticatedHrWorkflowIndexRoute
@@ -1805,6 +1826,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedHrLeavesIndexRoute: AuthenticatedHrLeavesIndexRoute,
   AuthenticatedHrLoansIndexRoute: AuthenticatedHrLoansIndexRoute,
   AuthenticatedHrPayrollIndexRoute: AuthenticatedHrPayrollIndexRoute,
+  AuthenticatedHrQiwaIndexRoute: AuthenticatedHrQiwaIndexRoute,
   AuthenticatedHrReportsIndexRoute: AuthenticatedHrReportsIndexRoute,
   AuthenticatedHrTerminationIndexRoute: AuthenticatedHrTerminationIndexRoute,
   AuthenticatedHrWorkflowIndexRoute: AuthenticatedHrWorkflowIndexRoute,
