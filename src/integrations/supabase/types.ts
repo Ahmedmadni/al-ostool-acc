@@ -4177,6 +4177,20 @@ export type Database = {
           employer_share: number
         }[]
       }
+      hr_calc_leave_entitlement: {
+        Args: { _employee_id: string; _leave_type: string; _year?: number }
+        Returns: number
+      }
+      hr_get_leave_summary: {
+        Args: { _employee_id: string; _year?: number }
+        Returns: {
+          entitled: number
+          leave_type: string
+          pending: number
+          remaining: number
+          used: number
+        }[]
+      }
       hr_termination_clearance: {
         Args: { _employee_id: string }
         Returns: Json
