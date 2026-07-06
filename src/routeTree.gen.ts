@@ -81,6 +81,7 @@ import { Route as AuthenticatedHrLoansIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedHrLeavesIndexRouteImport } from './routes/_authenticated/hr/leaves/index'
 import { Route as AuthenticatedHrEmployeesIndexRouteImport } from './routes/_authenticated/hr/employees/index'
 import { Route as AuthenticatedHrContractsIndexRouteImport } from './routes/_authenticated/hr/contracts/index'
+import { Route as AuthenticatedHrAuditIndexRouteImport } from './routes/_authenticated/hr/audit/index'
 import { Route as AuthenticatedHrAssetsIndexRouteImport } from './routes/_authenticated/hr/assets/index'
 import { Route as AuthenticatedVendorsStatementIdRouteImport } from './routes/_authenticated/vendors/statement.$id'
 import { Route as AuthenticatedTasksReportsTaskCompletionRouteImport } from './routes/_authenticated/tasks/reports/task-completion'
@@ -509,6 +510,12 @@ const AuthenticatedHrContractsIndexRoute =
     path: '/hr/contracts/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedHrAuditIndexRoute =
+  AuthenticatedHrAuditIndexRouteImport.update({
+    id: '/hr/audit/',
+    path: '/hr/audit/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedHrAssetsIndexRoute =
   AuthenticatedHrAssetsIndexRouteImport.update({
     id: '/hr/assets/',
@@ -643,6 +650,7 @@ export interface FileRoutesByFullPath {
   '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
   '/hr/assets/': typeof AuthenticatedHrAssetsIndexRoute
+  '/hr/audit/': typeof AuthenticatedHrAuditIndexRoute
   '/hr/contracts/': typeof AuthenticatedHrContractsIndexRoute
   '/hr/employees/': typeof AuthenticatedHrEmployeesIndexRoute
   '/hr/leaves/': typeof AuthenticatedHrLeavesIndexRoute
@@ -726,6 +734,7 @@ export interface FileRoutesByTo {
   '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
   '/hr/assets': typeof AuthenticatedHrAssetsIndexRoute
+  '/hr/audit': typeof AuthenticatedHrAuditIndexRoute
   '/hr/contracts': typeof AuthenticatedHrContractsIndexRoute
   '/hr/employees': typeof AuthenticatedHrEmployeesIndexRoute
   '/hr/leaves': typeof AuthenticatedHrLeavesIndexRoute
@@ -811,6 +820,7 @@ export interface FileRoutesById {
   '/_authenticated/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/_authenticated/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
   '/_authenticated/hr/assets/': typeof AuthenticatedHrAssetsIndexRoute
+  '/_authenticated/hr/audit/': typeof AuthenticatedHrAuditIndexRoute
   '/_authenticated/hr/contracts/': typeof AuthenticatedHrContractsIndexRoute
   '/_authenticated/hr/employees/': typeof AuthenticatedHrEmployeesIndexRoute
   '/_authenticated/hr/leaves/': typeof AuthenticatedHrLeavesIndexRoute
@@ -896,6 +906,7 @@ export interface FileRouteTypes {
     | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
     | '/hr/assets/'
+    | '/hr/audit/'
     | '/hr/contracts/'
     | '/hr/employees/'
     | '/hr/leaves/'
@@ -979,6 +990,7 @@ export interface FileRouteTypes {
     | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
     | '/hr/assets'
+    | '/hr/audit'
     | '/hr/contracts'
     | '/hr/employees'
     | '/hr/leaves'
@@ -1063,6 +1075,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tasks/reports/task-completion'
     | '/_authenticated/vendors/statement/$id'
     | '/_authenticated/hr/assets/'
+    | '/_authenticated/hr/audit/'
     | '/_authenticated/hr/contracts/'
     | '/_authenticated/hr/employees/'
     | '/_authenticated/hr/leaves/'
@@ -1586,6 +1599,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHrContractsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/hr/audit/': {
+      id: '/_authenticated/hr/audit/'
+      path: '/hr/audit'
+      fullPath: '/hr/audit/'
+      preLoaderRoute: typeof AuthenticatedHrAuditIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/hr/assets/': {
       id: '/_authenticated/hr/assets/'
       path: '/hr/assets'
@@ -1730,6 +1750,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTasksReportsTaskCompletionRoute: typeof AuthenticatedTasksReportsTaskCompletionRoute
   AuthenticatedVendorsStatementIdRoute: typeof AuthenticatedVendorsStatementIdRoute
   AuthenticatedHrAssetsIndexRoute: typeof AuthenticatedHrAssetsIndexRoute
+  AuthenticatedHrAuditIndexRoute: typeof AuthenticatedHrAuditIndexRoute
   AuthenticatedHrContractsIndexRoute: typeof AuthenticatedHrContractsIndexRoute
   AuthenticatedHrEmployeesIndexRoute: typeof AuthenticatedHrEmployeesIndexRoute
   AuthenticatedHrLeavesIndexRoute: typeof AuthenticatedHrLeavesIndexRoute
@@ -1821,6 +1842,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedTasksReportsTaskCompletionRoute,
   AuthenticatedVendorsStatementIdRoute: AuthenticatedVendorsStatementIdRoute,
   AuthenticatedHrAssetsIndexRoute: AuthenticatedHrAssetsIndexRoute,
+  AuthenticatedHrAuditIndexRoute: AuthenticatedHrAuditIndexRoute,
   AuthenticatedHrContractsIndexRoute: AuthenticatedHrContractsIndexRoute,
   AuthenticatedHrEmployeesIndexRoute: AuthenticatedHrEmployeesIndexRoute,
   AuthenticatedHrLeavesIndexRoute: AuthenticatedHrLeavesIndexRoute,
