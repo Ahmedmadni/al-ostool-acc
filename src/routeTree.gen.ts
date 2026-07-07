@@ -93,6 +93,7 @@ import { Route as AuthenticatedHrWorkflowIdRouteImport } from './routes/_authent
 import { Route as AuthenticatedHrTerminationIdRouteImport } from './routes/_authenticated/hr/termination/$id'
 import { Route as AuthenticatedHrPayrollIdRouteImport } from './routes/_authenticated/hr/payroll/$id'
 import { Route as AuthenticatedHrEmployeesIdRouteImport } from './routes/_authenticated/hr/employees/$id'
+import { Route as AuthenticatedHrQiwaMappingIndexRouteImport } from './routes/_authenticated/hr/qiwa/mapping/index'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -583,6 +584,12 @@ const AuthenticatedHrEmployeesIdRoute =
     path: '/hr/employees/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedHrQiwaMappingIndexRoute =
+  AuthenticatedHrQiwaMappingIndexRouteImport.update({
+    id: '/hr/qiwa/mapping/',
+    path: '/hr/qiwa/mapping/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -668,6 +675,7 @@ export interface FileRoutesByFullPath {
   '/hr/reports/': typeof AuthenticatedHrReportsIndexRoute
   '/hr/termination/': typeof AuthenticatedHrTerminationIndexRoute
   '/hr/workflow/': typeof AuthenticatedHrWorkflowIndexRoute
+  '/hr/qiwa/mapping/': typeof AuthenticatedHrQiwaMappingIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -753,6 +761,7 @@ export interface FileRoutesByTo {
   '/hr/reports': typeof AuthenticatedHrReportsIndexRoute
   '/hr/termination': typeof AuthenticatedHrTerminationIndexRoute
   '/hr/workflow': typeof AuthenticatedHrWorkflowIndexRoute
+  '/hr/qiwa/mapping': typeof AuthenticatedHrQiwaMappingIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -840,6 +849,7 @@ export interface FileRoutesById {
   '/_authenticated/hr/reports/': typeof AuthenticatedHrReportsIndexRoute
   '/_authenticated/hr/termination/': typeof AuthenticatedHrTerminationIndexRoute
   '/_authenticated/hr/workflow/': typeof AuthenticatedHrWorkflowIndexRoute
+  '/_authenticated/hr/qiwa/mapping/': typeof AuthenticatedHrQiwaMappingIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -927,6 +937,7 @@ export interface FileRouteTypes {
     | '/hr/reports/'
     | '/hr/termination/'
     | '/hr/workflow/'
+    | '/hr/qiwa/mapping/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1012,6 +1023,7 @@ export interface FileRouteTypes {
     | '/hr/reports'
     | '/hr/termination'
     | '/hr/workflow'
+    | '/hr/qiwa/mapping'
   id:
     | '__root__'
     | '/'
@@ -1098,6 +1110,7 @@ export interface FileRouteTypes {
     | '/_authenticated/hr/reports/'
     | '/_authenticated/hr/termination/'
     | '/_authenticated/hr/workflow/'
+    | '/_authenticated/hr/qiwa/mapping/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1696,6 +1709,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHrEmployeesIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/hr/qiwa/mapping/': {
+      id: '/_authenticated/hr/qiwa/mapping/'
+      path: '/hr/qiwa/mapping'
+      fullPath: '/hr/qiwa/mapping/'
+      preLoaderRoute: typeof AuthenticatedHrQiwaMappingIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -1781,6 +1801,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedHrReportsIndexRoute: typeof AuthenticatedHrReportsIndexRoute
   AuthenticatedHrTerminationIndexRoute: typeof AuthenticatedHrTerminationIndexRoute
   AuthenticatedHrWorkflowIndexRoute: typeof AuthenticatedHrWorkflowIndexRoute
+  AuthenticatedHrQiwaMappingIndexRoute: typeof AuthenticatedHrQiwaMappingIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -1874,6 +1895,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedHrReportsIndexRoute: AuthenticatedHrReportsIndexRoute,
   AuthenticatedHrTerminationIndexRoute: AuthenticatedHrTerminationIndexRoute,
   AuthenticatedHrWorkflowIndexRoute: AuthenticatedHrWorkflowIndexRoute,
+  AuthenticatedHrQiwaMappingIndexRoute: AuthenticatedHrQiwaMappingIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
