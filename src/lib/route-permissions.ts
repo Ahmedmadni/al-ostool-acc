@@ -84,6 +84,7 @@ const RULES: { prefix: string; module: string }[] = [
   // ===== HR group =====
   { prefix: "/hr/employees", module: "hr" },
   { prefix: "/hr/contracts", module: "hr" },
+  { prefix: "/hr/compliance", module: "hr" },
   { prefix: "/hr/workflow", module: "hr" },
   { prefix: "/hr/leaves", module: "hr" },
   { prefix: "/hr/loans", module: "hr" },
