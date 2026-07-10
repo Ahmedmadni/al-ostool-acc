@@ -71,8 +71,8 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: {
         housing_allowance: num(form.housing_allowance),
         transport_allowance: num(form.transport_allowance),
         other_allowances: num(form.other_allowances),
-        gross_salary: gross,
       };
+      delete payload.gross_salary; // generated column — computed by the database, never sent
       ["department_id", "job_title_id", "manager_id", "company_id"].forEach((k) => {
         if (payload[k] === "" || payload[k] === "none") payload[k] = null;
       });

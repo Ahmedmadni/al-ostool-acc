@@ -32,7 +32,7 @@ function PayrollDetail() {
   const { data: lines = [] } = useQuery({
     queryKey: ["hr_payroll_lines", id],
     queryFn: async () => (await (supabase as any).from("hr_payroll_lines")
-      .select("*, hr_employees(full_name_ar, employee_no, iban)").eq("run_id", id)).data ?? [],
+      .select("*, hr_employees(full_name_ar, employee_no, bank_iban)").eq("run_id", id)).data ?? [],
   });
 
   const approve = useMutation({
@@ -53,7 +53,7 @@ function PayrollDetail() {
     "الأساسي": l.basic_salary, "سكن": l.housing_allowance, "نقل": l.transport_allowance,
     "بدلات": l.other_allowances, "الإجمالي": l.gross_salary,
     "تأمينات (موظف)": l.gosi_employee, "استقطاعات": l.total_deductions, "الصافي": l.net_salary,
-    "IBAN": l.hr_employees?.iban,
+    "IBAN": l.hr_employees?.bank_iban,
   }));
 
   return (

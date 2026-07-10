@@ -149,10 +149,10 @@ export function AddEditProjectDialog({ open, onOpenChange, project }: Props) {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="new">جديد</SelectItem>
-                  <SelectItem value="active">نشط</SelectItem>
-                  <SelectItem value="on_hold">معلّق</SelectItem>
+                  <SelectItem value="in_progress">جاري التنفيذ</SelectItem>
+                  <SelectItem value="on_hold">متوقف</SelectItem>
                   <SelectItem value="completed">مكتمل</SelectItem>
-                  <SelectItem value="cancelled">ملغى</SelectItem>
+                  <SelectItem value="delayed">متأخر</SelectItem>
                 </SelectContent>
               </Select>
             </div>
