@@ -344,6 +344,7 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean | null
+          is_current: boolean | null
           level: number
           name_ar: string
           name_en: string | null
@@ -357,6 +358,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean | null
+          is_current?: boolean | null
           level?: number
           name_ar: string
           name_en?: string | null
@@ -370,6 +372,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean | null
+          is_current?: boolean | null
           level?: number
           name_ar?: string
           name_en?: string | null
@@ -4003,6 +4006,45 @@ export type Database = {
         }
         Relationships: []
       }
+      vat_returns: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          final_vat: number | null
+          id: string
+          net_vat: number | null
+          period_from: string
+          period_to: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          final_vat?: number | null
+          id?: string
+          net_vat?: number | null
+          period_from: string
+          period_to: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          final_vat?: number | null
+          id?: string
+          net_vat?: number | null
+          period_from?: string
+          period_to?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       vendor_contacts: {
         Row: {
           created_at: string
@@ -4125,6 +4167,45 @@ export type Database = {
         }
         Relationships: []
       }
+      zakat_returns: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          id: string
+          tax_due: number | null
+          updated_at: string
+          updated_by: string | null
+          year_from: string
+          year_to: string
+          zakat_due: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          id?: string
+          tax_due?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          year_from: string
+          year_to: string
+          zakat_due?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          id?: string
+          tax_due?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          year_from?: string
+          year_to?: string
+          zakat_due?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -4201,6 +4282,17 @@ export type Database = {
         Returns: boolean
       }
       mark_overdue_tasks: { Args: never; Returns: number }
+      record_collection: {
+        Args: {
+          _allocations: Json
+          _customer_id: string
+          _method: string
+          _notes: string
+          _payment_date: string
+          _reference: string
+        }
+        Returns: string[]
+      }
       user_has_any_role: {
         Args: { _roles: string[]; _user_id: string }
         Returns: boolean

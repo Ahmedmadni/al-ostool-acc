@@ -70,7 +70,7 @@ function Page() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <KpiCard title="إجمالي الأصول" value={fmtSAR(sum.assets)} icon={Scale} color="primary" />
         <KpiCard title="إجمالي الخصوم" value={fmtSAR(sum.liabilities)} icon={Wallet} color="warning" />
-        <KpiCard title="حقوق الملكية" value={fmtSAR(sum.equity)} icon={Briefcase} color="success" />
+        <KpiCard title="حقوق الملكية" value={fmtSAR(sum.equity + sum.netIncome)} icon={Briefcase} color="success" />
         <KpiCard
           title="تحقق التوازن"
           value={balanced ? "متوازنة" : `فرق ${fmtSAR(Math.abs(sum.balanceCheck))}`}
@@ -96,11 +96,14 @@ function Page() {
           <div className="mt-4">
             <StatementTable lines={equity} label="حقوق الملكية" />
           </div>
+          <div className="border-t mt-2 pt-2 flex justify-between text-sm text-muted-foreground">
+            <span>+ صافي دخل الفترة (غير مُقفل بعد)</span><span className="tabular-nums">{fmtSAR(sum.netIncome)}</span>
+          </div>
           <div className="border-t mt-2 pt-2 flex justify-between font-bold">
-            <span>إجمالي حقوق الملكية</span><span className="tabular-nums">{fmtSAR(sum.equity)}</span>
+            <span>إجمالي حقوق الملكية</span><span className="tabular-nums">{fmtSAR(sum.equity + sum.netIncome)}</span>
           </div>
           <div className="border-t-2 mt-3 pt-2 flex justify-between font-bold text-primary">
-            <span>الإجمالي</span><span className="tabular-nums">{fmtSAR(sum.liabilities + sum.equity)}</span>
+            <span>الإجمالي</span><span className="tabular-nums">{fmtSAR(sum.liabilities + sum.equity + sum.netIncome)}</span>
           </div>
         </Card>
       </div>

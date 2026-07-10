@@ -3,8 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, Printer, RotateCcw } from "lucide-react";
+import { FileSpreadsheet, Printer, RotateCcw, Save, Loader2 } from "lucide-react";
 import { fmtSAR } from "@/lib/format";
+import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
 
@@ -38,8 +39,6 @@ const DEFAULT_HEADER: Header = {
   period_to: "",
 };
 
-const STORAGE_KEY = "vat-return-form";
-
 function vatRate(code: string): number {
   return code === "ع-1" || code === "ش-1" ? 0.15 : 0;
 }
@@ -49,22 +48,34 @@ export function VatReturnForm() {
   const [sales, setSales] = useState<Row[]>(SALES_ROWS.map((r) => ({ ...r, amount: 0, adjustment: 0 })));
   const [purchases, setPurchases] = useState<Row[]>(PURCHASE_ROWS.map((r) => ({ ...r, amount: 0, adjustment: 0 })));
   const [carriedFwd, setCarriedFwd] = useState(0);
+  const [recordId, setRecordId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
+  // Loads the most recently saved return (this mirrors the old single-slot
+  // localStorage behaviour, but now shared across users/devices and durable
+  // in Supabase instead of one browser's cache).
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const v = JSON.parse(raw);
+    (async () => {
+      const { data, error } = await supabase
+        .from("vat_returns" as any)
+        .select("*")
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) toast.error(error.message);
+      const row = data as any;
+      if (row?.data) {
+        const v = row.data;
+        setRecordId(row.id);
         if (v.header) setHeader(v.header);
         if (v.sales) setSales(v.sales);
         if (v.purchases) setPurchases(v.purchases);
         if (typeof v.carriedFwd === "number") setCarriedFwd(v.carriedFwd);
       }
-    } catch {}
+      setLoading(false);
+    })();
   }, []);
-  useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ header, sales, purchases, carriedFwd })); } catch {}
-  }, [header, sales, purchases, carriedFwd]);
 
   const calcRow = (r: Row) => (r.amount + r.adjustment) * vatRate(r.code);
   const salesTotalAmt = useMemo(() => sales.reduce((s, r) => s + r.amount, 0), [sales]);
@@ -77,12 +88,40 @@ export function VatReturnForm() {
   const finalVat = netVat - carriedFwd;
 
   const reset = () => {
-    if (!confirm("هل تريد مسح جميع البيانات؟")) return;
+    if (!confirm("هل تريد مسح جميع البيانات في النموذج الحالي؟ (لن يؤثر هذا على أي إقرار محفوظ مسبقاً)")) return;
+    setRecordId(null);
     setHeader(DEFAULT_HEADER);
     setSales(SALES_ROWS.map((r) => ({ ...r, amount: 0, adjustment: 0 })));
     setPurchases(PURCHASE_ROWS.map((r) => ({ ...r, amount: 0, adjustment: 0 })));
     setCarriedFwd(0);
     toast.success("تم المسح");
+  };
+
+  const save = async () => {
+    if (!header.period_from || !header.period_to) {
+      toast.error("حدد الفترة الضريبية (من/إلى) قبل الحفظ");
+      return;
+    }
+    setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    const payload: Record<string, unknown> = {
+      period_from: header.period_from,
+      period_to: header.period_to,
+      data: { header, sales, purchases, carriedFwd },
+      net_vat: netVat,
+      final_vat: finalVat,
+      updated_by: user?.id ?? null,
+    };
+    if (!recordId) payload.created_by = user?.id ?? null;
+    const { data, error } = await supabase
+      .from("vat_returns" as any)
+      .upsert(payload, { onConflict: "period_from,period_to" })
+      .select("id")
+      .single();
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    setRecordId((data as any)?.id ?? null);
+    toast.success("تم حفظ الإقرار");
   };
 
   const exportExcel = () => {
@@ -112,7 +151,12 @@ export function VatReturnForm() {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2 no-print flex-wrap">
+      <div className="flex gap-2 no-print flex-wrap items-center">
+        <Button size="sm" onClick={save} disabled={saving || loading} className="gap-2">
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          {saving ? "جارٍ الحفظ..." : "حفظ الإقرار"}
+        </Button>
+        {recordId && <span className="text-xs text-muted-foreground">محفوظ في قاعدة البيانات</span>}
         <Button variant="outline" size="sm" onClick={exportExcel} className="gap-2">
           <FileSpreadsheet className="w-4 h-4" />تصدير Excel
         </Button>

@@ -22,6 +22,7 @@ export type CoaRow = {
   parent_id: string | null;
   level: number;
   is_active: boolean | null;
+  is_current: boolean | null;
 };
 
 export type TbRow = {
@@ -217,7 +218,6 @@ export function computeKpis(coa: CoaRow[], tb: TbRow[]): Kpi[] {
   const operatingIncome = grossProfit - opex;
   const netIncome = operatingIncome + otherInc - otherExp;
 
-  // Heuristic current assets/liabilities: codes starting with 11/21 or names hinting current
   const idx = indexTb(tb);
   const findSum = (predicate: (a: CoaRow) => boolean) => {
     let t = 0;
@@ -228,8 +228,15 @@ export function computeKpis(coa: CoaRow[], tb: TbRow[]): Kpi[] {
     }
     return t;
   };
-  const currentAssets = findSum((a) => a.category === "assets" && /^1[12]/.test(a.code)) || assets * 0.6;
-  const currentLiab = findSum((a) => a.category === "liabilities" && /^2[12]/.test(a.code)) || liabilities * 0.5;
+
+  // Current/non-current comes from the account's own is_current classification
+  // (chart_of_accounts.is_current) — never from an assumed percentage of the
+  // total. If no asset/liability account has been classified yet, the liquidity
+  // KPIs below report "insufficient data" instead of a fabricated estimate.
+  const hasAssetClassification = coa.some((a) => a.category === "assets" && a.account_type === "detail" && a.is_current !== null);
+  const hasLiabClassification = coa.some((a) => a.category === "liabilities" && a.account_type === "detail" && a.is_current !== null);
+  const currentAssets = hasAssetClassification ? findSum((a) => a.category === "assets" && a.is_current === true) : NaN;
+  const currentLiab = hasLiabClassification ? findSum((a) => a.category === "liabilities" && a.is_current === true) : NaN;
   const inventory = findSum((a) => a.category === "assets" && /inventory|مخزون/i.test(a.name_ar + (a.name_en ?? "")));
   const cash = findSum((a) => a.category === "assets" && /cash|bank|نقد|بنك|صندوق/i.test(a.name_ar + (a.name_en ?? "")));
 
@@ -343,13 +350,17 @@ export function computeKpis(coa: CoaRow[], tb: TbRow[]): Kpi[] {
       name: "رأس المال العامل",
       category: "liquidity",
       value: currentAssets - currentLiab,
-      display: (currentAssets - currentLiab).toLocaleString("ar-SA-u-nu-latn"),
+      display: isFinite(currentAssets - currentLiab)
+        ? (currentAssets - currentLiab).toLocaleString("ar-SA-u-nu-latn")
+        : "—",
     },
   ];
 
-  // Status evaluation
+  // Status evaluation — skipped for KPIs whose value is unavailable (e.g. no
+  // current/non-current classification yet) so they show no status pill
+  // instead of a misleading "bad" from comparing NaN against a benchmark.
   for (const k of kpis) {
-    if (!k.benchmark) continue;
+    if (!k.benchmark || !isFinite(k.value)) continue;
     const { good, warn, direction } = k.benchmark;
     if (direction === "higher") {
       k.status = k.value >= good ? "good" : k.value >= warn ? "warn" : "bad";

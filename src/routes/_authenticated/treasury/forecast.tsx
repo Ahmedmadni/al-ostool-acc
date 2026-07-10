@@ -43,6 +43,17 @@ function ForecastPage() {
     opening += Number(r.balance ?? 0);
   }
 
+  // Collection rate applied to projected inflows is derived from the company's
+  // own invoice history (paid ÷ invoiced across all loaded invoices), not an
+  // arbitrary assumed percentage — and it's disclosed to the user below instead
+  // of being baked silently into the numbers. Outflows are projected at their
+  // full due amount (a standard conservative planning assumption: assume every
+  // payable gets paid in full), so the two sides are treated consistently and
+  // transparently rather than one being discounted without explanation.
+  const invoicedAll = invoices.reduce((s, i) => s + Number(i.total_amount ?? 0), 0);
+  const paidAll = invoices.reduce((s, i) => s + Number(i.paid_amount ?? 0), 0);
+  const collectionRate = invoicedAll > 0 ? Math.min(paidAll / invoicedAll, 1) : 1;
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const horizonDays = 90;
@@ -58,8 +69,8 @@ function ForecastPage() {
       const d = new Date(i.due_date);
       const rem = Number(i.total_amount ?? 0) - Number(i.paid_amount ?? 0);
       if (rem <= 0) continue;
-      if (d < today && w === 0) buckets[w].inflow += rem * 0.5;
-      else if (d >= start && d < end) buckets[w].inflow += rem * 0.85;
+      if (d < today && w === 0) buckets[w].inflow += rem * collectionRate;
+      else if (d >= start && d < end) buckets[w].inflow += rem * collectionRate;
     }
     for (const p of purchases as any[]) {
       if (!p.due_date || p.status === "paid") continue;
@@ -116,6 +127,12 @@ function ForecastPage() {
           hint={minCash < 0 ? `أدنى رصيد: ${fmtSAR(minCash)}` : "السيولة آمنة"}
         />
       </div>
+
+      <Card className="bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900">
+        <CardContent className="p-4 text-xs text-amber-800 dark:text-amber-200">
+          افتراضات التوقع: التدفقات الداخلة مُخصومة بمعدل تحصيل تاريخي {(collectionRate * 100).toFixed(0)}% (محسوب من نسبة المحصّل فعلياً إلى إجمالي الفواتير المسجّلة)، بينما التدفقات الخارجة مُحتسبة بكامل قيمتها المستحقة كافتراض تخطيطي متحفظ (سداد كل الالتزامات بالكامل).
+        </CardContent>
+      </Card>
 
       {stressWeek && (
         <Card className="border-destructive">

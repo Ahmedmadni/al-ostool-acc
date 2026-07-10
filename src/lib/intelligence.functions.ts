@@ -270,7 +270,9 @@ export const projectIntelligence = createServerFn({ method: "POST" })
     const analyzed = d.projects.map((p) => {
       const contract = num(p.contract_value);
       const actual = num(p.actual_cost);
-      const budget = num(p.budget) || contract * 0.85;
+      // No invented budget when the project has none approved — costOverrunProb
+      // below already has a defined neutral fallback for that case.
+      const budget = num(p.budget);
       const progress = num(p.progress_actual);
       const planned = num(p.progress_planned);
       const margin = contract ? ((contract - actual) / contract) * 100 : 0;
@@ -486,9 +488,9 @@ export const runScenario = createServerFn({ method: "POST" })
     const d = await loadCore();
     const totalRevenue = d.invoices.reduce((s, i) => s + num(i.total_amount), 0);
     const totalCollected = d.payments.reduce((s, p) => s + num(p.amount), 0);
-    const totalContract = d.projects.reduce((s, p) => s + num(p.contract_value), 0);
     const totalCost = d.projects.reduce((s, p) => s + num(p.actual_cost), 0);
     const cash = uniqueBankCash(d.banks);
+    const baselineProfit = totalRevenue - totalCost;
 
     const revDelta = (data.revenue_delta_pct ?? 0) / 100;
     const costDelta = (data.cost_delta_pct ?? 0) / 100;
@@ -498,8 +500,23 @@ export const runScenario = createServerFn({ method: "POST" })
     const newRevenue = totalRevenue * (1 + revDelta) + award;
     const newCost = totalCost * (1 + costDelta);
     const newProfit = newRevenue - newCost;
-    const profitChange = (newRevenue - totalContract) - (totalRevenue - totalCost);
-    const cashImpact = -((totalCollected) * delay / 365 * 0.1) + award * 0.2;
+    const profitChange = newProfit - baselineProfit;
+
+    // Cash impact ties directly to every scenario input instead of being fixed
+    // regardless of the revenue/cost sliders:
+    //   - incremental revenue converts to cash at the company's own historical
+    //     collection rate (collected/invoiced), not an assumed constant.
+    //   - incremental cost is assumed to be settled in cash roughly 1:1.
+    //   - stretching the collection cycle by `delay` days pushes a proportional
+    //     share of the (new) collections total outside the near-term horizon.
+    const collectionRate = totalRevenue > 0 ? totalCollected / totalRevenue : 1;
+    const incrementalRevenue = newRevenue - totalRevenue;
+    const incrementalCost = newCost - totalCost;
+    const newCollected = totalCollected + incrementalRevenue * collectionRate;
+    const cashFromRevenueChange = incrementalRevenue * collectionRate;
+    const cashFromCostChange = -incrementalCost;
+    const delayPenalty = -(newCollected * delay) / 365;
+    const cashImpact = cashFromRevenueChange + cashFromCostChange + delayPenalty;
     const liquidityAfter = cash + cashImpact;
     const margin = newRevenue ? (newProfit / newRevenue) * 100 : 0;
 

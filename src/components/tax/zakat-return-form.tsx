@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { FileSpreadsheet, Printer, RotateCcw } from "lucide-react";
+import { FileSpreadsheet, Printer, RotateCcw, Save, Loader2 } from "lucide-react";
 import { fmtSAR } from "@/lib/format";
+import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
 
@@ -104,31 +105,40 @@ const BS_EQUITY = [
   { key: "eq_retained", label: "أرباح/(خسائر) مرحّلة" },
 ];
 
-const STORAGE_KEY = "zakat-return-form";
-
 export function ZakatReturnForm() {
   const [identity, setIdentity] = useState<Identity>(DEFAULT_IDENTITY);
   const [nums, setNums] = useState<NumMap>({});
   const [bsOpen, setBsOpen] = useState<NumMap>({});
   const [bsClose, setBsClose] = useState<NumMap>({});
   const [accountant, setAccountant] = useState({ name: "", license: "", financial_number: "" });
+  const [recordId, setRecordId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
+  // Loads the most recently saved return (mirrors the old single-slot
+  // localStorage behaviour, now shared and durable via Supabase).
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const v = JSON.parse(raw);
+    (async () => {
+      const { data, error } = await supabase
+        .from("zakat_returns" as any)
+        .select("*")
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) toast.error(error.message);
+      const row = data as any;
+      if (row?.data) {
+        const v = row.data;
+        setRecordId(row.id);
         if (v.identity) setIdentity(v.identity);
         if (v.nums) setNums(v.nums);
         if (v.bsOpen) setBsOpen(v.bsOpen);
         if (v.bsClose) setBsClose(v.bsClose);
         if (v.accountant) setAccountant(v.accountant);
       }
-    } catch {}
+      setLoading(false);
+    })();
   }, []);
-  useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ identity, nums, bsOpen, bsClose, accountant })); } catch {}
-  }, [identity, nums, bsOpen, bsClose, accountant]);
 
   const n = (k: string) => nums[k] ?? 0;
   const setN = (k: string, v: number) => setNums((x) => ({ ...x, [k]: v }));
@@ -157,9 +167,37 @@ export function ZakatReturnForm() {
     keys.reduce((s, k) => s + ((k.negative ? -1 : 1) * (obj[k.key] ?? 0)), 0);
 
   const reset = () => {
-    if (!confirm("هل تريد مسح جميع البيانات؟")) return;
+    if (!confirm("هل تريد مسح جميع البيانات في النموذج الحالي؟ (لن يؤثر هذا على أي إقرار محفوظ مسبقاً)")) return;
+    setRecordId(null);
     setIdentity(DEFAULT_IDENTITY); setNums({}); setBsOpen({}); setBsClose({}); setAccountant({ name: "", license: "", financial_number: "" });
     toast.success("تم المسح");
+  };
+
+  const save = async () => {
+    if (!identity.year_from || !identity.year_to) {
+      toast.error("حدد السنة المالية (من/إلى) قبل الحفظ");
+      return;
+    }
+    setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    const payload: Record<string, unknown> = {
+      year_from: identity.year_from,
+      year_to: identity.year_to,
+      data: { identity, nums, bsOpen, bsClose, accountant },
+      zakat_due: zakatDue,
+      tax_due: taxDue,
+      updated_by: user?.id ?? null,
+    };
+    if (!recordId) payload.created_by = user?.id ?? null;
+    const { data, error } = await supabase
+      .from("zakat_returns" as any)
+      .upsert(payload, { onConflict: "year_from,year_to" })
+      .select("id")
+      .single();
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    setRecordId((data as any)?.id ?? null);
+    toast.success("تم حفظ الإقرار");
   };
 
   const exportExcel = () => {
@@ -220,7 +258,12 @@ export function ZakatReturnForm() {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2 no-print flex-wrap">
+      <div className="flex gap-2 no-print flex-wrap items-center">
+        <Button size="sm" onClick={save} disabled={saving || loading} className="gap-2">
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          {saving ? "جارٍ الحفظ..." : "حفظ الإقرار"}
+        </Button>
+        {recordId && <span className="text-xs text-muted-foreground">محفوظ في قاعدة البيانات</span>}
         <Button variant="outline" size="sm" onClick={exportExcel} className="gap-2"><FileSpreadsheet className="w-4 h-4" />تصدير Excel</Button>
         <Button variant="outline" size="sm" onClick={() => window.print()} className="gap-2"><Printer className="w-4 h-4" />طباعة / PDF</Button>
         <Button variant="ghost" size="sm" onClick={reset} className="gap-2 text-destructive"><RotateCcw className="w-4 h-4" />مسح الكل</Button>
