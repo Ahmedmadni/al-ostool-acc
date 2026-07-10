@@ -24,12 +24,34 @@ export function calcEndOfService(monthlyWage: number, serviceYears: number, reas
   return Math.round(base * factor * 100) / 100;
 }
 
-/** GOSI shares. Saudis: 9.75% employee / 11.75% employer. Expats: 2% employer only. */
+// GOSI contributory wage ceiling/floor (Annuities branch, Saudi employees).
+// Applying it here — not just leaving the raw gross wage — matters most for
+// higher earners: without a cap the system overstates both the employee
+// deduction and the employer cost above SAR 45,000/month.
+export const GOSI_MIN_SUBJECT_WAGE = 1500;
+export const GOSI_MAX_SUBJECT_WAGE = 45000;
+
+/** GOSI shares. Saudis: 9.75% employee / 11.75% employer. Expats: 2% employer only.
+ *  Contributory wage is capped to [GOSI_MIN_SUBJECT_WAGE, GOSI_MAX_SUBJECT_WAGE]
+ *  for Saudis; expats' hazard-only contribution is capped at the same ceiling. */
 export function calcGosi(grossWage: number, isSaudi: boolean): { employee: number; employer: number } {
   const g = grossWage || 0;
+  if (g <= 0) return { employee: 0, employer: 0 };
+  const subjectWage = isSaudi
+    ? Math.min(Math.max(g, GOSI_MIN_SUBJECT_WAGE), GOSI_MAX_SUBJECT_WAGE)
+    : Math.min(g, GOSI_MAX_SUBJECT_WAGE);
   return isSaudi
-    ? { employee: Math.round(g * 0.0975 * 100) / 100, employer: Math.round(g * 0.1175 * 100) / 100 }
-    : { employee: 0, employer: Math.round(g * 0.02 * 100) / 100 };
+    ? { employee: Math.round(subjectWage * 0.0975 * 100) / 100, employer: Math.round(subjectWage * 0.1175 * 100) / 100 }
+    : { employee: 0, employer: Math.round(subjectWage * 0.02 * 100) / 100 };
+}
+
+/** Overtime pay (Labor Law Art. 107): hourly wage × 1.5 × hours.
+ *  Hourly wage = basic monthly wage ÷ (30 × 8) — the standard 240-hour month
+ *  used for Saudi payroll wage-rate conversions. */
+export function calcOvertimePay(basicSalary: number, hours: number): number {
+  if (!basicSalary || !hours || hours <= 0) return 0;
+  const hourlyWage = basicSalary / 240;
+  return Math.round(hourlyWage * 1.5 * hours * 100) / 100;
 }
 
 /** Annual leave accrual (default 21 days for first 5 years, 30 after). */

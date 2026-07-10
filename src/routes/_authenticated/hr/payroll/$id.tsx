@@ -1,13 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowRight, Check, FileSpreadsheet, Printer } from "lucide-react";
-import { fmtSAR } from "@/lib/format";
+import { ArrowRight, Check, FileSpreadsheet, Printer, ShieldCheck } from "lucide-react";
+import { fmtSAR, fmtDate } from "@/lib/format";
 import { exportToExcel } from "@/lib/export";
 import { toast } from "sonner";
 
@@ -24,6 +26,7 @@ const STATUS: Record<string, { l: string; c: string }> = {
 function PayrollDetail() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
+  const [wpsRef, setWpsRef] = useState("");
 
   const { data: run } = useQuery({
     queryKey: ["hr_payroll_run", id],
@@ -46,7 +49,22 @@ function PayrollDetail() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["hr_payroll_run", id] }); toast.success("تم التحديث"); },
   });
 
+  const submitWps = useMutation({
+    mutationFn: async () => {
+      const { error } = await (supabase as any).from("hr_payroll_runs")
+        .update({ wps_submitted_at: new Date().toISOString(), wps_reference: wpsRef || null }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["hr_payroll_run", id] }); toast.success("تم تسجيل رفع ملف حماية الأجور"); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   if (!run) return <div className="p-6" dir="rtl">جاري التحميل...</div>;
+
+  const periodEnd = new Date(run.period_year, run.period_month, 0); // last day of period month
+  const daysSincePeriodEnd = run.wps_submitted_at
+    ? Math.round((new Date(run.wps_submitted_at).getTime() - periodEnd.getTime()) / 86400000)
+    : null;
 
   const exportRows = (lines as any[]).map((l) => ({
     "الموظف": l.hr_employees?.full_name_ar, "الرقم الوظيفي": l.hr_employees?.employee_no,
@@ -81,6 +99,34 @@ function PayrollDetail() {
           {run.status === "approved" && <Button size="sm" onClick={() => approve.mutate("paid")}>تسجيل صرف</Button>}
         </div>
       </div>
+
+      <Card className="p-4 print:hidden">
+        <div className="flex items-center gap-2 font-semibold mb-2">
+          <ShieldCheck className="w-4 h-4 text-primary" />حماية الأجور (WPS)
+        </div>
+        {run.wps_submitted_at ? (
+          <div className="text-sm space-y-1">
+            <div>تم رفع الملف بتاريخ <span className="font-semibold">{fmtDate(run.wps_submitted_at)}</span>
+              {run.wps_reference && <> — المرجع: <span className="font-mono">{run.wps_reference}</span></>}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {daysSincePeriodEnd != null && (
+                daysSincePeriodEnd <= 0
+                  ? "تم الرفع قبل أو عند نهاية فترة الراتب."
+                  : `تم الرفع بعد ${daysSincePeriodEnd} يوماً من نهاية فترة الراتب.`
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-end gap-2">
+            <div className="text-sm text-destructive">لم يُسجَّل رفع ملف حماية الأجور لهذا المسير بعد.</div>
+            <div className="flex gap-2 items-center ms-auto">
+              <Input placeholder="رقم مرجع مدد (اختياري)" value={wpsRef} onChange={(e) => setWpsRef(e.target.value)} className="h-8 w-48" />
+              <Button size="sm" variant="outline" onClick={() => submitWps.mutate()} disabled={submitWps.isPending}>تسجيل الرفع</Button>
+            </div>
+          </div>
+        )}
+      </Card>
 
       <Card className="p-0 overflow-hidden">
         <Table>

@@ -49,6 +49,22 @@ function LeavesPage() {
     queryFn: async () => (await (supabase as any).from("hr_employees").select("id, full_name_ar, employee_no").eq("status", "active").order("full_name_ar")).data ?? [],
   });
 
+  // Shows the employee's remaining balance for the selected leave type before
+  // they submit — previously this was only discovered after submission, via
+  // the database trigger rejecting the insert outright.
+  const { data: leaveSummary = [] } = useQuery({
+    queryKey: ["hr_leave_summary", form.employee_id],
+    queryFn: async () => (await (supabase as any).rpc("hr_get_leave_summary", { _employee_id: form.employee_id })).data ?? [],
+    enabled: !!form.employee_id,
+  });
+  const selectedTypeBalance = (leaveSummary as any[]).find((s) => s.leave_type === form.leave_type);
+  const requestedDays = form.from_date && form.to_date
+    ? Math.max(1, Math.round((new Date(form.to_date).getTime() - new Date(form.from_date).getTime()) / 86400000) + 1)
+    : 0;
+  // Mirrors hr_leaves_balance_sync(): unpaid/compensatory leave has no balance cap.
+  const isUncapped = form.leave_type === "unpaid" || form.leave_type === "compensatory";
+  const exceedsBalance = !isUncapped && !!selectedTypeBalance && requestedDays > Number(selectedTypeBalance.remaining ?? 0);
+
   const create = useMutation({
     mutationFn: async (payload: any) => {
       const days = Math.max(1, Math.round((new Date(payload.to_date).getTime() - new Date(payload.from_date).getTime()) / 86400000) + 1);
@@ -90,15 +106,29 @@ function LeavesPage() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>{LEAVE_TYPES.map((t) => <SelectItem key={t.v} value={t.v}>{t.l}</SelectItem>)}</SelectContent>
                 </Select>
+                {form.employee_id && isUncapped && (
+                  <p className="text-xs mt-1 text-muted-foreground">هذا النوع بلا سقف رصيد (لا يُخصم من رصيد الإجازات السنوية).</p>
+                )}
+                {form.employee_id && !isUncapped && selectedTypeBalance && (
+                  <p className={`text-xs mt-1 ${exceedsBalance ? "text-destructive font-medium" : "text-muted-foreground"}`}>
+                    الرصيد المتبقي: {selectedTypeBalance.remaining} يوم (المستحق {selectedTypeBalance.entitled} — المستخدم {selectedTypeBalance.used}
+                    {Number(selectedTypeBalance.pending) > 0 ? ` — قيد الاعتماد ${selectedTypeBalance.pending}` : ""})
+                  </p>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div><Label>من</Label><Input type="date" value={form.from_date} onChange={(e) => setForm({ ...form, from_date: e.target.value })} /></div>
                 <div><Label>إلى</Label><Input type="date" value={form.to_date} onChange={(e) => setForm({ ...form, to_date: e.target.value })} /></div>
               </div>
+              {exceedsBalance && (
+                <p className="text-xs text-destructive">
+                  عدد الأيام المطلوبة ({requestedDays}) يتجاوز الرصيد المتبقي ({selectedTypeBalance?.remaining}) — سيُرفض الطلب تلقائياً عند الاعتماد.
+                </p>
+              )}
               <div><Label>السبب</Label><Textarea value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} /></div>
             </div>
             <DialogFooter>
-              <Button onClick={() => create.mutate(form)} disabled={!form.employee_id || !form.from_date || !form.to_date}>إرسال الطلب</Button>
+              <Button onClick={() => create.mutate(form)} disabled={!form.employee_id || !form.from_date || !form.to_date || exceedsBalance}>إرسال الطلب</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

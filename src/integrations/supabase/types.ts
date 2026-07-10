@@ -2118,6 +2118,8 @@ export type Database = {
           total_gross: number | null
           total_net: number | null
           updated_at: string
+          wps_reference: string | null
+          wps_submitted_at: string | null
         }
         Insert: {
           approved_at?: string | null
@@ -2137,6 +2139,8 @@ export type Database = {
           total_gross?: number | null
           total_net?: number | null
           updated_at?: string
+          wps_reference?: string | null
+          wps_submitted_at?: string | null
         }
         Update: {
           approved_at?: string | null
@@ -2156,6 +2160,8 @@ export type Database = {
           total_gross?: number | null
           total_net?: number | null
           updated_at?: string
+          wps_reference?: string | null
+          wps_submitted_at?: string | null
         }
         Relationships: []
       }
