@@ -3,9 +3,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, Printer, RotateCcw, Save, Loader2 } from "lucide-react";
-import { fmtSAR } from "@/lib/format";
+import { FileSpreadsheet, Printer, RotateCcw, Save, Loader2, Settings2 } from "lucide-react";
+import { fmtSAR, taxNumberError } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
+import { useTaxRates } from "@/hooks/use-tax-rates";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
 
@@ -39,15 +40,15 @@ const DEFAULT_HEADER: Header = {
   period_to: "",
 };
 
-function vatRate(code: string): number {
-  return code === "ع-1" || code === "ش-1" ? 0.15 : 0;
-}
-
 export function VatReturnForm() {
   const [header, setHeader] = useState<Header>(DEFAULT_HEADER);
   const [sales, setSales] = useState<Row[]>(SALES_ROWS.map((r) => ({ ...r, amount: 0, adjustment: 0 })));
   const [purchases, setPurchases] = useState<Row[]>(PURCHASE_ROWS.map((r) => ({ ...r, amount: 0, adjustment: 0 })));
   const [carriedFwd, setCarriedFwd] = useState(0);
+  const { rates: taxRates, saveRates } = useTaxRates();
+  const [editingRate, setEditingRate] = useState(false);
+  const [rateInput, setRateInput] = useState("");
+  const vatRate = (code: string): number => (code === "ع-1" || code === "ش-1" ? taxRates.vat_rate : 0);
   const [recordId, setRecordId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -166,7 +167,35 @@ export function VatReturnForm() {
         <Button variant="ghost" size="sm" onClick={reset} className="gap-2 text-destructive">
           <RotateCcw className="w-4 h-4" />مسح الكل
         </Button>
+        <Button
+          variant="ghost" size="sm" className="gap-2 ms-auto"
+          onClick={() => { setRateInput(String(taxRates.vat_rate * 100)); setEditingRate((v) => !v); }}
+        >
+          <Settings2 className="w-4 h-4" />نسبة الضريبة: {(taxRates.vat_rate * 100).toFixed(0)}%
+        </Button>
       </div>
+
+      {editingRate && (
+        <Card className="p-4 no-print flex flex-wrap items-end gap-3">
+          <div>
+            <Label className="text-xs">نسبة ضريبة القيمة المضافة (%)</Label>
+            <Input type="number" step="0.1" className="w-32" value={rateInput} onChange={(e) => setRateInput(e.target.value)} />
+          </div>
+          <Button
+            size="sm"
+            onClick={() => saveRates.mutate(
+              { ...taxRates, vat_rate: (Number(rateInput) || 0) / 100 },
+              { onSuccess: () => { setEditingRate(false); toast.success("تم تحديث نسبة الضريبة"); } },
+            )}
+            disabled={saveRates.isPending}
+          >
+            حفظ
+          </Button>
+          <p className="text-xs text-muted-foreground basis-full">
+            القيمة الافتراضية 15% وفق النظام الحالي — عدّلها فقط إذا تغيّرت النسبة النظامية رسمياً.
+          </p>
+        </Card>
+      )}
 
       <Card className="p-6 print:shadow-none">
         <div className="text-center mb-4">
@@ -176,7 +205,7 @@ export function VatReturnForm() {
 
         <div className="grid grid-cols-2 gap-3 mb-5 border rounded p-3 bg-muted/30">
           <Field label="اسم الشركة" value={header.company_name} onChange={(v) => setHeader({ ...header, company_name: v })} />
-          <Field label="الرقم الضريبي" value={header.tax_number} onChange={(v) => setHeader({ ...header, tax_number: v })} />
+          <Field label="الرقم الضريبي" value={header.tax_number} onChange={(v) => setHeader({ ...header, tax_number: v })} dir="ltr" error={taxNumberError(header.tax_number)} />
           <Field label="طبيعة النشاط" value={header.activity} onChange={(v) => setHeader({ ...header, activity: v })} />
           <div className="grid grid-cols-2 gap-2">
             <div><Label className="text-xs">من تاريخ</Label><Input type="date" value={header.period_from} onChange={(e) => setHeader({ ...header, period_from: e.target.value })} /></div>
@@ -255,11 +284,12 @@ export function VatReturnForm() {
   );
 }
 
-function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function Field({ label, value, onChange, error, dir }: { label: string; value: string; onChange: (v: string) => void; error?: string; dir?: "ltr" | "rtl" }) {
   return (
     <div>
       <Label className="text-xs">{label}</Label>
-      <Input value={value} onChange={(e) => onChange(e.target.value)} />
+      <Input value={value} onChange={(e) => onChange(e.target.value)} dir={dir} className={error ? "border-destructive" : ""} />
+      {error && <p className="text-xs text-destructive mt-0.5">{error}</p>}
     </div>
   );
 }

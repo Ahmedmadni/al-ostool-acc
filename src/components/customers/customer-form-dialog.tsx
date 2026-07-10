@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { sectorLabel, ageLabel, sizeLabel, riskLabel } from "@/lib/labels";
+import { taxNumberError } from "@/lib/format";
 import { toast } from "sonner";
 
 type Customer = Record<string, any> | null;
@@ -69,7 +70,12 @@ export function CustomerFormDialog({ open, onOpenChange, customer }: {
               <div><Label>الاسم الإنجليزي</Label><Input dir="ltr" value={form.name_en ?? ""} onChange={(e) => set("name_en", e.target.value)} /></div>
               <div><Label>النشاط</Label><Input value={form.activity ?? ""} onChange={(e) => set("activity", e.target.value)} /></div>
               <div><Label>السجل التجاري</Label><Input value={form.commercial_register ?? ""} onChange={(e) => set("commercial_register", e.target.value)} /></div>
-              <div><Label>الرقم الضريبي</Label><Input value={form.tax_number ?? ""} onChange={(e) => set("tax_number", e.target.value)} /></div>
+              <div>
+                <Label>الرقم الضريبي</Label>
+                <Input dir="ltr" value={form.tax_number ?? ""} onChange={(e) => set("tax_number", e.target.value)}
+                  className={taxNumberError(form.tax_number) ? "border-destructive" : ""} />
+                {taxNumberError(form.tax_number) && <p className="text-xs text-destructive mt-0.5">{taxNumberError(form.tax_number)}</p>}
+              </div>
               <div><Label>الهاتف</Label><Input dir="ltr" value={form.phone ?? ""} onChange={(e) => set("phone", e.target.value)} /></div>
               <div><Label>الجوال</Label><Input dir="ltr" value={form.mobile ?? ""} onChange={(e) => set("mobile", e.target.value)} /></div>
               <div><Label>البريد الإلكتروني</Label><Input dir="ltr" type="email" value={form.email ?? ""} onChange={(e) => set("email", e.target.value)} /></div>

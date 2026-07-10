@@ -4,9 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { FileSpreadsheet, Printer, RotateCcw, Save, Loader2 } from "lucide-react";
+import { FileSpreadsheet, Printer, RotateCcw, Save, Loader2, Settings2 } from "lucide-react";
 import { fmtSAR } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
+import { useTaxRates } from "@/hooks/use-tax-rates";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
 
@@ -114,6 +115,9 @@ export function ZakatReturnForm() {
   const [recordId, setRecordId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { rates: taxRates, saveRates } = useTaxRates();
+  const [editingRates, setEditingRates] = useState(false);
+  const [rateInputs, setRateInputs] = useState({ zakat: "", income: "" });
 
   // Loads the most recently saved return (mirrors the old single-slot
   // localStorage behaviour, now shared and durable via Supabase).
@@ -158,10 +162,10 @@ export function ZakatReturnForm() {
   }, [nums, netProfitZakat]);
   const zakatBaseDeduct = useMemo(() => ZAKAT_BASE_DEDUCT.reduce((s, f) => s + n(f.key), 0), [nums]);
   const zakatBase = Math.max(zakatBaseAdd - zakatBaseDeduct, 0);
-  const zakatDue = zakatBase * 0.025;
+  const zakatDue = zakatBase * taxRates.zakat_rate;
 
   const taxBase = n("tax_base");
-  const taxDue = taxBase * 0.20;
+  const taxDue = taxBase * taxRates.income_tax_rate;
 
   const sumKeys = (obj: NumMap, keys: { key: string; negative?: boolean }[]) =>
     keys.reduce((s, k) => s + ((k.negative ? -1 : 1) * (obj[k.key] ?? 0)), 0);
@@ -267,7 +271,42 @@ export function ZakatReturnForm() {
         <Button variant="outline" size="sm" onClick={exportExcel} className="gap-2"><FileSpreadsheet className="w-4 h-4" />تصدير Excel</Button>
         <Button variant="outline" size="sm" onClick={() => window.print()} className="gap-2"><Printer className="w-4 h-4" />طباعة / PDF</Button>
         <Button variant="ghost" size="sm" onClick={reset} className="gap-2 text-destructive"><RotateCcw className="w-4 h-4" />مسح الكل</Button>
+        <Button
+          variant="ghost" size="sm" className="gap-2 ms-auto"
+          onClick={() => {
+            setRateInputs({ zakat: String(taxRates.zakat_rate * 100), income: String(taxRates.income_tax_rate * 100) });
+            setEditingRates((v) => !v);
+          }}
+        >
+          <Settings2 className="w-4 h-4" />الزكاة {(taxRates.zakat_rate * 100).toFixed(1)}% / الدخل {(taxRates.income_tax_rate * 100).toFixed(0)}%
+        </Button>
       </div>
+
+      {editingRates && (
+        <Card className="p-4 no-print flex flex-wrap items-end gap-3">
+          <div>
+            <Label className="text-xs">نسبة الزكاة (%)</Label>
+            <Input type="number" step="0.1" className="w-32" value={rateInputs.zakat} onChange={(e) => setRateInputs({ ...rateInputs, zakat: e.target.value })} />
+          </div>
+          <div>
+            <Label className="text-xs">نسبة ضريبة الدخل — الحصة الأجنبية (%)</Label>
+            <Input type="number" step="0.1" className="w-32" value={rateInputs.income} onChange={(e) => setRateInputs({ ...rateInputs, income: e.target.value })} />
+          </div>
+          <Button
+            size="sm"
+            onClick={() => saveRates.mutate(
+              { ...taxRates, zakat_rate: (Number(rateInputs.zakat) || 0) / 100, income_tax_rate: (Number(rateInputs.income) || 0) / 100 },
+              { onSuccess: () => { setEditingRates(false); toast.success("تم تحديث النسب"); } },
+            )}
+            disabled={saveRates.isPending}
+          >
+            حفظ
+          </Button>
+          <p className="text-xs text-muted-foreground basis-full">
+            القيم الافتراضية 2.5% للزكاة و20% لضريبة الدخل وفق النظام الحالي — عدّلها فقط إذا تغيّرت النسب النظامية رسمياً.
+          </p>
+        </Card>
+      )}
 
       <Card className="p-6">
         <div className="text-center mb-4 border-b pb-3">

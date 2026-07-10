@@ -2603,6 +2603,16 @@ export type Database = {
           total_amount: number | null
           updated_at: string
           vat_amount: number | null
+          zatca_cryptographic_stamp: string | null
+          zatca_icv: number | null
+          zatca_invoice_hash: string | null
+          zatca_invoice_type: Database["public"]["Enums"]["zatca_invoice_type"] | null
+          zatca_previous_invoice_hash: string | null
+          zatca_qr_code: string | null
+          zatca_response: Json | null
+          zatca_status: Database["public"]["Enums"]["zatca_submission_status"]
+          zatca_submitted_at: string | null
+          zatca_uuid: string | null
         }
         Insert: {
           amount?: number | null
@@ -2620,6 +2630,16 @@ export type Database = {
           total_amount?: number | null
           updated_at?: string
           vat_amount?: number | null
+          zatca_cryptographic_stamp?: string | null
+          zatca_icv?: number | null
+          zatca_invoice_hash?: string | null
+          zatca_invoice_type?: Database["public"]["Enums"]["zatca_invoice_type"] | null
+          zatca_previous_invoice_hash?: string | null
+          zatca_qr_code?: string | null
+          zatca_response?: Json | null
+          zatca_status?: Database["public"]["Enums"]["zatca_submission_status"]
+          zatca_submitted_at?: string | null
+          zatca_uuid?: string | null
         }
         Update: {
           amount?: number | null
@@ -2637,6 +2657,16 @@ export type Database = {
           total_amount?: number | null
           updated_at?: string
           vat_amount?: number | null
+          zatca_cryptographic_stamp?: string | null
+          zatca_icv?: number | null
+          zatca_invoice_hash?: string | null
+          zatca_invoice_type?: Database["public"]["Enums"]["zatca_invoice_type"] | null
+          zatca_previous_invoice_hash?: string | null
+          zatca_qr_code?: string | null
+          zatca_response?: Json | null
+          zatca_status?: Database["public"]["Enums"]["zatca_submission_status"]
+          zatca_submitted_at?: string | null
+          zatca_uuid?: string | null
         }
         Relationships: [
           {
@@ -4464,6 +4494,13 @@ export type Database = {
         | "contract_review"
         | "audit"
         | "report"
+      zatca_invoice_type: "standard" | "simplified"
+      zatca_submission_status:
+        | "not_submitted"
+        | "submitted"
+        | "cleared"
+        | "reported"
+        | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
