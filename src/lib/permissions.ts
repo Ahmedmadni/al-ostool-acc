@@ -36,7 +36,20 @@ export const MODULE_TREE: ModuleNode[] = [
   ]},
   { key: "analysis", name: "التحليل المالي" },
   { key: "costs", name: "التكاليف" },
-  { key: "hr", name: "الموارد البشرية والعمالة" },
+  // Children match the module keys RLS policies actually check (see
+  // supabase/migrations/20260702115337_*.sql) — without them, no non-admin
+  // user could ever be granted access to any HR table through this screen.
+  { key: "hr", name: "الموارد البشرية والعمالة", children: [
+    { key: "hr.employees", name: "الموظفون" },
+    { key: "hr.contracts", name: "عقود الموظفين" },
+    { key: "hr.leaves", name: "الإجازات" },
+    { key: "hr.loans", name: "السلف" },
+    { key: "hr.assets", name: "العهد" },
+    { key: "hr.payroll", name: "الرواتب" },
+    { key: "hr.termination", name: "إنهاء الخدمة" },
+    { key: "hr.workflow", name: "طلبات الموارد البشرية" },
+    { key: "hr.reports", name: "تقارير الموارد البشرية" },
+  ]},
   { key: "equipment", name: "المعدات" },
   { key: "assets", name: "الأصول الثابتة" },
   { key: "reports", name: "التقارير" },

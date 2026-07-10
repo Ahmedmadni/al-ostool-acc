@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { assertBusinessIntelligenceAccess } from "@/lib/require-business-intelligence";
 
 const LANG_INSTRUCTION: Record<string, string> = {
   ar: "أجب باللغة العربية الفصحى.",
@@ -85,7 +86,8 @@ async function callGateway(messages: any[]) {
 export const askCopilot = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { question: string; pageContext?: string; lang?: string }) => data)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertBusinessIntelligenceAccess(context.supabase, context.userId);
     const lang = data.lang ?? "ar";
     const langInstr = LANG_INSTRUCTION[lang] ?? LANG_INSTRUCTION.ar;
     const pageHint = data.pageContext ? `\nCurrent page context: ${data.pageContext}. Focus your answer on this context when relevant.` : "";
@@ -103,7 +105,8 @@ export const askCopilot = createServerFn({ method: "POST" })
 export const generateExecutiveSummary = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { lang?: string }) => data)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertBusinessIntelligenceAccess(context.supabase, context.userId);
     const lang = data.lang ?? "ar";
     const langInstr = LANG_INSTRUCTION[lang] ?? LANG_INSTRUCTION.ar;
     const ctx = await loadFinancialContext();

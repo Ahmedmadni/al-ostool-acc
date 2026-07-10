@@ -20,6 +20,14 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+# Environment variables — copy .env.example to .env locally instead of
+# committing real values, even ones considered safe to expose (like the
+# Supabase anon key), so a future secret added to this file is never
+# accidentally committed alongside it.
+.env
+.env.local
+.env.*.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
