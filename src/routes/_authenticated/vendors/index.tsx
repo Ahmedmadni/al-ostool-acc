@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useId, cloneElement, isValidElement } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/page-header";
 import { DataTableToolbar } from "@/components/data-table-toolbar";
@@ -168,8 +168,8 @@ function VendorsPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
-                        <Button size="icon" variant="ghost" onClick={() => setEditing(v)}><Pencil className="w-3 h-3" /></Button>
-                        <Button size="icon" variant="ghost" onClick={() => remove(v.id)}><Trash2 className="w-3 h-3 text-destructive" /></Button>
+                        <Button size="icon" variant="ghost" title="تعديل" aria-label="تعديل" onClick={() => setEditing(v)}><Pencil className="w-3 h-3" /></Button>
+                        <Button size="icon" variant="ghost" title="حذف" aria-label="حذف" onClick={() => remove(v.id)}><Trash2 className="w-3 h-3 text-destructive" /></Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -211,10 +211,12 @@ function VendorsPage() {
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  const id = useId();
+  const child = isValidElement(children) ? cloneElement(children as React.ReactElement<any>, { id }) : children;
   return (
     <div className="space-y-1">
-      <Label className="text-xs">{label}</Label>
-      {children}
+      <Label htmlFor={id} className="text-xs">{label}</Label>
+      {child}
     </div>
   );
 }

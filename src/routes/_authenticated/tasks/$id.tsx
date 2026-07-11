@@ -509,7 +509,7 @@ function Page() {
                   <Paperclip className="w-3.5 h-3.5 text-primary shrink-0" />
                   <span className="flex-1 truncate">{pendingFile.name}</span>
                   <span className="text-muted-foreground">{formatBytes(pendingFile.size)}</span>
-                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setPendingFile(null)}>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" title="إزالة المرفق" aria-label="إزالة المرفق" onClick={() => setPendingFile(null)}>
                     <X className="w-3.5 h-3.5" />
                   </Button>
                 </div>

@@ -168,10 +168,10 @@ function EmployeesPage() {
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => { setEditing(e); setOpen(true); }}>
+                    <Button size="icon" variant="ghost" title="تعديل" aria-label="تعديل" onClick={() => { setEditing(e); setOpen(true); }}>
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" onClick={() => remove(e.id)}>
+                    <Button size="icon" variant="ghost" title="حذف" aria-label="حذف" onClick={() => remove(e.id)}>
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>
                   </div>

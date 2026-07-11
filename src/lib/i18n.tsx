@@ -103,6 +103,7 @@ const DICT: Record<Lang, Record<string, string>> = {
     heroFeature2: "مساعد ذكي AI",
     heroFeature3: "بيانات آمنة",
     footerRights: "جميع الحقوق محفوظة",
+    close: "إغلاق",
   },
   en: {
     search: "Search the system...",
@@ -181,6 +182,7 @@ const DICT: Record<Lang, Record<string, string>> = {
     heroFeature2: "AI copilot",
     heroFeature3: "Secure data",
     footerRights: "All rights reserved",
+    close: "Close",
   },
   ur: {
     search: "سسٹم میں تلاش کریں...",

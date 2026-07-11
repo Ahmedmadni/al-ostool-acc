@@ -100,16 +100,8 @@ export function NotificationsBell() {
             <div className="p-6 text-center text-sm text-muted-foreground">لا توجد إشعارات</div>
           )}
           {items.map((n) => {
-            const content = (
-              <div
-                className={`p-3 border-b hover:bg-muted/40 cursor-pointer ${
-                  !n.is_read ? "bg-primary/5" : ""
-                }`}
-                onClick={() => {
-                  if (!n.is_read) markRead(n.id);
-                  setOpen(false);
-                }}
-              >
+            const body = (
+              <>
                 <div className="flex items-start justify-between gap-2">
                   <div className="text-sm font-medium flex-1">{n.title}</div>
                   <span className="text-[10px] text-muted-foreground shrink-0">{timeAgo(n.created_at)}</span>
@@ -118,14 +110,21 @@ export function NotificationsBell() {
                 {!n.is_read && (
                   <Badge variant="secondary" className="mt-1 text-[9px] py-0">جديد</Badge>
                 )}
-              </div>
+              </>
             );
+            const onActivate = () => {
+              if (!n.is_read) markRead(n.id);
+              setOpen(false);
+            };
+            const className = `w-full text-right p-3 border-b hover:bg-muted/40 ${!n.is_read ? "bg-primary/5" : ""}`;
             return n.link ? (
-              <Link key={n.id} to={n.link} className="block">
-                {content}
+              <Link key={n.id} to={n.link} className={`block ${className}`} onClick={onActivate}>
+                {body}
               </Link>
             ) : (
-              <div key={n.id}>{content}</div>
+              <button key={n.id} type="button" className={className} onClick={onActivate}>
+                {body}
+              </button>
             );
           })}
         </div>

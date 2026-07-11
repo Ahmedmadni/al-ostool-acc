@@ -120,7 +120,7 @@ export function FloatingCopilot() {
                 </div>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => setOpen(false)}><X className="w-4 h-4" /></Button>
+            <Button variant="ghost" size="icon" title={t("close")} aria-label={t("close")} onClick={() => setOpen(false)}><X className="w-4 h-4" /></Button>
           </div>
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-3">
@@ -148,7 +148,7 @@ export function FloatingCopilot() {
               placeholder={t("askCopilot")}
               disabled={busy}
             />
-            <Button size="icon" onClick={send} disabled={busy || !input.trim()}>
+            <Button size="icon" title={t("send")} aria-label={t("send")} onClick={send} disabled={busy || !input.trim()}>
               <Send className="w-4 h-4" />
             </Button>
           </div>

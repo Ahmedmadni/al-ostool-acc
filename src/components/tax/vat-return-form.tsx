@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useId } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -285,10 +285,11 @@ export function VatReturnForm() {
 }
 
 function Field({ label, value, onChange, error, dir }: { label: string; value: string; onChange: (v: string) => void; error?: string; dir?: "ltr" | "rtl" }) {
+  const id = useId();
   return (
     <div>
-      <Label className="text-xs">{label}</Label>
-      <Input value={value} onChange={(e) => onChange(e.target.value)} dir={dir} className={error ? "border-destructive" : ""} />
+      <Label htmlFor={id} className="text-xs">{label}</Label>
+      <Input id={id} value={value} onChange={(e) => onChange(e.target.value)} dir={dir} className={error ? "border-destructive" : ""} />
       {error && <p className="text-xs text-destructive mt-0.5">{error}</p>}
     </div>
   );
