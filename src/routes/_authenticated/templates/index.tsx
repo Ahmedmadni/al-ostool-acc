@@ -118,7 +118,7 @@ function TemplateDesigner() {
                 {tpl.fields.length > 5 && <Badge variant="secondary" className="text-xs">+{tpl.fields.length - 5}</Badge>}
               </div>
               <div className="flex flex-wrap gap-1">
-                <Button size="sm" variant="outline" onClick={() => setEditing({ ...tpl, description: tpl.description ?? "" })}><Edit className="h-3 w-3" /></Button>
+                <Button size="sm" variant="outline" onClick={() => setEditing({ ...tpl, category: tpl.category as Draft["category"], description: tpl.description ?? "" })}><Edit className="h-3 w-3" /></Button>
                 <Button size="sm" variant="outline" onClick={() => setHistoryOpen(tpl)}><History className="h-3 w-3" /></Button>
                 <Button size="sm" variant="outline" onClick={() => duplicate(tpl)}><Copy className="h-3 w-3" /></Button>
                 <Button size="sm" variant="outline" onClick={() => exportSchema(tpl)}><FileDown className="h-3 w-3" /></Button>
