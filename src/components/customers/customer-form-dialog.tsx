@@ -65,55 +65,55 @@ export function CustomerFormDialog({ open, onOpenChange, customer }: {
 
           <TabsContent value="basic" className="space-y-3 mt-4">
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>رقم العميل *</Label><Input value={form.code ?? ""} onChange={(e) => set("code", e.target.value)} /></div>
-              <div><Label>اسم العميل *</Label><Input value={form.name ?? ""} onChange={(e) => set("name", e.target.value)} /></div>
-              <div><Label>الاسم الإنجليزي</Label><Input dir="ltr" value={form.name_en ?? ""} onChange={(e) => set("name_en", e.target.value)} /></div>
-              <div><Label>النشاط</Label><Input value={form.activity ?? ""} onChange={(e) => set("activity", e.target.value)} /></div>
-              <div><Label>السجل التجاري</Label><Input value={form.commercial_register ?? ""} onChange={(e) => set("commercial_register", e.target.value)} /></div>
+              <div><Label htmlFor="cf-code">رقم العميل *</Label><Input id="cf-code" value={form.code ?? ""} onChange={(e) => set("code", e.target.value)} /></div>
+              <div><Label htmlFor="cf-name">اسم العميل *</Label><Input id="cf-name" value={form.name ?? ""} onChange={(e) => set("name", e.target.value)} /></div>
+              <div><Label htmlFor="cf-name_en">الاسم الإنجليزي</Label><Input id="cf-name_en" dir="ltr" value={form.name_en ?? ""} onChange={(e) => set("name_en", e.target.value)} /></div>
+              <div><Label htmlFor="cf-activity">النشاط</Label><Input id="cf-activity" value={form.activity ?? ""} onChange={(e) => set("activity", e.target.value)} /></div>
+              <div><Label htmlFor="cf-commercial_register">السجل التجاري</Label><Input id="cf-commercial_register" value={form.commercial_register ?? ""} onChange={(e) => set("commercial_register", e.target.value)} /></div>
               <div>
-                <Label>الرقم الضريبي</Label>
-                <Input dir="ltr" value={form.tax_number ?? ""} onChange={(e) => set("tax_number", e.target.value)}
+                <Label htmlFor="cf-tax_number">الرقم الضريبي</Label>
+                <Input id="cf-tax_number" dir="ltr" value={form.tax_number ?? ""} onChange={(e) => set("tax_number", e.target.value)}
                   className={taxNumberError(form.tax_number) ? "border-destructive" : ""} />
                 {taxNumberError(form.tax_number) && <p className="text-xs text-destructive mt-0.5">{taxNumberError(form.tax_number)}</p>}
               </div>
-              <div><Label>الهاتف</Label><Input dir="ltr" value={form.phone ?? ""} onChange={(e) => set("phone", e.target.value)} /></div>
-              <div><Label>الجوال</Label><Input dir="ltr" value={form.mobile ?? ""} onChange={(e) => set("mobile", e.target.value)} /></div>
-              <div><Label>البريد الإلكتروني</Label><Input dir="ltr" type="email" value={form.email ?? ""} onChange={(e) => set("email", e.target.value)} /></div>
-              <div><Label>الموقع الإلكتروني</Label><Input dir="ltr" value={form.website ?? ""} onChange={(e) => set("website", e.target.value)} /></div>
-              <div><Label>الدولة</Label><Input value={form.country ?? ""} onChange={(e) => set("country", e.target.value)} /></div>
-              <div><Label>المدينة</Label><Input value={form.city ?? ""} onChange={(e) => set("city", e.target.value)} /></div>
-              <div className="col-span-2"><Label>العنوان</Label><Textarea value={form.address ?? ""} onChange={(e) => set("address", e.target.value)} /></div>
-              <div><Label>مدير الحساب</Label><Input value={form.account_manager ?? ""} onChange={(e) => set("account_manager", e.target.value)} /></div>
+              <div><Label htmlFor="cf-phone">الهاتف</Label><Input id="cf-phone" dir="ltr" value={form.phone ?? ""} onChange={(e) => set("phone", e.target.value)} /></div>
+              <div><Label htmlFor="cf-mobile">الجوال</Label><Input id="cf-mobile" dir="ltr" value={form.mobile ?? ""} onChange={(e) => set("mobile", e.target.value)} /></div>
+              <div><Label htmlFor="cf-email">البريد الإلكتروني</Label><Input id="cf-email" dir="ltr" type="email" value={form.email ?? ""} onChange={(e) => set("email", e.target.value)} /></div>
+              <div><Label htmlFor="cf-website">الموقع الإلكتروني</Label><Input id="cf-website" dir="ltr" value={form.website ?? ""} onChange={(e) => set("website", e.target.value)} /></div>
+              <div><Label htmlFor="cf-country">الدولة</Label><Input id="cf-country" value={form.country ?? ""} onChange={(e) => set("country", e.target.value)} /></div>
+              <div><Label htmlFor="cf-city">المدينة</Label><Input id="cf-city" value={form.city ?? ""} onChange={(e) => set("city", e.target.value)} /></div>
+              <div className="col-span-2"><Label htmlFor="cf-address">العنوان</Label><Textarea id="cf-address" value={form.address ?? ""} onChange={(e) => set("address", e.target.value)} /></div>
+              <div><Label htmlFor="cf-account_manager">مدير الحساب</Label><Input id="cf-account_manager" value={form.account_manager ?? ""} onChange={(e) => set("account_manager", e.target.value)} /></div>
             </div>
           </TabsContent>
 
           <TabsContent value="classification" className="space-y-3 mt-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>القطاع</Label>
+                <Label htmlFor="cf-sector">القطاع</Label>
                 <Select value={form.sector ?? ""} onValueChange={(v) => set("sector", v)}>
-                  <SelectTrigger><SelectValue placeholder="اختر القطاع" /></SelectTrigger>
+                  <SelectTrigger id="cf-sector"><SelectValue placeholder="اختر القطاع" /></SelectTrigger>
                   <SelectContent>{Object.entries(sectorLabel).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>الفئة العمرية للشركة</Label>
+                <Label htmlFor="cf-age_category">الفئة العمرية للشركة</Label>
                 <Select value={form.age_category ?? ""} onValueChange={(v) => set("age_category", v)}>
-                  <SelectTrigger><SelectValue placeholder="اختر" /></SelectTrigger>
+                  <SelectTrigger id="cf-age_category"><SelectValue placeholder="اختر" /></SelectTrigger>
                   <SelectContent>{Object.entries(ageLabel).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>حجم العميل</Label>
+                <Label htmlFor="cf-size_category">حجم العميل</Label>
                 <Select value={form.size_category ?? ""} onValueChange={(v) => set("size_category", v)}>
-                  <SelectTrigger><SelectValue placeholder="اختر" /></SelectTrigger>
+                  <SelectTrigger id="cf-size_category"><SelectValue placeholder="اختر" /></SelectTrigger>
                   <SelectContent>{Object.entries(sizeLabel).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>مستوى المخاطر</Label>
+                <Label htmlFor="cf-risk_level">مستوى المخاطر</Label>
                 <Select value={form.risk_level ?? "low"} onValueChange={(v) => set("risk_level", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="cf-risk_level"><SelectValue /></SelectTrigger>
                   <SelectContent>{Object.entries(riskLabel).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
@@ -122,12 +122,12 @@ export function CustomerFormDialog({ open, onOpenChange, customer }: {
 
           <TabsContent value="financial" className="space-y-3 mt-4">
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>حد الائتمان (ر.س)</Label><Input type="number" value={form.credit_limit ?? ""} onChange={(e) => set("credit_limit", Number(e.target.value))} /></div>
-              <div><Label>فترة السداد (أيام)</Label><Input type="number" value={form.payment_period ?? 30} onChange={(e) => set("payment_period", Number(e.target.value))} /></div>
-              <div><Label>الرصيد الحالي</Label><Input type="number" value={form.current_balance ?? 0} onChange={(e) => set("current_balance", Number(e.target.value))} /></div>
-              <div><Label>إجمالي الفواتير</Label><Input type="number" value={form.total_invoiced ?? 0} onChange={(e) => set("total_invoiced", Number(e.target.value))} /></div>
-              <div><Label>إجمالي التحصيلات</Label><Input type="number" value={form.total_collected ?? 0} onChange={(e) => set("total_collected", Number(e.target.value))} /></div>
-              <div><Label>إجمالي المستحقات</Label><Input type="number" value={form.total_outstanding ?? 0} onChange={(e) => set("total_outstanding", Number(e.target.value))} /></div>
+              <div><Label htmlFor="cf-credit_limit">حد الائتمان (ر.س)</Label><Input id="cf-credit_limit" type="number" value={form.credit_limit ?? ""} onChange={(e) => set("credit_limit", Number(e.target.value))} /></div>
+              <div><Label htmlFor="cf-payment_period">فترة السداد (أيام)</Label><Input id="cf-payment_period" type="number" value={form.payment_period ?? 30} onChange={(e) => set("payment_period", Number(e.target.value))} /></div>
+              <div><Label htmlFor="cf-current_balance">الرصيد الحالي</Label><Input id="cf-current_balance" type="number" value={form.current_balance ?? 0} onChange={(e) => set("current_balance", Number(e.target.value))} /></div>
+              <div><Label htmlFor="cf-total_invoiced">إجمالي الفواتير</Label><Input id="cf-total_invoiced" type="number" value={form.total_invoiced ?? 0} onChange={(e) => set("total_invoiced", Number(e.target.value))} /></div>
+              <div><Label htmlFor="cf-total_collected">إجمالي التحصيلات</Label><Input id="cf-total_collected" type="number" value={form.total_collected ?? 0} onChange={(e) => set("total_collected", Number(e.target.value))} /></div>
+              <div><Label htmlFor="cf-total_outstanding">إجمالي المستحقات</Label><Input id="cf-total_outstanding" type="number" value={form.total_outstanding ?? 0} onChange={(e) => set("total_outstanding", Number(e.target.value))} /></div>
             </div>
           </TabsContent>
         </Tabs>

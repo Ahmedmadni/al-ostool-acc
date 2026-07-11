@@ -92,52 +92,52 @@ export function ContractFormDialog({ open, onOpenChange, contract, defaultEmploy
         </DialogHeader>
 
         <div className="grid grid-cols-2 gap-3 mt-2">
-          <div><Label>رقم العقد *</Label><Input value={form.contract_no ?? ""} onChange={(e) => set("contract_no", e.target.value)} /></div>
+          <div><Label htmlFor="ctf-contract_no">رقم العقد *</Label><Input id="ctf-contract_no" value={form.contract_no ?? ""} onChange={(e) => set("contract_no", e.target.value)} /></div>
           <div>
-            <Label>الموظف *</Label>
+            <Label htmlFor="ctf-employee_id">الموظف *</Label>
             <Select value={form.employee_id ?? ""} onValueChange={(v) => set("employee_id", v)}>
-              <SelectTrigger><SelectValue placeholder="اختر الموظف" /></SelectTrigger>
+              <SelectTrigger id="ctf-employee_id"><SelectValue placeholder="اختر الموظف" /></SelectTrigger>
               <SelectContent>
                 {(employees as any[]).map((e) => <SelectItem key={e.id} value={e.id}>{e.full_name_ar} — {e.employee_no}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label>نوع العقد</Label>
+            <Label htmlFor="ctf-contract_type">نوع العقد</Label>
             <Select value={form.contract_type ?? "unlimited"} onValueChange={(v) => set("contract_type", v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger id="ctf-contract_type"><SelectValue /></SelectTrigger>
               <SelectContent>{TYPES.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div>
-            <Label>الحالة</Label>
+            <Label htmlFor="ctf-status">الحالة</Label>
             <Select value={form.status ?? "active"} onValueChange={(v) => set("status", v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger id="ctf-status"><SelectValue /></SelectTrigger>
               <SelectContent>{STATUS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}</SelectContent>
             </Select>
           </div>
-          <div><Label>تاريخ البداية *</Label><Input type="date" value={form.start_date ?? ""} onChange={(e) => set("start_date", e.target.value)} /></div>
-          <div><Label>تاريخ النهاية</Label><Input type="date" value={form.end_date ?? ""} onChange={(e) => set("end_date", e.target.value)} /></div>
-          <div><Label>الراتب الأساسي</Label><Input type="number" value={form.basic_salary ?? 0} onChange={(e) => set("basic_salary", Number(e.target.value))} /></div>
-          <div><Label>بدل السكن</Label><Input type="number" value={form.housing_allowance ?? 0} onChange={(e) => set("housing_allowance", Number(e.target.value))} /></div>
-          <div><Label>بدل النقل</Label><Input type="number" value={form.transport_allowance ?? 0} onChange={(e) => set("transport_allowance", Number(e.target.value))} /></div>
-          <div><Label>بدلات أخرى</Label><Input type="number" value={form.other_allowances ?? 0} onChange={(e) => set("other_allowances", Number(e.target.value))} /></div>
-          <div><Label>فترة التجربة (شهر)</Label><Input type="number" value={form.probation_months ?? 3} onChange={(e) => set("probation_months", Number(e.target.value))} /></div>
-          <div><Label>أيام الإجازة السنوية</Label><Input type="number" value={form.annual_leave_days ?? 21} onChange={(e) => set("annual_leave_days", Number(e.target.value))} /></div>
-          <div><Label>مدة الإشعار (يوم)</Label><Input type="number" value={form.notice_period_days ?? 60} onChange={(e) => set("notice_period_days", Number(e.target.value))} /></div>
-          <div><Label>ساعات العمل / أسبوع</Label><Input type="number" value={form.working_hours_per_week ?? 48} onChange={(e) => set("working_hours_per_week", Number(e.target.value))} /></div>
-          <div><Label>موقع العمل</Label><Input value={form.work_location ?? ""} onChange={(e) => set("work_location", e.target.value)} /></div>
+          <div><Label htmlFor="ctf-start_date">تاريخ البداية *</Label><Input id="ctf-start_date" type="date" value={form.start_date ?? ""} onChange={(e) => set("start_date", e.target.value)} /></div>
+          <div><Label htmlFor="ctf-end_date">تاريخ النهاية</Label><Input id="ctf-end_date" type="date" value={form.end_date ?? ""} onChange={(e) => set("end_date", e.target.value)} /></div>
+          <div><Label htmlFor="ctf-basic_salary">الراتب الأساسي</Label><Input id="ctf-basic_salary" type="number" value={form.basic_salary ?? 0} onChange={(e) => set("basic_salary", Number(e.target.value))} /></div>
+          <div><Label htmlFor="ctf-housing_allowance">بدل السكن</Label><Input id="ctf-housing_allowance" type="number" value={form.housing_allowance ?? 0} onChange={(e) => set("housing_allowance", Number(e.target.value))} /></div>
+          <div><Label htmlFor="ctf-transport_allowance">بدل النقل</Label><Input id="ctf-transport_allowance" type="number" value={form.transport_allowance ?? 0} onChange={(e) => set("transport_allowance", Number(e.target.value))} /></div>
+          <div><Label htmlFor="ctf-other_allowances">بدلات أخرى</Label><Input id="ctf-other_allowances" type="number" value={form.other_allowances ?? 0} onChange={(e) => set("other_allowances", Number(e.target.value))} /></div>
+          <div><Label htmlFor="ctf-probation_months">فترة التجربة (شهر)</Label><Input id="ctf-probation_months" type="number" value={form.probation_months ?? 3} onChange={(e) => set("probation_months", Number(e.target.value))} /></div>
+          <div><Label htmlFor="ctf-annual_leave_days">أيام الإجازة السنوية</Label><Input id="ctf-annual_leave_days" type="number" value={form.annual_leave_days ?? 21} onChange={(e) => set("annual_leave_days", Number(e.target.value))} /></div>
+          <div><Label htmlFor="ctf-notice_period_days">مدة الإشعار (يوم)</Label><Input id="ctf-notice_period_days" type="number" value={form.notice_period_days ?? 60} onChange={(e) => set("notice_period_days", Number(e.target.value))} /></div>
+          <div><Label htmlFor="ctf-working_hours_per_week">ساعات العمل / أسبوع</Label><Input id="ctf-working_hours_per_week" type="number" value={form.working_hours_per_week ?? 48} onChange={(e) => set("working_hours_per_week", Number(e.target.value))} /></div>
+          <div><Label htmlFor="ctf-work_location">موقع العمل</Label><Input id="ctf-work_location" value={form.work_location ?? ""} onChange={(e) => set("work_location", e.target.value)} /></div>
           <div>
-            <Label>المشروع (اختياري)</Label>
+            <Label htmlFor="ctf-project_id">المشروع (اختياري)</Label>
             <Select value={form.project_id ?? ""} onValueChange={(v) => set("project_id", v)}>
-              <SelectTrigger><SelectValue placeholder="اختر المشروع" /></SelectTrigger>
+              <SelectTrigger id="ctf-project_id"><SelectValue placeholder="اختر المشروع" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">— بدون مشروع —</SelectItem>
                 {(projects as any[]).map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
-          <div className="col-span-2"><Label>ملاحظات</Label><Textarea value={form.notes ?? ""} onChange={(e) => set("notes", e.target.value)} /></div>
+          <div className="col-span-2"><Label htmlFor="ctf-notes">ملاحظات</Label><Textarea id="ctf-notes" value={form.notes ?? ""} onChange={(e) => set("notes", e.target.value)} /></div>
         </div>
 
         <DialogFooter>
