@@ -2,12 +2,14 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 
 export type Lang = "ar" | "en" | "ur" | "hi" | "fr";
 
+// Only Arabic is exposed as a selectable interface language: the app's actual
+// content (thousands of strings across every page) is written in Arabic
+// directly in JSX, and DICT below only covers a handful of chrome strings
+// (nav labels, the copilot widget). Selecting any other language previously
+// flipped `dir` to ltr and translated ~16 words while leaving everything else
+// Arabic, producing a broken mixed-language, wrong-direction interface.
 export const LANGS: { code: Lang; label: string; native: string; dir: "rtl" | "ltr" }[] = [
   { code: "ar", label: "Arabic", native: "العربية", dir: "rtl" },
-  { code: "en", label: "English", native: "English", dir: "ltr" },
-  { code: "ur", label: "Urdu", native: "اردو", dir: "rtl" },
-  { code: "hi", label: "Hindi", native: "हिन्दी", dir: "ltr" },
-  { code: "fr", label: "French", native: "Français", dir: "ltr" },
 ];
 
 export const LANG_FULL_NAME: Record<Lang, string> = {
