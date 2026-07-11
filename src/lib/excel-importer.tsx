@@ -69,8 +69,14 @@ export function ExcelImporter({ open, onOpenChange, title, fields, onImport, tem
     if (!templateKey) return;
     const name = window.prompt(t("saveMappingAsTemplate") + ":", `${title} — ${new Date().toLocaleDateString("ar-u-nu-latn")}`);
     if (!name?.trim()) return;
+    const tplFields = fields.map((f) => ({
+      key: f.key,
+      label: f.label,
+      required: f.required,
+      type: f.type === "string" ? ("text" as const) : f.type,
+    }));
     saveTemplate.mutate(
-      { name: name.trim(), tableKey: templateKey, category: "import", fields, mapping },
+      { name: name.trim(), tableKey: templateKey, category: "import", fields: tplFields, mapping },
       {
         onSuccess: () => toast.success(t("saveMappingAsTemplate")),
         onError: (e) => toast.error((e as Error).message),
