@@ -10,10 +10,11 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { Plus, FileSpreadsheet, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { fmtSAR } from "@/lib/format";
 import { calcPayrollLine } from "@/lib/hr-calculations";
+import { exportToExcel } from "@/lib/export";
 
 export const Route = createFileRoute("/_authenticated/hr/payroll/")({ component: PayrollPage });
 
@@ -46,18 +47,29 @@ function PayrollPage() {
       // Auto-generate payroll lines for all active employees
       const { data: emps } = await (supabase as any).from("hr_employees").select("id, basic_salary, housing_allowance, transport_allowance, other_allowances, is_saudi").eq("status", "active");
       if (emps?.length) {
+        // Active loan installments are pulled in automatically instead of being
+        // left for whoever prepares the run to remember and re-enter by hand.
+        const { data: activeLoans } = await (supabase as any).from("hr_loans")
+          .select("employee_id, monthly_deduction").eq("status", "active");
+        const loanDeductionByEmployee = new Map<string, number>();
+        for (const l of (activeLoans as any[]) ?? []) {
+          loanDeductionByEmployee.set(l.employee_id, (loanDeductionByEmployee.get(l.employee_id) ?? 0) + Number(l.monthly_deduction || 0));
+        }
+
         let totalGross = 0, totalDed = 0, totalGosi = 0, totalNet = 0;
         const lines = emps.map((e: any) => {
+          const loanDeduction = loanDeductionByEmployee.get(e.id) ?? 0;
           const c = calcPayrollLine({
             basic: e.basic_salary || 0, housing: e.housing_allowance || 0,
             transport: e.transport_allowance || 0, otherAllowances: e.other_allowances || 0,
-            isSaudi: !!e.is_saudi,
+            isSaudi: !!e.is_saudi, loanDeduction,
           });
           totalGross += c.gross; totalDed += c.totalDeductions; totalGosi += c.gosiEmployer + c.gosiEmployee; totalNet += c.net;
           return {
             run_id: run.id, employee_id: e.id,
             basic_salary: e.basic_salary || 0, housing_allowance: e.housing_allowance || 0,
             transport_allowance: e.transport_allowance || 0, other_allowances: e.other_allowances || 0,
+            loan_deduction: loanDeduction,
             gross_salary: c.gross, gosi_employee: c.gosiEmployee, gosi_employer: c.gosiEmployer,
             total_deductions: c.totalDeductions, net_salary: c.net,
           };
@@ -77,17 +89,21 @@ function PayrollPage() {
   return (
     <div className="p-6 space-y-6" dir="rtl">
       <PageHeader title="مسيرات الرواتب" description="إنشاء واعتماد رواتب الموظفين الشهرية" actions={
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />مسير جديد</Button></DialogTrigger>
-          <DialogContent dir="rtl">
-            <DialogHeader><DialogTitle>إنشاء مسير رواتب</DialogTitle></DialogHeader>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>السنة</Label><Input type="number" value={form.period_year} onChange={(e) => setForm({ ...form, period_year: +e.target.value })} /></div>
-              <div><Label>الشهر</Label><Input type="number" min={1} max={12} value={form.period_month} onChange={(e) => setForm({ ...form, period_month: +e.target.value })} /></div>
-            </div>
-            <DialogFooter><Button onClick={() => create.mutate(form)}>إنشاء المسير</Button></DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <div className="flex flex-wrap gap-2 no-print">
+          <Button variant="outline" onClick={() => exportToExcel(runs as Record<string, unknown>[], "hr_payroll_runs")} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
+          <Button variant="outline" onClick={() => window.print()} className="gap-1"><Printer className="w-4 h-4" /> طباعة</Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />مسير جديد</Button></DialogTrigger>
+            <DialogContent dir="rtl">
+              <DialogHeader><DialogTitle>إنشاء مسير رواتب</DialogTitle></DialogHeader>
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label>السنة</Label><Input type="number" value={form.period_year} onChange={(e) => setForm({ ...form, period_year: +e.target.value })} /></div>
+                <div><Label>الشهر</Label><Input type="number" min={1} max={12} value={form.period_month} onChange={(e) => setForm({ ...form, period_month: +e.target.value })} /></div>
+              </div>
+              <DialogFooter><Button onClick={() => create.mutate(form)}>إنشاء المسير</Button></DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       } />
       <Card className="p-0 overflow-hidden">
         <Table>
@@ -95,7 +111,7 @@ function PayrollPage() {
             <TableHead>رقم المسير</TableHead><TableHead>الفترة</TableHead>
             <TableHead>عدد الموظفين</TableHead><TableHead>الإجمالي</TableHead>
             <TableHead>الاستقطاعات</TableHead><TableHead>الصافي</TableHead>
-            <TableHead>الحالة</TableHead><TableHead></TableHead>
+            <TableHead>الحالة</TableHead><TableHead>حماية الأجور</TableHead><TableHead></TableHead>
           </TableRow></TableHeader>
           <TableBody>
             {(runs as any[]).map((r) => (
@@ -106,11 +122,18 @@ function PayrollPage() {
                 <TableCell>{fmtSAR(r.total_gross ?? 0)}</TableCell>
                 <TableCell>{fmtSAR(r.total_deductions ?? 0)}</TableCell>
                 <TableCell className="font-semibold">{fmtSAR(r.total_net ?? 0)}</TableCell>
+                <TableCell>
+                  {r.wps_submitted_at
+                    ? <Badge className="bg-emerald-500/15 text-emerald-700">مُرسل</Badge>
+                    : (r.status === "paid" || r.status === "approved")
+                      ? <Badge className="bg-red-500/15 text-red-700">لم يُرسل</Badge>
+                      : <Badge variant="outline">—</Badge>}
+                </TableCell>
                 <TableCell><Badge className={STATUS[r.status]?.c}>{STATUS[r.status]?.l ?? r.status}</Badge></TableCell>
                 <TableCell><Link to="/hr/payroll/$id" params={{ id: r.id }} className="text-primary text-sm">التفاصيل</Link></TableCell>
               </TableRow>
             ))}
-            {(runs as any[]).length === 0 && <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">لا توجد مسيرات</TableCell></TableRow>}
+            {(runs as any[]).length === 0 && <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">لا توجد مسيرات</TableCell></TableRow>}
           </TableBody>
         </Table>
       </Card>

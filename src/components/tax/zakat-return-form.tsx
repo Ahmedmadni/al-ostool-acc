@@ -4,8 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { FileSpreadsheet, Printer, RotateCcw } from "lucide-react";
+import { FileSpreadsheet, Printer, RotateCcw, Save, Loader2, Settings2 } from "lucide-react";
 import { fmtSAR } from "@/lib/format";
+import { supabase } from "@/integrations/supabase/client";
+import { useTaxRates } from "@/hooks/use-tax-rates";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
 
@@ -104,31 +106,43 @@ const BS_EQUITY = [
   { key: "eq_retained", label: "أرباح/(خسائر) مرحّلة" },
 ];
 
-const STORAGE_KEY = "zakat-return-form";
-
 export function ZakatReturnForm() {
   const [identity, setIdentity] = useState<Identity>(DEFAULT_IDENTITY);
   const [nums, setNums] = useState<NumMap>({});
   const [bsOpen, setBsOpen] = useState<NumMap>({});
   const [bsClose, setBsClose] = useState<NumMap>({});
   const [accountant, setAccountant] = useState({ name: "", license: "", financial_number: "" });
+  const [recordId, setRecordId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const { rates: taxRates, saveRates } = useTaxRates();
+  const [editingRates, setEditingRates] = useState(false);
+  const [rateInputs, setRateInputs] = useState({ zakat: "", income: "" });
 
+  // Loads the most recently saved return (mirrors the old single-slot
+  // localStorage behaviour, now shared and durable via Supabase).
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const v = JSON.parse(raw);
+    (async () => {
+      const { data, error } = await supabase
+        .from("zakat_returns" as any)
+        .select("*")
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) toast.error(error.message);
+      const row = data as any;
+      if (row?.data) {
+        const v = row.data;
+        setRecordId(row.id);
         if (v.identity) setIdentity(v.identity);
         if (v.nums) setNums(v.nums);
         if (v.bsOpen) setBsOpen(v.bsOpen);
         if (v.bsClose) setBsClose(v.bsClose);
         if (v.accountant) setAccountant(v.accountant);
       }
-    } catch {}
+      setLoading(false);
+    })();
   }, []);
-  useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ identity, nums, bsOpen, bsClose, accountant })); } catch {}
-  }, [identity, nums, bsOpen, bsClose, accountant]);
 
   const n = (k: string) => nums[k] ?? 0;
   const setN = (k: string, v: number) => setNums((x) => ({ ...x, [k]: v }));
@@ -148,18 +162,46 @@ export function ZakatReturnForm() {
   }, [nums, netProfitZakat]);
   const zakatBaseDeduct = useMemo(() => ZAKAT_BASE_DEDUCT.reduce((s, f) => s + n(f.key), 0), [nums]);
   const zakatBase = Math.max(zakatBaseAdd - zakatBaseDeduct, 0);
-  const zakatDue = zakatBase * 0.025;
+  const zakatDue = zakatBase * taxRates.zakat_rate;
 
   const taxBase = n("tax_base");
-  const taxDue = taxBase * 0.20;
+  const taxDue = taxBase * taxRates.income_tax_rate;
 
   const sumKeys = (obj: NumMap, keys: { key: string; negative?: boolean }[]) =>
     keys.reduce((s, k) => s + ((k.negative ? -1 : 1) * (obj[k.key] ?? 0)), 0);
 
   const reset = () => {
-    if (!confirm("هل تريد مسح جميع البيانات؟")) return;
+    if (!confirm("هل تريد مسح جميع البيانات في النموذج الحالي؟ (لن يؤثر هذا على أي إقرار محفوظ مسبقاً)")) return;
+    setRecordId(null);
     setIdentity(DEFAULT_IDENTITY); setNums({}); setBsOpen({}); setBsClose({}); setAccountant({ name: "", license: "", financial_number: "" });
     toast.success("تم المسح");
+  };
+
+  const save = async () => {
+    if (!identity.year_from || !identity.year_to) {
+      toast.error("حدد السنة المالية (من/إلى) قبل الحفظ");
+      return;
+    }
+    setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    const payload: Record<string, unknown> = {
+      year_from: identity.year_from,
+      year_to: identity.year_to,
+      data: { identity, nums, bsOpen, bsClose, accountant },
+      zakat_due: zakatDue,
+      tax_due: taxDue,
+      updated_by: user?.id ?? null,
+    };
+    if (!recordId) payload.created_by = user?.id ?? null;
+    const { data, error } = await supabase
+      .from("zakat_returns" as any)
+      .upsert(payload, { onConflict: "year_from,year_to" })
+      .select("id")
+      .single();
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    setRecordId((data as any)?.id ?? null);
+    toast.success("تم حفظ الإقرار");
   };
 
   const exportExcel = () => {
@@ -220,11 +262,51 @@ export function ZakatReturnForm() {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2 no-print flex-wrap">
+      <div className="flex gap-2 no-print flex-wrap items-center">
+        <Button size="sm" onClick={save} disabled={saving || loading} className="gap-2">
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          {saving ? "جارٍ الحفظ..." : "حفظ الإقرار"}
+        </Button>
+        {recordId && <span className="text-xs text-muted-foreground">محفوظ في قاعدة البيانات</span>}
         <Button variant="outline" size="sm" onClick={exportExcel} className="gap-2"><FileSpreadsheet className="w-4 h-4" />تصدير Excel</Button>
         <Button variant="outline" size="sm" onClick={() => window.print()} className="gap-2"><Printer className="w-4 h-4" />طباعة / PDF</Button>
         <Button variant="ghost" size="sm" onClick={reset} className="gap-2 text-destructive"><RotateCcw className="w-4 h-4" />مسح الكل</Button>
+        <Button
+          variant="ghost" size="sm" className="gap-2 ms-auto"
+          onClick={() => {
+            setRateInputs({ zakat: String(taxRates.zakat_rate * 100), income: String(taxRates.income_tax_rate * 100) });
+            setEditingRates((v) => !v);
+          }}
+        >
+          <Settings2 className="w-4 h-4" />الزكاة {(taxRates.zakat_rate * 100).toFixed(1)}% / الدخل {(taxRates.income_tax_rate * 100).toFixed(0)}%
+        </Button>
       </div>
+
+      {editingRates && (
+        <Card className="p-4 no-print flex flex-wrap items-end gap-3">
+          <div>
+            <Label className="text-xs">نسبة الزكاة (%)</Label>
+            <Input type="number" step="0.1" className="w-32" value={rateInputs.zakat} onChange={(e) => setRateInputs({ ...rateInputs, zakat: e.target.value })} />
+          </div>
+          <div>
+            <Label className="text-xs">نسبة ضريبة الدخل — الحصة الأجنبية (%)</Label>
+            <Input type="number" step="0.1" className="w-32" value={rateInputs.income} onChange={(e) => setRateInputs({ ...rateInputs, income: e.target.value })} />
+          </div>
+          <Button
+            size="sm"
+            onClick={() => saveRates.mutate(
+              { ...taxRates, zakat_rate: (Number(rateInputs.zakat) || 0) / 100, income_tax_rate: (Number(rateInputs.income) || 0) / 100 },
+              { onSuccess: () => { setEditingRates(false); toast.success("تم تحديث النسب"); } },
+            )}
+            disabled={saveRates.isPending}
+          >
+            حفظ
+          </Button>
+          <p className="text-xs text-muted-foreground basis-full">
+            القيم الافتراضية 2.5% للزكاة و20% لضريبة الدخل وفق النظام الحالي — عدّلها فقط إذا تغيّرت النسب النظامية رسمياً.
+          </p>
+        </Card>
+      )}
 
       <Card className="p-6">
         <div className="text-center mb-4 border-b pb-3">

@@ -22,3 +22,11 @@ export const daysBetween = (a: Date | string, b: Date | string = new Date()) => 
   const db = typeof b === "string" ? new Date(b) : b;
   return Math.floor((db.getTime() - da.getTime()) / (1000 * 60 * 60 * 24));
 };
+
+// ZATCA-registered VAT numbers are 15 numeric digits. Returns an error
+// message when the value is non-empty and doesn't match, or undefined when
+// valid/empty — undefined means "don't show an error", not "is valid".
+export const taxNumberError = (v: string | null | undefined): string | undefined => {
+  if (!v) return undefined;
+  return /^\d{15}$/.test(v) ? undefined : "الرقم الضريبي يجب أن يتكوّن من 15 رقماً";
+};

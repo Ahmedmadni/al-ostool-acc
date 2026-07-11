@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Truck, AlertTriangle, Clock, DollarSign } from "lucide-react";
-import { fmtSAR } from "@/lib/format";
+import { fmtSAR, daysBetween } from "@/lib/format";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell } from "recharts";
 import { toast } from "sonner";
 
@@ -22,6 +22,14 @@ type Vendor = {
   total_purchased?: number | null;
 };
 
+type PurchaseInvoice = {
+  vendor_id: string | null;
+  due_date: string | null;
+  total_amount: number | null;
+  paid_amount: number | null;
+  status: string | null;
+};
+
 const BUCKETS = [
   { key: "b0", label: "0-30 يوم", color: "hsl(var(--success))" },
   { key: "b30", label: "31-60", color: "hsl(var(--info))" },
@@ -31,37 +39,57 @@ const BUCKETS = [
   { key: "b180", label: "+180", color: "hsl(var(--destructive))" },
 ];
 
-function distributeAging(balance: number, paymentPeriod: number) {
-  // Estimation: distribute outstanding across buckets based on payment_period
-  // Newer balances go to earlier buckets, anything older than payment_period considered overdue
-  if (!balance || balance <= 0) return { b0: 0, b30: 0, b60: 0, b90: 0, b120: 0, b180: 0 };
-  const p = paymentPeriod || 30;
-  if (p <= 30) return { b0: balance * 0.7, b30: balance * 0.2, b60: balance * 0.05, b90: balance * 0.03, b120: balance * 0.02, b180: 0 };
-  if (p <= 60) return { b0: balance * 0.5, b30: balance * 0.3, b60: balance * 0.1, b90: balance * 0.05, b120: balance * 0.03, b180: balance * 0.02 };
-  return { b0: balance * 0.4, b30: balance * 0.25, b60: balance * 0.15, b90: balance * 0.1, b120: balance * 0.05, b180: balance * 0.05 };
+type Buckets = { b0: number; b30: number; b60: number; b90: number; b120: number; b180: number };
+
+// Real aging from each purchase invoice's own due date — not an estimated split
+// of the vendor's total balance. Not-yet-due invoices fall in the same "0-30"
+// bucket as freshly-due ones, matching this page's existing bucket labels.
+function bucketInvoices(invoices: PurchaseInvoice[]): Buckets {
+  const b: Buckets = { b0: 0, b30: 0, b60: 0, b90: 0, b120: 0, b180: 0 };
+  const now = new Date();
+  for (const inv of invoices) {
+    if (inv.status === "paid" || !inv.due_date) continue;
+    const remaining = Number(inv.total_amount ?? 0) - Number(inv.paid_amount ?? 0);
+    if (remaining <= 0) continue;
+    const d = daysBetween(inv.due_date, now);
+    if (d <= 30) b.b0 += remaining;
+    else if (d <= 60) b.b30 += remaining;
+    else if (d <= 90) b.b60 += remaining;
+    else if (d <= 120) b.b90 += remaining;
+    else if (d <= 180) b.b120 += remaining;
+    else b.b180 += remaining;
+  }
+  return b;
 }
 
 function VendorAgingPage() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [invoices, setInvoices] = useState<PurchaseInvoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
     (async () => {
-      const { data, error } = await supabase.from("vendors" as any).select("*").order("total_outstanding", { ascending: false });
-      if (error) toast.error(error.message);
-      setVendors((data as any) ?? []);
+      const [{ data: v, error: vErr }, { data: inv, error: invErr }] = await Promise.all([
+        supabase.from("vendors" as any).select("*").order("total_outstanding", { ascending: false }),
+        supabase.from("purchase_invoices").select("vendor_id, due_date, total_amount, paid_amount, status"),
+      ]);
+      if (vErr) toast.error(vErr.message);
+      if (invErr) toast.error(invErr.message);
+      setVendors((v as any) ?? []);
+      setInvoices((inv as any) ?? []);
       setLoading(false);
     })();
   }, []);
 
   const rows = useMemo(() => {
     return vendors.map((v) => {
-      const bal = Number(v.total_outstanding ?? v.current_balance ?? 0);
-      const ag = distributeAging(bal, Number(v.payment_period ?? 30));
-      return { ...v, ...ag, total: bal };
+      const vendorInvoices = invoices.filter((i) => i.vendor_id === v.id);
+      const ag = bucketInvoices(vendorInvoices);
+      const total = ag.b0 + ag.b30 + ag.b60 + ag.b90 + ag.b120 + ag.b180;
+      return { ...v, ...ag, total };
     });
-  }, [vendors]);
+  }, [vendors, invoices]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -167,7 +195,7 @@ function VendorAgingPage() {
             </Table>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            * يتم تقدير توزيع الأعمار بناءً على مهلة السداد لكل مورد عند عدم توفر تواريخ الفواتير الفعلية.
+            * يُحسب توزيع الأعمار من تاريخ استحقاق كل فاتورة مشتريات فعلية غير مسددة بالكامل. المبلغ هنا يمثل الفواتير المفتوحة فقط، وقد يختلف عن "الرصيد المستحق" الإجمالي للمورد إن كان يتضمن رصيداً افتتاحياً أو تسويات غير مرتبطة بفاتورة محددة.
           </p>
         </CardContent>
       </Card>

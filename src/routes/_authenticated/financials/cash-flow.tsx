@@ -1,21 +1,36 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, KpiCard } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { fetchCoa, fetchPeriods, fetchTrialBalance, statementSummary, sumByCategory } from "@/lib/financials";
+import { fetchCoa, fetchPeriods, fetchTrialBalance, statementSummary } from "@/lib/financials";
 import { fmtSAR } from "@/lib/format";
 import { exportToExcel } from "@/lib/export";
 import { Waves, ArrowUpRight, ArrowDownRight, FileSpreadsheet } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/financials/cash-flow")({ component: Page });
 
+function monthRange(period: string) {
+  const [y, m] = period.split("-").map(Number);
+  const start = `${period}-01`;
+  const end = new Date(y, m, 0).toISOString().slice(0, 10); // last day of month
+  return { start, end };
+}
+
 function Page() {
   const { data: periods = [] } = useQuery({ queryKey: ["cf-periods"], queryFn: fetchPeriods });
   const [period, setPeriod] = useState<string>("");
   const activePeriod = period || periods[0] || "";
+
+  // A comparative prior period is required to derive real working-capital and
+  // financing movements (deltas between two point-in-time trial balances) instead
+  // of guessing them as a percentage of a single period's balances.
+  const periodIndex = periods.indexOf(activePeriod);
+  const previousPeriod = periodIndex >= 0 ? periods[periodIndex + 1] : undefined;
+  const hasComparison = !!previousPeriod;
 
   const { data: coa = [] } = useQuery({ queryKey: ["cf-coa"], queryFn: fetchCoa });
   const { data: tb = [] } = useQuery({
@@ -23,37 +38,72 @@ function Page() {
     queryFn: () => fetchTrialBalance(activePeriod || undefined),
     enabled: !!activePeriod || periods.length === 0,
   });
+  const { data: prevTb } = useQuery({
+    queryKey: ["cf-tb", previousPeriod],
+    queryFn: () => fetchTrialBalance(previousPeriod),
+    enabled: hasComparison,
+  });
+  // Real fixed-asset acquisitions during the period (actual cost, actual purchase
+  // date) — not a percentage of the total fixed-asset balance.
+  const { data: assetsAcquired = [] } = useQuery({
+    queryKey: ["cf-fixed-assets", activePeriod],
+    queryFn: async () => {
+      const { start, end } = monthRange(activePeriod);
+      const { data } = await supabase.from("fixed_assets").select("cost, purchase_date")
+        .gte("purchase_date", start).lte("purchase_date", end);
+      return data ?? [];
+    },
+    enabled: !!activePeriod,
+  });
 
   const s = statementSummary(coa, tb);
-
-  // Indirect method — approximated from TB structure
-  // Assume depreciation accounts contain "إهلاك|depreciation"
   const depreciation = sumByCoaPattern(coa, tb, "operating_expenses", /إهلاك|depreciation|amortiz/i);
-  const receivables = sumByCoaPattern(coa, tb, "assets", /receivable|ذمم|مدين/i);
-  const payables = sumByCoaPattern(coa, tb, "liabilities", /payable|دائن|موردين/i);
-  const inventory = sumByCoaPattern(coa, tb, "assets", /inventory|مخزون/i);
 
-  // Working capital change estimate (treat closing balances as deltas; placeholder when comparative period absent)
-  const wcChange = -(receivables + inventory) + payables;
+  const receivablesCurr = sumByCoaPattern(coa, tb, "assets", /receivable|ذمم|مدين/i);
+  const payablesCurr = sumByCoaPattern(coa, tb, "liabilities", /payable|دائن|موردين/i);
+  const inventoryCurr = sumByCoaPattern(coa, tb, "assets", /inventory|مخزون/i);
+  const loanCurr = sumByCoaPattern(coa, tb, "liabilities", /loan|قرض/i);
+
+  // Working capital & financing movements: real period-over-period deltas when a
+  // prior period exists, otherwise 0 (disclosed below) rather than a fabricated estimate.
+  let wcChange = 0;
+  let loanMovement = 0;
+  let equityMovement = 0;
+  if (hasComparison && prevTb) {
+    const receivablesPrev = sumByCoaPattern(coa, prevTb, "assets", /receivable|ذمم|مدين/i);
+    const payablesPrev = sumByCoaPattern(coa, prevTb, "liabilities", /payable|دائن|موردين/i);
+    const inventoryPrev = sumByCoaPattern(coa, prevTb, "assets", /inventory|مخزون/i);
+    wcChange = -((receivablesCurr - receivablesPrev) + (inventoryCurr - inventoryPrev)) + (payablesCurr - payablesPrev);
+
+    const loanPrev = sumByCoaPattern(coa, prevTb, "liabilities", /loan|قرض/i);
+    loanMovement = loanCurr - loanPrev;
+
+    const sPrev = statementSummary(coa, prevTb);
+    const equityPrevClosing = sPrev.equity + sPrev.netIncome;
+    equityMovement = s.equity - equityPrevClosing; // capital injected/withdrawn during the period
+  }
+
+  const assetPurchases = (assetsAcquired as { cost: number | null }[]).reduce((sum, a) => sum + Number(a.cost ?? 0), 0);
 
   const operatingCf = s.netIncome + depreciation + wcChange;
-  const investingCf = -sumByCoaPattern(coa, tb, "assets", /asset|أصول ثابتة|equipment/i) * 0.1; // rough
-  const financingCf = sumByCategory(coa, tb, "equity") * 0.05 - sumByCoaPattern(coa, tb, "liabilities", /loan|قرض/i) * 0.1;
+  const investingCf = -assetPurchases;
+  const financingCf = loanMovement + equityMovement;
   const netChange = operatingCf + investingCf + financingCf;
 
   const sections = [
     { title: "أنشطة التشغيل", items: [
       { name: "صافي الربح", amount: s.netIncome },
       { name: "+ الإهلاك والاستهلاك", amount: depreciation },
-      { name: "+/- التغير في رأس المال العامل", amount: wcChange },
+      { name: `+/- التغير في رأس المال العامل${hasComparison ? "" : " (بلا فترة مقارنة)"}`, amount: wcChange },
       { name: "إجمالي التدفق التشغيلي", amount: operatingCf, bold: true },
     ]},
     { title: "أنشطة الاستثمار", items: [
-      { name: "صافي شراء/بيع الأصول الثابتة", amount: investingCf },
+      { name: "شراء أصول ثابتة خلال الفترة (فعلي)", amount: investingCf },
       { name: "إجمالي التدفق الاستثماري", amount: investingCf, bold: true },
     ]},
     { title: "أنشطة التمويل", items: [
-      { name: "تغير في القروض ورأس المال", amount: financingCf },
+      { name: `تغير أرصدة القروض${hasComparison ? "" : " (بلا فترة مقارنة)"}`, amount: loanMovement },
+      { name: `تغير رأس المال (زيادة/توزيعات مشتقة)${hasComparison ? "" : " (بلا فترة مقارنة)"}`, amount: equityMovement },
       { name: "إجمالي التدفق التمويلي", amount: financingCf, bold: true },
     ]},
   ];
@@ -107,7 +157,9 @@ function Page() {
 
       <Card className="p-5 mt-4 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900">
         <p className="text-xs text-amber-800 dark:text-amber-200">
-          ملاحظة: حساب التدفق النقدي تقريبي بناءً على بيانات الفترة الحالية. للدقة الكاملة، يُنصح باستيراد فترتين متتاليتين للمقارنة.
+          {hasComparison
+            ? `ملاحظة: التغير في رأس المال العامل وحركة القروض/رأس المال مشتقّان من الفرق الفعلي بين فترة ${activePeriod} والفترة السابقة ${previousPeriod}. النشاط الاستثماري يعكس مشتريات أصول ثابتة فعلية بتاريخ شراء ضمن الفترة فقط — لا يشمل عمليات البيع/الاستبعاد لعدم توفر تاريخ ومبلغ استبعاد في النظام حالياً.`
+            : "ملاحظة: لا تتوفر فترة سابقة ضمن ميزان المراجعة المستورد، لذا ظهرت بنود التغير في رأس المال العامل وحركة القروض/رأس المال بقيمة صفرية بدل تقدير مبني على افتراض — استورد فترة سابقة لعرض هذه البنود فعلياً. النشاط الاستثماري (شراء الأصول الثابتة) محسوب من بيانات فعلية بغض النظر عن توفر فترة مقارنة."}
         </p>
       </Card>
     </div>

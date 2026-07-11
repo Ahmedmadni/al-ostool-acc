@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { generateForecasts } from "@/lib/intelligence.functions";
 import { fmtSAR } from "@/lib/format";
+import { DataTruncationBanner } from "@/components/shared/data-truncation-banner";
 import {
   ResponsiveContainer, ComposedChart, Line, Area, XAxis, YAxis, Tooltip, CartesianGrid, Legend,
 } from "recharts";
@@ -78,6 +79,8 @@ function ForecastingPage() {
       />
 
       {isLoading && <div className="text-center text-muted-foreground py-12">جارٍ توليد التوقعات...</div>}
+
+      <DataTruncationBanner truncated={data?.dataQuality?.truncated} />
 
       {data && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

@@ -14,6 +14,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { I18nProvider } from "@/lib/i18n";
+import { RegionalProvider } from "@/lib/regional";
 
 function NotFoundComponent() {
   return (
@@ -120,7 +122,14 @@ function AuthSync() {
   const router = useRouter();
   const qc = useQueryClient();
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      // TOKEN_REFRESHED fires automatically every few minutes to silently
+      // renew the JWT — it changes nothing about who the user is or what
+      // they can see, so it shouldn't blow away every cached query in the
+      // app. INITIAL_SESSION fires once on load before anything has been
+      // fetched yet, so there's nothing useful to invalidate. Only actual
+      // identity changes (sign in/out, user update) warrant a full refetch.
+      if (event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") return;
       router.invalidate();
       qc.invalidateQueries();
     });
@@ -137,9 +146,13 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AuthSync />
-        <Outlet />
-        <Toaster richColors position="top-center" dir="rtl" />
+        <I18nProvider>
+          <RegionalProvider>
+            <AuthSync />
+            <Outlet />
+            <Toaster richColors position="top-center" dir="rtl" />
+          </RegionalProvider>
+        </I18nProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

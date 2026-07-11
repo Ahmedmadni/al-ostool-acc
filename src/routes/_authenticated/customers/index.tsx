@@ -171,10 +171,10 @@ function CustomersPage() {
                 <TableCell className="font-semibold">{fmtSAR(c.total_outstanding)}</TableCell>
                 <TableCell>
                   <div className="flex gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => { setEditing(c); setOpen(true); }}>
+                    <Button size="icon" variant="ghost" title="تعديل" aria-label="تعديل" onClick={() => { setEditing(c); setOpen(true); }}>
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" onClick={() => remove(c.id)}>
+                    <Button size="icon" variant="ghost" title="حذف" aria-label="حذف" onClick={() => remove(c.id)}>
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>
                   </div>

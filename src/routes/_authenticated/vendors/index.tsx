@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useId, cloneElement, isValidElement } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/page-header";
 import { DataTableToolbar } from "@/components/data-table-toolbar";
@@ -10,9 +10,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Truck, Trash2, Pencil, TrendingUp, AlertTriangle, DollarSign } from "lucide-react";
+import { Truck, Trash2, Pencil, TrendingUp, AlertTriangle, DollarSign, Upload } from "lucide-react";
 import { fmtSAR } from "@/lib/format";
 import { toast } from "sonner";
+import { ExcelImporter, type FieldSpec } from "@/lib/excel-importer";
+
+const IMPORT_FIELDS: FieldSpec[] = [
+  { key: "code", label: "الكود", required: true },
+  { key: "name", label: "الاسم", required: true },
+  { key: "name_en", label: "الاسم بالإنجليزية" },
+  { key: "category", label: "الفئة" },
+  { key: "region", label: "المنطقة" },
+  { key: "tax_number", label: "الرقم الضريبي" },
+  { key: "commercial_register", label: "السجل التجاري" },
+  { key: "phone", label: "الهاتف" },
+  { key: "email", label: "البريد الإلكتروني" },
+  { key: "payment_period", label: "مهلة السداد (يوم)", type: "number" },
+  { key: "credit_limit", label: "حد الائتمان", type: "number" },
+];
 
 export const Route = createFileRoute("/_authenticated/vendors/")({ component: VendorsPage });
 
@@ -34,6 +49,7 @@ function VendorsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Partial<Vendor> | null>(null);
+  const [openImp, setOpenImp] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -81,6 +97,13 @@ function VendorsPage() {
     load();
   };
 
+  const doImport = async (rows: Record<string, any>[]) => {
+    const { error } = await supabase.from("vendors" as any).upsert(rows, { onConflict: "code" });
+    if (error) throw error;
+    await load();
+    return rows.length;
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader title="الموردين والذمم الدائنة" description="بيانات الموردين الدائمة (Master Data) — لا تُستبدل بين الفترات" />
@@ -107,6 +130,7 @@ function VendorsPage() {
               { header: "الرصيد", dataKey: "current_balance" }, { header: "المستحق", dataKey: "total_outstanding" },
             ]}
             exportTitle="قائمة الموردين"
+            extra={<Button variant="outline" size="sm" onClick={() => setOpenImp(true)} className="gap-1"><Upload className="w-4 h-4" /> استيراد</Button>}
           />
           <div className="overflow-x-auto border rounded-md">
             <Table>
@@ -144,8 +168,8 @@ function VendorsPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
-                        <Button size="icon" variant="ghost" onClick={() => setEditing(v)}><Pencil className="w-3 h-3" /></Button>
-                        <Button size="icon" variant="ghost" onClick={() => remove(v.id)}><Trash2 className="w-3 h-3 text-destructive" /></Button>
+                        <Button size="icon" variant="ghost" title="تعديل" aria-label="تعديل" onClick={() => setEditing(v)}><Pencil className="w-3 h-3" /></Button>
+                        <Button size="icon" variant="ghost" title="حذف" aria-label="حذف" onClick={() => remove(v.id)}><Trash2 className="w-3 h-3 text-destructive" /></Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -180,15 +204,19 @@ function VendorsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ExcelImporter open={openImp} onOpenChange={setOpenImp} title="استيراد الموردين" fields={IMPORT_FIELDS} onImport={doImport} templateKey="vendors" />
     </div>
   );
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  const id = useId();
+  const child = isValidElement(children) ? cloneElement(children as React.ReactElement<any>, { id }) : children;
   return (
     <div className="space-y-1">
-      <Label className="text-xs">{label}</Label>
-      {children}
+      <Label htmlFor={id} className="text-xs">{label}</Label>
+      {child}
     </div>
   );
 }

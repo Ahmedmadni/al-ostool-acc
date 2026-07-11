@@ -684,7 +684,7 @@ function NewTaskDialog({
                   onChange={(e) => updateChecklistWeight(idx, parseFloat(e.target.value))}
                 />
                 <span className="text-xs text-muted-foreground">%</span>
-                <Button type="button" size="icon" variant="ghost" onClick={() => removeChecklistItem(idx)}>
+                <Button type="button" size="icon" variant="ghost" title="حذف البند" aria-label="حذف البند" onClick={() => removeChecklistItem(idx)}>
                   <Trash2 className="w-4 h-4 text-destructive" />
                 </Button>
               </div>
@@ -731,7 +731,9 @@ function MultiUserPicker({ label, profiles, selected, onChange }: {
             return (
               <Badge key={id} variant="secondary" className="gap-1">
                 {p?.full_name || p?.email || id}
-                <X className="w-3 h-3 cursor-pointer" onClick={() => toggle(id)} />
+                <button type="button" title="إزالة" aria-label="إزالة" onClick={() => toggle(id)} className="inline-flex">
+                  <X className="w-3 h-3" />
+                </button>
               </Badge>
             );
           })}

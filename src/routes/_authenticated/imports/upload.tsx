@@ -10,9 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Sparkles, ArrowLeft, ArrowRight, CheckCircle2, AlertTriangle, Loader2, FileSpreadsheet } from "lucide-react";
+import { Upload, Sparkles, ArrowLeft, ArrowRight, CheckCircle2, AlertTriangle, Loader2, FileSpreadsheet, BookmarkPlus, Bookmark } from "lucide-react";
 import { toast } from "sonner";
 import { detectImportType, validateImportBatch, commitImportBatch, getSourceFields } from "@/lib/imports.functions";
+import { useDataTemplates, useSaveDataTemplate } from "@/hooks/use-data-templates";
 
 const search = z.object({ type: z.string().optional() });
 
@@ -57,6 +58,33 @@ function UploadWizard() {
   const [confidence, setConfidence] = useState<number>(0);
   const [validation, setValidation] = useState<Awaited<ReturnType<typeof validateImportBatch>> | null>(null);
   const [busy, setBusy] = useState(false);
+
+  const { data: savedTemplates = [] } = useDataTemplates(sourceType || undefined);
+  const saveTemplate = useSaveDataTemplate();
+
+  const applyTemplate = (templateId: string) => {
+    const tpl = savedTemplates.find((t) => t.id === templateId);
+    if (!tpl) return;
+    const next: Record<string, string> = { ...mapping };
+    for (const [fieldKey, sourceHeader] of Object.entries(tpl.mapping)) {
+      if (headers.includes(sourceHeader)) next[fieldKey] = sourceHeader;
+    }
+    setMapping(next);
+    toast.success(`تم تطبيق قالب "${tpl.name}"`);
+  };
+
+  const saveCurrentAsTemplate = () => {
+    if (!sourceType) return;
+    const name = window.prompt("اسم القالب:", `${SOURCE_LABELS[sourceType] ?? sourceType} — ${new Date().toLocaleDateString("ar-u-nu-latn")}`);
+    if (!name?.trim()) return;
+    saveTemplate.mutate(
+      { name: name.trim(), tableKey: sourceType, category: "import", fields, mapping },
+      {
+        onSuccess: () => toast.success("تم حفظ القالب مباشرة — سيظهر لكل استيراد لهذا النوع لاحقاً"),
+        onError: (e) => toast.error((e as Error).message),
+      },
+    );
+  };
 
   const handleFile = async (f: File) => {
     setFile(f);
@@ -216,10 +244,32 @@ function UploadWizard() {
 
           {fields.length > 0 && (
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                 <Label>مطابقة الأعمدة ({rows.length} صف)</Label>
                 <div className="text-xs text-muted-foreground">{file?.name}</div>
               </div>
+
+              <div className="flex items-center gap-2 flex-wrap mb-3 p-2 rounded-md border bg-muted/30">
+                {savedTemplates.length > 0 ? (
+                  <>
+                    <Bookmark className="w-4 h-4 text-muted-foreground shrink-0" />
+                    <span className="text-xs text-muted-foreground">قوالب محفوظة لهذا النوع:</span>
+                    <Select onValueChange={applyTemplate}>
+                      <SelectTrigger className="w-56 h-8 text-xs"><SelectValue placeholder="اختر قالباً لتطبيقه" /></SelectTrigger>
+                      <SelectContent>
+                        {savedTemplates.map((t) => <SelectItem key={t.id} value={t.id}>{t.name} (v{t.version})</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </>
+                ) : (
+                  <span className="text-xs text-muted-foreground">لا توجد قوالب محفوظة لهذا النوع بعد.</span>
+                )}
+                <div className="flex-1" />
+                <Button size="sm" variant="outline" className="gap-1 h-8 text-xs" onClick={saveCurrentAsTemplate} disabled={saveTemplate.isPending}>
+                  <BookmarkPlus className="w-3 h-3" /> حفظ التطابق كقالب
+                </Button>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[400px] overflow-y-auto p-1">
                 {fields.map((f) => (
                   <div key={f.key} className="flex items-center gap-2">

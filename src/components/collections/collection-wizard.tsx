@@ -109,40 +109,19 @@ export function CollectionWizard({ open, onOpenChange, initialCustomerId }: {
     }
     setSubmitting(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      const insertedIds: string[] = [];
-      // Create one payment row per invoice allocation (keeps existing invoice.paid_amount triggers in sync).
-      for (const r of rows) {
-        const { data, error } = await supabase
-          .from("payments")
-          .insert({
-            customer_id: customerId,
-            invoice_id: r.invoice_id,
-            amount: r.amount,
-            payment_date: paymentDate,
-            method, reference, notes,
-            direction: "in",
-          })
-          .select("id")
-          .single();
-        if (error) throw error;
-        if (data?.id) insertedIds.push(data.id as string);
-        const inv = invoices.find((i) => i.id === r.invoice_id);
-        if (inv) {
-          await supabase
-            .from("invoices")
-            .update({ paid_amount: Number(inv.paid_amount) + r.amount })
-            .eq("id", r.invoice_id);
-        }
-      }
-      // Record allocations
-      for (let i = 0; i < rows.length; i++) {
-        const pid = insertedIds[i];
-        if (!pid) continue;
-        await supabase
-          .from("invoice_allocations" as any)
-          .insert({ payment_id: pid, invoice_id: rows[i].invoice_id, amount: rows[i].amount });
-      }
+      // A single RPC call (record_collection) creates every payment row, updates
+      // each invoice's paid_amount, and records the allocations in one database
+      // transaction — a dropped connection partway through no longer leaves a
+      // payment recorded without its matching invoice/allocation updates.
+      const { error } = await supabase.rpc("record_collection" as any, {
+        _customer_id: customerId,
+        _payment_date: paymentDate,
+        _method: method,
+        _reference: reference,
+        _notes: notes,
+        _allocations: rows,
+      });
+      if (error) throw error;
       toast.success("تم تسجيل التحصيل وتوزيعه على الفواتير");
       qc.invalidateQueries({ queryKey: ["customers"] });
       qc.invalidateQueries({ queryKey: ["invoices"] });

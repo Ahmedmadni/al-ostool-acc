@@ -35,7 +35,29 @@ function Page() {
   const totalIn = rows.reduce((s, r) => s + Number(r.credit ?? 0), 0);
   const totalOut = rows.reduce((s, r) => s + Number(r.debit ?? 0), 0);
   const banks = useMemo(() => Array.from(new Set(rows.map((r) => r.bank_name))), [rows]);
-  const lastBalance = rows[rows.length - 1]?.balance ?? 0;
+
+  // Per-bank latest balance, fetched independently (desc + limit 1) so it's correct
+  // even when a bank has more than 5000 historical transactions and stays accurate
+  // per account instead of mixing all banks into one running total.
+  const { data: latestPerBank = [] } = useQuery({
+    queryKey: ["bank_last_balances", banks],
+    queryFn: async () => {
+      const results = await Promise.all(
+        banks.map(async (bank) => {
+          const { data } = await supabase
+            .from("bank_statements")
+            .select("balance")
+            .eq("bank_name", bank)
+            .order("txn_date", { ascending: false })
+            .limit(1);
+          return { bank, balance: Number(data?.[0]?.balance ?? 0) };
+        }),
+      );
+      return results;
+    },
+    enabled: banks.length > 0,
+  });
+  const lastBalance = latestPerBank.reduce((s, b) => s + b.balance, 0);
 
   const series = useMemo(() => rows.slice(-60).map((r) => ({ date: r.txn_date, balance: Number(r.balance ?? 0) })), [rows]);
 
@@ -106,7 +128,7 @@ function Page() {
         </Table>
       </Card>
 
-      <ExcelImporter open={openImp} onOpenChange={setOpenImp} title="استيراد كشف بنك" fields={FIELDS} onImport={doImport} />
+      <ExcelImporter open={openImp} onOpenChange={setOpenImp} title="استيراد كشف بنك" fields={FIELDS} onImport={doImport} templateKey="bank_statements" />
     </div>
   );
 }

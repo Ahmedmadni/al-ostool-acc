@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { fmtSAR } from "@/lib/format";
-import { readExcel } from "@/lib/export";
-import { Upload } from "lucide-react";
+import { readExcel, exportToExcel } from "@/lib/export";
+import { Upload, FileSpreadsheet, Printer } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/trial-balance/")({ component: Page });
@@ -26,18 +26,43 @@ function Page() {
     if (!f) return;
     try {
       const rows = await readExcel(f);
-      const payload = rows.map((r: any) => ({
-        period,
-        account_code: String(r.account_code ?? r["كود الحساب"] ?? ""),
-        account_name: String(r.account_name ?? r["اسم الحساب"] ?? ""),
-        account_type: String(r.account_type ?? r["النوع"] ?? ""),
-        debit: Number(r.debit ?? r["مدين"] ?? 0),
-        credit: Number(r.credit ?? r["دائن"] ?? 0),
-        balance: Number(r.balance ?? r["الرصيد"] ?? 0),
-      }));
+      const { data: coa } = await supabase.from("chart_of_accounts").select("id, code");
+      const codeToId = new Map((coa ?? []).map((a: any) => [String(a.code).trim(), a.id]));
+
+      let unmatched = 0;
+      const payload = rows.map((r: any) => {
+        const code = String(r.account_code ?? r["كود الحساب"] ?? "").trim();
+        const accountId = codeToId.get(code) ?? null;
+        if (!accountId) unmatched++;
+        return {
+          period,
+          account_code: code,
+          account_id: accountId,
+          account_name: String(r.account_name ?? r["اسم الحساب"] ?? ""),
+          account_type: String(r.account_type ?? r["النوع"] ?? ""),
+          debit: Number(r.debit ?? r["مدين"] ?? 0),
+          credit: Number(r.credit ?? r["دائن"] ?? 0),
+          balance: Number(r.balance ?? r["الرصيد"] ?? 0),
+        };
+      });
+
+      const totalDebit = payload.reduce((s, r) => s + r.debit, 0);
+      const totalCredit = payload.reduce((s, r) => s + r.credit, 0);
+      if (Math.abs(totalDebit - totalCredit) > 0.01) {
+        toast.error(`الملف غير متوازن (مدين ${totalDebit.toFixed(2)} ≠ دائن ${totalCredit.toFixed(2)}) — لم يتم الاستيراد`);
+        return;
+      }
+
+      // Replace any existing entries for this period so re-uploads never double the balances.
+      const { error: delError } = await supabase.from("trial_balance_entries").delete().eq("period", period);
+      if (delError) throw delError;
+
       const { error } = await supabase.from("trial_balance_entries").insert(payload as any);
       if (error) throw error;
-      toast.success(`تم استيراد ${payload.length} حساب`);
+      toast.success(
+        `تم استيراد ${payload.length} حساب لفترة ${period}` +
+        (unmatched ? ` — تنبيه: ${unmatched} حساب لم يُطابق شجرة الحسابات` : ""),
+      );
       qc.invalidateQueries({ queryKey: ["tb"] });
     } catch (e) { toast.error((e as Error).message); }
   };
@@ -45,9 +70,23 @@ function Page() {
   const totalDebit = entries.reduce((s, e) => s + Number(e.debit ?? 0), 0);
   const totalCredit = entries.reduce((s, e) => s + Number(e.credit ?? 0), 0);
 
+  const exportRows = (entries as any[]).map((e) => ({
+    الكود: e.account_code, الاسم: e.account_name, النوع: e.account_type ?? "—",
+    مدين: e.debit, دائن: e.credit, الرصيد: e.balance,
+  }));
+
   return (
     <div>
-      <PageHeader title="تحليل ميزان المراجعة" description="استيراد ميزان المراجعة من النظام المحاسبي وتحليله" />
+      <PageHeader
+        title="تحليل ميزان المراجعة"
+        description="استيراد ميزان المراجعة من النظام المحاسبي وتحليله"
+        actions={
+          <div className="flex flex-wrap gap-2 no-print">
+            <Button variant="outline" onClick={() => exportToExcel(exportRows, `trial_balance_${period}`)} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
+            <Button variant="outline" onClick={() => window.print()} className="gap-1"><Printer className="w-4 h-4" /> طباعة</Button>
+          </div>
+        }
+      />
       <Card className="p-4 mb-4 flex items-center gap-3 flex-wrap">
         <div>
           <label className="text-sm font-medium">الفترة:</label>

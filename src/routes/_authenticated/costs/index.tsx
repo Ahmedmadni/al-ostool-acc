@@ -429,6 +429,7 @@ function Page() {
         title="استيراد قيود التكاليف"
         fields={COST_FIELDS}
         onImport={importCosts}
+        templateKey="cost_entries"
       />
       <ExcelImporter
         open={openImp === "hr"}
@@ -436,6 +437,7 @@ function Page() {
         title="استيراد تكاليف الموارد البشرية"
         fields={HR_FIELDS}
         onImport={importHR}
+        templateKey="hr_costs"
       />
       <ExcelImporter
         open={openImp === "eq"}
@@ -443,6 +445,7 @@ function Page() {
         title="استيراد تكاليف المعدات"
         fields={EQ_FIELDS}
         onImport={importEQ}
+        templateKey="equipment_costs"
       />
     </div>
   );

@@ -70,7 +70,7 @@ function CompliancePage() {
   const { data: contracts = [], isLoading } = useQuery({
     queryKey: ["hr_contracts_compliance"],
     queryFn: async () => (await (supabase as any).from("hr_contracts")
-      .select("*, hr_employees:employee_id(full_name_ar, employee_no, department)")
+      .select("*, hr_employees:employee_id(full_name_ar, employee_no, departments:department_id(name_ar))")
       .order("end_date", { ascending: true, nullsFirst: false })).data ?? [],
   });
 
@@ -103,7 +103,7 @@ function CompliancePage() {
   const excel = () => exportToExcel(filtered.map((c) => ({
     "رقم العقد": c.contract_no,
     "الموظف": c.hr_employees?.full_name_ar ?? "",
-    "القسم": c.hr_employees?.department ?? "",
+    "القسم": c.hr_employees?.departments?.name_ar ?? "",
     "النوع": TYPE_LABEL[c.contract_type] ?? c.contract_type,
     "تاريخ الانتهاء": c.end_date ?? "—",
     "الأيام المتبقية": c.daysLeft ?? "—",
@@ -203,7 +203,7 @@ function CompliancePage() {
                 </TableCell>
                 <TableCell>
                   <div>{c.hr_employees?.full_name_ar ?? "—"}</div>
-                  <div className="text-xs text-muted-foreground">{c.hr_employees?.department ?? ""}</div>
+                  <div className="text-xs text-muted-foreground">{c.hr_employees?.departments?.name_ar ?? ""}</div>
                 </TableCell>
                 <TableCell><Badge variant="secondary">{TYPE_LABEL[c.contract_type] ?? c.contract_type}</Badge></TableCell>
                 <TableCell dir="ltr" className="text-right">{c.end_date ?? "—"}</TableCell>

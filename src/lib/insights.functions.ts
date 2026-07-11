@@ -1,9 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { assertBusinessIntelligenceAccess } from "@/lib/require-business-intelligence";
 
 export const generateInsights = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth]).handler(async () => {
+  .middleware([requireSupabaseAuth]).handler(async ({ context }) => {
+  await assertBusinessIntelligenceAccess(context.supabase, context.userId);
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) throw new Error("Missing LOVABLE_API_KEY");
 

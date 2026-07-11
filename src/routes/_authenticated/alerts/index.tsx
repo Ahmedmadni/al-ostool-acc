@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { alertCenter } from "@/lib/intelligence.functions";
+import { DataTruncationBanner } from "@/components/shared/data-truncation-banner";
 import { AlertTriangle, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/alerts/")({ component: AlertsPage });
@@ -37,6 +38,8 @@ function AlertsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="مركز التنبيهات الموحد" description="تنبيهات مالية / مشاريع / تكاليف / تحصيلات / خزينة مرتبة حسب الأولوية" />
+
+      <DataTruncationBanner truncated={data?.dataQuality?.truncated} />
 
       <div className="grid grid-cols-4 gap-3">
         {(["critical", "high", "medium", "low"] as const).map((p) => (

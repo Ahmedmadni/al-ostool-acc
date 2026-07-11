@@ -82,18 +82,22 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/templates", module: "reports" },
 
   // ===== HR group =====
-  { prefix: "/hr/employees", module: "hr" },
-  { prefix: "/hr/contracts", module: "hr" },
-  { prefix: "/hr/compliance", module: "hr" },
-  { prefix: "/hr/workflow", module: "hr" },
-  { prefix: "/hr/leaves", module: "hr" },
-  { prefix: "/hr/loans", module: "hr" },
-  { prefix: "/hr/assets", module: "hr" },
-  { prefix: "/hr/payroll", module: "hr" },
-  { prefix: "/hr/termination", module: "hr" },
-  { prefix: "/hr/reports", module: "hr" },
-  { prefix: "/hr/qiwa/mapping", module: "hr" },
-  { prefix: "/hr/qiwa", module: "hr" },
+  // Mapped to the same granular module keys RLS actually enforces (hr.employees,
+  // hr.payroll, ...) instead of one blanket "hr" key, so the nav/route gate
+  // matches what a user can actually query. can() still falls back to the
+  // parent "hr" grant for anyone given blanket access.
+  { prefix: "/hr/employees", module: "hr.employees" },
+  { prefix: "/hr/contracts", module: "hr.contracts" },
+  { prefix: "/hr/compliance", module: "hr.contracts" },
+  { prefix: "/hr/workflow", module: "hr.workflow" },
+  { prefix: "/hr/leaves", module: "hr.leaves" },
+  { prefix: "/hr/loans", module: "hr.loans" },
+  { prefix: "/hr/assets", module: "hr.assets" },
+  { prefix: "/hr/payroll", module: "hr.payroll" },
+  { prefix: "/hr/termination", module: "hr.termination" },
+  { prefix: "/hr/reports", module: "hr.reports" },
+  { prefix: "/hr/qiwa/mapping", module: "hr.contracts" },
+  { prefix: "/hr/qiwa", module: "hr.contracts" },
   { prefix: "/hr/audit", module: "hr" },
   { prefix: "/hr", module: "hr" },
 

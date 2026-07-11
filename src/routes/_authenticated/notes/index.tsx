@@ -317,7 +317,7 @@ function NotesPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => remove(n.id)}>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" title="حذف" aria-label="حذف" onClick={() => remove(n.id)}>
                     <Trash2 className="w-3.5 h-3.5 text-red-600" />
                   </Button>
                 </div>

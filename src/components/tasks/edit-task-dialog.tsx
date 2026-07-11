@@ -328,7 +328,7 @@ export function EditTaskDialog({ open, onOpenChange, taskId }: Props) {
                 <Input type="number" min={0} max={100} step={5} className="w-20 text-center"
                   value={item.weight} onChange={(e) => updItem(idx, { weight: Math.max(0, Math.min(100, parseFloat(e.target.value) || 0)) })} />
                 <span className="text-xs">%</span>
-                <Button type="button" size="icon" variant="ghost" onClick={() => removeItem(idx)}>
+                <Button type="button" size="icon" variant="ghost" title="حذف البند" aria-label="حذف البند" onClick={() => removeItem(idx)}>
                   <Trash2 className="w-4 h-4 text-destructive" />
                 </Button>
               </div>

@@ -146,7 +146,7 @@ function Page() {
                         <span>{u.full_name ?? u.email}</span>
                         <Popover>
                           <PopoverTrigger asChild>
-                            <Button size="icon" variant="ghost" className="h-6 w-6"><Info className="w-3.5 h-3.5" /></Button>
+                            <Button size="icon" variant="ghost" className="h-6 w-6" title="تفاصيل إضافية" aria-label="تفاصيل إضافية"><Info className="w-3.5 h-3.5" /></Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-72 text-sm" dir="rtl">
                             <div className="space-y-1.5">

@@ -11,11 +11,30 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Edit, ArrowRight, User, Briefcase, FileText, Wallet, Calendar, Package } from "lucide-react";
 import { EmployeeFormDialog } from "@/components/hr/employee-form-dialog";
 import { ContractFormDialog } from "@/components/hr/contract-form-dialog";
+import { fmtSAR, fmtDate } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/hr/employees/$id")({ component: EmployeeCard });
 
 const STATUS_LABEL: Record<string, string> = {
   active: "نشط", on_leave: "إجازة", suspended: "موقوف", terminated: "منتهي",
+};
+
+const LEAVE_TYPE_LABEL: Record<string, string> = {
+  annual: "سنوية", sick: "مرضية", emergency: "اضطرارية", unpaid: "بدون راتب",
+  maternity: "أمومة", paternity: "أبوة", hajj: "حج", study: "دراسية",
+  compensatory: "تعويضية", other: "أخرى",
+};
+const LEAVE_STATUS_LABEL: Record<string, { l: string; c: string }> = {
+  pending: { l: "قيد الاعتماد", c: "bg-yellow-500/15 text-yellow-700" },
+  approved: { l: "معتمدة", c: "bg-green-500/15 text-green-700" },
+  rejected: { l: "مرفوضة", c: "bg-red-500/15 text-red-700" },
+  cancelled: { l: "ملغاة", c: "bg-gray-500/15 text-gray-700" },
+  taken: { l: "منفذة", c: "bg-blue-500/15 text-blue-700" },
+};
+const LOAN_STATUS_LABEL: Record<string, string> = { active: "قائمة", completed: "مسددة", cancelled: "ملغاة" };
+const ASSET_TYPE_LABEL: Record<string, string> = {
+  vehicle: "مركبة", laptop: "لابتوب", mobile: "جوال", equipment: "معدة",
+  tool: "أداة", card: "بطاقة", key: "مفتاح", uniform: "زي", other: "أخرى",
 };
 
 function Row({ label, value }: { label: string; value: any }) {
@@ -44,7 +63,7 @@ function EmployeeCard() {
 
   const { data: leaves = [] } = useQuery({
     queryKey: ["hr_leaves", "emp", id],
-    queryFn: async () => (await (supabase as any).from("hr_leaves").select("*").eq("employee_id", id).order("start_date", { ascending: false })).data ?? [],
+    queryFn: async () => (await (supabase as any).from("hr_leaves").select("*").eq("employee_id", id).order("from_date", { ascending: false })).data ?? [],
   });
 
   const { data: loans = [] } = useQuery({
@@ -182,13 +201,85 @@ function EmployeeCard() {
         </TabsContent>
 
         <TabsContent value="leaves" className="mt-4">
-          <Card className="p-6 text-center text-muted-foreground">قسم الإجازات — واجهة الإدارة تُبنى في المرحلة القادمة</Card>
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>النوع</TableHead><TableHead>من</TableHead><TableHead>إلى</TableHead>
+                  <TableHead>الأيام</TableHead><TableHead>الحالة</TableHead><TableHead>السبب</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {leaves.length === 0 && <TableRow><TableCell colSpan={6} className="text-center py-6 text-muted-foreground">لا توجد إجازات</TableCell></TableRow>}
+                {(leaves as any[]).map((l) => (
+                  <TableRow key={l.id}>
+                    <TableCell>{LEAVE_TYPE_LABEL[l.leave_type] ?? l.leave_type}</TableCell>
+                    <TableCell dir="ltr" className="text-right">{fmtDate(l.from_date)}</TableCell>
+                    <TableCell dir="ltr" className="text-right">{fmtDate(l.to_date)}</TableCell>
+                    <TableCell>{l.days_count}</TableCell>
+                    <TableCell><Badge className={LEAVE_STATUS_LABEL[l.status]?.c}>{LEAVE_STATUS_LABEL[l.status]?.l ?? l.status}</Badge></TableCell>
+                    <TableCell className="text-xs text-muted-foreground max-w-xs truncate">{l.reason ?? "—"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
         </TabsContent>
         <TabsContent value="loans" className="mt-4">
-          <Card className="p-6 text-center text-muted-foreground">قسم السلف والقروض — واجهة الإدارة تُبنى في المرحلة القادمة</Card>
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>رقم السلفة</TableHead><TableHead>التاريخ</TableHead><TableHead className="text-left">المبلغ</TableHead>
+                  <TableHead className="text-left">القسط الشهري</TableHead><TableHead className="text-left">المسدد</TableHead>
+                  <TableHead className="text-left">المتبقي</TableHead><TableHead>الحالة</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loans.length === 0 && <TableRow><TableCell colSpan={7} className="text-center py-6 text-muted-foreground">لا توجد سلف</TableCell></TableRow>}
+                {(loans as any[]).map((l) => (
+                  <TableRow key={l.id}>
+                    <TableCell className="font-mono text-xs">{l.loan_no}</TableCell>
+                    <TableCell dir="ltr" className="text-right">{fmtDate(l.loan_date)}</TableCell>
+                    <TableCell className="text-left font-mono">{fmtSAR(l.amount)}</TableCell>
+                    <TableCell className="text-left font-mono">{fmtSAR(l.monthly_deduction)}</TableCell>
+                    <TableCell className="text-left font-mono">{fmtSAR(l.paid_amount)}</TableCell>
+                    <TableCell className="text-left font-mono font-semibold">{fmtSAR(l.remaining_amount)}</TableCell>
+                    <TableCell><Badge variant={l.status === "active" ? "default" : "outline"}>{LOAN_STATUS_LABEL[l.status] ?? l.status}</Badge></TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
         </TabsContent>
         <TabsContent value="assets" className="mt-4">
-          <Card className="p-6 text-center text-muted-foreground">قسم العهد والأصول — واجهة الإدارة تُبنى في المرحلة القادمة</Card>
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>الصنف</TableHead><TableHead>الاسم</TableHead><TableHead>الرقم التسلسلي</TableHead>
+                  <TableHead>تاريخ التسليم</TableHead><TableHead className="text-left">القيمة</TableHead><TableHead>الحالة</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {assets.length === 0 && <TableRow><TableCell colSpan={6} className="text-center py-6 text-muted-foreground">لا توجد عهد مسندة</TableCell></TableRow>}
+                {(assets as any[]).map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell>{ASSET_TYPE_LABEL[a.asset_type] ?? a.asset_type}</TableCell>
+                    <TableCell className="font-medium">{a.asset_name}</TableCell>
+                    <TableCell className="font-mono text-xs">{a.serial_no ?? "—"}</TableCell>
+                    <TableCell dir="ltr" className="text-right">{fmtDate(a.assigned_date)}</TableCell>
+                    <TableCell className="text-left font-mono">{a.value != null ? fmtSAR(a.value) : "—"}</TableCell>
+                    <TableCell>
+                      {a.is_returned
+                        ? <Badge variant="outline">مُستلمة ({fmtDate(a.return_date)})</Badge>
+                        : <Badge>قائمة لدى الموظف</Badge>}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
         </TabsContent>
       </Tabs>
 

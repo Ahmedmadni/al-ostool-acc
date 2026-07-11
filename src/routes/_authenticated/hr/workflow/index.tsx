@@ -12,8 +12,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, FileSpreadsheet, Printer } from "lucide-react";
 import { toast } from "sonner";
+import { exportToExcel } from "@/lib/export";
 
 export const Route = createFileRoute("/_authenticated/hr/workflow/")({ component: WorkflowPage });
 
@@ -63,9 +64,18 @@ function WorkflowPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const exportRows = (requests as any[]).map((r) => ({
+    رقم_الطلب: r.request_no, النوع: TYPES.find((t) => t.v === r.request_type)?.l ?? r.request_type,
+    الموظف: r.hr_employees?.full_name_ar ?? "—", الموضوع: r.subject ?? "—",
+    الحالة: STATUS[r.status]?.l ?? r.status, التاريخ: new Date(r.created_at).toLocaleDateString("ar-SA"),
+  }));
+
   return (
     <div className="p-6 space-y-6" dir="rtl">
       <PageHeader title="طلبات الموارد البشرية" description="سير الاعتماد لكل طلبات HR" actions={
+        <div className="flex flex-wrap gap-2 no-print">
+        <Button variant="outline" onClick={() => exportToExcel(exportRows, "hr_workflow_requests")} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
+        <Button variant="outline" onClick={() => window.print()} className="gap-1"><Printer className="w-4 h-4" /> طباعة</Button>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />طلب جديد</Button></DialogTrigger>
           <DialogContent dir="rtl">
@@ -89,6 +99,7 @@ function WorkflowPage() {
             <DialogFooter><Button onClick={() => create.mutate(form)} disabled={!form.employee_id}>إرسال</Button></DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       } />
       <Card className="p-0 overflow-hidden">
         <Table>

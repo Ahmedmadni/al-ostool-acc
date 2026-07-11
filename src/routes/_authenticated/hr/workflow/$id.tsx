@@ -19,6 +19,9 @@ const STATUS: Record<string, { l: string; c: string }> = {
   cancelled: { l: "ملغى", c: "bg-gray-500/15 text-gray-700" },
   completed: { l: "مكتمل", c: "bg-emerald-500/15 text-emerald-700" },
 };
+const STEP_ACTION_LABEL: Record<string, string> = {
+  pending: "قيد الاعتماد", approved: "معتمدة", rejected: "مرفوضة", skipped: "متجاوَزة", returned: "أُعيدت",
+};
 
 function WorkflowDetail() {
   const { id } = Route.useParams();
@@ -35,16 +38,26 @@ function WorkflowDetail() {
       .select("*").eq("request_id", id).order("step_order")).data ?? [],
   });
 
+  // Acts on the current pending step (not the request directly) — a DB
+  // trigger then reflects that decision onto hr_workflow_requests.status, so
+  // the approval-steps table is the actual source of truth instead of being
+  // bypassed by this button.
   const decide = useMutation({
-    mutationFn: async (status: string) => {
-      const patch: any = { status };
-      if (status === "approved" || status === "rejected" || status === "completed") {
-        patch.completed_at = new Date().toISOString();
-      }
-      const { error } = await (supabase as any).from("hr_workflow_requests").update(patch).eq("id", id);
+    mutationFn: async (action: "approved" | "rejected") => {
+      const pendingStep = (steps as any[]).find((s) => s.action === "pending");
+      if (!pendingStep) throw new Error("لا توجد خطوة اعتماد معلّقة لهذا الطلب");
+      const user = (await supabase.auth.getUser()).data.user;
+      const { error } = await (supabase as any).from("hr_workflow_steps")
+        .update({ action, approver_id: user?.id ?? null })
+        .eq("id", pendingStep.id);
       if (error) throw error;
     },
-    onSuccess: (_, status) => { qc.invalidateQueries({ queryKey: ["hr_workflow", id] }); toast.success("تم التحديث"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["hr_workflow", id] });
+      qc.invalidateQueries({ queryKey: ["hr_workflow_steps", id] });
+      toast.success("تم التحديث");
+    },
+    onError: (e: any) => toast.error(e.message),
   });
 
   if (!req) return <div className="p-6" dir="rtl">جاري التحميل...</div>;
@@ -93,10 +106,10 @@ function WorkflowDetail() {
                 <li key={s.id} className="flex items-center gap-3 p-2 border rounded">
                   <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold">{s.step_order}</div>
                   <div className="flex-1">
-                    <div className="text-sm font-medium">{s.action ?? "—"}</div>
+                    <div className="text-sm font-medium">{STEP_ACTION_LABEL[s.action] ?? s.action ?? "—"}</div>
                     {s.comment && <div className="text-xs text-muted-foreground">{s.comment}</div>}
                   </div>
-                  {s.signed_at && <div className="text-xs text-muted-foreground">{new Date(s.signed_at).toLocaleString("ar-SA")}</div>}
+                  {s.acted_at && <div className="text-xs text-muted-foreground">{new Date(s.acted_at).toLocaleString("ar-SA")}</div>}
                 </li>
               ))}
             </ol>

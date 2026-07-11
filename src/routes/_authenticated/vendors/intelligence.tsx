@@ -9,8 +9,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { fmtSAR, daysBetween } from "@/lib/format";
 import { fetchVendorBalances } from "@/lib/balance-engine";
-import { Truck, Wallet, AlertTriangle, TrendingUp, Calendar, Sparkles } from "lucide-react";
+import { Truck, Wallet, AlertTriangle, TrendingUp, Calendar, Sparkles, FileSpreadsheet } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend } from "recharts";
+import { Button } from "@/components/ui/button";
+import { exportToExcel } from "@/lib/export";
 
 export const Route = createFileRoute("/_authenticated/vendors/intelligence")({ component: Page });
 
@@ -76,9 +78,20 @@ function Page() {
   });
   const categories = Object.values(categoryMap).sort((a, b) => b.purchased - a.purchased);
 
+  const exportRows = enriched.map((v: any) => ({
+    الكود: v.code, المورد: v.name, الفئة: v.category ?? "—",
+    المشتريات: v._purchased, المستحق: v._outstanding, المتأخر: v._overdue, خلال_30_يوم: v._upcoming30, DPO: v._dpo,
+  }));
+
   return (
     <div>
-      <PageHeader title="مركز ذكاء الموردين والذمم الدائنة" description="Vendor & AP Intelligence — DPO • Exposure • Dependency • Aging" />
+      <PageHeader
+        title="مركز ذكاء الموردين والذمم الدائنة"
+        description="Vendor & AP Intelligence — DPO • Exposure • Dependency • Aging"
+        actions={
+          <Button variant="outline" onClick={() => exportToExcel(exportRows, "vendor_intelligence")} className="gap-1 no-print"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
+        }
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         <KpiCard title="إجمالي المشتريات" value={fmtSAR(totals.purchased)} icon={Wallet} color="primary" />

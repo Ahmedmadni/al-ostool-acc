@@ -16,6 +16,7 @@ import { computeHealthScores, generateExecutiveInsights, alertCenter } from "@/l
 import { generateExecutiveSummary } from "@/lib/copilot.functions";
 import { toast } from "sonner";
 import { fmtSAR, fmtNumber, fmtPercent } from "@/lib/format";
+import { DataTruncationBanner } from "@/components/shared/data-truncation-banner";
 import {
   Sparkles, Loader2, Copy, RefreshCw, AlertTriangle, TrendingUp, TrendingDown, ArrowLeft,
   Activity, Wallet, FolderKanban, Users, Layers, ShieldCheck, Receipt, CreditCard, Briefcase, FileText,
@@ -312,9 +313,11 @@ function ExecutivePage() {
     low: "border-sky-500 bg-sky-500/5",
   };
   const priorityLabel: Record<string, string> = { critical: "حرج", high: "عالي", medium: "متوسط", low: "منخفض" };
+  const truncated = Array.from(new Set([...(health?.dataQuality?.truncated ?? []), ...(alerts?.dataQuality?.truncated ?? [])]));
 
   return (
     <div className="space-y-6" dir="rtl">
+      <DataTruncationBanner truncated={truncated} />
       <PageHeader
         title="مركز القيادة التنفيذي الموحد"
         description={`لوحة موحّدة: KPIs + صحة استراتيجية + رؤى AI + تنبيهات — ${periodLabel}`}

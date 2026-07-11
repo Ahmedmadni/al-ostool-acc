@@ -30,15 +30,18 @@ function HrReports() {
   });
   const { data: payrollRuns = [] } = useQuery({
     queryKey: ["hr_payroll_runs_all"],
-    queryFn: async () => (await (supabase as any).from("hr_payroll_runs").select("*").order("period", { ascending: false })).data ?? [],
+    queryFn: async () => (await (supabase as any).from("hr_payroll_runs").select("*")
+      .order("period_year", { ascending: false }).order("period_month", { ascending: false })).data ?? [],
   });
   const { data: terminations = [] } = useQuery({
     queryKey: ["hr_terminations_all"],
-    queryFn: async () => (await (supabase as any).from("hr_terminations").select("*")).data ?? [],
+    queryFn: async () => (await (supabase as any).from("hr_terminations")
+      .select("*, hr_employees:employee_id(full_name_ar, employee_no)")).data ?? [],
   });
   const { data: leaves = [] } = useQuery({
     queryKey: ["hr_leaves_all"],
-    queryFn: async () => (await (supabase as any).from("hr_leaves").select("*")).data ?? [],
+    queryFn: async () => (await (supabase as any).from("hr_leaves")
+      .select("*, hr_employees:employee_id(full_name_ar, employee_no)")).data ?? [],
   });
 
   const stats = useMemo(() => {
@@ -83,7 +86,7 @@ function HrReports() {
         "الراتب الأساسي": e.basic_salary,
         "الإجمالي": e.gross_salary,
         "تاريخ التعيين": e.hire_date,
-        "الإقامة": e.iqama_no,
+        "الإقامة": e.iqama_number,
         "انتهاء الإقامة": e.iqama_expiry,
       })),
       "hr-employees",
@@ -173,7 +176,7 @@ function HrReports() {
               <TableBody>
                 {(payrollRuns as any[]).map((r) => (
                   <TableRow key={r.id}>
-                    <TableCell>{r.period}</TableCell>
+                    <TableCell>{r.period_month}/{r.period_year}</TableCell>
                     <TableCell><Badge>{r.status}</Badge></TableCell>
                     <TableCell className="text-left tabular-nums">{fmt(r.total_gross)}</TableCell>
                     <TableCell className="text-left tabular-nums">{fmt(r.total_net)}</TableCell>
@@ -227,11 +230,11 @@ function HrReports() {
               <TableBody>
                 {(terminations as any[]).map((t) => (
                   <TableRow key={t.id}>
-                    <TableCell>{t.employee_id}</TableCell>
+                    <TableCell>{t.hr_employees?.full_name_ar ?? t.employee_id}</TableCell>
                     <TableCell>{t.reason}</TableCell>
-                    <TableCell>{t.termination_date}</TableCell>
+                    <TableCell>{t.last_working_day}</TableCell>
                     <TableCell className="text-left tabular-nums">{fmt(t.eos_amount)}</TableCell>
-                    <TableCell className="text-left tabular-nums">{fmt(t.total_settlement)}</TableCell>
+                    <TableCell className="text-left tabular-nums">{fmt(t.net_settlement)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -256,11 +259,11 @@ function HrReports() {
               <TableBody>
                 {(leaves as any[]).map((l) => (
                   <TableRow key={l.id}>
-                    <TableCell>{l.employee_id}</TableCell>
+                    <TableCell>{l.hr_employees?.full_name_ar ?? l.employee_id}</TableCell>
                     <TableCell>{l.leave_type}</TableCell>
-                    <TableCell>{l.start_date}</TableCell>
-                    <TableCell>{l.end_date}</TableCell>
-                    <TableCell>{l.days}</TableCell>
+                    <TableCell>{l.from_date}</TableCell>
+                    <TableCell>{l.to_date}</TableCell>
+                    <TableCell>{l.days_count}</TableCell>
                     <TableCell><Badge variant="outline">{l.status}</Badge></TableCell>
                   </TableRow>
                 ))}

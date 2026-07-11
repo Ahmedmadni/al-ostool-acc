@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { runScenario } from "@/lib/intelligence.functions";
 import { fmtSAR } from "@/lib/format";
+import { DataTruncationBanner } from "@/components/shared/data-truncation-banner";
 import { TrendingUp, TrendingDown, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -65,6 +66,7 @@ function ScenariosPage() {
           {!result && <Card><CardContent className="py-16 text-center text-muted-foreground">حدّد المتغيرات واضغط "تشغيل المحاكاة"</CardContent></Card>}
           {result && (
             <>
+              <DataTruncationBanner truncated={result.dataQuality?.truncated} />
               <div className="grid grid-cols-2 gap-3">
                 <Card>
                   <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">الوضع الحالي</CardTitle></CardHeader>

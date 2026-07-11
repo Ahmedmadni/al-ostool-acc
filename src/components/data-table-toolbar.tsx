@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, Download, FileSpreadsheet, Printer, Filter } from "lucide-react";
 import { exportToExcel, exportToPdf } from "@/lib/export";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   search: string;
@@ -18,11 +19,12 @@ type Props = {
 };
 
 export function DataTableToolbar({
-  search, onSearchChange, searchPlaceholder = "بحث...",
-  onAdd, addLabel = "إضافة",
+  search, onSearchChange, searchPlaceholder,
+  onAdd, addLabel,
   rows, exportColumns, exportTitle = "تقرير",
   extra, onFilterClick,
 }: Props) {
+  const { t } = useI18n();
   const handleExcel = () => exportToExcel(rows as Record<string, unknown>[], exportTitle);
   const handlePdf = () => {
     if (!exportColumns) return;
@@ -34,20 +36,20 @@ export function DataTableToolbar({
     <div className="flex flex-wrap items-center gap-2 mb-4 no-print">
       <div className="relative flex-1 min-w-[200px] max-w-md">
         <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input value={search} onChange={(e) => onSearchChange(e.target.value)} placeholder={searchPlaceholder} className="pr-10" />
+        <Input value={search} onChange={(e) => onSearchChange(e.target.value)} placeholder={searchPlaceholder ?? t("tableSearch")} className="pr-10" />
       </div>
       {onFilterClick && (
-        <Button variant="outline" size="sm" onClick={onFilterClick} className="gap-1"><Filter className="w-4 h-4" /> فلاتر</Button>
+        <Button variant="outline" size="sm" onClick={onFilterClick} className="gap-1"><Filter className="w-4 h-4" /> {t("filters")}</Button>
       )}
       {extra}
       <div className="flex-1" />
       {exportColumns && (
-        <Button variant="outline" size="sm" onClick={handlePdf} className="gap-1"><Download className="w-4 h-4" /> PDF</Button>
+        <Button variant="outline" size="sm" onClick={handlePdf} className="gap-1"><Download className="w-4 h-4" /> {t("pdf")}</Button>
       )}
-      <Button variant="outline" size="sm" onClick={handleExcel} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
-      <Button variant="outline" size="sm" onClick={handlePrint} className="gap-1"><Printer className="w-4 h-4" /> طباعة</Button>
+      <Button variant="outline" size="sm" onClick={handleExcel} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> {t("excel")}</Button>
+      <Button variant="outline" size="sm" onClick={handlePrint} className="gap-1"><Printer className="w-4 h-4" /> {t("print")}</Button>
       {onAdd && (
-        <Button size="sm" onClick={onAdd} className="gap-1"><Plus className="w-4 h-4" /> {addLabel}</Button>
+        <Button size="sm" onClick={onAdd} className="gap-1"><Plus className="w-4 h-4" /> {addLabel ?? t("add")}</Button>
       )}
     </div>
   );

@@ -12,8 +12,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Check, X } from "lucide-react";
+import { Plus, Check, X, FileSpreadsheet, Printer } from "lucide-react";
 import { toast } from "sonner";
+import { exportToExcel } from "@/lib/export";
 
 export const Route = createFileRoute("/_authenticated/hr/leaves/")({ component: LeavesPage });
 
@@ -49,6 +50,22 @@ function LeavesPage() {
     queryFn: async () => (await (supabase as any).from("hr_employees").select("id, full_name_ar, employee_no").eq("status", "active").order("full_name_ar")).data ?? [],
   });
 
+  // Shows the employee's remaining balance for the selected leave type before
+  // they submit — previously this was only discovered after submission, via
+  // the database trigger rejecting the insert outright.
+  const { data: leaveSummary = [] } = useQuery({
+    queryKey: ["hr_leave_summary", form.employee_id],
+    queryFn: async () => (await (supabase as any).rpc("hr_get_leave_summary", { _employee_id: form.employee_id })).data ?? [],
+    enabled: !!form.employee_id,
+  });
+  const selectedTypeBalance = (leaveSummary as any[]).find((s) => s.leave_type === form.leave_type);
+  const requestedDays = form.from_date && form.to_date
+    ? Math.max(1, Math.round((new Date(form.to_date).getTime() - new Date(form.from_date).getTime()) / 86400000) + 1)
+    : 0;
+  // Mirrors hr_leaves_balance_sync(): unpaid/compensatory leave has no balance cap.
+  const isUncapped = form.leave_type === "unpaid" || form.leave_type === "compensatory";
+  const exceedsBalance = !isUncapped && !!selectedTypeBalance && requestedDays > Number(selectedTypeBalance.remaining ?? 0);
+
   const create = useMutation({
     mutationFn: async (payload: any) => {
       const days = Math.max(1, Math.round((new Date(payload.to_date).getTime() - new Date(payload.from_date).getTime()) / 86400000) + 1);
@@ -67,9 +84,18 @@ function LeavesPage() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["hr_leaves"] }); toast.success("تم التحديث"); },
   });
 
+  const exportRows = (leaves as any[]).map((l) => ({
+    الموظف: l.hr_employees?.full_name_ar, الرقم_الوظيفي: l.hr_employees?.employee_no,
+    النوع: LEAVE_TYPES.find((t) => t.v === l.leave_type)?.l ?? l.leave_type,
+    من: l.from_date, إلى: l.to_date, الأيام: l.days_count, الحالة: STATUS[l.status]?.l ?? l.status,
+  }));
+
   return (
     <div className="p-6 space-y-6" dir="rtl">
       <PageHeader title="الإجازات" description="إدارة إجازات الموظفين وأرصدتها" actions={
+        <div className="flex flex-wrap gap-2 no-print">
+        <Button variant="outline" onClick={() => exportToExcel(exportRows, "hr_leaves")} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
+        <Button variant="outline" onClick={() => window.print()} className="gap-1"><Printer className="w-4 h-4" /> طباعة</Button>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />طلب إجازة</Button></DialogTrigger>
           <DialogContent dir="rtl">
@@ -90,18 +116,33 @@ function LeavesPage() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>{LEAVE_TYPES.map((t) => <SelectItem key={t.v} value={t.v}>{t.l}</SelectItem>)}</SelectContent>
                 </Select>
+                {form.employee_id && isUncapped && (
+                  <p className="text-xs mt-1 text-muted-foreground">هذا النوع بلا سقف رصيد (لا يُخصم من رصيد الإجازات السنوية).</p>
+                )}
+                {form.employee_id && !isUncapped && selectedTypeBalance && (
+                  <p className={`text-xs mt-1 ${exceedsBalance ? "text-destructive font-medium" : "text-muted-foreground"}`}>
+                    الرصيد المتبقي: {selectedTypeBalance.remaining} يوم (المستحق {selectedTypeBalance.entitled} — المستخدم {selectedTypeBalance.used}
+                    {Number(selectedTypeBalance.pending) > 0 ? ` — قيد الاعتماد ${selectedTypeBalance.pending}` : ""})
+                  </p>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div><Label>من</Label><Input type="date" value={form.from_date} onChange={(e) => setForm({ ...form, from_date: e.target.value })} /></div>
                 <div><Label>إلى</Label><Input type="date" value={form.to_date} onChange={(e) => setForm({ ...form, to_date: e.target.value })} /></div>
               </div>
+              {exceedsBalance && (
+                <p className="text-xs text-destructive">
+                  عدد الأيام المطلوبة ({requestedDays}) يتجاوز الرصيد المتبقي ({selectedTypeBalance?.remaining}) — سيُرفض الطلب تلقائياً عند الاعتماد.
+                </p>
+              )}
               <div><Label>السبب</Label><Textarea value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} /></div>
             </div>
             <DialogFooter>
-              <Button onClick={() => create.mutate(form)} disabled={!form.employee_id || !form.from_date || !form.to_date}>إرسال الطلب</Button>
+              <Button onClick={() => create.mutate(form)} disabled={!form.employee_id || !form.from_date || !form.to_date || exceedsBalance}>إرسال الطلب</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       } />
       <Card className="p-0 overflow-hidden">
         <Table>

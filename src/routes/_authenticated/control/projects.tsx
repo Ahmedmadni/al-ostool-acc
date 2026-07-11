@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { fmtSAR, daysBetween } from "@/lib/format";
 import { exportToExcel } from "@/lib/export";
-import { FolderKanban, Activity, AlertTriangle, TrendingUp, Wallet, FileSpreadsheet } from "lucide-react";
+import { FolderKanban, Activity, AlertTriangle, TrendingUp, Wallet, FileSpreadsheet, Printer } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/control/projects")({ component: Page });
 
@@ -20,7 +20,9 @@ function healthScore(p: any, actualCost: number): Health {
   let s = 100;
   const reasons: string[] = [];
   const cv = Number(p.contract_value ?? 0);
-  const budget = Number(p.budget ?? 0) || cv * 0.85;
+  // No invented budget when the project has none approved — cost-overrun scoring
+  // below is skipped entirely rather than compared against a guessed figure.
+  const budget = Number(p.budget ?? 0);
   const billed = Number(p.billed_amount ?? 0);
   const planned = Number(p.progress_planned ?? 0);
   const actualProg = Number(p.progress_actual ?? 0);
@@ -31,6 +33,8 @@ function healthScore(p: any, actualCost: number): Health {
     if (variance > 20) { s -= 35; reasons.push(`تجاوز التكلفة ${variance.toFixed(0)}%`); }
     else if (variance > 10) { s -= 20; reasons.push(`تجاوز التكلفة ${variance.toFixed(0)}%`); }
     else if (variance > 0) { s -= 8; reasons.push(`تجاوز تكلفة طفيف`); }
+  } else {
+    reasons.push("لا توجد موازنة معتمدة — تجاوز التكلفة غير مُقيَّم");
   }
   // Schedule
   if (planned > 0 && actualProg < planned - 10) {
@@ -73,10 +77,13 @@ function Page() {
     return projects.map((p) => {
       const actualCost = byProj[p.id] ?? byName[p.name] ?? Number(p.actual_cost ?? 0);
       const cv = Number(p.contract_value ?? 0);
-      const budget = Number(p.budget ?? 0) || cv * 0.85;
+      // No invented budget (previously defaulted to 85% of contract value) —
+      // null means "no approved budget", shown as such instead of a guessed figure.
+      const hasBudget = Number(p.budget ?? 0) > 0;
+      const budget = hasBudget ? Number(p.budget) : null;
       const margin = cv - actualCost;
       const marginPct = cv > 0 ? (margin / cv) * 100 : 0;
-      const costVariance = budget > 0 ? ((actualCost - budget) / budget) * 100 : 0;
+      const costVariance = budget && budget > 0 ? ((actualCost - budget) / budget) * 100 : null;
       const progressVariance = Number(p.progress_actual ?? 0) - Number(p.progress_planned ?? 0);
       const health = healthScore(p, actualCost);
       return {
@@ -95,7 +102,8 @@ function Page() {
   const totals = useMemo(() => {
     return {
       contract: enriched.reduce((s, p) => s + Number(p.contract_value ?? 0), 0),
-      budget: enriched.reduce((s, p) => s + p._budget, 0),
+      budget: enriched.reduce((s, p) => s + (p._budget ?? 0), 0),
+      budgetedCount: enriched.filter((p) => p._budget != null).length,
       actual: enriched.reduce((s, p) => s + p._actualCost, 0),
       retention: enriched.reduce((s, p) => s + Number(p.retention_amount ?? 0), 0),
       atRisk: enriched.filter((p) => p._health.level !== "good").length,
@@ -109,13 +117,24 @@ function Page() {
     exportToExcel(
       attention.map((p) => ({
         code: p.code, name: p.name, contract: p.contract_value,
-        budget: p._budget, actual: p._actualCost,
-        cost_variance_pct: p._costVariance.toFixed(1),
+        budget: p._budget ?? "—", actual: p._actualCost,
+        cost_variance_pct: p._costVariance != null ? p._costVariance.toFixed(1) : "—",
         progress_variance: p._progressVariance,
         margin: p._margin, health: p._health.score,
         issues: p._health.reasons.join(" | "),
       })),
       "projects-attention",
+    );
+
+  const exportAll = () =>
+    exportToExcel(
+      enriched.map((p) => ({
+        code: p.code, name: p.name, customer: p.customers?.name ?? "—",
+        contract: p.contract_value, budget: p._budget ?? "—", actual: p._actualCost,
+        cost_variance_pct: p._costVariance != null ? p._costVariance.toFixed(1) : "—",
+        progress_pct: Number(p.progress_actual ?? 0), health: p._health.score,
+      })),
+      "all-projects",
     );
 
   return (
@@ -132,7 +151,8 @@ function Page() {
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         <KpiCard title="قيمة العقود" value={fmtSAR(totals.contract)} icon={Wallet} color="primary" />
-        <KpiCard title="الميزانية المعتمدة" value={fmtSAR(totals.budget)} icon={Wallet} color="info" />
+        <KpiCard title="الميزانية المعتمدة" value={fmtSAR(totals.budget)} icon={Wallet} color="info"
+          hint={`${totals.budgetedCount} من ${enriched.length} مشروع لديه موازنة معتمدة`} />
         <KpiCard title="التكلفة الفعلية" value={fmtSAR(totals.actual)} icon={TrendingUp} color={totals.actual > totals.budget ? "destructive" : "success"} />
         <KpiCard title="إجمالي الاحتجازات" value={fmtSAR(totals.retention)} icon={Wallet} color="warning" />
         <KpiCard title="عدد المشاريع" value={String(enriched.length)} icon={FolderKanban} color="primary" />
@@ -170,9 +190,11 @@ function Page() {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-left font-mono">
-                  <span className={p._costVariance > 10 ? "text-destructive" : p._costVariance > 0 ? "text-warning" : "text-success"}>
-                    {p._costVariance > 0 ? "+" : ""}{p._costVariance.toFixed(1)}%
-                  </span>
+                  {p._costVariance == null ? <span className="text-muted-foreground">— لا موازنة</span> : (
+                    <span className={p._costVariance > 10 ? "text-destructive" : p._costVariance > 0 ? "text-warning" : "text-success"}>
+                      {p._costVariance > 0 ? "+" : ""}{p._costVariance.toFixed(1)}%
+                    </span>
+                  )}
                 </TableCell>
                 <TableCell className="text-left font-mono">
                   <span className={p._progressVariance < -10 ? "text-destructive" : p._progressVariance < 0 ? "text-warning" : "text-success"}>
@@ -188,7 +210,13 @@ function Page() {
       </Card>
 
       <Card>
-        <div className="p-4 border-b font-semibold">جميع المشاريع — Budget vs Actual</div>
+        <div className="p-4 border-b font-semibold flex items-center justify-between flex-wrap gap-2">
+          <span>جميع المشاريع — Budget vs Actual</span>
+          <div className="flex gap-2 no-print">
+            <Button variant="outline" size="sm" onClick={exportAll} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
+            <Button variant="outline" size="sm" onClick={() => window.print()} className="gap-1"><Printer className="w-4 h-4" /> طباعة</Button>
+          </div>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
@@ -210,12 +238,14 @@ function Page() {
                 <TableCell className="font-medium">{p.name}</TableCell>
                 <TableCell>{p.customers?.name ?? "—"}</TableCell>
                 <TableCell className="text-left font-mono">{fmtSAR(p.contract_value)}</TableCell>
-                <TableCell className="text-left font-mono">{fmtSAR(p._budget)}</TableCell>
+                <TableCell className="text-left font-mono">{p._budget == null ? <span className="text-muted-foreground">—</span> : fmtSAR(p._budget)}</TableCell>
                 <TableCell className="text-left font-mono">{fmtSAR(p._actualCost)}</TableCell>
                 <TableCell className="text-left font-mono">
-                  <span className={p._costVariance > 10 ? "text-destructive" : p._costVariance > 0 ? "text-warning" : "text-success"}>
-                    {p._costVariance > 0 ? "+" : ""}{p._costVariance.toFixed(1)}%
-                  </span>
+                  {p._costVariance == null ? <span className="text-muted-foreground">—</span> : (
+                    <span className={p._costVariance > 10 ? "text-destructive" : p._costVariance > 0 ? "text-warning" : "text-success"}>
+                      {p._costVariance > 0 ? "+" : ""}{p._costVariance.toFixed(1)}%
+                    </span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2 min-w-[120px]">

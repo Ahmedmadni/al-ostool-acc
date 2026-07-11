@@ -116,7 +116,7 @@ function Page() {
         </Table>
       </Card>
 
-      <ExcelImporter open={openImp} onOpenChange={setOpenImp} title="استيراد الأصول الثابتة" fields={FIELDS} onImport={doImport} />
+      <ExcelImporter open={openImp} onOpenChange={setOpenImp} title="استيراد الأصول الثابتة" fields={FIELDS} onImport={doImport} templateKey="fixed_assets" />
     </div>
   );
 }

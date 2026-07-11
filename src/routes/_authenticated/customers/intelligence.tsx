@@ -9,8 +9,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { fmtSAR, daysBetween } from "@/lib/format";
 import { fetchCustomerBalances } from "@/lib/balance-engine";
-import { Users, TrendingUp, AlertTriangle, Wallet, Activity, Sparkles } from "lucide-react";
+import { Users, TrendingUp, AlertTriangle, Wallet, Activity, Sparkles, FileSpreadsheet } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell, Legend } from "recharts";
+import { Button } from "@/components/ui/button";
+import { exportToExcel } from "@/lib/export";
 
 export const Route = createFileRoute("/_authenticated/customers/intelligence")({ component: Page });
 
@@ -83,9 +85,21 @@ function Page() {
   });
   const sectors = Object.values(sectorMap).sort((a, b) => b.invoiced - a.invoiced);
 
+  const exportRows = enriched.map((c: any) => ({
+    الكود: c.code, العميل: c.name, القطاع: c.sector ?? "—",
+    المبيعات: c._invoiced, التحصيلات: c._collected, المستحق: c._outstanding, المتأخر: c._overdue,
+    DSO: c._dso, مستوى_الخطورة: c._level === "high" ? "مرتفعة" : c._level === "medium" ? "متوسطة" : "منخفضة",
+  }));
+
   return (
     <div>
-      <PageHeader title="مركز ذكاء العملاء والذمم المدينة" description="Customer & AR Intelligence — DSO • Risk • Sectors • Aging • Concentration" />
+      <PageHeader
+        title="مركز ذكاء العملاء والذمم المدينة"
+        description="Customer & AR Intelligence — DSO • Risk • Sectors • Aging • Concentration"
+        actions={
+          <Button variant="outline" onClick={() => exportToExcel(exportRows, "customer_intelligence")} className="gap-1 no-print"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
+        }
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         <KpiCard title="إجمالي المبيعات" value={fmtSAR(totals.invoiced)} icon={Wallet} color="primary" />

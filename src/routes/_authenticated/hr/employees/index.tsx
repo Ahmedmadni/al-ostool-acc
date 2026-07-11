@@ -9,16 +9,33 @@ import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, FileSpreadsheet, FileText, Trash2, Edit } from "lucide-react";
+import { Plus, FileSpreadsheet, FileText, Trash2, Edit, Upload } from "lucide-react";
 import { exportToExcel, exportToPdf } from "@/lib/export";
 import { EmployeeFormDialog } from "@/components/hr/employee-form-dialog";
 import { toast } from "sonner";
+import { ExcelImporter, type FieldSpec } from "@/lib/excel-importer";
 
 export const Route = createFileRoute("/_authenticated/hr/employees/")({ component: EmployeesPage });
 
 const STATUS_LABEL: Record<string, string> = {
   active: "نشط", on_leave: "إجازة", suspended: "موقوف", terminated: "منتهي",
 };
+
+// gross_salary is excluded — it's a generated column derived from
+// basic_salary + allowances (see H1 fix), so importing it directly would
+// be rejected by the database.
+const IMPORT_FIELDS: FieldSpec[] = [
+  { key: "employee_no", label: "الرقم الوظيفي", required: true },
+  { key: "full_name_ar", label: "الاسم", required: true },
+  { key: "national_id", label: "رقم الهوية/الإقامة" },
+  { key: "nationality", label: "الجنسية" },
+  { key: "hire_date", label: "تاريخ التعيين", type: "date" },
+  { key: "personal_phone", label: "الجوال" },
+  { key: "basic_salary", label: "الراتب الأساسي", type: "number" },
+  { key: "housing_allowance", label: "بدل السكن", type: "number" },
+  { key: "transport_allowance", label: "بدل النقل", type: "number" },
+  { key: "other_allowances", label: "بدلات أخرى", type: "number" },
+];
 
 function EmployeesPage() {
   const qc = useQueryClient();
@@ -27,6 +44,7 @@ function EmployeesPage() {
   const [nat, setNat] = useState<string>("all");
   const [editing, setEditing] = useState<any>(null);
   const [open, setOpen] = useState(false);
+  const [openImp, setOpenImp] = useState(false);
 
   const { data: employees = [], isLoading } = useQuery({
     queryKey: ["hr_employees"],
@@ -65,6 +83,13 @@ function EmployeesPage() {
     filename: "employees",
   });
 
+  const doImport = async (rows: Record<string, any>[]) => {
+    const { error } = await (supabase as any).from("hr_employees").upsert(rows, { onConflict: "employee_no" });
+    if (error) throw error;
+    qc.invalidateQueries({ queryKey: ["hr_employees"] });
+    return rows.length;
+  };
+
   return (
     <div>
       <PageHeader
@@ -74,6 +99,7 @@ function EmployeesPage() {
           <>
             <Button variant="outline" onClick={excel} className="gap-2"><FileSpreadsheet className="w-4 h-4" />Excel</Button>
             <Button variant="outline" onClick={pdf} className="gap-2"><FileText className="w-4 h-4" />PDF</Button>
+            <Button variant="outline" onClick={() => setOpenImp(true)} className="gap-2"><Upload className="w-4 h-4" />استيراد</Button>
             <Button onClick={() => { setEditing(null); setOpen(true); }} className="gap-2"><Plus className="w-4 h-4" />موظف جديد</Button>
           </>
         }
@@ -142,10 +168,10 @@ function EmployeesPage() {
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => { setEditing(e); setOpen(true); }}>
+                    <Button size="icon" variant="ghost" title="تعديل" aria-label="تعديل" onClick={() => { setEditing(e); setOpen(true); }}>
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" onClick={() => remove(e.id)}>
+                    <Button size="icon" variant="ghost" title="حذف" aria-label="حذف" onClick={() => remove(e.id)}>
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </Button>
                   </div>
@@ -157,6 +183,7 @@ function EmployeesPage() {
       </Card>
 
       <EmployeeFormDialog open={open} onOpenChange={setOpen} employee={editing} />
+      <ExcelImporter open={openImp} onOpenChange={setOpenImp} title="استيراد الموظفين" fields={IMPORT_FIELDS} onImport={doImport} templateKey="hr_employees" />
     </div>
   );
 }

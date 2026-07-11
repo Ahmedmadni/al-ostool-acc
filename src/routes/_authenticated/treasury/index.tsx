@@ -24,12 +24,17 @@ function TreasuryPage() {
 
   useEffect(() => {
     (async () => {
+      // Each query is guarded individually so a single failure (network/RLS) can never
+      // throw during destructuring below — the page degrades gracefully instead of crashing.
+      const safe = (p: any): Promise<{ data: any }> =>
+        Promise.resolve(p).catch((e: unknown) => { toast.error(String(e)); return { data: null }; });
+
       const [{ data: bs }, { data: customers }, { data: vendors }, { data: aging }] = await Promise.all([
-        supabase.from("bank_statements" as any).select("bank_name,balance,txn_date").order("txn_date", { ascending: false }),
-        supabase.from("customers").select("total_outstanding"),
-        supabase.from("vendors" as any).select("total_outstanding,payment_period"),
-        supabase.from("aging_buckets" as any).select("days_90,days_120,days_150,days_180,days_270,days_360,days_over_360"),
-      ]).catch((e) => { toast.error(String(e)); return [] as any; });
+        safe(supabase.from("bank_statements" as any).select("bank_name,balance,txn_date").order("txn_date", { ascending: false })),
+        safe(supabase.from("customers").select("total_outstanding")),
+        safe(supabase.from("vendors" as any).select("total_outstanding,payment_period")),
+        safe(supabase.from("aging_buckets" as any).select("days_90,days_120,days_150,days_180,days_270,days_360,days_over_360")),
+      ]);
 
       // Latest balance per bank
       const latestByBank = new Map<string, number>();

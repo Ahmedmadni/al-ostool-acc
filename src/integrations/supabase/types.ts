@@ -344,6 +344,7 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean | null
+          is_current: boolean | null
           level: number
           name_ar: string
           name_en: string | null
@@ -357,6 +358,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean | null
+          is_current?: boolean | null
           level?: number
           name_ar: string
           name_en?: string | null
@@ -370,6 +372,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean | null
+          is_current?: boolean | null
           level?: number
           name_ar?: string
           name_en?: string | null
@@ -962,6 +965,51 @@ export type Database = {
           replaced_at?: string | null
           row_count?: number | null
           status?: string | null
+        }
+        Relationships: []
+      }
+      data_templates: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          fields: Json
+          history: Json
+          id: string
+          mapping: Json
+          name: string
+          table_key: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          fields?: Json
+          history?: Json
+          id?: string
+          mapping?: Json
+          name: string
+          table_key: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          fields?: Json
+          history?: Json
+          id?: string
+          mapping?: Json
+          name?: string
+          table_key?: string
+          updated_at?: string
+          version?: number
         }
         Relationships: []
       }
@@ -2115,6 +2163,8 @@ export type Database = {
           total_gross: number | null
           total_net: number | null
           updated_at: string
+          wps_reference: string | null
+          wps_submitted_at: string | null
         }
         Insert: {
           approved_at?: string | null
@@ -2134,6 +2184,8 @@ export type Database = {
           total_gross?: number | null
           total_net?: number | null
           updated_at?: string
+          wps_reference?: string | null
+          wps_submitted_at?: string | null
         }
         Update: {
           approved_at?: string | null
@@ -2153,6 +2205,8 @@ export type Database = {
           total_gross?: number | null
           total_net?: number | null
           updated_at?: string
+          wps_reference?: string | null
+          wps_submitted_at?: string | null
         }
         Relationships: []
       }
@@ -2594,6 +2648,16 @@ export type Database = {
           total_amount: number | null
           updated_at: string
           vat_amount: number | null
+          zatca_cryptographic_stamp: string | null
+          zatca_icv: number | null
+          zatca_invoice_hash: string | null
+          zatca_invoice_type: Database["public"]["Enums"]["zatca_invoice_type"] | null
+          zatca_previous_invoice_hash: string | null
+          zatca_qr_code: string | null
+          zatca_response: Json | null
+          zatca_status: Database["public"]["Enums"]["zatca_submission_status"]
+          zatca_submitted_at: string | null
+          zatca_uuid: string | null
         }
         Insert: {
           amount?: number | null
@@ -2611,6 +2675,16 @@ export type Database = {
           total_amount?: number | null
           updated_at?: string
           vat_amount?: number | null
+          zatca_cryptographic_stamp?: string | null
+          zatca_icv?: number | null
+          zatca_invoice_hash?: string | null
+          zatca_invoice_type?: Database["public"]["Enums"]["zatca_invoice_type"] | null
+          zatca_previous_invoice_hash?: string | null
+          zatca_qr_code?: string | null
+          zatca_response?: Json | null
+          zatca_status?: Database["public"]["Enums"]["zatca_submission_status"]
+          zatca_submitted_at?: string | null
+          zatca_uuid?: string | null
         }
         Update: {
           amount?: number | null
@@ -2628,6 +2702,16 @@ export type Database = {
           total_amount?: number | null
           updated_at?: string
           vat_amount?: number | null
+          zatca_cryptographic_stamp?: string | null
+          zatca_icv?: number | null
+          zatca_invoice_hash?: string | null
+          zatca_invoice_type?: Database["public"]["Enums"]["zatca_invoice_type"] | null
+          zatca_previous_invoice_hash?: string | null
+          zatca_qr_code?: string | null
+          zatca_response?: Json | null
+          zatca_status?: Database["public"]["Enums"]["zatca_submission_status"]
+          zatca_submitted_at?: string | null
+          zatca_uuid?: string | null
         }
         Relationships: [
           {
@@ -4003,6 +4087,45 @@ export type Database = {
         }
         Relationships: []
       }
+      vat_returns: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          final_vat: number | null
+          id: string
+          net_vat: number | null
+          period_from: string
+          period_to: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          final_vat?: number | null
+          id?: string
+          net_vat?: number | null
+          period_from: string
+          period_to: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          final_vat?: number | null
+          id?: string
+          net_vat?: number | null
+          period_from?: string
+          period_to?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       vendor_contacts: {
         Row: {
           created_at: string
@@ -4125,6 +4248,45 @@ export type Database = {
         }
         Relationships: []
       }
+      zakat_returns: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          id: string
+          tax_due: number | null
+          updated_at: string
+          updated_by: string | null
+          year_from: string
+          year_to: string
+          zakat_due: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          id?: string
+          tax_due?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          year_from: string
+          year_to: string
+          zakat_due?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          id?: string
+          tax_due?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          year_from?: string
+          year_to?: string
+          zakat_due?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -4201,6 +4363,17 @@ export type Database = {
         Returns: boolean
       }
       mark_overdue_tasks: { Args: never; Returns: number }
+      record_collection: {
+        Args: {
+          _allocations: Json
+          _customer_id: string
+          _method: string
+          _notes: string
+          _payment_date: string
+          _reference: string
+        }
+        Returns: string[]
+      }
       user_has_any_role: {
         Args: { _roles: string[]; _user_id: string }
         Returns: boolean
@@ -4366,6 +4539,13 @@ export type Database = {
         | "contract_review"
         | "audit"
         | "report"
+      zatca_invoice_type: "standard" | "simplified"
+      zatca_submission_status:
+        | "not_submitted"
+        | "submitted"
+        | "cleared"
+        | "reported"
+        | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never

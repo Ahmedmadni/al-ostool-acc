@@ -40,23 +40,44 @@ function CashFlowMatrixPage() {
 
   useEffect(() => {
     (async () => {
+      // Each query is guarded individually so a single failure (network/RLS) can never
+      // throw during destructuring below — the page degrades gracefully instead of crashing.
+      const safe = (p: any): Promise<{ data: any }> =>
+        Promise.resolve(p).catch((e: unknown) => { toast.error(String(e)); return { data: null }; });
+
       const [
         { data: inv },
         { data: pay },
         { data: hr },
         { data: eq },
         { data: cst },
-        { data: banks },
+        { data: bankNames },
       ] = await Promise.all([
-        supabase.from("invoices").select("issue_date,total_amount").not("issue_date", "is", null),
-        supabase.from("payments").select("payment_date,amount").not("payment_date", "is", null),
-        supabase.from("hr_costs" as any).select("period,total_cost"),
-        supabase.from("equipment_costs" as any).select("period,total_cost"),
-        supabase.from("cost_entries" as any).select("period,amount"),
-        supabase.from("bank_statements" as any).select("balance,txn_date").order("txn_date", { ascending: false }).limit(1),
-      ]).catch((e) => { toast.error(String(e)); return [] as any; });
+        safe(supabase.from("invoices").select("issue_date,total_amount").not("issue_date", "is", null)),
+        safe(supabase.from("payments").select("payment_date,amount").not("payment_date", "is", null)),
+        safe(supabase.from("hr_costs" as any).select("period,total_cost")),
+        safe(supabase.from("equipment_costs" as any).select("period,total_cost")),
+        safe(supabase.from("cost_entries" as any).select("period,amount")),
+        safe(supabase.from("bank_statements" as any).select("bank_name")),
+      ]);
 
-      if (banks && banks[0]) setOpeningBalance(Number(banks[0].balance ?? 0));
+      // Opening balance = sum of each bank's own latest balance, not a single row
+      // across all banks combined (which understates cash position when there's
+      // more than one account).
+      const uniqueBanks = Array.from(new Set((bankNames ?? []).map((r: any) => r.bank_name).filter(Boolean)));
+      let opening = 0;
+      if (uniqueBanks.length > 0) {
+        const perBank = await Promise.all(
+          uniqueBanks.map((bank) =>
+            safe(
+              supabase.from("bank_statements" as any).select("balance")
+                .eq("bank_name", bank).order("txn_date", { ascending: false }).limit(1),
+            ),
+          ),
+        );
+        opening = perBank.reduce((s, r: any) => s + Number(r.data?.[0]?.balance ?? 0), 0);
+      }
+      setOpeningBalance(opening);
 
       // Build last 12 months bucket
       const now = new Date();
@@ -95,7 +116,7 @@ function CashFlowMatrixPage() {
       (cst ?? []).forEach((r: any) => bumpByPeriod(r.period, "outflowCosts", Number(r.amount ?? 0)));
 
       const arr = Array.from(buckets.values());
-      let running = Number(banks?.[0]?.balance ?? 0);
+      let running = opening;
       for (const b of arr) {
         b.inflows = b.inflowInvoices + b.inflowPayments;
         b.outflows = b.outflowHR + b.outflowEQ + b.outflowCosts;
