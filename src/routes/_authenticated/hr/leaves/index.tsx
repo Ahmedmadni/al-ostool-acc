@@ -12,8 +12,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Check, X } from "lucide-react";
+import { Plus, Check, X, FileSpreadsheet, Printer } from "lucide-react";
 import { toast } from "sonner";
+import { exportToExcel } from "@/lib/export";
 
 export const Route = createFileRoute("/_authenticated/hr/leaves/")({ component: LeavesPage });
 
@@ -83,9 +84,18 @@ function LeavesPage() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["hr_leaves"] }); toast.success("تم التحديث"); },
   });
 
+  const exportRows = (leaves as any[]).map((l) => ({
+    الموظف: l.hr_employees?.full_name_ar, الرقم_الوظيفي: l.hr_employees?.employee_no,
+    النوع: LEAVE_TYPES.find((t) => t.v === l.leave_type)?.l ?? l.leave_type,
+    من: l.from_date, إلى: l.to_date, الأيام: l.days_count, الحالة: STATUS[l.status]?.l ?? l.status,
+  }));
+
   return (
     <div className="p-6 space-y-6" dir="rtl">
       <PageHeader title="الإجازات" description="إدارة إجازات الموظفين وأرصدتها" actions={
+        <div className="flex flex-wrap gap-2 no-print">
+        <Button variant="outline" onClick={() => exportToExcel(exportRows, "hr_leaves")} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
+        <Button variant="outline" onClick={() => window.print()} className="gap-1"><Printer className="w-4 h-4" /> طباعة</Button>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />طلب إجازة</Button></DialogTrigger>
           <DialogContent dir="rtl">
@@ -132,6 +142,7 @@ function LeavesPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       } />
       <Card className="p-0 overflow-hidden">
         <Table>

@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { fmtSAR } from "@/lib/format";
-import { readExcel } from "@/lib/export";
-import { Upload } from "lucide-react";
+import { readExcel, exportToExcel } from "@/lib/export";
+import { Upload, FileSpreadsheet, Printer } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/trial-balance/")({ component: Page });
@@ -70,9 +70,23 @@ function Page() {
   const totalDebit = entries.reduce((s, e) => s + Number(e.debit ?? 0), 0);
   const totalCredit = entries.reduce((s, e) => s + Number(e.credit ?? 0), 0);
 
+  const exportRows = (entries as any[]).map((e) => ({
+    الكود: e.account_code, الاسم: e.account_name, النوع: e.account_type ?? "—",
+    مدين: e.debit, دائن: e.credit, الرصيد: e.balance,
+  }));
+
   return (
     <div>
-      <PageHeader title="تحليل ميزان المراجعة" description="استيراد ميزان المراجعة من النظام المحاسبي وتحليله" />
+      <PageHeader
+        title="تحليل ميزان المراجعة"
+        description="استيراد ميزان المراجعة من النظام المحاسبي وتحليله"
+        actions={
+          <div className="flex flex-wrap gap-2 no-print">
+            <Button variant="outline" onClick={() => exportToExcel(exportRows, `trial_balance_${period}`)} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
+            <Button variant="outline" onClick={() => window.print()} className="gap-1"><Printer className="w-4 h-4" /> طباعة</Button>
+          </div>
+        }
+      />
       <Card className="p-4 mb-4 flex items-center gap-3 flex-wrap">
         <div>
           <label className="text-sm font-medium">الفترة:</label>

@@ -16,8 +16,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useAuth } from "@/hooks/use-auth";
 import { usePermissions } from "@/hooks/use-permissions";
 import { toast } from "sonner";
-import { Pencil, Check, X, Plus, Trash2, Shield, Info } from "lucide-react";
+import { Pencil, Check, X, Plus, Trash2, Shield, Info, FileSpreadsheet } from "lucide-react";
 import { createUserByAdmin, deleteUserByAdmin } from "@/lib/admin-users.functions";
+import { exportToExcel } from "@/lib/export";
 
 
 export const Route = createFileRoute("/_authenticated/settings/users")({ component: Page });
@@ -157,12 +158,23 @@ function Page() {
   // Tailwind utility for column borders inside the table (RTL — use border-l between cells)
   const cellBorder = "border-s border-border/60";
 
+  const exportRows = profiles.map((p: any) => ({
+    الرقم_الوظيفي: p.employee_id, الاسم: p.full_name, البريد: p.email,
+    الإدارة: p.departments?.name_ar ?? "—", الوظيفة: p.job_titles?.name_ar ?? "—",
+    الحالة: statusLabel[p.status]?.label ?? p.status,
+  }));
+
   return (
     <div>
       <PageHeader
         title="إدارة المستخدمين"
         description="تعديل بيانات المستخدمين وإدارة الصلاحيات المرتبطة بالوظائف"
-        actions={<Button onClick={() => setOpen(true)} className="gap-2"><Plus className="w-4 h-4" />مستخدم جديد</Button>}
+        actions={
+          <div className="flex flex-wrap gap-2 no-print">
+            <Button variant="outline" onClick={() => exportToExcel(exportRows, "users")} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
+            <Button onClick={() => setOpen(true)} className="gap-2"><Plus className="w-4 h-4" />مستخدم جديد</Button>
+          </div>
+        }
       />
 
       <Card className="p-3 mb-3">

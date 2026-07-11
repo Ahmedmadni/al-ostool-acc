@@ -2,14 +2,19 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 
 export type Lang = "ar" | "en" | "ur" | "hi" | "fr";
 
-// Only Arabic is exposed as a selectable interface language: the app's actual
-// content (thousands of strings across every page) is written in Arabic
-// directly in JSX, and DICT below only covers a handful of chrome strings
-// (nav labels, the copilot widget). Selecting any other language previously
-// flipped `dir` to ltr and translated ~16 words while leaving everything else
-// Arabic, producing a broken mixed-language, wrong-direction interface.
+// Arabic and English are the two selectable interface languages. English
+// covers the navigation sidebar, page-header chrome, and the common
+// import/export/print/save/cancel/search actions used throughout the app
+// (see DICT below plus the `label_en` fields on the nav groups in
+// app-shell.tsx) — each page's own content still renders in Arabic and is
+// migrated incrementally. Urdu/Hindi/French stay defined below only for the
+// AI-generated report language (copilot/board pack/executive summary) and
+// are not offered as full interface languages, since translating the
+// thousands of Arabic strings hardcoded across every page is a much larger,
+// multi-session undertaking.
 export const LANGS: { code: Lang; label: string; native: string; dir: "rtl" | "ltr" }[] = [
   { code: "ar", label: "Arabic", native: "العربية", dir: "rtl" },
+  { code: "en", label: "English", native: "English", dir: "ltr" },
 ];
 
 export const LANG_FULL_NAME: Record<Lang, string> = {
@@ -37,6 +42,67 @@ const DICT: Record<Lang, Record<string, string>> = {
     copy: "نسخ",
     copied: "تم النسخ",
     summaryHint: "يقوم الذكاء الاصطناعي بتحليل الوضع المالي وتوليد ملخص تنفيذي شامل للمدير المالي.",
+
+    // Shared data-table toolbar (src/components/data-table-toolbar.tsx)
+    tableSearch: "بحث...",
+    filters: "فلاتر",
+    add: "إضافة",
+    print: "طباعة",
+    pdf: "PDF",
+    excel: "Excel",
+
+    // Shared Excel importer (src/lib/excel-importer.tsx)
+    importUploadHint: "ارفع ملف Excel (.xlsx أو .xls) أو CSV",
+    importMatchColumns: "طابق أعمدة الملف",
+    importOfRows: "صف",
+    importIgnore: "— تجاهل —",
+    back: "رجوع",
+    previewData: "معاينة البيانات",
+    previewRows: "معاينة أول 10 صفوف (إجمالي",
+    editMatching: "تعديل التطابق",
+    importAction: "استيراد",
+    importing: "جارٍ الاستيراد...",
+    savedTemplates: "قوالب محفوظة",
+    saveMappingAsTemplate: "حفظ التطابق كقالب",
+    chooseTemplate: "اختر قالباً لتطبيقه",
+    noSavedTemplates: "لا توجد قوالب محفوظة بعد.",
+    templateApplied: "تم تطبيق قالب",
+    fileEmpty: "الملف فارغ",
+    fileReadError: "تعذر قراءة الملف",
+    requiredFieldsMissing: "حقول مطلوبة غير معرّفة",
+    importFailed: "فشل الاستيراد",
+    importSucceeded: "تم استيراد",
+    recordUnit: "سجل",
+    ignoreOptionShort: "—",
+
+    // Login page
+    loginWelcomeBack: "أهلاً بعودتك",
+    loginCreateAccount: "إنشاء حساب جديد",
+    loginSubtitleLogin: "سجّل الدخول للوصول إلى لوحة التحكم",
+    loginSubtitleSignup: "أدخل بياناتك وسيتم تفعيل الحساب بعد اعتماد مسؤول النظام",
+    loginEmployeeIdLabel: "الرقم الوظيفي *",
+    loginFullNameLabel: "الاسم الكامل *",
+    loginEmailOrIdLabel: "البريد الإلكتروني أو الرقم الوظيفي *",
+    loginEmailLabel: "البريد الإلكتروني *",
+    loginPhoneLabel: "رقم الجوال",
+    loginDeptLabel: "الإدارة *",
+    loginDeptPlaceholder: "اختر الإدارة",
+    loginJobLabel: "الوظيفة *",
+    loginJobPlaceholder: "اختر الوظيفة",
+    loginPasswordLabel: "كلمة المرور *",
+    loginConfirmPasswordLabel: "تأكيد كلمة المرور *",
+    loginSubmitLogin: "تسجيل الدخول",
+    loginSubmitSignup: "إرسال طلب الحساب",
+    loginProcessing: "جارٍ المعالجة...",
+    loginNoAccount: "ليس لديك حساب؟ سجّل طلب حساب جديد",
+    loginHaveAccount: "لديك حساب؟ سجّل الدخول",
+    heroTagline: "منصة الذكاء المالي وإدارة التكاليف",
+    heroTaglineSub: "لشركات المقاولات والبنية التحتية",
+    heroSubtitle: "تحليل ذكي للبيانات المحاسبية، إدارة شاملة للتكاليف، ومؤشرات مالية تنفيذية.",
+    heroFeature1: "تحليل مالي",
+    heroFeature2: "مساعد ذكي AI",
+    heroFeature3: "بيانات آمنة",
+    footerRights: "جميع الحقوق محفوظة",
   },
   en: {
     search: "Search the system...",
@@ -54,6 +120,67 @@ const DICT: Record<Lang, Record<string, string>> = {
     copy: "Copy",
     copied: "Copied",
     summaryHint: "AI analyzes the financial position and produces a comprehensive CFO-grade executive summary.",
+
+    // Shared data-table toolbar
+    tableSearch: "Search...",
+    filters: "Filters",
+    add: "Add",
+    print: "Print",
+    pdf: "PDF",
+    excel: "Excel",
+
+    // Shared Excel importer
+    importUploadHint: "Upload an Excel (.xlsx or .xls) or CSV file",
+    importMatchColumns: "Match file columns",
+    importOfRows: "rows",
+    importIgnore: "— Ignore —",
+    back: "Back",
+    previewData: "Preview data",
+    previewRows: "Preview first 10 rows (total",
+    editMatching: "Edit matching",
+    importAction: "Import",
+    importing: "Importing...",
+    savedTemplates: "Saved templates",
+    saveMappingAsTemplate: "Save mapping as template",
+    chooseTemplate: "Choose a template to apply",
+    noSavedTemplates: "No saved templates yet.",
+    templateApplied: "Applied template",
+    fileEmpty: "The file is empty",
+    fileReadError: "Could not read the file",
+    requiredFieldsMissing: "Required fields not mapped",
+    importFailed: "Import failed",
+    importSucceeded: "Imported",
+    recordUnit: "record(s)",
+    ignoreOptionShort: "—",
+
+    // Login page
+    loginWelcomeBack: "Welcome back",
+    loginCreateAccount: "Create a new account",
+    loginSubtitleLogin: "Sign in to access the dashboard",
+    loginSubtitleSignup: "Enter your details — the account is activated after admin approval",
+    loginEmployeeIdLabel: "Employee ID *",
+    loginFullNameLabel: "Full name *",
+    loginEmailOrIdLabel: "Email or employee ID *",
+    loginEmailLabel: "Email *",
+    loginPhoneLabel: "Mobile number",
+    loginDeptLabel: "Department *",
+    loginDeptPlaceholder: "Choose department",
+    loginJobLabel: "Job title *",
+    loginJobPlaceholder: "Choose job title",
+    loginPasswordLabel: "Password *",
+    loginConfirmPasswordLabel: "Confirm password *",
+    loginSubmitLogin: "Sign in",
+    loginSubmitSignup: "Submit account request",
+    loginProcessing: "Processing...",
+    loginNoAccount: "Don't have an account? Request one",
+    loginHaveAccount: "Already have an account? Sign in",
+    heroTagline: "Financial Intelligence & Cost Management Platform",
+    heroTaglineSub: "for contracting & infrastructure companies",
+    heroSubtitle: "Smart analysis of accounting data, comprehensive cost management, and executive financial indicators.",
+    heroFeature1: "Financial analysis",
+    heroFeature2: "AI copilot",
+    heroFeature3: "Secure data",
+    footerRights: "All rights reserved",
   },
   ur: {
     search: "سسٹم میں تلاش کریں...",

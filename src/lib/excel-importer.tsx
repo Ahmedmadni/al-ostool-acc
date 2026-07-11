@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Upload, FileSpreadsheet, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Upload, FileSpreadsheet, ArrowLeft, CheckCircle2, Bookmark, BookmarkPlus } from "lucide-react";
 import { toast } from "sonner";
+import { useDataTemplates, useSaveDataTemplate } from "@/hooks/use-data-templates";
+import { useI18n } from "@/lib/i18n";
 
 export type FieldSpec = {
   key: string;
@@ -23,6 +25,9 @@ type Props = {
   fields: FieldSpec[];
   /** receives parsed & mapped rows, returns inserted count or throws */
   onImport: (rows: Record<string, any>[]) => Promise<number>;
+  /** links this importer to a table_key in data_templates so saved column
+   *  mappings are reusable across every import of that table (see /templates) */
+  templateKey?: string;
 };
 
 function normalize(v: any, type?: string) {
@@ -38,12 +43,40 @@ function normalize(v: any, type?: string) {
   return String(v).trim();
 }
 
-export function ExcelImporter({ open, onOpenChange, title, fields, onImport }: Props) {
+export function ExcelImporter({ open, onOpenChange, title, fields, onImport, templateKey }: Props) {
+  const { t, dir } = useI18n();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [rows, setRows] = useState<Record<string, any>[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+
+  const { data: savedTemplates = [] } = useDataTemplates(templateKey);
+  const saveTemplate = useSaveDataTemplate();
+
+  const applyTemplate = (templateId: string) => {
+    const tpl = savedTemplates.find((t) => t.id === templateId);
+    if (!tpl) return;
+    const next: Record<string, string> = { ...mapping };
+    for (const [fieldKey, sourceHeader] of Object.entries(tpl.mapping)) {
+      if (headers.includes(sourceHeader)) next[fieldKey] = sourceHeader;
+    }
+    setMapping(next);
+    toast.success(`${t("templateApplied")} "${tpl.name}"`);
+  };
+
+  const saveCurrentAsTemplate = () => {
+    if (!templateKey) return;
+    const name = window.prompt(t("saveMappingAsTemplate") + ":", `${title} — ${new Date().toLocaleDateString("ar-u-nu-latn")}`);
+    if (!name?.trim()) return;
+    saveTemplate.mutate(
+      { name: name.trim(), tableKey: templateKey, category: "import", fields, mapping },
+      {
+        onSuccess: () => toast.success(t("saveMappingAsTemplate")),
+        onError: (e) => toast.error((e as Error).message),
+      },
+    );
+  };
 
   const reset = () => {
     setStep(1); setRows([]); setHeaders([]); setMapping({}); setBusy(false);
@@ -55,7 +88,7 @@ export function ExcelImporter({ open, onOpenChange, title, fields, onImport }: P
       const wb = XLSX.read(buf, { type: "array" });
       const ws = wb.Sheets[wb.SheetNames[0]];
       const data = XLSX.utils.sheet_to_json<Record<string, any>>(ws, { defval: "" });
-      if (!data.length) { toast.error("الملف فارغ"); return; }
+      if (!data.length) { toast.error(t("fileEmpty")); return; }
       const hs = Object.keys(data[0]);
       setHeaders(hs);
       setRows(data);
@@ -68,7 +101,7 @@ export function ExcelImporter({ open, onOpenChange, title, fields, onImport }: P
       setMapping(auto);
       setStep(2);
     } catch (e) {
-      toast.error("تعذر قراءة الملف: " + (e as Error).message);
+      toast.error(t("fileReadError") + ": " + (e as Error).message);
     }
   };
 
@@ -85,21 +118,21 @@ export function ExcelImporter({ open, onOpenChange, title, fields, onImport }: P
 
   const doImport = async () => {
     const missing = fields.filter((f) => f.required && !mapping[f.key]);
-    if (missing.length) { toast.error("حقول مطلوبة غير معرّفة: " + missing.map(m => m.label).join("، ")); return; }
+    if (missing.length) { toast.error(t("requiredFieldsMissing") + ": " + missing.map(m => m.label).join("، ")); return; }
     setBusy(true);
     try {
       const n = await onImport(mapped);
-      toast.success(`تم استيراد ${n} سجل بنجاح`);
+      toast.success(`${t("importSucceeded")} ${n} ${t("recordUnit")}`);
       reset();
       onOpenChange(false);
     } catch (e) {
-      toast.error("فشل الاستيراد: " + (e as Error).message);
+      toast.error(t("importFailed") + ": " + (e as Error).message);
     } finally { setBusy(false); }
   };
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) reset(); onOpenChange(o); }}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto" dir="rtl">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto" dir={dir}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileSpreadsheet className="w-5 h-5 text-accent" /> {title}
@@ -109,14 +142,38 @@ export function ExcelImporter({ open, onOpenChange, title, fields, onImport }: P
         {step === 1 && (
           <Card className="p-10 border-dashed border-2 text-center">
             <Upload className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-            <p className="mb-4 text-sm text-muted-foreground">ارفع ملف Excel (.xlsx أو .xls) أو CSV</p>
+            <p className="mb-4 text-sm text-muted-foreground">{t("importUploadHint")}</p>
             <Input type="file" accept=".xlsx,.xls,.csv" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} className="max-w-sm mx-auto" />
           </Card>
         )}
 
         {step === 2 && (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">طابق أعمدة الملف ({rows.length} صف) مع حقول النظام:</p>
+            <p className="text-sm text-muted-foreground">{t("importMatchColumns")} ({rows.length} {t("importOfRows")})</p>
+
+            {templateKey && (
+              <div className="flex items-center gap-2 flex-wrap p-2 rounded-md border bg-muted/30">
+                {savedTemplates.length > 0 ? (
+                  <>
+                    <Bookmark className="w-4 h-4 text-muted-foreground shrink-0" />
+                    <span className="text-xs text-muted-foreground">{t("savedTemplates")}:</span>
+                    <Select onValueChange={applyTemplate}>
+                      <SelectTrigger className="w-56 h-8 text-xs"><SelectValue placeholder={t("chooseTemplate")} /></SelectTrigger>
+                      <SelectContent>
+                        {savedTemplates.map((tpl) => <SelectItem key={tpl.id} value={tpl.id}>{tpl.name} (v{tpl.version})</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </>
+                ) : (
+                  <span className="text-xs text-muted-foreground">{t("noSavedTemplates")}</span>
+                )}
+                <div className="flex-1" />
+                <Button size="sm" variant="outline" className="gap-1 h-8 text-xs" onClick={saveCurrentAsTemplate} disabled={saveTemplate.isPending}>
+                  <BookmarkPlus className="w-3 h-3" /> {t("saveMappingAsTemplate")}
+                </Button>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[50vh] overflow-y-auto">
               {fields.map((f) => (
                 <div key={f.key} className="flex items-center gap-2">
@@ -124,9 +181,9 @@ export function ExcelImporter({ open, onOpenChange, title, fields, onImport }: P
                     {f.label} {f.required && <span className="text-destructive">*</span>}
                   </Label>
                   <Select value={mapping[f.key] ?? "__none__"} onValueChange={(v) => setMapping({ ...mapping, [f.key]: v === "__none__" ? "" : v })}>
-                    <SelectTrigger className="flex-1"><SelectValue placeholder="—" /></SelectTrigger>
+                    <SelectTrigger className="flex-1"><SelectValue placeholder={t("ignoreOptionShort")} /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__none__">— تجاهل —</SelectItem>
+                      <SelectItem value="__none__">{t("importIgnore")}</SelectItem>
                       {headers.map((h) => <SelectItem key={h} value={h}>{h}</SelectItem>)}
                     </SelectContent>
                   </Select>
@@ -134,15 +191,15 @@ export function ExcelImporter({ open, onOpenChange, title, fields, onImport }: P
               ))}
             </div>
             <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => setStep(1)}><ArrowLeft className="w-4 h-4" /> رجوع</Button>
-              <Button onClick={() => setStep(3)}>معاينة البيانات</Button>
+              <Button variant="outline" onClick={() => setStep(1)}><ArrowLeft className="w-4 h-4" /> {t("back")}</Button>
+              <Button onClick={() => setStep(3)}>{t("previewData")}</Button>
             </DialogFooter>
           </div>
         )}
 
         {step === 3 && (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">معاينة أول 10 صفوف (إجمالي {mapped.length}):</p>
+            <p className="text-sm text-muted-foreground">{t("previewRows")} {mapped.length}):</p>
             <div className="overflow-x-auto border rounded-md max-h-[50vh]">
               <table className="w-full text-xs">
                 <thead className="bg-muted sticky top-0">
@@ -158,9 +215,9 @@ export function ExcelImporter({ open, onOpenChange, title, fields, onImport }: P
               </table>
             </div>
             <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => setStep(2)}><ArrowLeft className="w-4 h-4" /> تعديل التطابق</Button>
+              <Button variant="outline" onClick={() => setStep(2)}><ArrowLeft className="w-4 h-4" /> {t("editMatching")}</Button>
               <Button onClick={doImport} disabled={busy} className="gap-2">
-                <CheckCircle2 className="w-4 h-4" /> {busy ? "جارٍ الاستيراد..." : `استيراد ${mapped.length} سجل`}
+                <CheckCircle2 className="w-4 h-4" /> {busy ? t("importing") : `${t("importAction")} ${mapped.length} ${t("recordUnit")}`}
               </Button>
             </DialogFooter>
           </div>

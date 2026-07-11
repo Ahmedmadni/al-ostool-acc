@@ -13,9 +13,10 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, ListChecks } from "lucide-react";
+import { Plus, ListChecks, FileSpreadsheet, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { fmtSAR, fmtDate } from "@/lib/format";
+import { exportToExcel } from "@/lib/export";
 
 export const Route = createFileRoute("/_authenticated/hr/loans/")({ component: LoansPage });
 
@@ -105,29 +106,39 @@ function LoansPage() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  const exportRows = (loans as any[]).map((l) => ({
+    رقم_السلفة: l.loan_no, الموظف: l.hr_employees?.full_name_ar, المبلغ: l.amount,
+    عدد_الأقساط: l.installments_count, القسط_الشهري: l.monthly_deduction,
+    المسدد: l.paid_amount ?? 0, المتبقي: l.remaining_amount ?? l.amount, الحالة: STATUS_LABEL[l.status] ?? l.status,
+  }));
+
   return (
     <div className="p-6 space-y-6" dir="rtl">
       <PageHeader title="السلف والقروض" description="إدارة سلف الموظفين وأقساطها الشهرية" actions={
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />سلفة جديدة</Button></DialogTrigger>
-          <DialogContent dir="rtl">
-            <DialogHeader><DialogTitle>تسجيل سلفة جديدة</DialogTitle></DialogHeader>
-            <div className="grid gap-3">
-              <div><Label>الموظف</Label>
-                <Select value={form.employee_id} onValueChange={(v) => setForm({ ...form, employee_id: v })}>
-                  <SelectTrigger><SelectValue placeholder="اختر الموظف" /></SelectTrigger>
-                  <SelectContent>{(employees as any[]).map((e) => <SelectItem key={e.id} value={e.id}>{e.full_name_ar}</SelectItem>)}</SelectContent>
-                </Select>
+        <div className="flex flex-wrap gap-2 no-print">
+          <Button variant="outline" onClick={() => exportToExcel(exportRows, "hr_loans")} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
+          <Button variant="outline" onClick={() => window.print()} className="gap-1"><Printer className="w-4 h-4" /> طباعة</Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />سلفة جديدة</Button></DialogTrigger>
+            <DialogContent dir="rtl">
+              <DialogHeader><DialogTitle>تسجيل سلفة جديدة</DialogTitle></DialogHeader>
+              <div className="grid gap-3">
+                <div><Label>الموظف</Label>
+                  <Select value={form.employee_id} onValueChange={(v) => setForm({ ...form, employee_id: v })}>
+                    <SelectTrigger><SelectValue placeholder="اختر الموظف" /></SelectTrigger>
+                    <SelectContent>{(employees as any[]).map((e) => <SelectItem key={e.id} value={e.id}>{e.full_name_ar}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><Label>المبلغ (ر.س)</Label><Input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} /></div>
+                  <div><Label>عدد الأقساط</Label><Input type="number" value={form.installments_count} onChange={(e) => setForm({ ...form, installments_count: e.target.value })} /></div>
+                </div>
+                <div><Label>السبب</Label><Textarea value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} /></div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><Label>المبلغ (ر.س)</Label><Input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} /></div>
-                <div><Label>عدد الأقساط</Label><Input type="number" value={form.installments_count} onChange={(e) => setForm({ ...form, installments_count: e.target.value })} /></div>
-              </div>
-              <div><Label>السبب</Label><Textarea value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} /></div>
-            </div>
-            <DialogFooter><Button onClick={() => create.mutate(form)} disabled={!form.employee_id || !form.amount}>حفظ</Button></DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter><Button onClick={() => create.mutate(form)} disabled={!form.employee_id || !form.amount}>حفظ</Button></DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       } />
       <Card className="p-0 overflow-hidden">
         <Table>

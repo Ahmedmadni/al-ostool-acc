@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { fmtSAR, daysBetween } from "@/lib/format";
 import { exportToExcel } from "@/lib/export";
-import { FolderKanban, Activity, AlertTriangle, TrendingUp, Wallet, FileSpreadsheet } from "lucide-react";
+import { FolderKanban, Activity, AlertTriangle, TrendingUp, Wallet, FileSpreadsheet, Printer } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/control/projects")({ component: Page });
 
@@ -126,6 +126,17 @@ function Page() {
       "projects-attention",
     );
 
+  const exportAll = () =>
+    exportToExcel(
+      enriched.map((p) => ({
+        code: p.code, name: p.name, customer: p.customers?.name ?? "—",
+        contract: p.contract_value, budget: p._budget ?? "—", actual: p._actualCost,
+        cost_variance_pct: p._costVariance != null ? p._costVariance.toFixed(1) : "—",
+        progress_pct: Number(p.progress_actual ?? 0), health: p._health.score,
+      })),
+      "all-projects",
+    );
+
   return (
     <div>
       <PageHeader
@@ -199,7 +210,13 @@ function Page() {
       </Card>
 
       <Card>
-        <div className="p-4 border-b font-semibold">جميع المشاريع — Budget vs Actual</div>
+        <div className="p-4 border-b font-semibold flex items-center justify-between flex-wrap gap-2">
+          <span>جميع المشاريع — Budget vs Actual</span>
+          <div className="flex gap-2 no-print">
+            <Button variant="outline" size="sm" onClick={exportAll} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
+            <Button variant="outline" size="sm" onClick={() => window.print()} className="gap-1"><Printer className="w-4 h-4" /> طباعة</Button>
+          </div>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>

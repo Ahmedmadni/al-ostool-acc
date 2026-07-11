@@ -6,9 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { HardHat, ShieldCheck, BarChart3, Brain } from "lucide-react";
+import { HardHat, ShieldCheck, BarChart3, Brain, Globe } from "lucide-react";
 import logo from "@/assets/logo.ico";
 import hero from "@/assets/login-hero.jpg";
+import { useI18n, LANGS, type Lang } from "@/lib/i18n";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/login")({ component: LoginPage });
 
@@ -16,6 +20,7 @@ type Option = { id: string; name_ar: string };
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { lang, setLang, t } = useI18n();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -117,15 +122,15 @@ function LoginPage() {
   return (
     <div className="min-h-screen grid lg:grid-cols-[1.2fr_1fr] bg-sidebar">
       <div className="relative hidden lg:flex flex-col justify-between p-12 text-white overflow-hidden">
-        <img src={hero} alt="معدات ثقيلة في موقع بنية تحتية" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
+        <img src={hero} alt="" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
         <div className="absolute inset-0 bg-gradient-to-l from-sidebar/95 via-sidebar/70 to-sidebar/40" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--accent)/15%,_transparent_60%)]" />
         <div className="relative flex items-center gap-3">
           <div className="w-12 h-12 rounded-lg bg-white/95 p-1.5 shadow-xl">
-            <img src={logo} alt="شعار" className="w-full h-full object-contain" />
+            <img src={logo} alt="" className="w-full h-full object-contain" />
           </div>
           <div>
-            <div className="font-bold text-lg">شركة الأسطول الآلي</div>
+            <div className="font-bold text-lg">{lang === "en" ? "Al-Ostool Al-Ali Co." : "شركة الأسطول الآلي"}</div>
             <div className="text-xs text-white/75">Al-Ostool Al-Ali Co.</div>
           </div>
         </div>
@@ -134,22 +139,22 @@ function LoginPage() {
             <HardHat className="w-3.5 h-3.5" /> Corporate Industrial Intelligence
           </div>
           <h1 className="text-4xl xl:text-5xl font-extrabold leading-tight">
-            منصة الذكاء المالي وإدارة التكاليف
-            <span className="block text-accent mt-2">لشركات المقاولات والبنية التحتية</span>
+            {t("heroTagline")}
+            <span className="block text-accent mt-2">{t("heroTaglineSub")}</span>
           </h1>
           <p className="text-white/85 text-lg leading-relaxed">
-            تحليل ذكي للبيانات المحاسبية، إدارة شاملة للتكاليف، ومؤشرات مالية تنفيذية.
+            {t("heroSubtitle")}
           </p>
           <div className="grid grid-cols-3 gap-3 pt-4">
-            {[{ icon: BarChart3, t: "تحليل مالي" }, { icon: Brain, t: "مساعد ذكي AI" }, { icon: ShieldCheck, t: "بيانات آمنة" }].map((f, i) => (
+            {[{ icon: BarChart3, label: t("heroFeature1") }, { icon: Brain, label: t("heroFeature2") }, { icon: ShieldCheck, label: t("heroFeature3") }].map((f, i) => (
               <div key={i} className="rounded-lg bg-white/10 backdrop-blur-md border border-white/15 p-3 text-center">
                 <f.icon className="w-5 h-5 mx-auto mb-1 text-accent" />
-                <div className="text-xs font-medium">{f.t}</div>
+                <div className="text-xs font-medium">{f.label}</div>
               </div>
             ))}
           </div>
         </div>
-        <div className="relative text-xs text-white/60">© {new Date().getFullYear()} الأسطول الآلي • جميع الحقوق محفوظة</div>
+        <div className="relative text-xs text-white/60">© {new Date().getFullYear()} {lang === "en" ? "Al-Ostool Al-Ali" : "الأسطول الآلي"} • {t("footerRights")}</div>
       </div>
 
       <div className="relative flex items-center justify-center p-6 lg:p-12 bg-background overflow-y-auto">
@@ -187,34 +192,51 @@ function LoginPage() {
           <rect x="560" y="380" width="200" height="220" fill="url(#dotsLogin)" />
         </svg>
         <div className="relative w-full max-w-md">
-          <div className="lg:hidden flex items-center gap-3 mb-8">
-            <img src={logo} alt="" className="w-12 h-12 rounded-lg bg-white p-1.5 shadow" />
-            <div>
-              <div className="font-bold">الأسطول الآلي</div>
-              <div className="text-xs text-muted-foreground">منصة الذكاء المالي</div>
+          <div className="flex items-center justify-between gap-3 mb-8">
+            <div className="lg:hidden flex items-center gap-3">
+              <img src={logo} alt="" className="w-12 h-12 rounded-lg bg-white p-1.5 shadow" />
+              <div>
+                <div className="font-bold">{lang === "en" ? "Al-Ostool Al-Ali" : "الأسطول الآلي"}</div>
+                <div className="text-xs text-muted-foreground">{t("heroTagline")}</div>
+              </div>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-1 ms-auto">
+                  <Globe className="w-4 h-4" /> {LANGS.find((l) => l.code === lang)?.native ?? lang}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {LANGS.map((l) => (
+                  <DropdownMenuItem key={l.code} onClick={() => setLang(l.code as Lang)}>
+                    <span className="font-medium">{l.native}</span>
+                    <span className="text-xs text-muted-foreground ms-2">{l.label}</span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
-          <h2 className="text-2xl font-bold mb-1">{mode === "login" ? "أهلاً بعودتك" : "إنشاء حساب جديد"}</h2>
+          <h2 className="text-2xl font-bold mb-1">{mode === "login" ? t("loginWelcomeBack") : t("loginCreateAccount")}</h2>
           <p className="text-sm text-muted-foreground mb-6">
-            {mode === "login" ? "سجّل الدخول للوصول إلى لوحة التحكم" : "أدخل بياناتك وسيتم تفعيل الحساب بعد اعتماد مسؤول النظام"}
+            {mode === "login" ? t("loginSubtitleLogin") : t("loginSubtitleSignup")}
           </p>
 
           <form onSubmit={submit} className="space-y-3">
             {mode === "signup" && (
               <>
                 <div>
-                  <Label htmlFor="empid">الرقم الوظيفي *</Label>
+                  <Label htmlFor="empid">{t("loginEmployeeIdLabel")}</Label>
                   <Input id="empid" value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} required className="mt-1.5" />
                 </div>
                 <div>
-                  <Label htmlFor="name">الاسم الكامل *</Label>
+                  <Label htmlFor="name">{t("loginFullNameLabel")}</Label>
                   <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} required className="mt-1.5" />
                 </div>
               </>
             )}
             <div>
-              <Label htmlFor="email">{mode === "login" ? "البريد الإلكتروني أو الرقم الوظيفي *" : "البريد الإلكتروني *"}</Label>
+              <Label htmlFor="email">{mode === "login" ? t("loginEmailOrIdLabel") : t("loginEmailLabel")}</Label>
               <Input
                 id="email"
                 type={mode === "login" ? "text" : "email"}
@@ -223,27 +245,27 @@ function LoginPage() {
                 required
                 dir="ltr"
                 className="mt-1.5"
-                placeholder={mode === "login" ? "name@example.com أو رقم الموظف" : ""}
+                placeholder={mode === "login" ? "name@example.com" : ""}
               />
             </div>
             {mode === "signup" && (
               <>
                 <div>
-                  <Label htmlFor="phone">رقم الجوال</Label>
+                  <Label htmlFor="phone">{t("loginPhoneLabel")}</Label>
                   <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} dir="ltr" className="mt-1.5" />
                 </div>
                 <div className="grid grid-cols-1 gap-3">
                   <div>
-                    <Label>الإدارة *</Label>
+                    <Label>{t("loginDeptLabel")}</Label>
                     <Select value={deptId} onValueChange={setDeptId}>
-                      <SelectTrigger className="mt-1.5"><SelectValue placeholder="اختر الإدارة" /></SelectTrigger>
+                      <SelectTrigger className="mt-1.5"><SelectValue placeholder={t("loginDeptPlaceholder")} /></SelectTrigger>
                       <SelectContent>{depts.map((d) => <SelectItem key={d.id} value={d.id}>{d.name_ar}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <Label>الوظيفة *</Label>
+                    <Label>{t("loginJobLabel")}</Label>
                     <Select value={jobId} onValueChange={setJobId}>
-                      <SelectTrigger className="mt-1.5"><SelectValue placeholder="اختر الوظيفة" /></SelectTrigger>
+                      <SelectTrigger className="mt-1.5"><SelectValue placeholder={t("loginJobPlaceholder")} /></SelectTrigger>
                       <SelectContent>{jobs.map((j) => <SelectItem key={j.id} value={j.id}>{j.name_ar}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
@@ -251,23 +273,23 @@ function LoginPage() {
               </>
             )}
             <div>
-              <Label htmlFor="password">كلمة المرور *</Label>
+              <Label htmlFor="password">{t("loginPasswordLabel")}</Label>
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} dir="ltr" className="mt-1.5" />
             </div>
             {mode === "signup" && (
               <div>
-                <Label htmlFor="cpwd">تأكيد كلمة المرور *</Label>
+                <Label htmlFor="cpwd">{t("loginConfirmPasswordLabel")}</Label>
                 <Input id="cpwd" type="password" value={confirmPwd} onChange={(e) => setConfirmPwd(e.target.value)} required dir="ltr" className="mt-1.5" />
               </div>
             )}
             <Button type="submit" className="w-full h-11 text-base font-semibold bg-primary hover:bg-primary/90" disabled={loading}>
-              {loading ? "جارٍ المعالجة..." : mode === "login" ? "تسجيل الدخول" : "إرسال طلب الحساب"}
+              {loading ? t("loginProcessing") : mode === "login" ? t("loginSubmitLogin") : t("loginSubmitSignup")}
             </Button>
           </form>
 
           <div className="mt-6 text-center">
             <button type="button" onClick={() => setMode(mode === "login" ? "signup" : "login")} className="text-sm text-primary hover:text-accent transition-colors font-medium">
-              {mode === "login" ? "ليس لديك حساب؟ سجّل طلب حساب جديد" : "لديك حساب؟ سجّل الدخول"}
+              {mode === "login" ? t("loginNoAccount") : t("loginHaveAccount")}
             </button>
           </div>
 

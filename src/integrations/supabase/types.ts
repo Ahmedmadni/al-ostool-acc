@@ -968,6 +968,51 @@ export type Database = {
         }
         Relationships: []
       }
+      data_templates: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          fields: Json
+          history: Json
+          id: string
+          mapping: Json
+          name: string
+          table_key: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          fields?: Json
+          history?: Json
+          id?: string
+          mapping?: Json
+          name: string
+          table_key: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          fields?: Json
+          history?: Json
+          id?: string
+          mapping?: Json
+          name?: string
+          table_key?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
       departments: {
         Row: {
           code: string

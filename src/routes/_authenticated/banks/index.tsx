@@ -128,7 +128,7 @@ function Page() {
         </Table>
       </Card>
 
-      <ExcelImporter open={openImp} onOpenChange={setOpenImp} title="استيراد كشف بنك" fields={FIELDS} onImport={doImport} />
+      <ExcelImporter open={openImp} onOpenChange={setOpenImp} title="استيراد كشف بنك" fields={FIELDS} onImport={doImport} templateKey="bank_statements" />
     </div>
   );
 }

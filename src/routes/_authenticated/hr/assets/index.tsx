@@ -11,8 +11,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, CheckCircle2 } from "lucide-react";
+import { Plus, CheckCircle2, FileSpreadsheet, Printer } from "lucide-react";
 import { toast } from "sonner";
+import { exportToExcel } from "@/lib/export";
 
 export const Route = createFileRoute("/_authenticated/hr/assets/")({ component: AssetsPage });
 
@@ -57,9 +58,18 @@ function AssetsPage() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["hr_assets"] }); toast.success("تم استلام العهدة"); },
   });
 
+  const exportRows = (assets as any[]).map((a) => ({
+    الموظف: a.hr_employees?.full_name_ar, النوع: TYPES.find((t) => t.v === a.asset_type)?.l ?? a.asset_type,
+    الوصف: a.asset_name, الرقم_التسلسلي: a.serial_no ?? "—", تاريخ_التسليم: a.assigned_date,
+    الحالة: a.is_returned ? `مُستلمة (${a.return_date})` : "قائمة",
+  }));
+
   return (
     <div className="p-6 space-y-6" dir="rtl">
       <PageHeader title="العهد" description="إدارة العهد المسلمة للموظفين" actions={
+        <div className="flex flex-wrap gap-2 no-print">
+        <Button variant="outline" onClick={() => exportToExcel(exportRows, "hr_assets_assignment")} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
+        <Button variant="outline" onClick={() => window.print()} className="gap-1"><Printer className="w-4 h-4" /> طباعة</Button>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />تسليم عهدة</Button></DialogTrigger>
           <DialogContent dir="rtl">
@@ -86,6 +96,7 @@ function AssetsPage() {
             <DialogFooter><Button onClick={() => create.mutate(form)} disabled={!form.employee_id || !form.asset_name}>حفظ</Button></DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       } />
       <Card className="p-0 overflow-hidden">
         <Table>

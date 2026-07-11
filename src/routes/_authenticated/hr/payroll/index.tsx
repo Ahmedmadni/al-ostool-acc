@@ -10,10 +10,11 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { Plus, FileSpreadsheet, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { fmtSAR } from "@/lib/format";
 import { calcPayrollLine } from "@/lib/hr-calculations";
+import { exportToExcel } from "@/lib/export";
 
 export const Route = createFileRoute("/_authenticated/hr/payroll/")({ component: PayrollPage });
 
@@ -88,17 +89,21 @@ function PayrollPage() {
   return (
     <div className="p-6 space-y-6" dir="rtl">
       <PageHeader title="مسيرات الرواتب" description="إنشاء واعتماد رواتب الموظفين الشهرية" actions={
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />مسير جديد</Button></DialogTrigger>
-          <DialogContent dir="rtl">
-            <DialogHeader><DialogTitle>إنشاء مسير رواتب</DialogTitle></DialogHeader>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>السنة</Label><Input type="number" value={form.period_year} onChange={(e) => setForm({ ...form, period_year: +e.target.value })} /></div>
-              <div><Label>الشهر</Label><Input type="number" min={1} max={12} value={form.period_month} onChange={(e) => setForm({ ...form, period_month: +e.target.value })} /></div>
-            </div>
-            <DialogFooter><Button onClick={() => create.mutate(form)}>إنشاء المسير</Button></DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <div className="flex flex-wrap gap-2 no-print">
+          <Button variant="outline" onClick={() => exportToExcel(runs as Record<string, unknown>[], "hr_payroll_runs")} className="gap-1"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
+          <Button variant="outline" onClick={() => window.print()} className="gap-1"><Printer className="w-4 h-4" /> طباعة</Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button><Plus className="w-4 h-4 ml-2" />مسير جديد</Button></DialogTrigger>
+            <DialogContent dir="rtl">
+              <DialogHeader><DialogTitle>إنشاء مسير رواتب</DialogTitle></DialogHeader>
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label>السنة</Label><Input type="number" value={form.period_year} onChange={(e) => setForm({ ...form, period_year: +e.target.value })} /></div>
+                <div><Label>الشهر</Label><Input type="number" min={1} max={12} value={form.period_month} onChange={(e) => setForm({ ...form, period_month: +e.target.value })} /></div>
+              </div>
+              <DialogFooter><Button onClick={() => create.mutate(form)}>إنشاء المسير</Button></DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       } />
       <Card className="p-0 overflow-hidden">
         <Table>
