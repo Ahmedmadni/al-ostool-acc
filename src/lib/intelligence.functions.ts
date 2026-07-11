@@ -26,6 +26,27 @@ async function callAI(messages: any[], model = "google/gemini-3-flash-preview") 
   return (j.choices?.[0]?.message?.content ?? "") as string;
 }
 
+// Table labels shown to the user when a query below hits its row cap — the
+// cap exists to bound response size/latency, but silently dropping rows past
+// it would make scores/forecasts look complete when they're actually based
+// on a partial slice. Each entry's limit must match the .limit(N) call below.
+const CORE_LIMITS: Record<string, { label: string; limit: number }> = {
+  customers: { label: "العملاء", limit: 2000 },
+  vendors: { label: "الموردون", limit: 2000 },
+  invoices: { label: "الفواتير", limit: 5000 },
+  payments: { label: "المدفوعات", limit: 5000 },
+  projects: { label: "المشاريع", limit: 500 },
+  banks: { label: "كشوف الحسابات البنكية", limit: 2000 },
+  costs: { label: "بنود التكاليف", limit: 5000 },
+  hr: { label: "تكاليف الموارد البشرية", limit: 3000 },
+  eq: { label: "تكاليف المعدات", limit: 3000 },
+  aging: { label: "أعمار الديون", limit: 500 },
+  tb: { label: "ميزان المراجعة", limit: 2000 },
+  hrEmp: { label: "الموظفون", limit: 5000 },
+  hrContracts: { label: "عقود العمل", limit: 5000 },
+  hrPayroll: { label: "مسيرات الرواتب", limit: 500 },
+};
+
 async function loadCore() {
   const [customers, vendors, invoices, payments, projects, banks, costs, hr, eq, aging, tb, hrEmp, hrContracts, hrPayroll] = await Promise.all([
     supabaseAdmin.from("customers").select("*").limit(2000),
@@ -43,7 +64,7 @@ async function loadCore() {
     (supabaseAdmin.from as any)("hr_contracts").select("id,employee_id,status,end_date").limit(5000),
     (supabaseAdmin.from as any)("hr_payroll_runs").select("id,period,status,total_net").limit(500),
   ]);
-  return {
+  const result = {
     customers: customers.data ?? [],
     vendors: (vendors.data as any[]) ?? [],
     invoices: invoices.data ?? [],
@@ -59,6 +80,10 @@ async function loadCore() {
     hrContracts: (hrContracts?.data as any[]) ?? [],
     hrPayroll: (hrPayroll?.data as any[]) ?? [],
   };
+  const truncated = Object.entries(CORE_LIMITS)
+    .filter(([key, { limit }]) => ((result as any)[key]?.length ?? 0) >= limit)
+    .map(([, { label }]) => label);
+  return { ...result, _truncated: truncated };
 }
 
 function num(v: any) { return Number(v ?? 0); }
@@ -206,6 +231,7 @@ export const computeHealthScores = createServerFn({ method: "POST" })
     return {
       scores: scores.map((s) => ({ ...s, recommendation: recs[s.key] })),
       raw: { cash, ar, ap, wc, totalRevenue, totalCollected, collectionRate, overdue, margin, delayed, active, avgProgress, highRisk, top5Share, costTrend },
+      dataQuality: { truncated: d._truncated },
     };
   });
 
@@ -236,7 +262,7 @@ export const generateExecutiveInsights = createServerFn({ method: "POST" })
       { role: "system", content: `You are a CFO analyst. ${LANG_INSTRUCTION[lang] ?? LANG_INSTRUCTION.ar} Produce 5-7 short bullet insights (markdown). Each bullet must reference a specific number and quantify direction (up/down by X%). Cover: revenue trend, gross margin, equipment/labor costs, collection performance, and top 2 risks. Be brutally honest.` },
       { role: "user", content: `Data:\n${JSON.stringify(summary)}` },
     ]);
-    return { text, summary };
+    return { text, summary, dataQuality: { truncated: d._truncated } };
   });
 
 export const generateForecasts = createServerFn({ method: "POST" })
@@ -267,6 +293,7 @@ export const generateForecasts = createServerFn({ method: "POST" })
       costs: { history: costs.slice(-12), forecast: linearForecast(costs, periods) },
       payments: { history: payments.slice(-12), forecast: linearForecast(payments, periods) },
       cashflow: { history: cashflow.slice(-12), forecast: linearForecast(cashflow, periods) },
+      dataQuality: { truncated: d._truncated },
     };
   });
 
@@ -304,7 +331,7 @@ export const projectIntelligence = createServerFn({ method: "POST" })
         intervention: risk >= 60,
       };
     });
-    return { projects: analyzed.sort((a, b) => b.risk_score - a.risk_score) };
+    return { projects: analyzed.sort((a, b) => b.risk_score - a.risk_score), dataQuality: { truncated: d._truncated } };
   });
 
 export const customerIntelligenceV2 = createServerFn({ method: "POST" })
@@ -337,7 +364,7 @@ export const customerIntelligenceV2 = createServerFn({ method: "POST" })
         high_risk: risk >= 60,
       };
     }).sort((a, b) => b.outstanding - a.outstanding);
-    return { customers: ranked };
+    return { customers: ranked, dataQuality: { truncated: d._truncated } };
   });
 
 export const vendorIntelligenceV2 = createServerFn({ method: "POST" })
@@ -360,7 +387,7 @@ export const vendorIntelligenceV2 = createServerFn({ method: "POST" })
       };
     }).sort((a, b) => b.outstanding - a.outstanding);
     const top5Share = ranked.slice(0, 5).reduce((s, r) => s + r.outstanding, 0) / totalAP * 100;
-    return { vendors: ranked, concentration_top5_pct: Math.round(top5Share) };
+    return { vendors: ranked, concentration_top5_pct: Math.round(top5Share), dataQuality: { truncated: d._truncated } };
   });
 
 export const costIntelligence = createServerFn({ method: "POST" })
@@ -406,6 +433,7 @@ export const costIntelligence = createServerFn({ method: "POST" })
         : 0;
       result[b] = { series, anomalies, trend_pct: trend, escalation: trend > 20 };
     }
+    result.dataQuality = { truncated: d._truncated };
     return result;
   });
 
@@ -435,6 +463,7 @@ export const treasuryIntelligence = createServerFn({ method: "POST" })
       worst_case: worst,
       deficit_alerts: deficits,
       surplus_opportunity: surplus,
+      dataQuality: { truncated: d._truncated },
     };
   });
 
@@ -491,7 +520,10 @@ export const alertCenter = createServerFn({ method: "POST" })
     const saudization = d.hrEmp.length ? (saudis / d.hrEmp.length) * 100 : 100;
     if (d.hrEmp.length >= 6 && saudization < 20) alerts.push({ category: "financial", priority: "high", title: "نسبة السعودة منخفضة", detail: `${saudization.toFixed(1)}% — قد يؤثر على نطاقات وزارة الموارد البشرية`, link: "/hr/reports" });
 
-    return { alerts: alerts.sort((a, b) => ({ critical: 0, high: 1, medium: 2, low: 3 }[a.priority] - { critical: 0, high: 1, medium: 2, low: 3 }[b.priority])) };
+    return {
+      alerts: alerts.sort((a, b) => ({ critical: 0, high: 1, medium: 2, low: 3 }[a.priority] - { critical: 0, high: 1, medium: 2, low: 3 }[b.priority])),
+      dataQuality: { truncated: d._truncated },
+    };
   });
 
 export const runScenario = createServerFn({ method: "POST" })
@@ -549,6 +581,7 @@ export const runScenario = createServerFn({ method: "POST" })
         profit_change: Math.round(profitChange),
         cash_impact: Math.round(cashImpact),
       },
+      dataQuality: { truncated: d._truncated },
     };
   });
 
@@ -578,5 +611,5 @@ export const generateBoardPack = createServerFn({ method: "POST" })
       { role: "system", content: `You are preparing a board-level ${data.period} report for a construction & infrastructure CEO. ${LANG_INSTRUCTION[lang] ?? LANG_INSTRUCTION.ar} Structure with markdown headings: # Executive Summary, # Financial Performance, # Project Portfolio, # Liquidity & Risk, # Outlook, # Recommendations. Use specific numbers from the data. Keep professional CEO/board tone.` },
       { role: "user", content: `Data:\n${JSON.stringify(ctx)}` },
     ]);
-    return { text, snapshot: ctx };
+    return { text, snapshot: ctx, dataQuality: { truncated: d._truncated } };
   });

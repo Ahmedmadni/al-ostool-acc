@@ -9,6 +9,7 @@ import { useI18n } from "@/lib/i18n";
 import { generateBoardPack } from "@/lib/intelligence.functions";
 import { toast } from "sonner";
 import { fmtSAR } from "@/lib/format";
+import { DataTruncationBanner } from "@/components/shared/data-truncation-banner";
 import { Loader2, Sparkles, FileDown, Printer, Copy } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/board/")({ component: BoardPage });
@@ -76,6 +77,7 @@ function BoardPage() {
             </div>
           </CardHeader>
           <CardContent className="pt-6 space-y-6">
+            <DataTruncationBanner truncated={data.dataQuality?.truncated} />
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
                 { l: "النقد المتاح", v: fmtSAR(data.snapshot.cash) },

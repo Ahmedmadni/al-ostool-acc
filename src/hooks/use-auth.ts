@@ -1,32 +1,31 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Session, User } from "@supabase/supabase-js";
 
+// Previously each of the 16+ call sites ran its own onAuthStateChange
+// subscription and its own "user_roles" query, all fetching the identical
+// data independently. Backing this with useQuery (a shared cache keyed on
+// "auth-session"/"user-roles") means concurrent callers on the same page
+// share one in-flight request instead of firing one each. Freshness on
+// actual sign-in/out/user-update is handled by AuthSync's invalidateQueries
+// call in src/routes/__root.tsx — staleTime: Infinity here means this only
+// refetches when told to, not on a timer or on every window refocus.
 export function useAuth() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [roles, setRoles] = useState<string[]>([]);
+  const { data: session = null, isLoading } = useQuery({
+    queryKey: ["auth-session"],
+    queryFn: async () => (await supabase.auth.getSession()).data.session,
+    staleTime: Infinity,
+  });
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
-      setSession(s);
-      setUser(s?.user ?? null);
-    });
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      setLoading(false);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
+  const user = session?.user ?? null;
 
-  useEffect(() => {
-    if (!user) { setRoles([]); return; }
-    supabase.from("user_roles").select("role").eq("user_id", user.id).then(({ data }) => {
-      setRoles((data ?? []).map((r) => r.role as string));
-    });
-  }, [user]);
+  const { data: roles = [] } = useQuery({
+    queryKey: ["user-roles", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("user_roles").select("role").eq("user_id", user!.id);
+      return (data ?? []).map((r) => r.role as string);
+    },
+    enabled: !!user,
+  });
 
-  return { session, user, loading, roles, isAdmin: roles.includes("admin") };
+  return { session, user, loading: isLoading, roles, isAdmin: roles.includes("admin") };
 }
