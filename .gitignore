@@ -20,11 +20,12 @@ dist-ssr
 .wrangler/
 .dev.vars
 
-# Environment variables — copy .env.example to .env locally instead of
-# committing real values, even ones considered safe to expose (like the
-# Supabase anon key), so a future secret added to this file is never
-# accidentally committed alongside it.
-.env
+# .env is intentionally committed: this is a Lovable-managed project and
+# Lovable Cloud's build/deploy pipeline reads SUPABASE_URL/SUPABASE_PUBLISHABLE_KEY
+# directly from it. The values it holds are the Supabase anon/publishable key,
+# which is meant to be public (access control is enforced by RLS policies, not
+# by hiding this key) — safe to commit, unlike a service-role key or other secret.
+# Only personal local overrides are ignored.
 .env.local
 .env.*.local
 
