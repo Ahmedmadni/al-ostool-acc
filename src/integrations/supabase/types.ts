@@ -1275,6 +1275,489 @@ export type Database = {
           },
         ]
       }
+      fleet_drivers: {
+        Row: {
+          created_at: string
+          employee_id: string | null
+          full_name: string
+          id: string
+          iqama_expiry: string | null
+          iqama_no: string | null
+          license_class: string | null
+          license_expiry: string | null
+          license_no: string | null
+          national_id: string | null
+          notes: string | null
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          employee_id?: string | null
+          full_name: string
+          id?: string
+          iqama_expiry?: string | null
+          iqama_no?: string | null
+          license_class?: string | null
+          license_expiry?: string | null
+          license_no?: string | null
+          national_id?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string | null
+          full_name?: string
+          id?: string
+          iqama_expiry?: string | null
+          iqama_no?: string | null
+          license_class?: string | null
+          license_expiry?: string | null
+          license_no?: string | null
+          national_id?: string | null
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_drivers_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hr_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fleet_fuel: {
+        Row: {
+          cost: number
+          created_at: string
+          driver_id: string | null
+          fuel_date: string
+          id: string
+          liters: number
+          notes: string | null
+          odometer_km: number | null
+          price_per_liter: number | null
+          project_id: string | null
+          station: string | null
+          trip_id: string | null
+          updated_at: string
+          vehicle_id: string
+        }
+        Insert: {
+          cost?: number
+          created_at?: string
+          driver_id?: string | null
+          fuel_date?: string
+          id?: string
+          liters?: number
+          notes?: string | null
+          odometer_km?: number | null
+          price_per_liter?: number | null
+          project_id?: string | null
+          station?: string | null
+          trip_id?: string | null
+          updated_at?: string
+          vehicle_id: string
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          driver_id?: string | null
+          fuel_date?: string
+          id?: string
+          liters?: number
+          notes?: string | null
+          odometer_km?: number | null
+          price_per_liter?: number | null
+          project_id?: string | null
+          station?: string | null
+          trip_id?: string | null
+          updated_at?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_fuel_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fleet_fuel_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fleet_fuel_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fleet_locations: {
+        Row: {
+          altitude_m: number | null
+          created_at: string
+          heading: number | null
+          id: string
+          lat: number
+          lng: number
+          recorded_at: string
+          source: string | null
+          speed_kmh: number | null
+          trip_id: string | null
+          vehicle_id: string
+        }
+        Insert: {
+          altitude_m?: number | null
+          created_at?: string
+          heading?: number | null
+          id?: string
+          lat: number
+          lng: number
+          recorded_at: string
+          source?: string | null
+          speed_kmh?: number | null
+          trip_id?: string | null
+          vehicle_id: string
+        }
+        Update: {
+          altitude_m?: number | null
+          created_at?: string
+          heading?: number | null
+          id?: string
+          lat?: number
+          lng?: number
+          recorded_at?: string
+          source?: string | null
+          speed_kmh?: number | null
+          trip_id?: string | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_locations_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_trips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fleet_locations_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fleet_maintenance: {
+        Row: {
+          cost: number
+          created_at: string
+          description: string | null
+          id: string
+          invoice_ref: string | null
+          maintenance_type: Database["public"]["Enums"]["fleet_maintenance_type"]
+          next_service_date: string | null
+          next_service_km: number | null
+          odometer_km: number | null
+          project_id: string | null
+          service_date: string
+          updated_at: string
+          vehicle_id: string
+          vendor: string | null
+        }
+        Insert: {
+          cost?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          invoice_ref?: string | null
+          maintenance_type?: Database["public"]["Enums"]["fleet_maintenance_type"]
+          next_service_date?: string | null
+          next_service_km?: number | null
+          odometer_km?: number | null
+          project_id?: string | null
+          service_date?: string
+          updated_at?: string
+          vehicle_id: string
+          vendor?: string | null
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          invoice_ref?: string | null
+          maintenance_type?: Database["public"]["Enums"]["fleet_maintenance_type"]
+          next_service_date?: string | null
+          next_service_km?: number | null
+          odometer_km?: number | null
+          project_id?: string | null
+          service_date?: string
+          updated_at?: string
+          vehicle_id?: string
+          vendor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_maintenance_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fleet_maintenance_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fleet_trips: {
+        Row: {
+          actual_distance_km: number | null
+          cargo_description: string | null
+          cargo_weight_tons: number | null
+          contract_id: string | null
+          created_at: string
+          customer_id: string | null
+          destination_lat: number | null
+          destination_lng: number | null
+          destination_name: string | null
+          driver_id: string | null
+          end_at: string | null
+          fuel_cost: number | null
+          id: string
+          notes: string | null
+          origin_lat: number | null
+          origin_lng: number | null
+          origin_name: string | null
+          other_costs: number | null
+          planned_distance_km: number | null
+          project_id: string | null
+          revenue: number | null
+          start_at: string | null
+          status: Database["public"]["Enums"]["fleet_trip_status"]
+          trip_no: string | null
+          updated_at: string
+          vehicle_id: string
+        }
+        Insert: {
+          actual_distance_km?: number | null
+          cargo_description?: string | null
+          cargo_weight_tons?: number | null
+          contract_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          destination_lat?: number | null
+          destination_lng?: number | null
+          destination_name?: string | null
+          driver_id?: string | null
+          end_at?: string | null
+          fuel_cost?: number | null
+          id?: string
+          notes?: string | null
+          origin_lat?: number | null
+          origin_lng?: number | null
+          origin_name?: string | null
+          other_costs?: number | null
+          planned_distance_km?: number | null
+          project_id?: string | null
+          revenue?: number | null
+          start_at?: string | null
+          status?: Database["public"]["Enums"]["fleet_trip_status"]
+          trip_no?: string | null
+          updated_at?: string
+          vehicle_id: string
+        }
+        Update: {
+          actual_distance_km?: number | null
+          cargo_description?: string | null
+          cargo_weight_tons?: number | null
+          contract_id?: string | null
+          created_at?: string
+          customer_id?: string | null
+          destination_lat?: number | null
+          destination_lng?: number | null
+          destination_name?: string | null
+          driver_id?: string | null
+          end_at?: string | null
+          fuel_cost?: number | null
+          id?: string
+          notes?: string | null
+          origin_lat?: number | null
+          origin_lng?: number | null
+          origin_name?: string | null
+          other_costs?: number | null
+          planned_distance_km?: number | null
+          project_id?: string | null
+          revenue?: number | null
+          start_at?: string | null
+          status?: Database["public"]["Enums"]["fleet_trip_status"]
+          trip_no?: string | null
+          updated_at?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_trips_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fleet_trips_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fleet_trips_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fleet_trips_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fleet_trips_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fleet_vehicles: {
+        Row: {
+          brand: string | null
+          capacity_tons: number | null
+          color: string | null
+          created_at: string
+          current_driver_id: string | null
+          fixed_asset_id: string | null
+          fuel_type: string | null
+          gps_device_id: string | null
+          gps_provider: string | null
+          id: string
+          inspection_expiry: string | null
+          insurance_expiry: string | null
+          last_lat: number | null
+          last_lng: number | null
+          last_ping_at: string | null
+          last_speed_kmh: number | null
+          load_volume_m3: number | null
+          model: string | null
+          notes: string | null
+          odometer_km: number | null
+          plate_no: string
+          registration_expiry: string | null
+          status: Database["public"]["Enums"]["fleet_vehicle_status"]
+          updated_at: string
+          vehicle_type: Database["public"]["Enums"]["fleet_vehicle_type"]
+          vin: string | null
+          year: number | null
+        }
+        Insert: {
+          brand?: string | null
+          capacity_tons?: number | null
+          color?: string | null
+          created_at?: string
+          current_driver_id?: string | null
+          fixed_asset_id?: string | null
+          fuel_type?: string | null
+          gps_device_id?: string | null
+          gps_provider?: string | null
+          id?: string
+          inspection_expiry?: string | null
+          insurance_expiry?: string | null
+          last_lat?: number | null
+          last_lng?: number | null
+          last_ping_at?: string | null
+          last_speed_kmh?: number | null
+          load_volume_m3?: number | null
+          model?: string | null
+          notes?: string | null
+          odometer_km?: number | null
+          plate_no: string
+          registration_expiry?: string | null
+          status?: Database["public"]["Enums"]["fleet_vehicle_status"]
+          updated_at?: string
+          vehicle_type?: Database["public"]["Enums"]["fleet_vehicle_type"]
+          vin?: string | null
+          year?: number | null
+        }
+        Update: {
+          brand?: string | null
+          capacity_tons?: number | null
+          color?: string | null
+          created_at?: string
+          current_driver_id?: string | null
+          fixed_asset_id?: string | null
+          fuel_type?: string | null
+          gps_device_id?: string | null
+          gps_provider?: string | null
+          id?: string
+          inspection_expiry?: string | null
+          insurance_expiry?: string | null
+          last_lat?: number | null
+          last_lng?: number | null
+          last_ping_at?: string | null
+          last_speed_kmh?: number | null
+          load_volume_m3?: number | null
+          model?: string | null
+          notes?: string | null
+          odometer_km?: number | null
+          plate_no?: string
+          registration_expiry?: string | null
+          status?: Database["public"]["Enums"]["fleet_vehicle_status"]
+          updated_at?: string
+          vehicle_type?: Database["public"]["Enums"]["fleet_vehicle_type"]
+          vin?: string | null
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_vehicles_current_driver_id_fkey"
+            columns: ["current_driver_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fleet_vehicles_fixed_asset_id_fkey"
+            columns: ["fixed_asset_id"]
+            isOneToOne: false
+            referencedRelation: "fixed_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hr_assets_assignment: {
         Row: {
           asset_name: string
@@ -4245,6 +4728,28 @@ export type Database = {
         | "other_services"
         | "asset_sales"
       customer_size: "small" | "medium" | "large" | "strategic"
+      fleet_maintenance_type:
+        | "preventive"
+        | "repair"
+        | "oil_change"
+        | "tires"
+        | "inspection"
+        | "other"
+      fleet_trip_status: "planned" | "in_progress" | "completed" | "cancelled"
+      fleet_vehicle_status:
+        | "active"
+        | "maintenance"
+        | "idle"
+        | "sold"
+        | "out_of_service"
+      fleet_vehicle_type:
+        | "truck"
+        | "trailer"
+        | "pickup"
+        | "car"
+        | "van"
+        | "equipment"
+        | "other"
       hr_asset_type:
         | "vehicle"
         | "laptop"
@@ -4535,6 +5040,31 @@ export const Constants = {
         "asset_sales",
       ],
       customer_size: ["small", "medium", "large", "strategic"],
+      fleet_maintenance_type: [
+        "preventive",
+        "repair",
+        "oil_change",
+        "tires",
+        "inspection",
+        "other",
+      ],
+      fleet_trip_status: ["planned", "in_progress", "completed", "cancelled"],
+      fleet_vehicle_status: [
+        "active",
+        "maintenance",
+        "idle",
+        "sold",
+        "out_of_service",
+      ],
+      fleet_vehicle_type: [
+        "truck",
+        "trailer",
+        "pickup",
+        "car",
+        "van",
+        "equipment",
+        "other",
+      ],
       hr_asset_type: [
         "vehicle",
         "laptop",
