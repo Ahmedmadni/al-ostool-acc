@@ -101,6 +101,15 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/hr/audit", module: "hr" },
   { prefix: "/hr", module: "hr" },
 
+  // ===== Fleet group =====
+  { prefix: "/fleet/vehicles", module: "fleet" },
+  { prefix: "/fleet/drivers", module: "fleet" },
+  { prefix: "/fleet/trips", module: "fleet" },
+  { prefix: "/fleet/maintenance", module: "fleet" },
+  { prefix: "/fleet/fuel", module: "fleet" },
+  { prefix: "/fleet/tracking", module: "fleet" },
+  { prefix: "/fleet", module: "fleet" },
+
   // ===== Misc =====
   { prefix: "/notifications", module: "notifications" },
 ];

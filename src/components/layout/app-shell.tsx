@@ -132,6 +132,18 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
+    key: "fleet", label: "النقليات والأسطول", label_en: "Fleet Management", icon: Truck,
+    links: [
+      { to: "/fleet", label: "لوحة النقليات", label_en: "Fleet Dashboard" },
+      { to: "/fleet/vehicles", label: "المركبات", label_en: "Vehicles" },
+      { to: "/fleet/drivers", label: "السائقون", label_en: "Drivers" },
+      { to: "/fleet/trips", label: "الرحلات", label_en: "Trips" },
+      { to: "/fleet/tracking", label: "تتبع مباشر (خريطة)", label_en: "Live Tracking (Map)" },
+      { to: "/fleet/maintenance", label: "الصيانة", label_en: "Maintenance" },
+      { to: "/fleet/fuel", label: "الوقود", label_en: "Fuel" },
+    ],
+  },
+  {
     key: "tasks", label: "المهام والتقويم", label_en: "Tasks & Calendar", icon: ClipboardList,
     links: [
       { to: "/tasks", label: "المهام والتقويم", label_en: "Tasks & Calendar" },

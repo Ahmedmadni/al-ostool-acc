@@ -28,6 +28,7 @@ import { Route as AuthenticatedNotesIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedImportsIndexRouteImport } from './routes/_authenticated/imports/index'
 import { Route as AuthenticatedHrIndexRouteImport } from './routes/_authenticated/hr/index'
 import { Route as AuthenticatedForecastingIndexRouteImport } from './routes/_authenticated/forecasting/index'
+import { Route as AuthenticatedFleetIndexRouteImport } from './routes/_authenticated/fleet/index'
 import { Route as AuthenticatedFixedAssetsIndexRouteImport } from './routes/_authenticated/fixed-assets/index'
 import { Route as AuthenticatedFinancialsIndexRouteImport } from './routes/_authenticated/financials/index'
 import { Route as AuthenticatedExecutiveIndexRouteImport } from './routes/_authenticated/executive/index'
@@ -84,6 +85,12 @@ import { Route as AuthenticatedHrContractsIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedHrComplianceIndexRouteImport } from './routes/_authenticated/hr/compliance/index'
 import { Route as AuthenticatedHrAuditIndexRouteImport } from './routes/_authenticated/hr/audit/index'
 import { Route as AuthenticatedHrAssetsIndexRouteImport } from './routes/_authenticated/hr/assets/index'
+import { Route as AuthenticatedFleetVehiclesIndexRouteImport } from './routes/_authenticated/fleet/vehicles/index'
+import { Route as AuthenticatedFleetTripsIndexRouteImport } from './routes/_authenticated/fleet/trips/index'
+import { Route as AuthenticatedFleetTrackingIndexRouteImport } from './routes/_authenticated/fleet/tracking/index'
+import { Route as AuthenticatedFleetMaintenanceIndexRouteImport } from './routes/_authenticated/fleet/maintenance/index'
+import { Route as AuthenticatedFleetFuelIndexRouteImport } from './routes/_authenticated/fleet/fuel/index'
+import { Route as AuthenticatedFleetDriversIndexRouteImport } from './routes/_authenticated/fleet/drivers/index'
 import { Route as AuthenticatedVendorsStatementIdRouteImport } from './routes/_authenticated/vendors/statement.$id'
 import { Route as AuthenticatedTasksReportsTaskCompletionRouteImport } from './routes/_authenticated/tasks/reports/task-completion'
 import { Route as AuthenticatedTasksReportsEmployeePerformanceRouteImport } from './routes/_authenticated/tasks/reports/employee-performance'
@@ -200,6 +207,11 @@ const AuthenticatedForecastingIndexRoute =
     path: '/forecasting/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFleetIndexRoute = AuthenticatedFleetIndexRouteImport.update({
+  id: '/fleet/',
+  path: '/fleet/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedFixedAssetsIndexRoute =
   AuthenticatedFixedAssetsIndexRouteImport.update({
     id: '/fixed-assets/',
@@ -530,6 +542,42 @@ const AuthenticatedHrAssetsIndexRoute =
     path: '/hr/assets/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFleetVehiclesIndexRoute =
+  AuthenticatedFleetVehiclesIndexRouteImport.update({
+    id: '/fleet/vehicles/',
+    path: '/fleet/vehicles/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFleetTripsIndexRoute =
+  AuthenticatedFleetTripsIndexRouteImport.update({
+    id: '/fleet/trips/',
+    path: '/fleet/trips/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFleetTrackingIndexRoute =
+  AuthenticatedFleetTrackingIndexRouteImport.update({
+    id: '/fleet/tracking/',
+    path: '/fleet/tracking/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFleetMaintenanceIndexRoute =
+  AuthenticatedFleetMaintenanceIndexRouteImport.update({
+    id: '/fleet/maintenance/',
+    path: '/fleet/maintenance/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFleetFuelIndexRoute =
+  AuthenticatedFleetFuelIndexRouteImport.update({
+    id: '/fleet/fuel/',
+    path: '/fleet/fuel/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFleetDriversIndexRoute =
+  AuthenticatedFleetDriversIndexRouteImport.update({
+    id: '/fleet/drivers/',
+    path: '/fleet/drivers/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedVendorsStatementIdRoute =
   AuthenticatedVendorsStatementIdRouteImport.update({
     id: '/vendors/statement/$id',
@@ -640,6 +688,7 @@ export interface FileRoutesByFullPath {
   '/executive/': typeof AuthenticatedExecutiveIndexRoute
   '/financials/': typeof AuthenticatedFinancialsIndexRoute
   '/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
+  '/fleet/': typeof AuthenticatedFleetIndexRoute
   '/forecasting/': typeof AuthenticatedForecastingIndexRoute
   '/hr/': typeof AuthenticatedHrIndexRoute
   '/imports/': typeof AuthenticatedImportsIndexRoute
@@ -663,6 +712,12 @@ export interface FileRoutesByFullPath {
   '/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
+  '/fleet/drivers/': typeof AuthenticatedFleetDriversIndexRoute
+  '/fleet/fuel/': typeof AuthenticatedFleetFuelIndexRoute
+  '/fleet/maintenance/': typeof AuthenticatedFleetMaintenanceIndexRoute
+  '/fleet/tracking/': typeof AuthenticatedFleetTrackingIndexRoute
+  '/fleet/trips/': typeof AuthenticatedFleetTripsIndexRoute
+  '/fleet/vehicles/': typeof AuthenticatedFleetVehiclesIndexRoute
   '/hr/assets/': typeof AuthenticatedHrAssetsIndexRoute
   '/hr/audit/': typeof AuthenticatedHrAuditIndexRoute
   '/hr/compliance/': typeof AuthenticatedHrComplianceIndexRoute
@@ -726,6 +781,7 @@ export interface FileRoutesByTo {
   '/executive': typeof AuthenticatedExecutiveIndexRoute
   '/financials': typeof AuthenticatedFinancialsIndexRoute
   '/fixed-assets': typeof AuthenticatedFixedAssetsIndexRoute
+  '/fleet': typeof AuthenticatedFleetIndexRoute
   '/forecasting': typeof AuthenticatedForecastingIndexRoute
   '/hr': typeof AuthenticatedHrIndexRoute
   '/imports': typeof AuthenticatedImportsIndexRoute
@@ -749,6 +805,12 @@ export interface FileRoutesByTo {
   '/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
+  '/fleet/drivers': typeof AuthenticatedFleetDriversIndexRoute
+  '/fleet/fuel': typeof AuthenticatedFleetFuelIndexRoute
+  '/fleet/maintenance': typeof AuthenticatedFleetMaintenanceIndexRoute
+  '/fleet/tracking': typeof AuthenticatedFleetTrackingIndexRoute
+  '/fleet/trips': typeof AuthenticatedFleetTripsIndexRoute
+  '/fleet/vehicles': typeof AuthenticatedFleetVehiclesIndexRoute
   '/hr/assets': typeof AuthenticatedHrAssetsIndexRoute
   '/hr/audit': typeof AuthenticatedHrAuditIndexRoute
   '/hr/compliance': typeof AuthenticatedHrComplianceIndexRoute
@@ -814,6 +876,7 @@ export interface FileRoutesById {
   '/_authenticated/executive/': typeof AuthenticatedExecutiveIndexRoute
   '/_authenticated/financials/': typeof AuthenticatedFinancialsIndexRoute
   '/_authenticated/fixed-assets/': typeof AuthenticatedFixedAssetsIndexRoute
+  '/_authenticated/fleet/': typeof AuthenticatedFleetIndexRoute
   '/_authenticated/forecasting/': typeof AuthenticatedForecastingIndexRoute
   '/_authenticated/hr/': typeof AuthenticatedHrIndexRoute
   '/_authenticated/imports/': typeof AuthenticatedImportsIndexRoute
@@ -837,6 +900,12 @@ export interface FileRoutesById {
   '/_authenticated/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   '/_authenticated/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/_authenticated/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
+  '/_authenticated/fleet/drivers/': typeof AuthenticatedFleetDriversIndexRoute
+  '/_authenticated/fleet/fuel/': typeof AuthenticatedFleetFuelIndexRoute
+  '/_authenticated/fleet/maintenance/': typeof AuthenticatedFleetMaintenanceIndexRoute
+  '/_authenticated/fleet/tracking/': typeof AuthenticatedFleetTrackingIndexRoute
+  '/_authenticated/fleet/trips/': typeof AuthenticatedFleetTripsIndexRoute
+  '/_authenticated/fleet/vehicles/': typeof AuthenticatedFleetVehiclesIndexRoute
   '/_authenticated/hr/assets/': typeof AuthenticatedHrAssetsIndexRoute
   '/_authenticated/hr/audit/': typeof AuthenticatedHrAuditIndexRoute
   '/_authenticated/hr/compliance/': typeof AuthenticatedHrComplianceIndexRoute
@@ -902,6 +971,7 @@ export interface FileRouteTypes {
     | '/executive/'
     | '/financials/'
     | '/fixed-assets/'
+    | '/fleet/'
     | '/forecasting/'
     | '/hr/'
     | '/imports/'
@@ -925,6 +995,12 @@ export interface FileRouteTypes {
     | '/tasks/reports/employee-performance'
     | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
+    | '/fleet/drivers/'
+    | '/fleet/fuel/'
+    | '/fleet/maintenance/'
+    | '/fleet/tracking/'
+    | '/fleet/trips/'
+    | '/fleet/vehicles/'
     | '/hr/assets/'
     | '/hr/audit/'
     | '/hr/compliance/'
@@ -988,6 +1064,7 @@ export interface FileRouteTypes {
     | '/executive'
     | '/financials'
     | '/fixed-assets'
+    | '/fleet'
     | '/forecasting'
     | '/hr'
     | '/imports'
@@ -1011,6 +1088,12 @@ export interface FileRouteTypes {
     | '/tasks/reports/employee-performance'
     | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
+    | '/fleet/drivers'
+    | '/fleet/fuel'
+    | '/fleet/maintenance'
+    | '/fleet/tracking'
+    | '/fleet/trips'
+    | '/fleet/vehicles'
     | '/hr/assets'
     | '/hr/audit'
     | '/hr/compliance'
@@ -1075,6 +1158,7 @@ export interface FileRouteTypes {
     | '/_authenticated/executive/'
     | '/_authenticated/financials/'
     | '/_authenticated/fixed-assets/'
+    | '/_authenticated/fleet/'
     | '/_authenticated/forecasting/'
     | '/_authenticated/hr/'
     | '/_authenticated/imports/'
@@ -1098,6 +1182,12 @@ export interface FileRouteTypes {
     | '/_authenticated/tasks/reports/employee-performance'
     | '/_authenticated/tasks/reports/task-completion'
     | '/_authenticated/vendors/statement/$id'
+    | '/_authenticated/fleet/drivers/'
+    | '/_authenticated/fleet/fuel/'
+    | '/_authenticated/fleet/maintenance/'
+    | '/_authenticated/fleet/tracking/'
+    | '/_authenticated/fleet/trips/'
+    | '/_authenticated/fleet/vehicles/'
     | '/_authenticated/hr/assets/'
     | '/_authenticated/hr/audit/'
     | '/_authenticated/hr/compliance/'
@@ -1252,6 +1342,13 @@ declare module '@tanstack/react-router' {
       path: '/forecasting'
       fullPath: '/forecasting/'
       preLoaderRoute: typeof AuthenticatedForecastingIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/fleet/': {
+      id: '/_authenticated/fleet/'
+      path: '/fleet'
+      fullPath: '/fleet/'
+      preLoaderRoute: typeof AuthenticatedFleetIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/fixed-assets/': {
@@ -1646,6 +1743,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHrAssetsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/fleet/vehicles/': {
+      id: '/_authenticated/fleet/vehicles/'
+      path: '/fleet/vehicles'
+      fullPath: '/fleet/vehicles/'
+      preLoaderRoute: typeof AuthenticatedFleetVehiclesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/fleet/trips/': {
+      id: '/_authenticated/fleet/trips/'
+      path: '/fleet/trips'
+      fullPath: '/fleet/trips/'
+      preLoaderRoute: typeof AuthenticatedFleetTripsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/fleet/tracking/': {
+      id: '/_authenticated/fleet/tracking/'
+      path: '/fleet/tracking'
+      fullPath: '/fleet/tracking/'
+      preLoaderRoute: typeof AuthenticatedFleetTrackingIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/fleet/maintenance/': {
+      id: '/_authenticated/fleet/maintenance/'
+      path: '/fleet/maintenance'
+      fullPath: '/fleet/maintenance/'
+      preLoaderRoute: typeof AuthenticatedFleetMaintenanceIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/fleet/fuel/': {
+      id: '/_authenticated/fleet/fuel/'
+      path: '/fleet/fuel'
+      fullPath: '/fleet/fuel/'
+      preLoaderRoute: typeof AuthenticatedFleetFuelIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/fleet/drivers/': {
+      id: '/_authenticated/fleet/drivers/'
+      path: '/fleet/drivers'
+      fullPath: '/fleet/drivers/'
+      preLoaderRoute: typeof AuthenticatedFleetDriversIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/vendors/statement/$id': {
       id: '/_authenticated/vendors/statement/$id'
       path: '/vendors/statement/$id'
@@ -1766,6 +1905,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedExecutiveIndexRoute: typeof AuthenticatedExecutiveIndexRoute
   AuthenticatedFinancialsIndexRoute: typeof AuthenticatedFinancialsIndexRoute
   AuthenticatedFixedAssetsIndexRoute: typeof AuthenticatedFixedAssetsIndexRoute
+  AuthenticatedFleetIndexRoute: typeof AuthenticatedFleetIndexRoute
   AuthenticatedForecastingIndexRoute: typeof AuthenticatedForecastingIndexRoute
   AuthenticatedHrIndexRoute: typeof AuthenticatedHrIndexRoute
   AuthenticatedImportsIndexRoute: typeof AuthenticatedImportsIndexRoute
@@ -1789,6 +1929,12 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTasksReportsEmployeePerformanceRoute: typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   AuthenticatedTasksReportsTaskCompletionRoute: typeof AuthenticatedTasksReportsTaskCompletionRoute
   AuthenticatedVendorsStatementIdRoute: typeof AuthenticatedVendorsStatementIdRoute
+  AuthenticatedFleetDriversIndexRoute: typeof AuthenticatedFleetDriversIndexRoute
+  AuthenticatedFleetFuelIndexRoute: typeof AuthenticatedFleetFuelIndexRoute
+  AuthenticatedFleetMaintenanceIndexRoute: typeof AuthenticatedFleetMaintenanceIndexRoute
+  AuthenticatedFleetTrackingIndexRoute: typeof AuthenticatedFleetTrackingIndexRoute
+  AuthenticatedFleetTripsIndexRoute: typeof AuthenticatedFleetTripsIndexRoute
+  AuthenticatedFleetVehiclesIndexRoute: typeof AuthenticatedFleetVehiclesIndexRoute
   AuthenticatedHrAssetsIndexRoute: typeof AuthenticatedHrAssetsIndexRoute
   AuthenticatedHrAuditIndexRoute: typeof AuthenticatedHrAuditIndexRoute
   AuthenticatedHrComplianceIndexRoute: typeof AuthenticatedHrComplianceIndexRoute
@@ -1856,6 +2002,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedExecutiveIndexRoute: AuthenticatedExecutiveIndexRoute,
   AuthenticatedFinancialsIndexRoute: AuthenticatedFinancialsIndexRoute,
   AuthenticatedFixedAssetsIndexRoute: AuthenticatedFixedAssetsIndexRoute,
+  AuthenticatedFleetIndexRoute: AuthenticatedFleetIndexRoute,
   AuthenticatedForecastingIndexRoute: AuthenticatedForecastingIndexRoute,
   AuthenticatedHrIndexRoute: AuthenticatedHrIndexRoute,
   AuthenticatedImportsIndexRoute: AuthenticatedImportsIndexRoute,
@@ -1883,6 +2030,13 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTasksReportsTaskCompletionRoute:
     AuthenticatedTasksReportsTaskCompletionRoute,
   AuthenticatedVendorsStatementIdRoute: AuthenticatedVendorsStatementIdRoute,
+  AuthenticatedFleetDriversIndexRoute: AuthenticatedFleetDriversIndexRoute,
+  AuthenticatedFleetFuelIndexRoute: AuthenticatedFleetFuelIndexRoute,
+  AuthenticatedFleetMaintenanceIndexRoute:
+    AuthenticatedFleetMaintenanceIndexRoute,
+  AuthenticatedFleetTrackingIndexRoute: AuthenticatedFleetTrackingIndexRoute,
+  AuthenticatedFleetTripsIndexRoute: AuthenticatedFleetTripsIndexRoute,
+  AuthenticatedFleetVehiclesIndexRoute: AuthenticatedFleetVehiclesIndexRoute,
   AuthenticatedHrAssetsIndexRoute: AuthenticatedHrAssetsIndexRoute,
   AuthenticatedHrAuditIndexRoute: AuthenticatedHrAuditIndexRoute,
   AuthenticatedHrComplianceIndexRoute: AuthenticatedHrComplianceIndexRoute,
