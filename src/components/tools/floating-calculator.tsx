@@ -249,7 +249,8 @@ export function FloatingCalculator() {
               </button>
             ))}
           </div>
-        </div>
+          </div>
+        </>
       )}
     </>
   );
