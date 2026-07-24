@@ -146,13 +146,29 @@ export function FloatingCalculator() {
         onClick={() => setOpen((o) => !o)}
         title="الآلة الحاسبة"
         aria-label="الآلة الحاسبة"
-        className="fixed bottom-24 left-6 z-40 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 flex items-center justify-center no-print"
+        className="fixed left-4 md:left-6 z-40 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 flex items-center justify-center no-print"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 76px)" }}
       >
         <CalcIcon className="w-5 h-5" />
       </button>
 
       {open && (
-        <div className="fixed bottom-40 left-6 z-50 w-72 rounded-xl border border-border bg-card shadow-2xl no-print" dir="ltr">
+        <>
+          <div
+            className="md:hidden fixed inset-0 z-40 bg-black/40 no-print"
+            onClick={() => setOpen(false)}
+          />
+          <div
+            className="fixed z-50 no-print bg-card border border-border shadow-2xl
+              inset-x-2 rounded-xl
+              md:inset-auto md:left-6 md:w-72 md:rounded-xl"
+            style={{
+              bottom: "calc(env(safe-area-inset-bottom) + 140px)",
+              maxHeight: "calc(100vh - env(safe-area-inset-bottom) - 160px)",
+              overflowY: "auto",
+            }}
+            dir="ltr"
+          >
           <div className="flex items-center justify-between px-3 py-2 border-b border-border">
             <div className="flex items-center gap-2 text-sm font-semibold text-card-foreground">
               <CalcIcon className="w-4 h-4" /> Calculator
@@ -233,7 +249,8 @@ export function FloatingCalculator() {
               </button>
             ))}
           </div>
-        </div>
+          </div>
+        </>
       )}
     </>
   );
