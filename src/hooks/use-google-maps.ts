@@ -4,9 +4,9 @@ const KEY = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as st
 const CHANNEL = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
 const CB_NAME = "__lovableInitGoogleMaps";
 
-let promise: Promise<typeof google> | null = null;
+let promise: Promise<any> | null = null;
 
-function loadScript(): Promise<typeof google> {
+function loadScript(): Promise<any> {
   if (typeof window === "undefined") return Promise.reject(new Error("SSR"));
   if ((window as any).google?.maps) return Promise.resolve((window as any).google);
   if (promise) return promise;
