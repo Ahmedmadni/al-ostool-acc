@@ -81,6 +81,15 @@ export const MOBILE_MODULES: MobileModule[] = [
   { to: "/costs", label: "ذكاء التكاليف", icon: Layers, category: "costs" },
   { to: "/control/costs", label: "التحكم بالتكاليف", icon: ShieldCheck, category: "costs" },
 
+  // Fleet
+  { to: "/fleet", label: "لوحة النقليات", icon: Truck, category: "operations" },
+  { to: "/fleet/vehicles", label: "المركبات", icon: Truck, category: "operations" },
+  { to: "/fleet/drivers", label: "السائقون", icon: Users, category: "operations" },
+  { to: "/fleet/trips", label: "الرحلات", icon: GitBranch, category: "operations" },
+  { to: "/fleet/tracking", label: "تتبع مباشر", icon: Telescope, category: "operations" },
+  { to: "/fleet/maintenance", label: "الصيانة", icon: Activity, category: "operations" },
+  { to: "/fleet/fuel", label: "الوقود", icon: Wallet, category: "costs" },
+
   // Intelligence
   { to: "/executive", label: "مركز القيادة التنفيذي", icon: LayoutDashboard, category: "intelligence" },
   { to: "/forecasting", label: "محرك التوقعات", icon: Telescope, category: "intelligence" },
