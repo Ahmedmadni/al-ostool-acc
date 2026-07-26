@@ -91,6 +91,7 @@ import { Route as AuthenticatedFleetTrackingIndexRouteImport } from './routes/_a
 import { Route as AuthenticatedFleetMaintenanceIndexRouteImport } from './routes/_authenticated/fleet/maintenance/index'
 import { Route as AuthenticatedFleetFuelIndexRouteImport } from './routes/_authenticated/fleet/fuel/index'
 import { Route as AuthenticatedFleetDriversIndexRouteImport } from './routes/_authenticated/fleet/drivers/index'
+import { Route as ApiPublicFleetIngestRouteImport } from './routes/api/public/fleet/ingest'
 import { Route as AuthenticatedVendorsStatementIdRouteImport } from './routes/_authenticated/vendors/statement.$id'
 import { Route as AuthenticatedTasksReportsTaskCompletionRouteImport } from './routes/_authenticated/tasks/reports/task-completion'
 import { Route as AuthenticatedTasksReportsEmployeePerformanceRouteImport } from './routes/_authenticated/tasks/reports/employee-performance'
@@ -578,6 +579,11 @@ const AuthenticatedFleetDriversIndexRoute =
     path: '/fleet/drivers/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const ApiPublicFleetIngestRoute = ApiPublicFleetIngestRouteImport.update({
+  id: '/api/public/fleet/ingest',
+  path: '/api/public/fleet/ingest',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedVendorsStatementIdRoute =
   AuthenticatedVendorsStatementIdRouteImport.update({
     id: '/vendors/statement/$id',
@@ -712,6 +718,7 @@ export interface FileRoutesByFullPath {
   '/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
+  '/api/public/fleet/ingest': typeof ApiPublicFleetIngestRoute
   '/fleet/drivers/': typeof AuthenticatedFleetDriversIndexRoute
   '/fleet/fuel/': typeof AuthenticatedFleetFuelIndexRoute
   '/fleet/maintenance/': typeof AuthenticatedFleetMaintenanceIndexRoute
@@ -805,6 +812,7 @@ export interface FileRoutesByTo {
   '/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
+  '/api/public/fleet/ingest': typeof ApiPublicFleetIngestRoute
   '/fleet/drivers': typeof AuthenticatedFleetDriversIndexRoute
   '/fleet/fuel': typeof AuthenticatedFleetFuelIndexRoute
   '/fleet/maintenance': typeof AuthenticatedFleetMaintenanceIndexRoute
@@ -900,6 +908,7 @@ export interface FileRoutesById {
   '/_authenticated/tasks/reports/employee-performance': typeof AuthenticatedTasksReportsEmployeePerformanceRoute
   '/_authenticated/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/_authenticated/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
+  '/api/public/fleet/ingest': typeof ApiPublicFleetIngestRoute
   '/_authenticated/fleet/drivers/': typeof AuthenticatedFleetDriversIndexRoute
   '/_authenticated/fleet/fuel/': typeof AuthenticatedFleetFuelIndexRoute
   '/_authenticated/fleet/maintenance/': typeof AuthenticatedFleetMaintenanceIndexRoute
@@ -995,6 +1004,7 @@ export interface FileRouteTypes {
     | '/tasks/reports/employee-performance'
     | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
+    | '/api/public/fleet/ingest'
     | '/fleet/drivers/'
     | '/fleet/fuel/'
     | '/fleet/maintenance/'
@@ -1088,6 +1098,7 @@ export interface FileRouteTypes {
     | '/tasks/reports/employee-performance'
     | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
+    | '/api/public/fleet/ingest'
     | '/fleet/drivers'
     | '/fleet/fuel'
     | '/fleet/maintenance'
@@ -1182,6 +1193,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tasks/reports/employee-performance'
     | '/_authenticated/tasks/reports/task-completion'
     | '/_authenticated/vendors/statement/$id'
+    | '/api/public/fleet/ingest'
     | '/_authenticated/fleet/drivers/'
     | '/_authenticated/fleet/fuel/'
     | '/_authenticated/fleet/maintenance/'
@@ -1207,6 +1219,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ApiPublicFleetIngestRoute: typeof ApiPublicFleetIngestRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1785,6 +1798,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFleetDriversIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/fleet/ingest': {
+      id: '/api/public/fleet/ingest'
+      path: '/api/public/fleet/ingest'
+      fullPath: '/api/public/fleet/ingest'
+      preLoaderRoute: typeof ApiPublicFleetIngestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/vendors/statement/$id': {
       id: '/_authenticated/vendors/statement/$id'
       path: '/vendors/statement/$id'
@@ -2060,6 +2080,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
+  ApiPublicFleetIngestRoute: ApiPublicFleetIngestRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

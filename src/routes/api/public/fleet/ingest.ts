@@ -56,7 +56,7 @@ async function ingest(request: Request) {
 
   // Resolve plate_no → vehicle_id for any point lacking vehicle_id
   const plates = Array.from(new Set(
-    rawPoints.map((p) => p.plate_no).filter((v): v is string => !!v && !rawPoints.find((r) => r === p)?.vehicle_id),
+    rawPoints.filter((p) => !p.vehicle_id && !!p.plate_no).map((p) => p.plate_no as string),
   ));
   const plateMap = new Map<string, string>();
   if (plates.length) {
@@ -65,7 +65,12 @@ async function ingest(request: Request) {
     (data ?? []).forEach((r: any) => plateMap.set(r.plate_no, r.id));
   }
 
-  const rows: Array<Record<string, unknown>> = [];
+  type Row = {
+    vehicle_id: string; trip_id: string | null; lat: number; lng: number;
+    speed_kmh: number | null; heading: number | null; altitude_m: number | null;
+    recorded_at: string; source: string;
+  };
+  const rows: Row[] = [];
   const errors: Array<{ index: number; error: string }> = [];
   rawPoints.forEach((p, i) => {
     const vehicle_id = p.vehicle_id || (p.plate_no ? plateMap.get(p.plate_no) : undefined);
@@ -89,6 +94,7 @@ async function ingest(request: Request) {
   if (!rows.length) return jsonResponse(400, { error: "No valid points", errors });
 
   const { error } = await supabaseAdmin.from("fleet_locations").insert(rows);
+
   if (error) return jsonResponse(500, { error: error.message, errors });
 
   return jsonResponse(200, { inserted: rows.length, skipped: errors.length, errors });
