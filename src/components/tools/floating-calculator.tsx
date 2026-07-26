@@ -147,7 +147,8 @@ export function FloatingCalculator() {
         title="الآلة الحاسبة"
         aria-label="الآلة الحاسبة"
         className="fixed left-4 md:left-6 z-40 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 flex items-center justify-center no-print"
-        style={{ bottom: "calc(env(safe-area-inset-bottom) + 76px)" }}
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 172px)" }}
+
       >
         <CalcIcon className="w-5 h-5" />
       </button>
