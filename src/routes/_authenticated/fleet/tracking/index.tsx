@@ -6,9 +6,11 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Upload, MapPin } from "lucide-react";
+import { Upload, MapPin, Download, Radio, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { useGoogleMaps } from "@/hooks/use-google-maps";
 
@@ -26,6 +28,23 @@ function parseCsv(text: string): Array<Record<string, string>> {
   });
 }
 
+function toCsv(rows: Array<Record<string, unknown>>, headers: string[]): string {
+  const escape = (v: unknown) => {
+    if (v == null) return "";
+    const s = String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  return [headers.join(","), ...rows.map((r) => headers.map((h) => escape(r[h])).join(","))].join("\n");
+}
+
+function downloadFile(name: string, content: string) {
+  const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name; a.click();
+  URL.revokeObjectURL(url);
+}
+
 function TrackingPage() {
   const qc = useQueryClient();
   const { ready, error, hasKey } = useGoogleMaps();
@@ -34,10 +53,28 @@ function TrackingPage() {
   const markersRef = useRef<any[]>([]);
   const pathRef = useRef<any>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<string>("");
+  const [selectedTrip, setSelectedTrip] = useState<string>("");
+
+  // Export options
+  const today = new Date().toISOString().slice(0, 10);
+  const weekAgo = new Date(Date.now() - 7 * 86400_000).toISOString().slice(0, 10);
+  const [fromDate, setFromDate] = useState(weekAgo);
+  const [toDate, setToDate] = useState(today);
+  const [fldSpeed, setFldSpeed] = useState(true);
+  const [fldHeading, setFldHeading] = useState(true);
+  const [fldAltitude, setFldAltitude] = useState(false);
 
   const { data: vehicles = [] } = useQuery({
     queryKey: ["fleet_vehicles_map"],
     queryFn: async () => (await (supabase as any).from("fleet_vehicles").select("id,plate_no,last_lat,last_lng,last_ping_at,status")).data ?? [],
+  });
+
+  const { data: trips = [] } = useQuery({
+    queryKey: ["fleet_trips_for_vehicle", selectedVehicle],
+    enabled: !!selectedVehicle,
+    queryFn: async () => (await (supabase as any).from("fleet_trips")
+      .select("id,started_at,ended_at").eq("vehicle_id", selectedVehicle)
+      .order("started_at", { ascending: false }).limit(50)).data ?? [],
   });
 
   const { data: trail = [] } = useQuery({
@@ -74,17 +111,35 @@ function TrackingPage() {
 
   const withCoords = useMemo(() => (vehicles as any[]).filter((v) => v.last_lat && v.last_lng), [vehicles]);
 
+  // Realtime: refresh vehicles when last_ping_at updates, and refresh the
+  // selected vehicle's trail when new location rows arrive.
+  useEffect(() => {
+    const ch = supabase
+      .channel("fleet-tracking")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "fleet_vehicles" }, () => {
+        qc.invalidateQueries({ queryKey: ["fleet_vehicles_map"] });
+      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "fleet_locations" }, (payload: any) => {
+        const vid = payload?.new?.vehicle_id;
+        if (vid && vid === selectedVehicle) {
+          qc.invalidateQueries({ queryKey: ["fleet_trail", selectedVehicle] });
+        }
+        qc.invalidateQueries({ queryKey: ["fleet_vehicles_map"] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [qc, selectedVehicle]);
+
   // Init map
   useEffect(() => {
     if (!ready || !mapRef.current || mapObjRef.current) return;
     const g = (window as any).google;
     const center = withCoords[0]
       ? { lat: Number(withCoords[0].last_lat), lng: Number(withCoords[0].last_lng) }
-      : { lat: 24.7136, lng: 46.6753 }; // Riyadh default
+      : { lat: 24.7136, lng: 46.6753 };
     mapObjRef.current = new g.maps.Map(mapRef.current, { center, zoom: 6 });
   }, [ready, withCoords]);
 
-  // Update markers
   useEffect(() => {
     if (!ready || !mapObjRef.current) return;
     const g = (window as any).google;
@@ -97,7 +152,6 @@ function TrackingPage() {
     }));
   }, [ready, withCoords]);
 
-  // Draw trail
   useEffect(() => {
     if (!ready || !mapObjRef.current) return;
     const g = (window as any).google;
@@ -120,15 +174,47 @@ function TrackingPage() {
     e.target.value = "";
   };
 
+  const exportCsv = async () => {
+    if (!selectedVehicle && !selectedTrip) {
+      toast.error("اختر مركبة أو رحلة للتصدير");
+      return;
+    }
+    let q = (supabase as any).from("fleet_locations")
+      .select("vehicle_id,trip_id,lat,lng,recorded_at,speed_kmh,heading,altitude_m,source")
+      .order("recorded_at", { ascending: true })
+      .limit(50000);
+    if (selectedTrip) q = q.eq("trip_id", selectedTrip);
+    else q = q.eq("vehicle_id", selectedVehicle);
+    if (fromDate) q = q.gte("recorded_at", new Date(fromDate).toISOString());
+    if (toDate) q = q.lte("recorded_at", new Date(toDate + "T23:59:59").toISOString());
+    const { data, error: err } = await q;
+    if (err) { toast.error(err.message); return; }
+    if (!data?.length) { toast.error("لا توجد بيانات في هذا النطاق"); return; }
+
+    const headers = ["recorded_at", "lat", "lng"];
+    if (fldSpeed) headers.push("speed_kmh");
+    if (fldHeading) headers.push("heading");
+    if (fldAltitude) headers.push("altitude_m");
+    headers.push("source");
+    const veh = (vehicles as any[]).find((v) => v.id === selectedVehicle);
+    const label = selectedTrip ? `trip_${selectedTrip.slice(0, 8)}` : (veh?.plate_no ?? "vehicle");
+    downloadFile(`gps_${label}_${fromDate}_to_${toDate}.csv`, toCsv(data, headers));
+    toast.success(`تم تصدير ${data.length} نقطة`);
+  };
+
+  const webhookUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/api/public/fleet/ingest`
+    : "/api/public/fleet/ingest";
+
   return (
     <div className="p-6 space-y-6" dir="rtl">
-      <PageHeader title="تتبع المواقع المباشر" description="خريطة مواقع المركبات وخطوط السير — استيراد بيانات GPS من CSV" />
+      <PageHeader title="تتبع المواقع المباشر" description="خريطة مواقع المركبات وخطوط السير — تحديث لحظي عبر Webhook أو استيراد/تصدير CSV" />
 
       <Card className="p-4">
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[200px]">
             <Label>اختر مركبة (لعرض المسار)</Label>
-            <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
+            <Select value={selectedVehicle} onValueChange={(v) => { setSelectedVehicle(v); setSelectedTrip(""); }}>
               <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
               <SelectContent>
                 {(vehicles as any[]).map((v) => <SelectItem key={v.id} value={v.id}>{v.plate_no}</SelectItem>)}
@@ -150,6 +236,82 @@ function TrackingPage() {
         </div>
       </Card>
 
+      {/* Export panel */}
+      <Card className="p-4">
+        <h3 className="font-semibold mb-3 flex items-center gap-2"><Download className="w-4 h-4" /> تصدير بيانات GPS</h3>
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <Label className="text-xs">رحلة محددة (اختياري)</Label>
+            <Select value={selectedTrip || "__all"} onValueChange={(v) => setSelectedTrip(v === "__all" ? "" : v)} disabled={!selectedVehicle}>
+              <SelectTrigger><SelectValue placeholder="كل رحلات المركبة" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all">كل رحلات المركبة</SelectItem>
+                {(trips as any[]).map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {new Date(t.started_at).toLocaleString("ar-SA")}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">من تاريخ</Label>
+            <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+          </div>
+          <div>
+            <Label className="text-xs">إلى تاريخ</Label>
+            <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+          </div>
+          <div className="flex items-end">
+            <Button onClick={exportCsv} className="gap-1 w-full" disabled={!selectedVehicle}>
+              <Download className="w-4 h-4" /> تصدير CSV
+            </Button>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-4 mt-3 text-sm">
+          <label className="flex items-center gap-2"><Checkbox checked={fldSpeed} onCheckedChange={(v) => setFldSpeed(!!v)} /> السرعة (speed_kmh)</label>
+          <label className="flex items-center gap-2"><Checkbox checked={fldHeading} onCheckedChange={(v) => setFldHeading(!!v)} /> الاتجاه (heading)</label>
+          <label className="flex items-center gap-2"><Checkbox checked={fldAltitude} onCheckedChange={(v) => setFldAltitude(!!v)} /> الارتفاع (altitude_m)</label>
+        </div>
+      </Card>
+
+      {/* Webhook / API panel */}
+      <Card className="p-4">
+        <h3 className="font-semibold mb-2 flex items-center gap-2">
+          <Radio className="w-4 h-4 text-primary" /> نقطة استقبال البيانات اللحظية (Webhook / API)
+        </h3>
+        <p className="text-xs text-muted-foreground mb-3">
+          أرسل إحداثيات GPS من أجهزة التتبع مباشرة إلى النظام. كل نقطة تُحفظ في سجل المواقع ويُحدَّث موقع المركبة تلقائياً وتظهر على الخريطة فوراً.
+        </p>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Input readOnly value={webhookUrl} dir="ltr" className="font-mono text-xs" />
+            <Button size="sm" variant="outline" className="gap-1" onClick={() => {
+              navigator.clipboard.writeText(webhookUrl); toast.success("تم النسخ");
+            }}>
+              <Copy className="w-3 h-3" /> نسخ
+            </Button>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            المصادقة: أضف رأس <code>Authorization: Bearer &lt;FLEET_INGEST_TOKEN&gt;</code> (المفتاح محفوظ في أسرار المشروع).
+          </div>
+          <pre className="text-[11px] bg-muted/50 p-3 rounded-lg overflow-x-auto" dir="ltr">
+{`curl -X POST "${webhookUrl}" \\
+  -H "Authorization: Bearer <FLEET_INGEST_TOKEN>" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "plate_no": "ABC-1234",
+    "lat": 24.7136, "lng": 46.6753,
+    "speed_kmh": 62, "heading": 145,
+    "recorded_at": "2026-07-26T10:15:00Z"
+  }'
+
+# دفعة نقاط:
+# { "points": [ { "vehicle_id": "...", "lat": .., "lng": .., "recorded_at": ".." }, ... ] }`}
+          </pre>
+        </div>
+      </Card>
+
       {!hasKey && (
         <Card className="p-4 border-yellow-500/40 bg-yellow-500/5 text-sm">
           مفتاح خرائط Google غير متوفر. تم ربط الموصل — أعد تحميل الصفحة إذا استمر عدم الظهور.
@@ -164,7 +326,7 @@ function TrackingPage() {
       <Card className="p-4">
         <h3 className="font-semibold mb-3 flex items-center gap-2"><MapPin className="w-4 h-4" /> آخر إشارة</h3>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {withCoords.length === 0 && <div className="text-sm text-muted-foreground">لا توجد إحداثيات مسجلة بعد. استورد بيانات GPS من CSV.</div>}
+          {withCoords.length === 0 && <div className="text-sm text-muted-foreground">لا توجد إحداثيات مسجلة بعد. استورد بيانات GPS من CSV أو فعّل Webhook.</div>}
           {withCoords.map((v) => (
             <div key={v.id} className="p-3 rounded-lg border border-border flex items-center justify-between">
               <div>
