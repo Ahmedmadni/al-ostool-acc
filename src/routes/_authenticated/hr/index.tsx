@@ -174,6 +174,7 @@ function HrIndex() {
             <li>• <Link className="text-primary hover:underline" to="/hr/assets">العهد</Link></li>
             <li>• <Link className="text-primary hover:underline" to="/hr/payroll">مسيرات الرواتب</Link></li>
             <li>• <Link className="text-primary hover:underline" to="/hr/termination">إنهاء الخدمة والمخالصة</Link></li>
+            <li>• <Link className="text-primary hover:underline" to="/hr/final-settlement">حاسبة المخالصة النهائية (طباعة)</Link></li>
             <li>• <Link className="text-primary hover:underline" to="/hr/reports">التقارير الموحدة</Link></li>
           </ul>
         </Card>

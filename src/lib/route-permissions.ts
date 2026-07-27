@@ -95,6 +95,7 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/hr/assets", module: "hr.assets" },
   { prefix: "/hr/payroll", module: "hr.payroll" },
   { prefix: "/hr/termination", module: "hr.termination" },
+  { prefix: "/hr/final-settlement", module: "hr.termination" },
   { prefix: "/hr/reports", module: "hr.reports" },
   { prefix: "/hr/qiwa/mapping", module: "hr.contracts" },
   { prefix: "/hr/qiwa", module: "hr.contracts" },

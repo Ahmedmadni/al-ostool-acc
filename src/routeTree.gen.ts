@@ -56,6 +56,7 @@ import { Route as AuthenticatedSettingsApprovalsRouteImport } from './routes/_au
 import { Route as AuthenticatedProjectsProgressRouteImport } from './routes/_authenticated/projects/progress'
 import { Route as AuthenticatedProjectsIdRouteImport } from './routes/_authenticated/projects/$id'
 import { Route as AuthenticatedImportsUploadRouteImport } from './routes/_authenticated/imports/upload'
+import { Route as AuthenticatedHrFinalSettlementRouteImport } from './routes/_authenticated/hr/final-settlement'
 import { Route as AuthenticatedFinancialsKpisRouteImport } from './routes/_authenticated/financials/kpis'
 import { Route as AuthenticatedFinancialsIncomeStatementRouteImport } from './routes/_authenticated/financials/income-statement'
 import { Route as AuthenticatedFinancialsEquityRouteImport } from './routes/_authenticated/financials/equity'
@@ -369,6 +370,12 @@ const AuthenticatedImportsUploadRoute =
     path: '/imports/upload',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedHrFinalSettlementRoute =
+  AuthenticatedHrFinalSettlementRouteImport.update({
+    id: '/hr/final-settlement',
+    path: '/hr/final-settlement',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFinancialsKpisRoute =
   AuthenticatedFinancialsKpisRouteImport.update({
     id: '/financials/kpis',
@@ -667,6 +674,7 @@ export interface FileRoutesByFullPath {
   '/financials/equity': typeof AuthenticatedFinancialsEquityRoute
   '/financials/income-statement': typeof AuthenticatedFinancialsIncomeStatementRoute
   '/financials/kpis': typeof AuthenticatedFinancialsKpisRoute
+  '/hr/final-settlement': typeof AuthenticatedHrFinalSettlementRoute
   '/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
@@ -761,6 +769,7 @@ export interface FileRoutesByTo {
   '/financials/equity': typeof AuthenticatedFinancialsEquityRoute
   '/financials/income-statement': typeof AuthenticatedFinancialsIncomeStatementRoute
   '/financials/kpis': typeof AuthenticatedFinancialsKpisRoute
+  '/hr/final-settlement': typeof AuthenticatedHrFinalSettlementRoute
   '/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/projects/progress': typeof AuthenticatedProjectsProgressRoute
@@ -857,6 +866,7 @@ export interface FileRoutesById {
   '/_authenticated/financials/equity': typeof AuthenticatedFinancialsEquityRoute
   '/_authenticated/financials/income-statement': typeof AuthenticatedFinancialsIncomeStatementRoute
   '/_authenticated/financials/kpis': typeof AuthenticatedFinancialsKpisRoute
+  '/_authenticated/hr/final-settlement': typeof AuthenticatedHrFinalSettlementRoute
   '/_authenticated/imports/upload': typeof AuthenticatedImportsUploadRoute
   '/_authenticated/projects/$id': typeof AuthenticatedProjectsIdRoute
   '/_authenticated/projects/progress': typeof AuthenticatedProjectsProgressRoute
@@ -953,6 +963,7 @@ export interface FileRouteTypes {
     | '/financials/equity'
     | '/financials/income-statement'
     | '/financials/kpis'
+    | '/hr/final-settlement'
     | '/imports/upload'
     | '/projects/$id'
     | '/projects/progress'
@@ -1047,6 +1058,7 @@ export interface FileRouteTypes {
     | '/financials/equity'
     | '/financials/income-statement'
     | '/financials/kpis'
+    | '/hr/final-settlement'
     | '/imports/upload'
     | '/projects/$id'
     | '/projects/progress'
@@ -1142,6 +1154,7 @@ export interface FileRouteTypes {
     | '/_authenticated/financials/equity'
     | '/_authenticated/financials/income-statement'
     | '/_authenticated/financials/kpis'
+    | '/_authenticated/hr/final-settlement'
     | '/_authenticated/imports/upload'
     | '/_authenticated/projects/$id'
     | '/_authenticated/projects/progress'
@@ -1553,6 +1566,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedImportsUploadRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/hr/final-settlement': {
+      id: '/_authenticated/hr/final-settlement'
+      path: '/hr/final-settlement'
+      fullPath: '/hr/final-settlement'
+      preLoaderRoute: typeof AuthenticatedHrFinalSettlementRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/financials/kpis': {
       id: '/_authenticated/financials/kpis'
       path: '/financials/kpis'
@@ -1898,6 +1918,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFinancialsEquityRoute: typeof AuthenticatedFinancialsEquityRoute
   AuthenticatedFinancialsIncomeStatementRoute: typeof AuthenticatedFinancialsIncomeStatementRoute
   AuthenticatedFinancialsKpisRoute: typeof AuthenticatedFinancialsKpisRoute
+  AuthenticatedHrFinalSettlementRoute: typeof AuthenticatedHrFinalSettlementRoute
   AuthenticatedImportsUploadRoute: typeof AuthenticatedImportsUploadRoute
   AuthenticatedProjectsIdRoute: typeof AuthenticatedProjectsIdRoute
   AuthenticatedProjectsProgressRoute: typeof AuthenticatedProjectsProgressRoute
@@ -1994,6 +2015,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFinancialsIncomeStatementRoute:
     AuthenticatedFinancialsIncomeStatementRoute,
   AuthenticatedFinancialsKpisRoute: AuthenticatedFinancialsKpisRoute,
+  AuthenticatedHrFinalSettlementRoute: AuthenticatedHrFinalSettlementRoute,
   AuthenticatedImportsUploadRoute: AuthenticatedImportsUploadRoute,
   AuthenticatedProjectsIdRoute: AuthenticatedProjectsIdRoute,
   AuthenticatedProjectsProgressRoute: AuthenticatedProjectsProgressRoute,
