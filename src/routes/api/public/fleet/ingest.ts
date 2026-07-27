@@ -118,6 +118,16 @@ async function ingest(request: Request) {
     return jsonResponse(401, { error: "unauthorized", message: "Invalid or missing bearer token" });
   }
 
+  // Rate limit (after auth so anonymous floods don't pollute buckets)
+  const rl = checkRateLimit(clientKey(request, provided));
+  if (!rl.ok) {
+    return jsonResponse(
+      429,
+      { error: "rate_limited", message: `Too many requests (${rl.limit} limit)`, retry_after_seconds: rl.retryAfter },
+      { "retry-after": String(rl.retryAfter) },
+    );
+  }
+
   // Content-Type
   const ct = (request.headers.get("content-type") ?? "").toLowerCase();
   if (!ct.includes("application/json")) {
