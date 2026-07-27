@@ -2113,6 +2113,7 @@ export type Database = {
           bank_iban: string | null
           bank_name: string | null
           basic_salary: number | null
+          commission: number | null
           company_id: string | null
           created_at: string
           created_by: string | null
@@ -2120,6 +2121,9 @@ export type Database = {
           department_id: string | null
           dependents_count: number | null
           employee_no: string
+          environment_allowance: number | null
+          eos_reserved_balance: number | null
+          food_allowance: number | null
           full_name_ar: string
           full_name_en: string | null
           gender: string | null
@@ -2134,6 +2138,7 @@ export type Database = {
           job_title_id: string | null
           manager_id: string | null
           marital_status: string | null
+          meal_allowance: number | null
           national_id: string | null
           nationality: string | null
           notes: string | null
@@ -2147,12 +2152,14 @@ export type Database = {
           transport_allowance: number | null
           updated_at: string
           user_id: string | null
+          years_of_service_snapshot: number | null
         }
         Insert: {
           address?: string | null
           bank_iban?: string | null
           bank_name?: string | null
           basic_salary?: number | null
+          commission?: number | null
           company_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -2160,6 +2167,9 @@ export type Database = {
           department_id?: string | null
           dependents_count?: number | null
           employee_no: string
+          environment_allowance?: number | null
+          eos_reserved_balance?: number | null
+          food_allowance?: number | null
           full_name_ar: string
           full_name_en?: string | null
           gender?: string | null
@@ -2174,6 +2184,7 @@ export type Database = {
           job_title_id?: string | null
           manager_id?: string | null
           marital_status?: string | null
+          meal_allowance?: number | null
           national_id?: string | null
           nationality?: string | null
           notes?: string | null
@@ -2187,12 +2198,14 @@ export type Database = {
           transport_allowance?: number | null
           updated_at?: string
           user_id?: string | null
+          years_of_service_snapshot?: number | null
         }
         Update: {
           address?: string | null
           bank_iban?: string | null
           bank_name?: string | null
           basic_salary?: number | null
+          commission?: number | null
           company_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -2200,6 +2213,9 @@ export type Database = {
           department_id?: string | null
           dependents_count?: number | null
           employee_no?: string
+          environment_allowance?: number | null
+          eos_reserved_balance?: number | null
+          food_allowance?: number | null
           full_name_ar?: string
           full_name_en?: string | null
           gender?: string | null
@@ -2214,6 +2230,7 @@ export type Database = {
           job_title_id?: string | null
           manager_id?: string | null
           marital_status?: string | null
+          meal_allowance?: number | null
           national_id?: string | null
           nationality?: string | null
           notes?: string | null
@@ -2227,6 +2244,7 @@ export type Database = {
           transport_allowance?: number | null
           updated_at?: string
           user_id?: string | null
+          years_of_service_snapshot?: number | null
         }
         Relationships: [
           {
