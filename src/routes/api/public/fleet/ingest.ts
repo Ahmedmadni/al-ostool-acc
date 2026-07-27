@@ -17,6 +17,50 @@ const MAX_POINTS = 500;
 const MAX_TIMESTAMP_SKEW_FUTURE_MS = 5 * 60 * 1000; // 5 minutes
 const MAX_TIMESTAMP_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
+// Sliding-window in-memory rate limits per (token-prefix + client IP).
+// In-process only: not shared across Worker instances, but adequate as a
+// first-line abuse guard alongside the bearer token and size caps.
+const RATE_LIMITS: Array<{ windowMs: number; max: number; label: string }> = [
+  { windowMs: 1_000, max: 20, label: "burst" },       // 20 req/sec
+  { windowMs: 60_000, max: 300, label: "sustained" }, // 300 req/min
+];
+const RATE_BUCKET_MAX_KEYS = 5_000;
+const rateBuckets = new Map<string, number[]>();
+
+function clientKey(request: Request, providedToken: string): string {
+  const h = request.headers;
+  const ip =
+    h.get("cf-connecting-ip") ||
+    h.get("x-real-ip") ||
+    (h.get("x-forwarded-for") ?? "").split(",")[0].trim() ||
+    "unknown";
+  // Only a short prefix of the token so we don't retain full secrets in memory.
+  return `${providedToken.slice(0, 8)}|${ip}`;
+}
+
+function checkRateLimit(key: string): { ok: true } | { ok: false; retryAfter: number; limit: string } {
+  const now = Date.now();
+  const longest = Math.max(...RATE_LIMITS.map((r) => r.windowMs));
+  let times = rateBuckets.get(key) ?? [];
+  times = times.filter((t) => now - t < longest);
+  for (const { windowMs, max, label } of RATE_LIMITS) {
+    const count = times.reduce((n, t) => (now - t < windowMs ? n + 1 : n), 0);
+    if (count >= max) {
+      const oldest = times.find((t) => now - t < windowMs) ?? now;
+      return { ok: false, retryAfter: Math.max(1, Math.ceil((windowMs - (now - oldest)) / 1000)), limit: label };
+    }
+  }
+  times.push(now);
+  rateBuckets.set(key, times);
+  if (rateBuckets.size > RATE_BUCKET_MAX_KEYS) {
+    // Evict oldest keys to bound memory.
+    const drop = rateBuckets.size - RATE_BUCKET_MAX_KEYS;
+    let i = 0;
+    for (const k of rateBuckets.keys()) { if (i++ >= drop) break; rateBuckets.delete(k); }
+  }
+  return { ok: true };
+}
+
 const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const PointSchema = z
