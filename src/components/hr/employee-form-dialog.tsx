@@ -53,6 +53,7 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: {
         transport_allowance: 0,
         other_allowances: 0,
         penalty_clause_amount: 0,
+        opening_leave_balance_days: 0,
       });
     }
   }, [open, employee]);
@@ -73,6 +74,7 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: {
         transport_allowance: num(form.transport_allowance),
         other_allowances: num(form.other_allowances),
         penalty_clause_amount: num(form.penalty_clause_amount),
+        opening_leave_balance_days: num(form.opening_leave_balance_days),
       };
       delete payload.gross_salary; // generated column — computed by the database, never sent
       ["department_id", "job_title_id", "manager_id", "company_id"].forEach((k) => {
@@ -199,6 +201,12 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: {
                 <Input id="ef-annual_leave_days" type="number" min={0} placeholder="تلقائي حسب سنوات الخدمة (21/30)"
                   value={form.annual_leave_days ?? ""} onChange={(e) => set("annual_leave_days", e.target.value === "" ? null : Number(e.target.value))} />
                 <p className="text-xs text-muted-foreground mt-1">اتركه فارغاً لاحتساب 21 يوماً تلقائياً (30 بعد 5 سنوات خدمة) — أدخل قيمة فقط إذا نص عقد الموظف على استحقاق مختلف (مثل 30 يوماً من أول سنة).</p>
+              </div>
+              <div>
+                <Label htmlFor="ef-opening_leave_balance_days">رصيد الإجازات الافتتاحي (يوم)</Label>
+                <Input id="ef-opening_leave_balance_days" type="number" step="0.5" min={0} value={form.opening_leave_balance_days ?? 0}
+                  onChange={(e) => set("opening_leave_balance_days", Number(e.target.value))} />
+                <p className="text-xs text-muted-foreground mt-1">رصيد الإجازات المرحّل من قبل تسجيل الموظف في النظام — للموظفين القدامى المُدخلين حديثاً. يُضاف إلى الرصيد المستحق عن الفترة بعد التسجيل ويُخصم منه ما استُخدم فعلياً.</p>
               </div>
               <div>
                 <Label htmlFor="ef-penalty_clause_amount">الشرط الجزائي (ريال)</Label>

@@ -42,6 +42,7 @@ function NewTermination() {
   const [reason, setReason] = useState<TerminationReason>("resignation");
   const [lastDay, setLastDay] = useState(todayISO());
   const [unpaidDays, setUnpaidDays] = useState<number>(0);
+  const [lastMonthDays, setLastMonthDays] = useState<number>(0);
   const [leaveBalanceDays, setLeaveBalanceDays] = useState<number>(0);
   const [leaveDaysTouched, setLeaveDaysTouched] = useState(false);
   const [noticeDays, setNoticeDays] = useState<number>(0);
@@ -158,10 +159,13 @@ function NewTermination() {
     const noticeValue = Math.round(noticeDays * dailyGross * 100) / 100;
     const unpaidValue = Math.round(unpaidDays * dailyGross * 100) / 100;
 
-    const workedDaysInMonth = 30 - unpaidDays;
-    const monthEarned = Math.round((gross * workedDaysInMonth / 30) * 100) / 100;
+    // Last-month days are entered manually: an employee whose final month is
+    // already covered by the regular payroll run gets 0 here, while a
+    // mid-month leaver gets only the days actually worked — deriving it from
+    // (30 - unpaid) silently paid a full month in the first case.
+    const monthEarned = Math.round((gross * lastMonthDays / 30) * 100) / 100;
     const gosi = calcGosi(basic + housing, !!emp.is_saudi);
-    const gosiEmployee = Math.round((gosi.employee * workedDaysInMonth / 30) * 100) / 100;
+    const gosiEmployee = Math.round((gosi.employee * lastMonthDays / 30) * 100) / 100;
 
     const article77Value = isArticle77 ? article77Amount : 0;
     const receivables = eos + leaveValue + noticeValue + monthEarned + otherReceivables
@@ -175,7 +179,7 @@ function NewTermination() {
       yrs, eos, dailyGross, leaveValue, noticeValue, unpaidValue,
       monthEarned, gosiEmployee, loanBalance, article77Value, receivables, deductions, net,
     };
-  }, [emp, reason, lastDay, unpaidDays, leaveBalanceDays, noticeDays, otherReceivables, otherDeductions, loanBalance, isArticle77, article77Amount, article77Direction]);
+  }, [emp, reason, lastDay, unpaidDays, lastMonthDays, leaveBalanceDays, noticeDays, otherReceivables, otherDeductions, loanBalance, isArticle77, article77Amount, article77Direction]);
 
   const save = useMutation({
     mutationFn: async () => {
@@ -197,6 +201,7 @@ function NewTermination() {
         settlement_details: {
           notice_days: noticeDays, notice_value: calc.noticeValue,
           unpaid_days: unpaidDays, unpaid_value: calc.unpaidValue,
+          last_month_days: lastMonthDays,
           month_earned: calc.monthEarned, gosi_employee: calc.gosiEmployee,
           leave_days: leaveBalanceDays, other_receivables_manual: otherReceivables,
           other_deductions_manual: otherDeductions,
@@ -262,8 +267,13 @@ function NewTermination() {
             <Input type="number" min={0} value={noticeDays} onChange={(e) => setNoticeDays(Number(e.target.value) || 0)} />
           </div>
           <div>
-            <Label className="text-xs">أيام غير مدفوعة بالشهر الأخير</Label>
-            <Input type="number" min={0} max={30} value={unpaidDays} onChange={(e) => setUnpaidDays(Number(e.target.value) || 0)} />
+            <Label className="text-xs">أيام مستحقة بالشهر الأخير</Label>
+            <Input type="number" min={0} max={31} value={lastMonthDays} onChange={(e) => setLastMonthDays(Number(e.target.value) || 0)} />
+            <p className="text-[11px] text-muted-foreground mt-1">اتركه صفراً إذا صُرف راتب الشهر الأخير ضمن مسير الرواتب، أو أدخل أيام العمل الفعلية إذا انتهت الخدمة خلال الشهر.</p>
+          </div>
+          <div>
+            <Label className="text-xs">أيام غير مدفوعة (غياب/انقطاع)</Label>
+            <Input type="number" min={0} max={31} value={unpaidDays} onChange={(e) => setUnpaidDays(Number(e.target.value) || 0)} />
           </div>
           <div>
             <Label className="text-xs">مستحقات إضافية (بدلات/مكافآت)</Label>
@@ -338,7 +348,7 @@ function NewTermination() {
                 <SettlementRow label="مكافأة نهاية الخدمة" value={calc.eos} />
                 <SettlementRow label={`رصيد إجازات (${leaveBalanceDays} يوم)`} value={calc.leaveValue} />
                 <SettlementRow label={`بدل إشعار (${noticeDays} يوم)`} value={calc.noticeValue} />
-                <SettlementRow label={`مستحقات الشهر الأخير (${30 - unpaidDays} يوم)`} value={calc.monthEarned} />
+                <SettlementRow label={`مستحقات الشهر الأخير (${lastMonthDays} يوم)`} value={calc.monthEarned} />
                 <SettlementRow label="مستحقات أخرى" value={otherReceivables} />
                 {article77Direction === "employee" && <SettlementRow label="تعويض المادة 77 (فصل تعسفي)" value={calc.article77Value} />}
                 <div className="border-t mt-2 pt-2 flex justify-between font-semibold">

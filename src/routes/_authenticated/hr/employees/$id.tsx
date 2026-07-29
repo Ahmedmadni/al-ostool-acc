@@ -298,6 +298,13 @@ function EmployeeCard() {
             </Dialog>
           </div>
 
+          {Number(emp.opening_leave_balance_days ?? 0) > 0 && (
+            <Card className="p-3 text-xs">
+              <span className="font-semibold">رصيد افتتاحي مرحّل: </span>
+              {Number(emp.opening_leave_balance_days)} يوم — مُرحّل من قبل تسجيل الموظف في النظام، ومحتسب ضمن رصيد المخالصة عند إنهاء الخدمة.
+            </Card>
+          )}
+
           {leaveAdjustments.length > 0 && (
             <Card className="p-3">
               <div className="text-xs font-semibold mb-2 text-muted-foreground">سجل تعديلات الرصيد</div>
