@@ -6,6 +6,7 @@ import {
   Moon, Sun, Search, ChevronLeft, ChevronDown, TrendingUp, Activity,
   Truck, Building2, Landmark, Layers, Waves, Vault, Upload,
   Scale, PieChart, Bell as BellIcon, Telescope, GitBranch, ClipboardList, ShieldCheck, UserCog,
+  Warehouse,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "@/components/theme-provider";
@@ -142,6 +143,16 @@ const GROUPS: NavGroup[] = [
       { to: "/fleet/tracking", label: "تتبع مباشر (خريطة)", label_en: "Live Tracking (Map)" },
       { to: "/fleet/maintenance", label: "الصيانة", label_en: "Maintenance" },
       { to: "/fleet/fuel", label: "الوقود", label_en: "Fuel" },
+    ],
+  },
+  {
+    key: "inventory", label: "المخازن", label_en: "Warehouses", icon: Warehouse,
+    links: [
+      { to: "/warehouses", label: "المخازن", label_en: "Warehouses" },
+      { to: "/warehouses/items", label: "الأصناف", label_en: "Items" },
+      { to: "/warehouses/receipts", label: "سندات التوريد", label_en: "Goods Receipts" },
+      { to: "/warehouses/issues", label: "سندات الصرف", label_en: "Goods Issues" },
+      { to: "/warehouses/stock", label: "رصيد وتقييم المخزون", label_en: "Stock Balance & Valuation" },
     ],
   },
   {

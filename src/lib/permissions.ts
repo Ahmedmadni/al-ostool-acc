@@ -50,6 +50,23 @@ export const MODULE_TREE: ModuleNode[] = [
     { key: "hr.workflow", name: "طلبات الموارد البشرية" },
     { key: "hr.reports", name: "تقارير الموارد البشرية" },
   ]},
+  // Granular fleet children — /fleet/tracking (live GPS location) is kept
+  // separate from the rest since it's the most privacy-sensitive one
+  // (continuous employee/vehicle location), not just another CRUD screen.
+  { key: "fleet", name: "النقليات والأسطول", children: [
+    { key: "fleet.vehicles", name: "المركبات" },
+    { key: "fleet.drivers", name: "السائقون" },
+    { key: "fleet.trips", name: "الرحلات" },
+    { key: "fleet.tracking", name: "التتبع المباشر (GPS)" },
+    { key: "fleet.maintenance", name: "الصيانة" },
+    { key: "fleet.fuel", name: "الوقود" },
+  ]},
+  { key: "inventory", name: "المخازن", children: [
+    { key: "inventory.warehouses", name: "المخازن" },
+    { key: "inventory.items", name: "الأصناف" },
+    { key: "inventory.receipts", name: "سندات التوريد" },
+    { key: "inventory.issues", name: "سندات الصرف" },
+  ]},
   { key: "equipment", name: "المعدات" },
   { key: "assets", name: "الأصول الثابتة" },
   { key: "reports", name: "التقارير" },
