@@ -44,9 +44,13 @@ function NewTermination() {
 
   const { data: employees = [] } = useQuery({
     queryKey: ["fs_employees"],
-    queryFn: async () => (await (supabase as any).from("hr_employees")
-      .select("id, full_name_ar, employee_no, hire_date, is_saudi, basic_salary, housing_allowance, transport_allowance, food_allowance, meal_allowance, environment_allowance, commission, other_allowance, gross_salary, national_id, iqama_number, department_id, job_title_id")
-      .eq("status", "active").order("full_name_ar")).data ?? [],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).from("hr_employees")
+        .select("id, full_name_ar, employee_no, hire_date, is_saudi, basic_salary, housing_allowance, transport_allowance, other_allowances, gross_salary, national_id, iqama_number, department_id, job_title_id")
+        .eq("status", "active").order("full_name_ar");
+      if (error) throw error;
+      return data ?? [];
+    },
   });
 
   const emp = useMemo(() => (employees as any[]).find((e) => e.id === employeeId), [employees, employeeId]);
@@ -89,12 +93,8 @@ function NewTermination() {
     const basic = Number(emp.basic_salary ?? 0);
     const housing = Number(emp.housing_allowance ?? 0);
     const transport = Number(emp.transport_allowance ?? 0);
-    const food = Number(emp.food_allowance ?? 0);
-    const meal = Number(emp.meal_allowance ?? 0);
-    const environment = Number(emp.environment_allowance ?? 0);
-    const commission = Number(emp.commission ?? 0);
-    const other = Number(emp.other_allowance ?? 0);
-    const gross = Number(emp.gross_salary ?? (basic + housing + transport + food + meal + environment + commission + other));
+    const other = Number(emp.other_allowances ?? 0);
+    const gross = Number(emp.gross_salary ?? (basic + housing + transport + other));
     const yrs = emp.hire_date ? serviceYears(emp.hire_date, lastDay) : 0;
 
     const eos = calcEndOfService(gross, yrs, reason);
@@ -113,7 +113,7 @@ function NewTermination() {
     const net = Math.round((receivables - deductions) * 100) / 100;
 
     return {
-      basic, housing, transport, food, meal, environment, commission, other, gross,
+      basic, housing, transport, other, gross,
       yrs, eos, dailyGross, leaveValue, noticeValue, unpaidValue,
       monthEarned, gosiEmployee, loanBalance, receivables, deductions, net,
     };
