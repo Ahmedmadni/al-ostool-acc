@@ -113,6 +113,13 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/fleet/tracking", module: "fleet.tracking" },
   { prefix: "/fleet", module: "fleet" },
 
+  // ===== Warehouses/Inventory group =====
+  { prefix: "/warehouses/items", module: "inventory.items" },
+  { prefix: "/warehouses/receipts", module: "inventory.receipts" },
+  { prefix: "/warehouses/issues", module: "inventory.issues" },
+  { prefix: "/warehouses/stock", module: "inventory.warehouses" },
+  { prefix: "/warehouses", module: "inventory.warehouses" },
+
   // ===== Misc =====
   { prefix: "/notifications", module: "notifications" },
 ];

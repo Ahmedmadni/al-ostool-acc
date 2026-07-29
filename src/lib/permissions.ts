@@ -61,6 +61,12 @@ export const MODULE_TREE: ModuleNode[] = [
     { key: "fleet.maintenance", name: "الصيانة" },
     { key: "fleet.fuel", name: "الوقود" },
   ]},
+  { key: "inventory", name: "المخازن", children: [
+    { key: "inventory.warehouses", name: "المخازن" },
+    { key: "inventory.items", name: "الأصناف" },
+    { key: "inventory.receipts", name: "سندات التوريد" },
+    { key: "inventory.issues", name: "سندات الصرف" },
+  ]},
   { key: "equipment", name: "المعدات" },
   { key: "assets", name: "الأصول الثابتة" },
   { key: "reports", name: "التقارير" },
