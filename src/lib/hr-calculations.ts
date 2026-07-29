@@ -4,18 +4,24 @@
 
 export type TerminationReason =
   | "resignation" | "end_of_contract" | "dismissal"
-  | "mutual_agreement" | "retirement" | "death" | "other";
+  | "mutual_agreement" | "retirement" | "death" | "other"
+  | "probation" | "arbitrary_dismissal" | "unlawful_resignation";
 
 /** End of Service (Article 84/85) — half month for first 5 years, full month after.
  *  Resignation factor: <2y = 0, 2-5y = 1/3, 5-10y = 2/3, ≥10y = full.
- *  Other reasons: full base. */
+ *  unlawful_resignation gets the same reduced schedule — it is a
+ *  resignation in substance (employee-initiated departure); the Article
+ *  74/75 compensation the employee separately owes the company for
+ *  leaving without notice/cause is on top of this, not instead of it.
+ *  Other reasons (including arbitrary_dismissal and probation, both
+ *  employer-side or neutral separations): full base. */
 export function calcEndOfService(monthlyWage: number, serviceYears: number, reason: TerminationReason): number {
   if (!monthlyWage || !serviceYears || serviceYears <= 0) return 0;
   const first5 = Math.min(serviceYears, 5) * (monthlyWage / 2);
   const rest = Math.max(serviceYears - 5, 0) * monthlyWage;
   const base = first5 + rest;
   let factor = 1;
-  if (reason === "resignation") {
+  if (reason === "resignation" || reason === "unlawful_resignation") {
     if (serviceYears < 2) factor = 0;
     else if (serviceYears < 5) factor = 1 / 3;
     else if (serviceYears < 10) factor = 2 / 3;

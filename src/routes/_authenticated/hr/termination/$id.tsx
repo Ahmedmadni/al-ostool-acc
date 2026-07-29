@@ -230,6 +230,16 @@ function TerminationDetail() {
           <span className="font-semibold">سبب الإلغاء: </span>{t.settlement_details.cancel_reason}
         </Card>
       )}
+      {t.settlement_details?.article77 && (
+        <Card className="p-4 border-amber-500/40 bg-amber-500/5 text-sm">
+          <span className="font-semibold">تعويض المادة 77 ({t.settlement_details.article77.direction === "employee" ? "مستحق للموظف" : "مستحق للشركة"}): </span>
+          {fmtSAR(t.settlement_details.article77.amount)} — {
+            t.settlement_details.article77.basis === "penalty_clause" ? "وفق الشرط الجزائي بملف الموظف"
+            : t.settlement_details.article77.basis === "remaining_contract_value" ? "وفق باقي قيمة العقد المحدد المدة"
+            : "مبلغ مُدخل يدوياً"
+          }
+        </Card>
+      )}
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent dir="rtl">

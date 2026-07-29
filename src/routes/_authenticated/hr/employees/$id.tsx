@@ -47,6 +47,8 @@ const TERM_STATUS_LABEL: Record<string, { l: string; c: string }> = {
 };
 const TERM_REASON_LABEL: Record<string, string> = {
   resignation: "استقالة", end_of_contract: "انتهاء عقد", dismissal: "فصل",
+  probation: "إنهاء خلال فترة التجربة", arbitrary_dismissal: "فصل تعسفي (م. 77)",
+  unlawful_resignation: "ترك عمل غير مشروع (م. 77)",
   mutual_agreement: "اتفاق متبادل", retirement: "تقاعد", death: "وفاة", other: "أخرى",
 };
 const ASSET_TYPE_LABEL: Record<string, string> = {
@@ -295,6 +297,13 @@ function EmployeeCard() {
               </DialogContent>
             </Dialog>
           </div>
+
+          {Number(emp.opening_leave_balance_days ?? 0) > 0 && (
+            <Card className="p-3 text-xs">
+              <span className="font-semibold">رصيد افتتاحي مرحّل: </span>
+              {Number(emp.opening_leave_balance_days)} يوم — مُرحّل من قبل تسجيل الموظف في النظام، ومحتسب ضمن رصيد المخالصة عند إنهاء الخدمة.
+            </Card>
+          )}
 
           {leaveAdjustments.length > 0 && (
             <Card className="p-3">

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Save, Printer } from "lucide-react";
+import { ArrowRight, Save, Printer, Scale } from "lucide-react";
 import { toast } from "sonner";
 import { fmtSAR } from "@/lib/format";
 import { calcEndOfService, calcGosi, serviceYears, type TerminationReason } from "@/lib/hr-calculations";
@@ -20,11 +20,19 @@ const REASONS: { v: TerminationReason; l: string }[] = [
   { v: "resignation", l: "استقالة" },
   { v: "end_of_contract", l: "انتهاء عقد" },
   { v: "dismissal", l: "فصل" },
+  { v: "probation", l: "إنهاء خلال فترة التجربة (م. 53)" },
+  { v: "arbitrary_dismissal", l: "فصل تعسفي — تعويض للموظف (م. 77)" },
+  { v: "unlawful_resignation", l: "ترك عمل غير مشروع — تعويض للشركة (م. 77)" },
   { v: "mutual_agreement", l: "اتفاق متبادل" },
   { v: "retirement", l: "تقاعد" },
   { v: "death", l: "وفاة" },
   { v: "other", l: "أخرى" },
 ];
+
+const ARTICLE77_DIRECTION: Partial<Record<TerminationReason, "employee" | "company">> = {
+  arbitrary_dismissal: "employee",
+  unlawful_resignation: "company",
+};
 
 function todayISO() { return new Date().toISOString().slice(0, 10); }
 
@@ -34,19 +42,25 @@ function NewTermination() {
   const [reason, setReason] = useState<TerminationReason>("resignation");
   const [lastDay, setLastDay] = useState(todayISO());
   const [unpaidDays, setUnpaidDays] = useState<number>(0);
+  const [lastMonthDays, setLastMonthDays] = useState<number>(0);
   const [leaveBalanceDays, setLeaveBalanceDays] = useState<number>(0);
   const [leaveDaysTouched, setLeaveDaysTouched] = useState(false);
   const [noticeDays, setNoticeDays] = useState<number>(0);
   const [otherReceivables, setOtherReceivables] = useState<number>(0);
   const [otherDeductions, setOtherDeductions] = useState<number>(0);
+  const [article77Amount, setArticle77Amount] = useState<number>(0);
+  const [article77Touched, setArticle77Touched] = useState(false);
   const [reasonDetails, setReasonDetails] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const isArticle77 = reason === "arbitrary_dismissal" || reason === "unlawful_resignation";
+  const article77Direction = ARTICLE77_DIRECTION[reason] ?? null;
 
   const { data: employees = [] } = useQuery({
     queryKey: ["fs_employees"],
     queryFn: async () => {
       const { data, error } = await (supabase as any).from("hr_employees")
-        .select("id, full_name_ar, employee_no, hire_date, is_saudi, basic_salary, housing_allowance, transport_allowance, other_allowances, gross_salary, national_id, iqama_number, department_id, job_title_id")
+        .select("id, full_name_ar, employee_no, hire_date, is_saudi, basic_salary, housing_allowance, transport_allowance, other_allowances, gross_salary, national_id, iqama_number, department_id, job_title_id, penalty_clause_amount")
         .eq("status", "active").order("full_name_ar");
       if (error) throw error;
       return data ?? [];
@@ -54,6 +68,48 @@ function NewTermination() {
   });
 
   const emp = useMemo(() => (employees as any[]).find((e) => e.id === employeeId), [employees, employeeId]);
+
+  // Article 77 compensation basis: the contract's own penalty clause first,
+  // else the remaining value of a fixed-term contract — both only ever
+  // pre-fill the input; the amount stays manually editable (per policy: no
+  // silently-applied formula when no penalty clause and no fixed end date).
+  const { data: activeContracts = [] } = useQuery({
+    queryKey: ["fs_contracts", employeeId],
+    queryFn: async () => employeeId
+      ? (await (supabase as any).from("hr_contracts")
+          .select("id, contract_type, end_date, basic_salary, housing_allowance, transport_allowance, other_allowances")
+          .eq("employee_id", employeeId).eq("status", "active").order("start_date", { ascending: false })).data ?? []
+      : [],
+    enabled: !!employeeId,
+  });
+  const activeContract = (activeContracts as any[])[0];
+
+  const remainingContractValue = useMemo(() => {
+    if (!activeContract || activeContract.contract_type !== "fixed_term" || !activeContract.end_date) return 0;
+    const end = new Date(activeContract.end_date).getTime();
+    const last = new Date(lastDay).getTime();
+    if (!(end > last)) return 0;
+    const remainingMonths = (end - last) / (1000 * 60 * 60 * 24 * 30);
+    const contractMonthly = Number(activeContract.basic_salary ?? 0) + Number(activeContract.housing_allowance ?? 0)
+      + Number(activeContract.transport_allowance ?? 0) + Number(activeContract.other_allowances ?? 0);
+    const monthly = contractMonthly > 0 ? contractMonthly : Number(emp?.gross_salary ?? 0);
+    return Math.round(monthly * remainingMonths * 100) / 100;
+  }, [activeContract, lastDay, emp?.gross_salary]);
+
+  const article77Suggestion = useMemo(() => {
+    const penalty = Number(emp?.penalty_clause_amount ?? 0);
+    if (penalty > 0) return { amount: penalty, basis: "penalty_clause" as const };
+    if (remainingContractValue > 0) return { amount: remainingContractValue, basis: "remaining_contract_value" as const };
+    return { amount: 0, basis: "manual" as const };
+  }, [emp, remainingContractValue]);
+
+  useEffect(() => { setArticle77Touched(false); }, [employeeId, reason]);
+  useEffect(() => {
+    if (isArticle77 && !article77Touched) setArticle77Amount(article77Suggestion.amount);
+  }, [isArticle77, article77Touched, article77Suggestion]);
+
+  // Article 53: termination during probation carries no notice-pay obligation.
+  useEffect(() => { if (reason === "probation") setNoticeDays(0); }, [reason]);
 
   const { data: loans = [] } = useQuery({
     queryKey: ["fs_loans", employeeId],
@@ -103,21 +159,27 @@ function NewTermination() {
     const noticeValue = Math.round(noticeDays * dailyGross * 100) / 100;
     const unpaidValue = Math.round(unpaidDays * dailyGross * 100) / 100;
 
-    const workedDaysInMonth = 30 - unpaidDays;
-    const monthEarned = Math.round((gross * workedDaysInMonth / 30) * 100) / 100;
+    // Last-month days are entered manually: an employee whose final month is
+    // already covered by the regular payroll run gets 0 here, while a
+    // mid-month leaver gets only the days actually worked — deriving it from
+    // (30 - unpaid) silently paid a full month in the first case.
+    const monthEarned = Math.round((gross * lastMonthDays / 30) * 100) / 100;
     const gosi = calcGosi(basic + housing, !!emp.is_saudi);
-    const gosiEmployee = Math.round((gosi.employee * workedDaysInMonth / 30) * 100) / 100;
+    const gosiEmployee = Math.round((gosi.employee * lastMonthDays / 30) * 100) / 100;
 
-    const receivables = eos + leaveValue + noticeValue + monthEarned + otherReceivables;
-    const deductions = loanBalance + gosiEmployee + otherDeductions + unpaidValue;
+    const article77Value = isArticle77 ? article77Amount : 0;
+    const receivables = eos + leaveValue + noticeValue + monthEarned + otherReceivables
+      + (article77Direction === "employee" ? article77Value : 0);
+    const deductions = loanBalance + gosiEmployee + otherDeductions + unpaidValue
+      + (article77Direction === "company" ? article77Value : 0);
     const net = Math.round((receivables - deductions) * 100) / 100;
 
     return {
       basic, housing, transport, other, gross,
       yrs, eos, dailyGross, leaveValue, noticeValue, unpaidValue,
-      monthEarned, gosiEmployee, loanBalance, receivables, deductions, net,
+      monthEarned, gosiEmployee, loanBalance, article77Value, receivables, deductions, net,
     };
-  }, [emp, reason, lastDay, unpaidDays, leaveBalanceDays, noticeDays, otherReceivables, otherDeductions, loanBalance]);
+  }, [emp, reason, lastDay, unpaidDays, lastMonthDays, leaveBalanceDays, noticeDays, otherReceivables, otherDeductions, loanBalance, isArticle77, article77Amount, article77Direction]);
 
   const save = useMutation({
     mutationFn: async () => {
@@ -131,16 +193,19 @@ function NewTermination() {
         eos_amount: calc.eos,
         leave_balance_days: leaveBalanceDays,
         leave_balance_amount: calc.leaveValue,
-        other_receivables: Math.round((calc.noticeValue + calc.monthEarned + otherReceivables) * 100) / 100,
+        other_receivables: Math.round((calc.noticeValue + calc.monthEarned + otherReceivables
+          + (article77Direction === "employee" ? calc.article77Value : 0)) * 100) / 100,
         outstanding_deductions: Math.round((calc.gosiEmployee + calc.unpaidValue + otherDeductions) * 100) / 100,
         loan_settlement: calc.loanBalance,
-        other_payables: 0,
+        other_payables: article77Direction === "company" ? calc.article77Value : 0,
         settlement_details: {
           notice_days: noticeDays, notice_value: calc.noticeValue,
           unpaid_days: unpaidDays, unpaid_value: calc.unpaidValue,
+          last_month_days: lastMonthDays,
           month_earned: calc.monthEarned, gosi_employee: calc.gosiEmployee,
           leave_days: leaveBalanceDays, other_receivables_manual: otherReceivables,
           other_deductions_manual: otherDeductions,
+          ...(isArticle77 ? { article77: { amount: calc.article77Value, direction: article77Direction, basis: article77Suggestion.basis } } : {}),
         },
         clearance_status: clr ?? {}, status: "draft",
       }).select("id").single();
@@ -202,8 +267,13 @@ function NewTermination() {
             <Input type="number" min={0} value={noticeDays} onChange={(e) => setNoticeDays(Number(e.target.value) || 0)} />
           </div>
           <div>
-            <Label className="text-xs">أيام غير مدفوعة بالشهر الأخير</Label>
-            <Input type="number" min={0} max={30} value={unpaidDays} onChange={(e) => setUnpaidDays(Number(e.target.value) || 0)} />
+            <Label className="text-xs">أيام مستحقة بالشهر الأخير</Label>
+            <Input type="number" min={0} max={31} value={lastMonthDays} onChange={(e) => setLastMonthDays(Number(e.target.value) || 0)} />
+            <p className="text-[11px] text-muted-foreground mt-1">اتركه صفراً إذا صُرف راتب الشهر الأخير ضمن مسير الرواتب، أو أدخل أيام العمل الفعلية إذا انتهت الخدمة خلال الشهر.</p>
+          </div>
+          <div>
+            <Label className="text-xs">أيام غير مدفوعة (غياب/انقطاع)</Label>
+            <Input type="number" min={0} max={31} value={unpaidDays} onChange={(e) => setUnpaidDays(Number(e.target.value) || 0)} />
           </div>
           <div>
             <Label className="text-xs">مستحقات إضافية (بدلات/مكافآت)</Label>
@@ -218,6 +288,28 @@ function NewTermination() {
             <Input value={reasonDetails} onChange={(e) => setReasonDetails(e.target.value)} />
           </div>
         </div>
+
+        {reason === "probation" && (
+          <p className="text-xs text-muted-foreground mt-3 bg-muted/50 rounded-md p-2">
+            إنهاء خلال فترة التجربة (المادة 53): لا يستحق أي طرف إشعاراً أو تعويضاً — تم تصفير أيام الإشعار تلقائياً. مكافأة نهاية الخدمة تبقى محتسبة وفق مدة الخدمة الفعلية مهما قصرت.
+          </p>
+        )}
+
+        {isArticle77 && (
+          <div className="mt-3 border border-amber-500/40 bg-amber-500/5 rounded-md p-3">
+            <div className="flex items-center gap-2 font-semibold text-sm mb-2">
+              <Scale className="w-4 h-4" />
+              {article77Direction === "employee" ? "تعويض المادة 77 — مستحق للموظف" : "تعويض المادة 77 — مستحق للشركة"}
+            </div>
+            <Input type="number" min={0} value={article77Amount}
+              onChange={(e) => { setArticle77Touched(true); setArticle77Amount(Number(e.target.value) || 0); }} />
+            <p className="text-[11px] text-muted-foreground mt-1">
+              {article77Suggestion.basis === "penalty_clause" && "القيمة المقترحة من الشرط الجزائي المحدد في ملف الموظف — قابلة للتعديل."}
+              {article77Suggestion.basis === "remaining_contract_value" && "القيمة المقترحة = باقي قيمة العقد المحدد المدة حتى تاريخ نهايته — قابلة للتعديل."}
+              {article77Suggestion.basis === "manual" && "لا يوجد شرط جزائي محدد ولا عقد محدد المدة قائم — أدخل المبلغ يدوياً وفق التفاوض أو قرار مكتب العمل."}
+            </p>
+          </div>
+        )}
       </Card>
 
       {!calc && (
@@ -256,8 +348,9 @@ function NewTermination() {
                 <SettlementRow label="مكافأة نهاية الخدمة" value={calc.eos} />
                 <SettlementRow label={`رصيد إجازات (${leaveBalanceDays} يوم)`} value={calc.leaveValue} />
                 <SettlementRow label={`بدل إشعار (${noticeDays} يوم)`} value={calc.noticeValue} />
-                <SettlementRow label={`مستحقات الشهر الأخير (${30 - unpaidDays} يوم)`} value={calc.monthEarned} />
+                <SettlementRow label={`مستحقات الشهر الأخير (${lastMonthDays} يوم)`} value={calc.monthEarned} />
                 <SettlementRow label="مستحقات أخرى" value={otherReceivables} />
+                {article77Direction === "employee" && <SettlementRow label="تعويض المادة 77 (فصل تعسفي)" value={calc.article77Value} />}
                 <div className="border-t mt-2 pt-2 flex justify-between font-semibold">
                   <span>إجمالي المستحقات</span><span>{fmtSAR(calc.receivables)}</span>
                 </div>
@@ -268,6 +361,7 @@ function NewTermination() {
                 <SettlementRow label="حصة التأمينات الاجتماعية" value={calc.gosiEmployee} negative />
                 <SettlementRow label={`أيام غير مدفوعة (${unpaidDays} يوم)`} value={calc.unpaidValue} negative />
                 <SettlementRow label="استقطاعات أخرى" value={otherDeductions} negative />
+                {article77Direction === "company" && <SettlementRow label="تعويض المادة 77 (ترك عمل غير مشروع)" value={calc.article77Value} negative />}
                 <div className="border-t mt-2 pt-2 flex justify-between font-semibold">
                   <span>إجمالي الاستقطاعات</span><span>{fmtSAR(calc.deductions)}</span>
                 </div>
@@ -289,6 +383,8 @@ function NewTermination() {
               تُحتسب مكافأة نهاية الخدمة وفق المادة 84 من نظام العمل السعودي: نصف شهر عن كل سنة من السنوات الخمس الأولى وشهر كامل عن كل سنة تالية.
               في حالة الاستقالة يُطبّق معامل الاستحقاق: أقل من سنتين لا تستحق، من 2 إلى أقل من 5 سنوات الثلث، من 5 إلى أقل من 10 الثلثان، 10 سنوات فأكثر كامل المستحق.
               رصيد الإجازات محتسب تناسبياً حتى آخر يوم عمل، وليس الاستحقاق السنوي الكامل.
+              في حالة الفصل التعسفي أو ترك العمل غير المشروع (المادة 77) يُحتسب تعويض إضافي وفق الشرط الجزائي بالعقد أو باقي قيمته إن كان محدد المدة.
+              الإنهاء خلال فترة التجربة (المادة 53) لا يستوجب إشعاراً أو تعويضاً من أي طرف.
             </p>
           </Card>
 
