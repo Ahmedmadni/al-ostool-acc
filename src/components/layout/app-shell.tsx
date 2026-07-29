@@ -126,7 +126,6 @@ const GROUPS: NavGroup[] = [
       { to: "/hr/assets", label: "العهد", label_en: "Custody Assets" },
       { to: "/hr/payroll", label: "مسيرات الرواتب", label_en: "Payroll Runs" },
       { to: "/hr/termination", label: "إنهاء الخدمة", label_en: "End of Service" },
-      { to: "/hr/final-settlement", label: "حاسبة المخالصة النهائية", label_en: "Final Settlement Calculator" },
       { to: "/hr/qiwa", label: "تكامل قوى", label_en: "Qiwa Integration" },
       { to: "/hr/qiwa/mapping", label: "تعيين حقول قوى", label_en: "Qiwa Field Mapping" },
       { to: "/hr/audit", label: "سجل التدقيق", label_en: "Audit Log" },
