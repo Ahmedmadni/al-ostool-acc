@@ -22,7 +22,7 @@ function TerminationPage() {
   const { data: terms = [] } = useQuery({
     queryKey: ["hr_terminations"],
     queryFn: async () => (await (supabase as any).from("hr_terminations")
-      .select("*, hr_employees(full_name_ar, employee_no)").order("created_at", { ascending: false })).data ?? [],
+      .select("*, hr_employees(id, full_name_ar, employee_no)").order("created_at", { ascending: false })).data ?? [],
   });
 
   const exportRows = (terms as any[]).map((tm) => ({
@@ -54,7 +54,11 @@ function TerminationPage() {
             {(terms as any[]).map((t) => (
               <TableRow key={t.id}>
                 <TableCell className="font-mono">{t.termination_no}</TableCell>
-                <TableCell>{t.hr_employees?.full_name_ar}</TableCell>
+                <TableCell>
+                  {t.hr_employees?.id
+                    ? <Link to="/hr/employees/$id" params={{ id: t.hr_employees.id }} className="text-primary hover:underline">{t.hr_employees.full_name_ar}</Link>
+                    : t.hr_employees?.full_name_ar}
+                </TableCell>
                 <TableCell>{REASONS.find((r) => r.v === t.reason)?.l ?? t.reason}</TableCell>
                 <TableCell>{t.last_working_day}</TableCell>
                 <TableCell>{t.service_years}</TableCell>
