@@ -52,13 +52,17 @@ function TerminationPage() {
       // Clearance check
       const { data: clr } = await (supabase as any).rpc("hr_termination_clearance", { _employee_id: p.employee_id });
 
-      const { error } = await (supabase as any).from("hr_terminations").insert({
+      const { data: inserted, error } = await (supabase as any).from("hr_terminations").insert({
         termination_no, employee_id: p.employee_id, reason: p.reason,
         reason_details: p.reason_details, last_working_day: p.last_working_day,
-        service_years: yrs, eos_amount: eos, net_settlement: eos,
+        service_years: yrs, eos_amount: eos,
         clearance_status: clr ?? {}, status: "draft",
-      });
+      }).select("id").single();
       if (error) throw error;
+
+      // Pull the real outstanding loan balance and leave balance in immediately
+      // instead of leaving them at 0 until someone remembers to fill them in.
+      await (supabase as any).rpc("hr_termination_refresh_components", { _termination_id: inserted.id });
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["hr_terminations"] }); setOpen(false); toast.success("تم إنشاء ملف الإنهاء"); },
     onError: (e: any) => toast.error(e.message),

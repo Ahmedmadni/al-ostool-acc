@@ -8,8 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, FileSpreadsheet, Printer } from "lucide-react";
 import { exportToExcel } from "@/lib/export";
+
+const LEAVE_TYPE_LABEL: Record<string, string> = {
+  annual: "سنوية", sick: "مرضية", emergency: "اضطرارية", unpaid: "بدون راتب",
+  maternity: "أمومة", paternity: "أبوة", hajj: "حج", study: "دراسية", compensatory: "تعويضية",
+};
 
 export const Route = createFileRoute("/_authenticated/hr/reports/")({ component: HrReports });
 
@@ -19,6 +25,8 @@ function fmt(n: any) {
 
 function HrReports() {
   const [tab, setTab] = useState("employees");
+  const [leaveBalanceType, setLeaveBalanceType] = useState("annual");
+  const [leaveBalanceYear, setLeaveBalanceYear] = useState(new Date().getFullYear());
 
   const { data: employees = [] } = useQuery({
     queryKey: ["hr_employees_full"],
@@ -42,6 +50,12 @@ function HrReports() {
     queryKey: ["hr_leaves_all"],
     queryFn: async () => (await (supabase as any).from("hr_leaves")
       .select("*, hr_employees:employee_id(full_name_ar, employee_no)")).data ?? [],
+  });
+  const { data: leaveBalances = [] } = useQuery({
+    queryKey: ["hr_leave_balance_report", leaveBalanceYear, leaveBalanceType],
+    queryFn: async () => (await (supabase as any).rpc("hr_leave_balance_report", {
+      _year: leaveBalanceYear, _leave_type: leaveBalanceType,
+    })).data ?? [],
   });
 
   const stats = useMemo(() => {
@@ -95,6 +109,15 @@ function HrReports() {
   const exportPayroll = () => {
     exportToExcel(payrollLines as any[], "hr-payroll-lines");
   };
+  const exportLeaveBalances = () => {
+    exportToExcel(
+      (leaveBalances as any[]).map((r) => ({
+        "الرقم الوظيفي": r.employee_no, "الاسم": r.full_name_ar, "القسم": r.department_id,
+        "المستحق": r.entitled, "المستخدم": r.used, "قيد الاعتماد": r.pending, "المتبقي": r.remaining,
+      })),
+      `hr-leave-balance-${leaveBalanceType}-${leaveBalanceYear}`,
+    );
+  };
 
   return (
     <div>
@@ -122,6 +145,7 @@ function HrReports() {
           <TabsTrigger value="cost">تحليل التكلفة</TabsTrigger>
           <TabsTrigger value="settlements">المخالصات</TabsTrigger>
           <TabsTrigger value="leaves">الإجازات</TabsTrigger>
+          <TabsTrigger value="leave_balance">رصيد الإجازات</TabsTrigger>
         </TabsList>
 
         <TabsContent value="employees">
@@ -267,6 +291,72 @@ function HrReports() {
                     <TableCell><Badge variant="outline">{l.status}</Badge></TableCell>
                   </TableRow>
                 ))}
+              </TableBody>
+            </Table>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="leave_balance">
+          <Card>
+            <div className="flex flex-wrap items-center justify-between gap-3 p-4 border-b">
+              <h3 className="font-semibold">تقدم رصيد الإجازات ({leaveBalances.length})</h3>
+              <div className="flex items-center gap-2">
+                <Select value={leaveBalanceType} onValueChange={setLeaveBalanceType}>
+                  <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(LEAVE_TYPE_LABEL).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <Select value={String(leaveBalanceYear)} onValueChange={(v) => setLeaveBalanceYear(Number(v))}>
+                  <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {[0, 1, 2].map((i) => {
+                      const y = new Date().getFullYear() - i;
+                      return <SelectItem key={y} value={String(y)}>{y}</SelectItem>;
+                    })}
+                  </SelectContent>
+                </Select>
+                <Button size="sm" variant="outline" onClick={exportLeaveBalances}><FileSpreadsheet className="w-4 h-4 ml-2" /> تصدير Excel</Button>
+              </div>
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>الرقم</TableHead>
+                  <TableHead>الموظف</TableHead>
+                  <TableHead>القسم</TableHead>
+                  <TableHead className="text-left">المستحق</TableHead>
+                  <TableHead className="text-left">المستخدم</TableHead>
+                  <TableHead className="text-left">قيد الاعتماد</TableHead>
+                  <TableHead className="text-left">المتبقي</TableHead>
+                  <TableHead>التقدم</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(leaveBalances as any[]).map((r) => {
+                  const entitled = Number(r.entitled) || 0;
+                  const used = Number(r.used) || 0;
+                  const pct = entitled > 0 ? Math.min(100, Math.round((used / entitled) * 100)) : 0;
+                  return (
+                    <TableRow key={r.employee_id}>
+                      <TableCell>{r.employee_no}</TableCell>
+                      <TableCell>{r.full_name_ar}</TableCell>
+                      <TableCell>{r.department_id ?? "—"}</TableCell>
+                      <TableCell className="text-left tabular-nums">{entitled}</TableCell>
+                      <TableCell className="text-left tabular-nums">{used}</TableCell>
+                      <TableCell className="text-left tabular-nums">{Number(r.pending) || 0}</TableCell>
+                      <TableCell className="text-left tabular-nums font-semibold">{Number(r.remaining) || 0}</TableCell>
+                      <TableCell>
+                        <div className="w-24 h-2 rounded-full bg-muted overflow-hidden" title={`${pct}% مستخدم`}>
+                          <div className={`h-full ${pct >= 90 ? "bg-destructive" : pct >= 60 ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${pct}%` }} />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                {(leaveBalances as any[]).length === 0 && (
+                  <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">لا توجد بيانات</TableCell></TableRow>
+                )}
               </TableBody>
             </Table>
           </Card>

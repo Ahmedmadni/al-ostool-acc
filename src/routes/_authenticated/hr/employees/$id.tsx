@@ -71,6 +71,11 @@ function EmployeeCard() {
     queryFn: async () => (await (supabase as any).from("hr_loans").select("*").eq("employee_id", id).order("created_at", { ascending: false })).data ?? [],
   });
 
+  const { data: leaveSummary = [] } = useQuery({
+    queryKey: ["hr_leave_summary", "emp", id],
+    queryFn: async () => (await (supabase as any).rpc("hr_get_leave_summary", { _employee_id: id })).data ?? [],
+  });
+
   const { data: assets = [] } = useQuery({
     queryKey: ["hr_assets", "emp", id],
     queryFn: async () => (await (supabase as any).from("hr_assets_assignment").select("*").eq("employee_id", id).order("assigned_date", { ascending: false })).data ?? [],
@@ -200,7 +205,21 @@ function EmployeeCard() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="leaves" className="mt-4">
+        <TabsContent value="leaves" className="mt-4 space-y-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {(leaveSummary as any[])
+              .filter((r) => Number(r.entitled) > 0 || Number(r.used) > 0)
+              .map((r) => (
+                <Card key={r.leave_type} className="p-3">
+                  <div className="text-xs text-muted-foreground mb-1">{LEAVE_TYPE_LABEL[r.leave_type] ?? r.leave_type}</div>
+                  <div className="text-lg font-bold text-primary">{Number(r.remaining)} <span className="text-xs font-normal text-muted-foreground">متبقي</span></div>
+                  <div className="text-xs text-muted-foreground">مستحق {Number(r.entitled)} · مستخدم {Number(r.used)}{Number(r.pending) > 0 ? ` · قيد الاعتماد ${Number(r.pending)}` : ""}</div>
+                </Card>
+              ))}
+            {(leaveSummary as any[]).length === 0 && (
+              <div className="text-sm text-muted-foreground col-span-full">لا تتوفر بيانات رصيد إجازات بعد.</div>
+            )}
+          </div>
           <Card>
             <Table>
               <TableHeader>

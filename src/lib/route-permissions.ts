@@ -103,12 +103,14 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/hr", module: "hr" },
 
   // ===== Fleet group =====
-  { prefix: "/fleet/vehicles", module: "fleet" },
-  { prefix: "/fleet/drivers", module: "fleet" },
-  { prefix: "/fleet/trips", module: "fleet" },
-  { prefix: "/fleet/maintenance", module: "fleet" },
-  { prefix: "/fleet/fuel", module: "fleet" },
-  { prefix: "/fleet/tracking", module: "fleet" },
+  // Granular per H18-style split: tracking (live GPS) is gated separately
+  // from vehicle/driver master data instead of one blanket "fleet" key.
+  { prefix: "/fleet/vehicles", module: "fleet.vehicles" },
+  { prefix: "/fleet/drivers", module: "fleet.drivers" },
+  { prefix: "/fleet/trips", module: "fleet.trips" },
+  { prefix: "/fleet/maintenance", module: "fleet.maintenance" },
+  { prefix: "/fleet/fuel", module: "fleet.fuel" },
+  { prefix: "/fleet/tracking", module: "fleet.tracking" },
   { prefix: "/fleet", module: "fleet" },
 
   // ===== Misc =====
