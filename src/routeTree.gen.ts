@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
+import { Route as AuthenticatedWarehousesIndexRouteImport } from './routes/_authenticated/warehouses/index'
 import { Route as AuthenticatedVendorsIndexRouteImport } from './routes/_authenticated/vendors/index'
 import { Route as AuthenticatedTrialBalanceIndexRouteImport } from './routes/_authenticated/trial-balance/index'
 import { Route as AuthenticatedTreasuryIndexRouteImport } from './routes/_authenticated/treasury/index'
@@ -39,6 +40,10 @@ import { Route as AuthenticatedControlIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedBoardIndexRouteImport } from './routes/_authenticated/board/index'
 import { Route as AuthenticatedBanksIndexRouteImport } from './routes/_authenticated/banks/index'
 import { Route as AuthenticatedAlertsIndexRouteImport } from './routes/_authenticated/alerts/index'
+import { Route as AuthenticatedWarehousesStockRouteImport } from './routes/_authenticated/warehouses/stock'
+import { Route as AuthenticatedWarehousesReceiptsRouteImport } from './routes/_authenticated/warehouses/receipts'
+import { Route as AuthenticatedWarehousesItemsRouteImport } from './routes/_authenticated/warehouses/items'
+import { Route as AuthenticatedWarehousesIssuesRouteImport } from './routes/_authenticated/warehouses/issues'
 import { Route as AuthenticatedVendorsReportsRouteImport } from './routes/_authenticated/vendors/reports'
 import { Route as AuthenticatedVendorsPaymentsRouteImport } from './routes/_authenticated/vendors/payments'
 import { Route as AuthenticatedVendorsInvoicesRouteImport } from './routes/_authenticated/vendors/invoices'
@@ -128,6 +133,12 @@ const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedWarehousesIndexRoute =
+  AuthenticatedWarehousesIndexRouteImport.update({
+    id: '/warehouses/',
+    path: '/warehouses/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedVendorsIndexRoute =
   AuthenticatedVendorsIndexRouteImport.update({
     id: '/vendors/',
@@ -269,6 +280,30 @@ const AuthenticatedAlertsIndexRoute =
   AuthenticatedAlertsIndexRouteImport.update({
     id: '/alerts/',
     path: '/alerts/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedWarehousesStockRoute =
+  AuthenticatedWarehousesStockRouteImport.update({
+    id: '/warehouses/stock',
+    path: '/warehouses/stock',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedWarehousesReceiptsRoute =
+  AuthenticatedWarehousesReceiptsRouteImport.update({
+    id: '/warehouses/receipts',
+    path: '/warehouses/receipts',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedWarehousesItemsRoute =
+  AuthenticatedWarehousesItemsRouteImport.update({
+    id: '/warehouses/items',
+    path: '/warehouses/items',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedWarehousesIssuesRoute =
+  AuthenticatedWarehousesIssuesRouteImport.update({
+    id: '/warehouses/issues',
+    path: '/warehouses/issues',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedVendorsReportsRoute =
@@ -692,6 +727,10 @@ export interface FileRoutesByFullPath {
   '/vendors/invoices': typeof AuthenticatedVendorsInvoicesRoute
   '/vendors/payments': typeof AuthenticatedVendorsPaymentsRoute
   '/vendors/reports': typeof AuthenticatedVendorsReportsRoute
+  '/warehouses/issues': typeof AuthenticatedWarehousesIssuesRoute
+  '/warehouses/items': typeof AuthenticatedWarehousesItemsRoute
+  '/warehouses/receipts': typeof AuthenticatedWarehousesReceiptsRoute
+  '/warehouses/stock': typeof AuthenticatedWarehousesStockRoute
   '/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/banks/': typeof AuthenticatedBanksIndexRoute
   '/board/': typeof AuthenticatedBoardIndexRoute
@@ -717,6 +756,7 @@ export interface FileRoutesByFullPath {
   '/treasury/': typeof AuthenticatedTreasuryIndexRoute
   '/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors/': typeof AuthenticatedVendorsIndexRoute
+  '/warehouses/': typeof AuthenticatedWarehousesIndexRoute
   '/hr/employees/$id': typeof AuthenticatedHrEmployeesIdRoute
   '/hr/payroll/$id': typeof AuthenticatedHrPayrollIdRoute
   '/hr/termination/$id': typeof AuthenticatedHrTerminationIdRoute
@@ -787,6 +827,10 @@ export interface FileRoutesByTo {
   '/vendors/invoices': typeof AuthenticatedVendorsInvoicesRoute
   '/vendors/payments': typeof AuthenticatedVendorsPaymentsRoute
   '/vendors/reports': typeof AuthenticatedVendorsReportsRoute
+  '/warehouses/issues': typeof AuthenticatedWarehousesIssuesRoute
+  '/warehouses/items': typeof AuthenticatedWarehousesItemsRoute
+  '/warehouses/receipts': typeof AuthenticatedWarehousesReceiptsRoute
+  '/warehouses/stock': typeof AuthenticatedWarehousesStockRoute
   '/alerts': typeof AuthenticatedAlertsIndexRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
   '/board': typeof AuthenticatedBoardIndexRoute
@@ -812,6 +856,7 @@ export interface FileRoutesByTo {
   '/treasury': typeof AuthenticatedTreasuryIndexRoute
   '/trial-balance': typeof AuthenticatedTrialBalanceIndexRoute
   '/vendors': typeof AuthenticatedVendorsIndexRoute
+  '/warehouses': typeof AuthenticatedWarehousesIndexRoute
   '/hr/employees/$id': typeof AuthenticatedHrEmployeesIdRoute
   '/hr/payroll/$id': typeof AuthenticatedHrPayrollIdRoute
   '/hr/termination/$id': typeof AuthenticatedHrTerminationIdRoute
@@ -884,6 +929,10 @@ export interface FileRoutesById {
   '/_authenticated/vendors/invoices': typeof AuthenticatedVendorsInvoicesRoute
   '/_authenticated/vendors/payments': typeof AuthenticatedVendorsPaymentsRoute
   '/_authenticated/vendors/reports': typeof AuthenticatedVendorsReportsRoute
+  '/_authenticated/warehouses/issues': typeof AuthenticatedWarehousesIssuesRoute
+  '/_authenticated/warehouses/items': typeof AuthenticatedWarehousesItemsRoute
+  '/_authenticated/warehouses/receipts': typeof AuthenticatedWarehousesReceiptsRoute
+  '/_authenticated/warehouses/stock': typeof AuthenticatedWarehousesStockRoute
   '/_authenticated/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/_authenticated/banks/': typeof AuthenticatedBanksIndexRoute
   '/_authenticated/board/': typeof AuthenticatedBoardIndexRoute
@@ -909,6 +958,7 @@ export interface FileRoutesById {
   '/_authenticated/treasury/': typeof AuthenticatedTreasuryIndexRoute
   '/_authenticated/trial-balance/': typeof AuthenticatedTrialBalanceIndexRoute
   '/_authenticated/vendors/': typeof AuthenticatedVendorsIndexRoute
+  '/_authenticated/warehouses/': typeof AuthenticatedWarehousesIndexRoute
   '/_authenticated/hr/employees/$id': typeof AuthenticatedHrEmployeesIdRoute
   '/_authenticated/hr/payroll/$id': typeof AuthenticatedHrPayrollIdRoute
   '/_authenticated/hr/termination/$id': typeof AuthenticatedHrTerminationIdRoute
@@ -981,6 +1031,10 @@ export interface FileRouteTypes {
     | '/vendors/invoices'
     | '/vendors/payments'
     | '/vendors/reports'
+    | '/warehouses/issues'
+    | '/warehouses/items'
+    | '/warehouses/receipts'
+    | '/warehouses/stock'
     | '/alerts/'
     | '/banks/'
     | '/board/'
@@ -1006,6 +1060,7 @@ export interface FileRouteTypes {
     | '/treasury/'
     | '/trial-balance/'
     | '/vendors/'
+    | '/warehouses/'
     | '/hr/employees/$id'
     | '/hr/payroll/$id'
     | '/hr/termination/$id'
@@ -1076,6 +1131,10 @@ export interface FileRouteTypes {
     | '/vendors/invoices'
     | '/vendors/payments'
     | '/vendors/reports'
+    | '/warehouses/issues'
+    | '/warehouses/items'
+    | '/warehouses/receipts'
+    | '/warehouses/stock'
     | '/alerts'
     | '/banks'
     | '/board'
@@ -1101,6 +1160,7 @@ export interface FileRouteTypes {
     | '/treasury'
     | '/trial-balance'
     | '/vendors'
+    | '/warehouses'
     | '/hr/employees/$id'
     | '/hr/payroll/$id'
     | '/hr/termination/$id'
@@ -1172,6 +1232,10 @@ export interface FileRouteTypes {
     | '/_authenticated/vendors/invoices'
     | '/_authenticated/vendors/payments'
     | '/_authenticated/vendors/reports'
+    | '/_authenticated/warehouses/issues'
+    | '/_authenticated/warehouses/items'
+    | '/_authenticated/warehouses/receipts'
+    | '/_authenticated/warehouses/stock'
     | '/_authenticated/alerts/'
     | '/_authenticated/banks/'
     | '/_authenticated/board/'
@@ -1197,6 +1261,7 @@ export interface FileRouteTypes {
     | '/_authenticated/treasury/'
     | '/_authenticated/trial-balance/'
     | '/_authenticated/vendors/'
+    | '/_authenticated/warehouses/'
     | '/_authenticated/hr/employees/$id'
     | '/_authenticated/hr/payroll/$id'
     | '/_authenticated/hr/termination/$id'
@@ -1270,6 +1335,13 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/account'
       preLoaderRoute: typeof AuthenticatedAccountRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/warehouses/': {
+      id: '/_authenticated/warehouses/'
+      path: '/warehouses'
+      fullPath: '/warehouses/'
+      preLoaderRoute: typeof AuthenticatedWarehousesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/vendors/': {
@@ -1445,6 +1517,34 @@ declare module '@tanstack/react-router' {
       path: '/alerts'
       fullPath: '/alerts/'
       preLoaderRoute: typeof AuthenticatedAlertsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/warehouses/stock': {
+      id: '/_authenticated/warehouses/stock'
+      path: '/warehouses/stock'
+      fullPath: '/warehouses/stock'
+      preLoaderRoute: typeof AuthenticatedWarehousesStockRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/warehouses/receipts': {
+      id: '/_authenticated/warehouses/receipts'
+      path: '/warehouses/receipts'
+      fullPath: '/warehouses/receipts'
+      preLoaderRoute: typeof AuthenticatedWarehousesReceiptsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/warehouses/items': {
+      id: '/_authenticated/warehouses/items'
+      path: '/warehouses/items'
+      fullPath: '/warehouses/items'
+      preLoaderRoute: typeof AuthenticatedWarehousesItemsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/warehouses/issues': {
+      id: '/_authenticated/warehouses/issues'
+      path: '/warehouses/issues'
+      fullPath: '/warehouses/issues'
+      preLoaderRoute: typeof AuthenticatedWarehousesIssuesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/vendors/reports': {
@@ -1936,6 +2036,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedVendorsInvoicesRoute: typeof AuthenticatedVendorsInvoicesRoute
   AuthenticatedVendorsPaymentsRoute: typeof AuthenticatedVendorsPaymentsRoute
   AuthenticatedVendorsReportsRoute: typeof AuthenticatedVendorsReportsRoute
+  AuthenticatedWarehousesIssuesRoute: typeof AuthenticatedWarehousesIssuesRoute
+  AuthenticatedWarehousesItemsRoute: typeof AuthenticatedWarehousesItemsRoute
+  AuthenticatedWarehousesReceiptsRoute: typeof AuthenticatedWarehousesReceiptsRoute
+  AuthenticatedWarehousesStockRoute: typeof AuthenticatedWarehousesStockRoute
   AuthenticatedAlertsIndexRoute: typeof AuthenticatedAlertsIndexRoute
   AuthenticatedBanksIndexRoute: typeof AuthenticatedBanksIndexRoute
   AuthenticatedBoardIndexRoute: typeof AuthenticatedBoardIndexRoute
@@ -1961,6 +2065,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTreasuryIndexRoute: typeof AuthenticatedTreasuryIndexRoute
   AuthenticatedTrialBalanceIndexRoute: typeof AuthenticatedTrialBalanceIndexRoute
   AuthenticatedVendorsIndexRoute: typeof AuthenticatedVendorsIndexRoute
+  AuthenticatedWarehousesIndexRoute: typeof AuthenticatedWarehousesIndexRoute
   AuthenticatedHrEmployeesIdRoute: typeof AuthenticatedHrEmployeesIdRoute
   AuthenticatedHrPayrollIdRoute: typeof AuthenticatedHrPayrollIdRoute
   AuthenticatedHrTerminationIdRoute: typeof AuthenticatedHrTerminationIdRoute
@@ -2034,6 +2139,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedVendorsInvoicesRoute: AuthenticatedVendorsInvoicesRoute,
   AuthenticatedVendorsPaymentsRoute: AuthenticatedVendorsPaymentsRoute,
   AuthenticatedVendorsReportsRoute: AuthenticatedVendorsReportsRoute,
+  AuthenticatedWarehousesIssuesRoute: AuthenticatedWarehousesIssuesRoute,
+  AuthenticatedWarehousesItemsRoute: AuthenticatedWarehousesItemsRoute,
+  AuthenticatedWarehousesReceiptsRoute: AuthenticatedWarehousesReceiptsRoute,
+  AuthenticatedWarehousesStockRoute: AuthenticatedWarehousesStockRoute,
   AuthenticatedAlertsIndexRoute: AuthenticatedAlertsIndexRoute,
   AuthenticatedBanksIndexRoute: AuthenticatedBanksIndexRoute,
   AuthenticatedBoardIndexRoute: AuthenticatedBoardIndexRoute,
@@ -2059,6 +2168,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTreasuryIndexRoute: AuthenticatedTreasuryIndexRoute,
   AuthenticatedTrialBalanceIndexRoute: AuthenticatedTrialBalanceIndexRoute,
   AuthenticatedVendorsIndexRoute: AuthenticatedVendorsIndexRoute,
+  AuthenticatedWarehousesIndexRoute: AuthenticatedWarehousesIndexRoute,
   AuthenticatedHrEmployeesIdRoute: AuthenticatedHrEmployeesIdRoute,
   AuthenticatedHrPayrollIdRoute: AuthenticatedHrPayrollIdRoute,
   AuthenticatedHrTerminationIdRoute: AuthenticatedHrTerminationIdRoute,
@@ -2107,3 +2217,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
