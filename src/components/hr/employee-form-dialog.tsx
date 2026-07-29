@@ -192,6 +192,12 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: {
                   </SelectContent>
                 </Select>
               </div>
+              <div>
+                <Label htmlFor="ef-annual_leave_days">استحقاق الإجازة السنوية التعاقدي (يوم)</Label>
+                <Input id="ef-annual_leave_days" type="number" min={0} placeholder="تلقائي حسب سنوات الخدمة (21/30)"
+                  value={form.annual_leave_days ?? ""} onChange={(e) => set("annual_leave_days", e.target.value === "" ? null : Number(e.target.value))} />
+                <p className="text-xs text-muted-foreground mt-1">اتركه فارغاً لاحتساب 21 يوماً تلقائياً (30 بعد 5 سنوات خدمة) — أدخل قيمة فقط إذا نص عقد الموظف على استحقاق مختلف (مثل 30 يوماً من أول سنة).</p>
+              </div>
               <div className="col-span-2"><Label htmlFor="ef-notes">ملاحظات</Label><Textarea id="ef-notes" value={form.notes ?? ""} onChange={(e) => set("notes", e.target.value)} /></div>
             </div>
           </TabsContent>

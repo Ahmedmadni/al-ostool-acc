@@ -71,7 +71,8 @@ function TerminationPage() {
   const exportRows = (terms as any[]).map((tm) => ({
     رقم_الملف: tm.termination_no, الموظف: tm.hr_employees?.full_name_ar,
     السبب: REASONS.find((r) => r.v === tm.reason)?.l ?? tm.reason, آخر_يوم_عمل: tm.last_working_day,
-    سنوات_الخدمة: tm.service_years, مكافأة_نهاية_الخدمة: tm.eos_amount ?? 0, الحالة: tm.status,
+    سنوات_الخدمة: tm.service_years, مكافأة_نهاية_الخدمة: tm.eos_amount ?? 0,
+    صافي_المخالصة: tm.net_settlement ?? 0, الحالة: tm.status,
   }));
 
   return (
@@ -111,6 +112,7 @@ function TerminationPage() {
             <TableHead>رقم الملف</TableHead><TableHead>الموظف</TableHead>
             <TableHead>السبب</TableHead><TableHead>آخر يوم عمل</TableHead>
             <TableHead>سنوات الخدمة</TableHead><TableHead>مكافأة نهاية الخدمة</TableHead>
+            <TableHead>صافي المخالصة</TableHead>
             <TableHead>الحالة</TableHead><TableHead></TableHead>
           </TableRow></TableHeader>
           <TableBody>
@@ -121,7 +123,8 @@ function TerminationPage() {
                 <TableCell>{REASONS.find((r) => r.v === t.reason)?.l ?? t.reason}</TableCell>
                 <TableCell>{t.last_working_day}</TableCell>
                 <TableCell>{t.service_years}</TableCell>
-                <TableCell className="font-semibold">{fmtSAR(t.eos_amount ?? 0)}</TableCell>
+                <TableCell>{fmtSAR(t.eos_amount ?? 0)}</TableCell>
+                <TableCell className="font-semibold text-primary">{fmtSAR(t.net_settlement ?? 0)}</TableCell>
                 <TableCell><Badge variant="outline">{t.status}</Badge></TableCell>
                 <TableCell><Link to="/hr/termination/$id" params={{ id: t.id }} className="text-primary text-sm">التفاصيل</Link></TableCell>
               </TableRow>

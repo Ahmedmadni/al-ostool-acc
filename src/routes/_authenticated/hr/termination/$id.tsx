@@ -53,9 +53,12 @@ function TerminationDetail() {
   const saveLineItems = useMutation({
     mutationFn: async (p: any) => {
       const { error } = await (supabase as any).from("hr_terminations").update({
+        eos_amount: Number(p.eos_amount) || 0,
+        leave_balance_amount: Number(p.leave_balance_amount) || 0,
         outstanding_allowances: Number(p.outstanding_allowances) || 0,
         other_receivables: Number(p.other_receivables) || 0,
         outstanding_deductions: Number(p.outstanding_deductions) || 0,
+        loan_settlement: Number(p.loan_settlement) || 0,
         other_payables: Number(p.other_payables) || 0,
       }).eq("id", id);
       if (error) throw error;
@@ -71,9 +74,12 @@ function TerminationDetail() {
 
   const openEdit = () => {
     setForm({
+      eos_amount: t.eos_amount ?? 0,
+      leave_balance_amount: t.leave_balance_amount ?? 0,
       outstanding_allowances: t.outstanding_allowances ?? 0,
       other_receivables: t.other_receivables ?? 0,
       outstanding_deductions: t.outstanding_deductions ?? 0,
+      loan_settlement: t.loan_settlement ?? 0,
       other_payables: t.other_payables ?? 0,
     });
     setEditOpen(true);
@@ -115,13 +121,16 @@ function TerminationDetail() {
           <DialogHeader><DialogTitle>تعديل بنود المخالصة</DialogTitle></DialogHeader>
           {form && (
             <div className="grid grid-cols-2 gap-3">
+              <div><Label>مكافأة نهاية الخدمة</Label><Input type="number" value={form.eos_amount} onChange={(e) => setForm({ ...form, eos_amount: e.target.value })} /></div>
+              <div><Label>رصيد الإجازات</Label><Input type="number" value={form.leave_balance_amount} onChange={(e) => setForm({ ...form, leave_balance_amount: e.target.value })} /></div>
               <div><Label>بدلات مستحقة</Label><Input type="number" value={form.outstanding_allowances} onChange={(e) => setForm({ ...form, outstanding_allowances: e.target.value })} /></div>
               <div><Label>مستحقات أخرى</Label><Input type="number" value={form.other_receivables} onChange={(e) => setForm({ ...form, other_receivables: e.target.value })} /></div>
               <div><Label>استقطاعات معلقة</Label><Input type="number" value={form.outstanding_deductions} onChange={(e) => setForm({ ...form, outstanding_deductions: e.target.value })} /></div>
+              <div><Label>تسوية السلف</Label><Input type="number" value={form.loan_settlement} onChange={(e) => setForm({ ...form, loan_settlement: e.target.value })} /></div>
               <div><Label>مستحقات على الموظف</Label><Input type="number" value={form.other_payables} onChange={(e) => setForm({ ...form, other_payables: e.target.value })} /></div>
             </div>
           )}
-          <p className="text-xs text-muted-foreground">مكافأة نهاية الخدمة ورصيد السلف والإجازات محسوبة تلقائياً من بيانات الموظف — استخدم زر "تحديث السلف والإجازات" لإعادة احتسابها.</p>
+          <p className="text-xs text-muted-foreground">صافي المخالصة يُعاد احتسابه تلقائياً من هذه البنود عند الحفظ. استخدم زر "تحديث السلف والإجازات" لإعادة تعبئة رصيد السلف والإجازات من البيانات الفعلية بدل الإدخال اليدوي.</p>
           <DialogFooter><Button onClick={() => saveLineItems.mutate(form)} disabled={saveLineItems.isPending}>حفظ</Button></DialogFooter>
         </DialogContent>
       </Dialog>
