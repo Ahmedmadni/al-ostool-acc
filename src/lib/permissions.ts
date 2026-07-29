@@ -95,6 +95,10 @@ export function flattenModules(): { key: string; name: string; depth: number }[]
 
 // Special actions per module — beyond the base CRUD set.
 // Rendered as extra checkboxes in the matrix when the module is expanded.
+// Keyed by the EXACT module key that should show them — getSpecialActions
+// used to fall back from a child (e.g. "hr.employees") to its root ("hr"),
+// which meant every HR sub-tab showed "اعتماد إجازة" and "تشغيل الرواتب"
+// identically, including custody assets and reports where neither applies.
 export const SPECIAL_ACTIONS: Record<string, { key: string; name: string }[]> = {
   invoices: [
     { key: "approve_invoice", name: "اعتماد فاتورة" },
@@ -117,24 +121,27 @@ export const SPECIAL_ACTIONS: Record<string, { key: string; name: string }[]> = 
     { key: "evaluate", name: "تقييم المهام" },
     { key: "reassign", name: "إعادة إسناد" },
   ],
-  hr: [
+  "hr.leaves": [
     { key: "approve_leave", name: "اعتماد إجازة" },
+  ],
+  "hr.payroll": [
     { key: "process_payroll", name: "تشغيل الرواتب" },
   ],
-  projects: [
+  "projects.progress": [
     { key: "approve_progress", name: "اعتماد نسبة الإنجاز" },
+  ],
+  projects: [
     { key: "close_project", name: "إقفال مشروع" },
   ],
   reports: [
     { key: "view_sensitive", name: "تقارير حساسة" },
   ],
-  settings: [
+  "settings.permissions": [
     { key: "manage_roles", name: "إدارة الأدوار" },
     { key: "manage_permissions", name: "إدارة الصلاحيات" },
   ],
 };
 
 export function getSpecialActions(moduleKey: string) {
-  const root = moduleKey.split(".")[0];
-  return SPECIAL_ACTIONS[root] ?? [];
+  return SPECIAL_ACTIONS[moduleKey] ?? [];
 }

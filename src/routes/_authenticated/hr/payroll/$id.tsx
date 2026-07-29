@@ -40,13 +40,24 @@ function PayrollDetail() {
 
   const approve = useMutation({
     mutationFn: async (status: "approved" | "paid" | "pending_approval") => {
+      if (status === "paid") {
+        // Settles the loan installments each line's loan_deduction was drawn
+        // from, not just a status flip — see hr_payroll_mark_paid.
+        const { error } = await (supabase as any).rpc("hr_payroll_mark_paid", { _run_id: id });
+        if (error) throw error;
+        return;
+      }
       const patch: any = { status };
       if (status === "approved") { patch.approved_at = new Date().toISOString(); }
-      if (status === "paid") { patch.paid_at = new Date().toISOString(); }
       const { error } = await (supabase as any).from("hr_payroll_runs").update(patch).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["hr_payroll_run", id] }); toast.success("تم التحديث"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["hr_payroll_run", id] });
+      qc.invalidateQueries({ queryKey: ["hr_loans"] });
+      toast.success("تم التحديث");
+    },
+    onError: (e: any) => toast.error(e.message),
   });
 
   const submitWps = useMutation({
@@ -70,7 +81,8 @@ function PayrollDetail() {
     "الموظف": l.hr_employees?.full_name_ar, "الرقم الوظيفي": l.hr_employees?.employee_no,
     "الأساسي": l.basic_salary, "سكن": l.housing_allowance, "نقل": l.transport_allowance,
     "بدلات": l.other_allowances, "الإجمالي": l.gross_salary,
-    "تأمينات (موظف)": l.gosi_employee, "استقطاعات": l.total_deductions, "الصافي": l.net_salary,
+    "تأمينات (موظف)": l.gosi_employee, "قسط سلفة": l.loan_deduction ?? 0,
+    "استقطاعات": l.total_deductions, "الصافي": l.net_salary,
     "IBAN": l.hr_employees?.bank_iban,
   }));
 
@@ -134,6 +146,7 @@ function PayrollDetail() {
             <TableHead>الموظف</TableHead><TableHead>الأساسي</TableHead>
             <TableHead>سكن</TableHead><TableHead>نقل</TableHead><TableHead>بدلات</TableHead>
             <TableHead>الإجمالي</TableHead><TableHead>تأمينات</TableHead>
+            <TableHead>قسط سلفة</TableHead>
             <TableHead>استقطاعات</TableHead><TableHead>الصافي</TableHead>
           </TableRow></TableHeader>
           <TableBody>
@@ -146,6 +159,7 @@ function PayrollDetail() {
                 <TableCell>{fmtSAR(l.other_allowances)}</TableCell>
                 <TableCell className="font-semibold">{fmtSAR(l.gross_salary)}</TableCell>
                 <TableCell>{fmtSAR(l.gosi_employee)}</TableCell>
+                <TableCell className={Number(l.loan_deduction) > 0 ? "text-destructive" : "text-muted-foreground"}>{fmtSAR(l.loan_deduction ?? 0)}</TableCell>
                 <TableCell>{fmtSAR(l.total_deductions)}</TableCell>
                 <TableCell className="font-semibold text-primary">{fmtSAR(l.net_salary)}</TableCell>
               </TableRow>

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/page-header";
@@ -8,10 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Edit, ArrowRight, User, Briefcase, FileText, Wallet, Calendar, Package } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Edit, ArrowRight, User, Briefcase, FileText, Wallet, Calendar, Package, SlidersHorizontal } from "lucide-react";
 import { EmployeeFormDialog } from "@/components/hr/employee-form-dialog";
 import { ContractFormDialog } from "@/components/hr/contract-form-dialog";
 import { fmtSAR, fmtDate } from "@/lib/format";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/hr/employees/$id")({ component: EmployeeCard });
 
@@ -48,8 +54,11 @@ function Row({ label, value }: { label: string; value: any }) {
 
 function EmployeeCard() {
   const { id } = Route.useParams();
+  const qc = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
   const [contractOpen, setContractOpen] = useState(false);
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const [adjustForm, setAdjustForm] = useState<any>({ leave_type: "annual", days: "", reason: "" });
 
   const { data: emp } = useQuery({
     queryKey: ["hr_employee", id],
@@ -74,6 +83,30 @@ function EmployeeCard() {
   const { data: leaveSummary = [] } = useQuery({
     queryKey: ["hr_leave_summary", "emp", id],
     queryFn: async () => (await (supabase as any).rpc("hr_get_leave_summary", { _employee_id: id })).data ?? [],
+  });
+
+  const { data: leaveAdjustments = [] } = useQuery({
+    queryKey: ["hr_leave_adjustments", "emp", id],
+    queryFn: async () => (await (supabase as any).from("hr_leave_adjustments")
+      .select("*").eq("employee_id", id).order("created_at", { ascending: false })).data ?? [],
+  });
+
+  const addAdjustment = useMutation({
+    mutationFn: async (p: any) => {
+      const { error } = await (supabase as any).from("hr_leave_adjustments").insert({
+        employee_id: id, leave_type: p.leave_type, year: new Date().getFullYear(),
+        days: Number(p.days), reason: p.reason || null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["hr_leave_summary", "emp", id] });
+      qc.invalidateQueries({ queryKey: ["hr_leave_adjustments", "emp", id] });
+      setAdjustOpen(false);
+      setAdjustForm({ leave_type: "annual", days: "", reason: "" });
+      toast.success("تم تسجيل تعديل الرصيد");
+    },
+    onError: (e: any) => toast.error(e.message),
   });
 
   const { data: assets = [] } = useQuery({
@@ -206,20 +239,62 @@ function EmployeeCard() {
         </TabsContent>
 
         <TabsContent value="leaves" className="mt-4 space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {(leaveSummary as any[])
-              .filter((r) => Number(r.entitled) > 0 || Number(r.used) > 0)
-              .map((r) => (
-                <Card key={r.leave_type} className="p-3">
-                  <div className="text-xs text-muted-foreground mb-1">{LEAVE_TYPE_LABEL[r.leave_type] ?? r.leave_type}</div>
-                  <div className="text-lg font-bold text-primary">{Number(r.remaining)} <span className="text-xs font-normal text-muted-foreground">متبقي</span></div>
-                  <div className="text-xs text-muted-foreground">مستحق {Number(r.entitled)} · مستخدم {Number(r.used)}{Number(r.pending) > 0 ? ` · قيد الاعتماد ${Number(r.pending)}` : ""}</div>
-                </Card>
-              ))}
-            {(leaveSummary as any[]).length === 0 && (
-              <div className="text-sm text-muted-foreground col-span-full">لا تتوفر بيانات رصيد إجازات بعد.</div>
-            )}
+          <div className="flex items-center justify-between">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 flex-1">
+              {(leaveSummary as any[])
+                .filter((r) => Number(r.entitled) > 0 || Number(r.used) > 0)
+                .map((r) => (
+                  <Card key={r.leave_type} className="p-3">
+                    <div className="text-xs text-muted-foreground mb-1">{LEAVE_TYPE_LABEL[r.leave_type] ?? r.leave_type}</div>
+                    <div className="text-lg font-bold text-primary">{Number(r.remaining)} <span className="text-xs font-normal text-muted-foreground">متبقي</span></div>
+                    <div className="text-xs text-muted-foreground">مستحق {Number(r.entitled)} · مستخدم {Number(r.used)}{Number(r.pending) > 0 ? ` · قيد الاعتماد ${Number(r.pending)}` : ""}</div>
+                  </Card>
+                ))}
+              {(leaveSummary as any[]).length === 0 && (
+                <div className="text-sm text-muted-foreground col-span-full">لا تتوفر بيانات رصيد إجازات بعد.</div>
+              )}
+            </div>
+            <Dialog open={adjustOpen} onOpenChange={setAdjustOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1 ms-3 shrink-0"><SlidersHorizontal className="w-3.5 h-3.5" />تعديل الرصيد</Button>
+              </DialogTrigger>
+              <DialogContent dir="rtl">
+                <DialogHeader><DialogTitle>تعديل رصيد إجازة يدوياً</DialogTitle></DialogHeader>
+                <div className="grid gap-3">
+                  <p className="text-xs text-muted-foreground">لترحيل رصيد من سنة سابقة أو تصحيح خطأ — يُضاف مباشرة إلى المستحق لهذه السنة. استخدم رقماً سالباً للخصم.</p>
+                  <div>
+                    <Label>نوع الإجازة</Label>
+                    <Select value={adjustForm.leave_type} onValueChange={(v) => setAdjustForm({ ...adjustForm, leave_type: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>{Object.entries(LEAVE_TYPE_LABEL).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div><Label>عدد الأيام (+/-)</Label><Input type="number" step="0.5" value={adjustForm.days} onChange={(e) => setAdjustForm({ ...adjustForm, days: e.target.value })} /></div>
+                  <div><Label>السبب</Label><Textarea value={adjustForm.reason} onChange={(e) => setAdjustForm({ ...adjustForm, reason: e.target.value })} /></div>
+                </div>
+                <DialogFooter>
+                  <Button disabled={!adjustForm.days || addAdjustment.isPending} onClick={() => addAdjustment.mutate(adjustForm)}>حفظ</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
+
+          {leaveAdjustments.length > 0 && (
+            <Card className="p-3">
+              <div className="text-xs font-semibold mb-2 text-muted-foreground">سجل تعديلات الرصيد</div>
+              <div className="space-y-1">
+                {(leaveAdjustments as any[]).map((a) => (
+                  <div key={a.id} className="flex justify-between text-xs border-b border-dashed last:border-0 py-1">
+                    <span>{LEAVE_TYPE_LABEL[a.leave_type] ?? a.leave_type} — {a.reason || "بدون سبب"} ({a.year})</span>
+                    <span className={Number(a.days) < 0 ? "text-destructive font-medium" : "text-emerald-600 font-medium"}>
+                      {Number(a.days) > 0 ? "+" : ""}{a.days} يوم
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
           <Card>
             <Table>
               <TableHeader>
