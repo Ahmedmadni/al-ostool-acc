@@ -14,7 +14,9 @@ export const Route = createFileRoute("/_authenticated/hr/termination/")({ compon
 
 const REASONS = [
   { v: "resignation", l: "استقالة" }, { v: "end_of_contract", l: "انتهاء عقد" },
-  { v: "dismissal", l: "فصل" }, { v: "mutual_agreement", l: "اتفاق متبادل" },
+  { v: "dismissal", l: "فصل" }, { v: "probation", l: "إنهاء خلال فترة التجربة" },
+  { v: "arbitrary_dismissal", l: "فصل تعسفي (م. 77)" }, { v: "unlawful_resignation", l: "ترك عمل غير مشروع (م. 77)" },
+  { v: "mutual_agreement", l: "اتفاق متبادل" },
   { v: "retirement", l: "تقاعد" }, { v: "death", l: "وفاة" }, { v: "other", l: "أخرى" },
 ];
 

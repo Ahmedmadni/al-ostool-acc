@@ -52,6 +52,7 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: {
         housing_allowance: 0,
         transport_allowance: 0,
         other_allowances: 0,
+        penalty_clause_amount: 0,
       });
     }
   }, [open, employee]);
@@ -71,6 +72,7 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: {
         housing_allowance: num(form.housing_allowance),
         transport_allowance: num(form.transport_allowance),
         other_allowances: num(form.other_allowances),
+        penalty_clause_amount: num(form.penalty_clause_amount),
       };
       delete payload.gross_salary; // generated column — computed by the database, never sent
       ["department_id", "job_title_id", "manager_id", "company_id"].forEach((k) => {
@@ -197,6 +199,12 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: {
                 <Input id="ef-annual_leave_days" type="number" min={0} placeholder="تلقائي حسب سنوات الخدمة (21/30)"
                   value={form.annual_leave_days ?? ""} onChange={(e) => set("annual_leave_days", e.target.value === "" ? null : Number(e.target.value))} />
                 <p className="text-xs text-muted-foreground mt-1">اتركه فارغاً لاحتساب 21 يوماً تلقائياً (30 بعد 5 سنوات خدمة) — أدخل قيمة فقط إذا نص عقد الموظف على استحقاق مختلف (مثل 30 يوماً من أول سنة).</p>
+              </div>
+              <div>
+                <Label htmlFor="ef-penalty_clause_amount">الشرط الجزائي (ريال)</Label>
+                <Input id="ef-penalty_clause_amount" type="number" min={0} value={form.penalty_clause_amount ?? 0}
+                  onChange={(e) => set("penalty_clause_amount", Number(e.target.value))} />
+                <p className="text-xs text-muted-foreground mt-1">إن نص عقد الموظف على شرط جزائي محدد، أدخله هنا — يُستخدم كقيمة مقترحة لتعويض المادة 77 (الفصل التعسفي / ترك العمل غير المشروع) عند إنهاء الخدمة.</p>
               </div>
               <div className="col-span-2"><Label htmlFor="ef-notes">ملاحظات</Label><Textarea id="ef-notes" value={form.notes ?? ""} onChange={(e) => set("notes", e.target.value)} /></div>
             </div>

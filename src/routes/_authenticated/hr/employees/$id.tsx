@@ -47,6 +47,8 @@ const TERM_STATUS_LABEL: Record<string, { l: string; c: string }> = {
 };
 const TERM_REASON_LABEL: Record<string, string> = {
   resignation: "استقالة", end_of_contract: "انتهاء عقد", dismissal: "فصل",
+  probation: "إنهاء خلال فترة التجربة", arbitrary_dismissal: "فصل تعسفي (م. 77)",
+  unlawful_resignation: "ترك عمل غير مشروع (م. 77)",
   mutual_agreement: "اتفاق متبادل", retirement: "تقاعد", death: "وفاة", other: "أخرى",
 };
 const ASSET_TYPE_LABEL: Record<string, string> = {
