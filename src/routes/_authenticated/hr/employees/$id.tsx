@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Edit, ArrowRight, User, Briefcase, FileText, Wallet, Calendar, Package, SlidersHorizontal } from "lucide-react";
+import { Edit, ArrowRight, User, Briefcase, FileText, Wallet, Calendar, Package, SlidersHorizontal, LogOut } from "lucide-react";
 import { EmployeeFormDialog } from "@/components/hr/employee-form-dialog";
 import { ContractFormDialog } from "@/components/hr/contract-form-dialog";
 import { fmtSAR, fmtDate } from "@/lib/format";
@@ -38,6 +38,17 @@ const LEAVE_STATUS_LABEL: Record<string, { l: string; c: string }> = {
   taken: { l: "منفذة", c: "bg-blue-500/15 text-blue-700" },
 };
 const LOAN_STATUS_LABEL: Record<string, string> = { active: "قائمة", completed: "مسددة", cancelled: "ملغاة" };
+const TERM_STATUS_LABEL: Record<string, { l: string; c: string }> = {
+  draft: { l: "مسودة", c: "bg-gray-500/15 text-gray-700" },
+  pending: { l: "قيد الاعتماد", c: "bg-yellow-500/15 text-yellow-700" },
+  approved: { l: "معتمدة", c: "bg-green-500/15 text-green-700" },
+  paid: { l: "مصروفة", c: "bg-blue-500/15 text-blue-700" },
+  cancelled: { l: "ملغاة", c: "bg-red-500/15 text-red-700" },
+};
+const TERM_REASON_LABEL: Record<string, string> = {
+  resignation: "استقالة", end_of_contract: "انتهاء عقد", dismissal: "فصل",
+  mutual_agreement: "اتفاق متبادل", retirement: "تقاعد", death: "وفاة", other: "أخرى",
+};
 const ASSET_TYPE_LABEL: Record<string, string> = {
   vehicle: "مركبة", laptop: "لابتوب", mobile: "جوال", equipment: "معدة",
   tool: "أداة", card: "بطاقة", key: "مفتاح", uniform: "زي", other: "أخرى",
@@ -114,6 +125,11 @@ function EmployeeCard() {
     queryFn: async () => (await (supabase as any).from("hr_assets_assignment").select("*").eq("employee_id", id).order("assigned_date", { ascending: false })).data ?? [],
   });
 
+  const { data: terminations = [] } = useQuery({
+    queryKey: ["hr_terminations", "emp", id],
+    queryFn: async () => (await (supabase as any).from("hr_terminations").select("*").eq("employee_id", id).order("created_at", { ascending: false })).data ?? [],
+  });
+
   if (!emp) return <div className="p-6 text-muted-foreground">جارٍ تحميل بيانات الموظف...</div>;
 
   return (
@@ -159,6 +175,7 @@ function EmployeeCard() {
           <TabsTrigger value="leaves"><Calendar className="w-4 h-4 me-2" />الإجازات ({leaves.length})</TabsTrigger>
           <TabsTrigger value="loans"><Wallet className="w-4 h-4 me-2" />السلف ({loans.length})</TabsTrigger>
           <TabsTrigger value="assets"><Package className="w-4 h-4 me-2" />العهد ({assets.length})</TabsTrigger>
+          <TabsTrigger value="termination"><LogOut className="w-4 h-4 me-2" />إنهاء الخدمة {terminations.length > 0 ? `(${terminations.length})` : ""}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="mt-4">
@@ -369,6 +386,42 @@ function EmployeeCard() {
                         ? <Badge variant="outline">مُستلمة ({fmtDate(a.return_date)})</Badge>
                         : <Badge>قائمة لدى الموظف</Badge>}
                     </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="termination" className="mt-4">
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>رقم الملف</TableHead><TableHead>السبب</TableHead>
+                  <TableHead>آخر يوم عمل</TableHead><TableHead className="text-left">صافي المخالصة</TableHead>
+                  <TableHead>الحالة</TableHead><TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {terminations.length === 0 && (
+                  <TableRow><TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                    لا يوجد ملف إنهاء خدمة لهذا الموظف
+                    {emp.status !== "terminated" && (
+                      <div className="mt-2">
+                        <Link to="/hr/termination/new"><Button variant="outline" size="sm" className="gap-1"><LogOut className="w-3.5 h-3.5" />بدء إنهاء خدمة</Button></Link>
+                      </div>
+                    )}
+                  </TableCell></TableRow>
+                )}
+                {(terminations as any[]).map((tm) => (
+                  <TableRow key={tm.id}>
+                    <TableCell className="font-mono text-xs">{tm.termination_no}</TableCell>
+                    <TableCell>{TERM_REASON_LABEL[tm.reason] ?? tm.reason}</TableCell>
+                    <TableCell dir="ltr" className="text-right">{fmtDate(tm.last_working_day)}</TableCell>
+                    <TableCell className="text-left font-mono font-semibold">{fmtSAR(tm.net_settlement ?? 0)}</TableCell>
+                    <TableCell><Badge className={TERM_STATUS_LABEL[tm.status]?.c}>{TERM_STATUS_LABEL[tm.status]?.l ?? tm.status}</Badge></TableCell>
+                    <TableCell><Link to="/hr/termination/$id" params={{ id: tm.id }} className="text-primary text-sm hover:underline">التفاصيل</Link></TableCell>
                   </TableRow>
                 ))}
               </TableBody>

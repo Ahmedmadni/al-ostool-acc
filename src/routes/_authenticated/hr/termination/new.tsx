@@ -129,6 +129,7 @@ function NewTermination() {
         termination_no, employee_id: employeeId, reason, reason_details: reasonDetails,
         last_working_day: lastDay, service_years: calc.yrs,
         eos_amount: calc.eos,
+        leave_balance_days: leaveBalanceDays,
         leave_balance_amount: calc.leaveValue,
         other_receivables: Math.round((calc.noticeValue + calc.monthEarned + otherReceivables) * 100) / 100,
         outstanding_deductions: Math.round((calc.gosiEmployee + calc.unpaidValue + otherDeductions) * 100) / 100,
