@@ -30,11 +30,13 @@ function WarehousesPage() {
   const { data = [] } = useQuery({
     queryKey: ["inventory_warehouses"],
     queryFn: async () => (await (supabase as any).from("inventory_warehouses")
-      .select("*, projects(name_ar), fleet_vehicles(plate_no)").order("created_at", { ascending: false })).data ?? [],
+      // جدول projects عموده name وليس name_ar — الربط بـ name_ar كان يُفشل الاستعلام
+      // بالكامل (مع select *) فتظهر قائمة المخازن فارغة دائماً.
+      .select("*, projects(name), fleet_vehicles(plate_no)").order("created_at", { ascending: false })).data ?? [],
   });
   const { data: projects = [] } = useQuery({
     queryKey: ["projects_for_warehouse"],
-    queryFn: async () => (await (supabase as any).from("projects").select("id, name_ar").order("name_ar")).data ?? [],
+    queryFn: async () => (await (supabase as any).from("projects").select("id, name").order("name")).data ?? [],
   });
   const { data: vehicles = [] } = useQuery({
     queryKey: ["vehicles_for_warehouse"],
@@ -56,7 +58,7 @@ function WarehousesPage() {
 
   const rows = (data as any[]).map((w) => ({
     الرمز: w.code, الاسم: w.name_ar, النوع: TYPES.find((t) => t.v === w.type)?.l,
-    المشروع: w.projects?.name_ar ?? "—", المركبة: w.fleet_vehicles?.plate_no ?? "—",
+    المشروع: w.projects?.name ?? "—", المركبة: w.fleet_vehicles?.plate_no ?? "—",
     الموقع: w.site_location ?? "—", نشط: w.is_active ? "نعم" : "لا",
   }));
 
@@ -91,7 +93,7 @@ function WarehousesPage() {
                   <div><Label>المشروع</Label>
                     <Select value={f.project_id} onValueChange={(v) => setF({ ...f, project_id: v })}>
                       <SelectTrigger><SelectValue placeholder="اختر المشروع" /></SelectTrigger>
-                      <SelectContent>{(projects as any[]).map((p) => <SelectItem key={p.id} value={p.id}>{p.name_ar}</SelectItem>)}</SelectContent>
+                      <SelectContent>{(projects as any[]).map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                 )}
@@ -125,7 +127,7 @@ function WarehousesPage() {
                 <TableCell className="font-mono text-xs">{w.code}</TableCell>
                 <TableCell className="font-semibold">{w.name_ar}</TableCell>
                 <TableCell>{TYPES.find((t) => t.v === w.type)?.l}</TableCell>
-                <TableCell>{w.projects?.name_ar ?? w.fleet_vehicles?.plate_no ?? w.site_location ?? "—"}</TableCell>
+                <TableCell>{w.projects?.name ?? w.fleet_vehicles?.plate_no ?? w.site_location ?? "—"}</TableCell>
                 <TableCell><Badge variant={w.is_active ? "default" : "outline"}>{w.is_active ? "نشط" : "معطل"}</Badge></TableCell>
               </TableRow>
             ))}

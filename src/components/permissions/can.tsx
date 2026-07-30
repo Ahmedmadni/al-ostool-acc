@@ -35,8 +35,10 @@ export function NoAccess({ module }: { module?: string }) {
             ليس لديك صلاحية لعرض هذه الصفحة{module ? ` (${module})` : ""}. تواصل مع مدير النظام لمنحك الإذن المناسب.
           </p>
         </div>
+        {/* /account لا يتطلب صلاحية (ALWAYS_ALLOWED)، بخلاف /executive الذي كان
+            يعيد المستخدم لصفحة محجوبة عنه أيضاً فيرى شاشة الرفض مرتين. */}
         <Button asChild variant="outline" size="sm">
-          <Link to="/executive">العودة للوحة التنفيذية</Link>
+          <Link to="/account">العودة للحساب</Link>
         </Button>
       </Card>
     </div>

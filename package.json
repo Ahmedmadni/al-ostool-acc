@@ -9,6 +9,10 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "check:permissions": "node scripts/check-permissions.mjs",
+    "check:columns": "node scripts/check-query-columns.mjs",
+    "verify": "npm run typecheck && npm run check:permissions && npm run check:columns",
     "format": "prettier --write ."
   },
   "dependencies": {

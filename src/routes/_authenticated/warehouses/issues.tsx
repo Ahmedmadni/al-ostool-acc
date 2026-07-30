@@ -35,7 +35,8 @@ function IssuesPage() {
   const { data: issues = [] } = useQuery({
     queryKey: ["inventory_issues"],
     queryFn: async () => (await (supabase as any).from("inventory_issues")
-      .select("*, inventory_warehouses(name_ar), projects(name_ar), inventory_issue_lines(qty, unit_cost, line_total)")
+      // projects.name وليس name_ar — الربط الخاطئ كان يُفشل استعلام السندات كله.
+      .select("*, inventory_warehouses(name_ar), projects(name), inventory_issue_lines(qty, unit_cost, line_total)")
       .order("created_at", { ascending: false })).data ?? [],
   });
   const { data: warehouses = [] } = useQuery({
@@ -48,7 +49,7 @@ function IssuesPage() {
   });
   const { data: projects = [] } = useQuery({
     queryKey: ["projects_for_issue"],
-    queryFn: async () => (await (supabase as any).from("projects").select("id, name_ar").order("name_ar")).data ?? [],
+    queryFn: async () => (await (supabase as any).from("projects").select("id, name").order("name")).data ?? [],
   });
   const { data: balances = [] } = useQuery({
     queryKey: ["inventory_stock_balance", header.warehouse_id],
@@ -92,7 +93,7 @@ function IssuesPage() {
 
   const exportRows = (issues as any[]).map((r) => ({
     رقم_السند: r.issue_no, المخزن: r.inventory_warehouses?.name_ar, النوع: ISSUE_TYPES.find((t) => t.v === r.issue_type)?.l,
-    التاريخ: r.issue_date, المشروع: r.projects?.name_ar ?? "—",
+    التاريخ: r.issue_date, المشروع: r.projects?.name ?? "—",
     التكلفة: (r.inventory_issue_lines ?? []).reduce((s: number, l: any) => s + Number(l.line_total ?? 0), 0),
   }));
 
@@ -126,7 +127,7 @@ function IssuesPage() {
                   <div><Label>المشروع</Label>
                     <Select value={header.project_id} onValueChange={(v) => setHeader({ ...header, project_id: v })}>
                       <SelectTrigger><SelectValue placeholder="اختر المشروع" /></SelectTrigger>
-                      <SelectContent>{(projects as any[]).map((p) => <SelectItem key={p.id} value={p.id}>{p.name_ar}</SelectItem>)}</SelectContent>
+                      <SelectContent>{(projects as any[]).map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
                 )}
@@ -187,7 +188,7 @@ function IssuesPage() {
                   <TableCell>{r.inventory_warehouses?.name_ar}</TableCell>
                   <TableCell><Badge variant="outline">{ISSUE_TYPES.find((t) => t.v === r.issue_type)?.l}</Badge></TableCell>
                   <TableCell>{r.issue_date}</TableCell>
-                  <TableCell>{r.projects?.name_ar ?? "—"}</TableCell>
+                  <TableCell>{r.projects?.name ?? "—"}</TableCell>
                   <TableCell className="text-left tabular-nums font-semibold">{fmtSAR(total)}</TableCell>
                 </TableRow>
               );

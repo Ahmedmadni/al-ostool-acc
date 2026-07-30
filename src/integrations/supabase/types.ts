@@ -965,6 +965,51 @@ export type Database = {
         }
         Relationships: []
       }
+      data_templates: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          fields: Json
+          history: Json
+          id: string
+          mapping: Json
+          name: string
+          table_key: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          fields?: Json
+          history?: Json
+          id?: string
+          mapping?: Json
+          name: string
+          table_key: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          fields?: Json
+          history?: Json
+          id?: string
+          mapping?: Json
+          name?: string
+          table_key?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
       departments: {
         Row: {
           code: string
@@ -2142,9 +2187,11 @@ export type Database = {
           national_id: string | null
           nationality: string | null
           notes: string | null
+          opening_leave_balance_days: number | null
           other_allowances: number | null
           passport_expiry: string | null
           passport_number: string | null
+          penalty_clause_amount: number | null
           personal_email: string | null
           personal_phone: string | null
           photo_url: string | null
@@ -2188,9 +2235,11 @@ export type Database = {
           national_id?: string | null
           nationality?: string | null
           notes?: string | null
+          opening_leave_balance_days?: number | null
           other_allowances?: number | null
           passport_expiry?: string | null
           passport_number?: string | null
+          penalty_clause_amount?: number | null
           personal_email?: string | null
           personal_phone?: string | null
           photo_url?: string | null
@@ -2234,9 +2283,11 @@ export type Database = {
           national_id?: string | null
           nationality?: string | null
           notes?: string | null
+          opening_leave_balance_days?: number | null
           other_allowances?: number | null
           passport_expiry?: string | null
           passport_number?: string | null
+          penalty_clause_amount?: number | null
           personal_email?: string | null
           personal_phone?: string | null
           photo_url?: string | null
@@ -2271,6 +2322,47 @@ export type Database = {
           {
             foreignKeyName: "hr_employees_manager_id_fkey"
             columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "hr_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_leave_adjustments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          days: number
+          employee_id: string
+          id: string
+          leave_type: string
+          reason: string | null
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          days: number
+          employee_id: string
+          id?: string
+          leave_type: string
+          reason?: string | null
+          year: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          days?: number
+          employee_id?: string
+          id?: string
+          leave_type?: string
+          reason?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_leave_adjustments_employee_id_fkey"
+            columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "hr_employees"
             referencedColumns: ["id"]
@@ -5011,6 +5103,84 @@ export type Database = {
           total_paid?: number | null
           total_purchased?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      vat_returns: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          final_vat: number | null
+          id: string
+          net_vat: number | null
+          period_from: string
+          period_to: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          final_vat?: number | null
+          id?: string
+          net_vat?: number | null
+          period_from: string
+          period_to: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          final_vat?: number | null
+          id?: string
+          net_vat?: number | null
+          period_from?: string
+          period_to?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      zakat_returns: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          id: string
+          tax_due: number | null
+          updated_at: string
+          updated_by: string | null
+          year_from: string
+          year_to: string
+          zakat_due: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          id?: string
+          tax_due?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          year_from: string
+          year_to: string
+          zakat_due?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          id?: string
+          tax_due?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          year_from?: string
+          year_to?: string
+          zakat_due?: number | null
         }
         Relationships: []
       }
