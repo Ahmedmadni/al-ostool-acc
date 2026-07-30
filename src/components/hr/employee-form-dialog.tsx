@@ -83,9 +83,19 @@ export function EmployeeFormDialog({ open, onOpenChange, employee }: {
       ["date_of_birth", "hire_date", "iqama_expiry", "passport_expiry"].forEach((k) => {
         if (payload[k] === "") payload[k] = null;
       });
-      const { error } = employee?.id
+      let { error } = employee?.id
         ? await (supabase as any).from("hr_employees").update(payload).eq("id", employee.id)
         : await (supabase as any).from("hr_employees").insert(payload);
+      // penalty_clause_amount / opening_leave_balance_days predate a pending
+      // migration in some environments — retry without them so the rest of
+      // the employee record can still be saved instead of failing outright.
+      if (error?.code === "42703") {
+        delete payload.penalty_clause_amount;
+        delete payload.opening_leave_balance_days;
+        ({ error } = employee?.id
+          ? await (supabase as any).from("hr_employees").update(payload).eq("id", employee.id)
+          : await (supabase as any).from("hr_employees").insert(payload));
+      }
       if (error) throw error;
       toast.success("تم الحفظ");
       qc.invalidateQueries({ queryKey: ["hr_employees"] });

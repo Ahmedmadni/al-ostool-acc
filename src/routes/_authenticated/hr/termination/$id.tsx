@@ -35,7 +35,7 @@ function TerminationDetail() {
   const { can } = usePermissions();
   const [editOpen, setEditOpen] = useState(false);
   const [form, setForm] = useState<any>(null);
-  const [confirm, setConfirm] = useState<"reject" | "cancel" | "delete" | "revert" | null>(null);
+  const [confirm, setConfirm] = useState<"reject" | "cancel" | "delete" | "revert" | "revert_disbursement" | null>(null);
   const [reason, setReason] = useState("");
 
   const { data: t } = useQuery({
@@ -84,6 +84,15 @@ function TerminationDetail() {
       if (error) throw error;
     },
     onSuccess: () => { invalidate(); setConfirm(null); toast.success("تم التراجع عن الاعتماد — الملف الآن قيد الاعتماد"); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const revertDisbursement = useMutation({
+    mutationFn: async () => {
+      const { error } = await (supabase as any).rpc("hr_termination_revert_disbursement", { _termination_id: id });
+      if (error) throw error;
+    },
+    onSuccess: () => { invalidate(); setConfirm(null); toast.success("تم التراجع عن تسجيل الصرف — الملف الآن معتمد"); },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -189,7 +198,11 @@ function TerminationDetail() {
           {t.status === "approved" && canApprove && (
             <Button variant="outline" onClick={() => setConfirm("revert")}><Undo2 className="w-4 h-4 ml-2" />التراجع عن الاعتماد</Button>
           )}
-          {["draft", "pending", "approved"].includes(t.status) && (canWrite || (t.status === "approved" && canApprove)) && (
+          {t.status === "paid" && canApprove && (
+            <Button variant="outline" onClick={() => setConfirm("revert_disbursement")}><Undo2 className="w-4 h-4 ml-2" />التراجع عن تسجيل الصرف</Button>
+          )}
+          {["draft", "pending", "approved", "paid"].includes(t.status)
+            && (canWrite || (["approved", "paid"].includes(t.status) && canApprove)) && (
             <Button variant="outline" className="text-destructive border-destructive/40" onClick={() => setConfirm("cancel")}>
               <Ban className="w-4 h-4 ml-2" />إلغاء الملف
             </Button>
@@ -288,7 +301,9 @@ function TerminationDetail() {
           <AlertDialogHeader>
             <AlertDialogTitle>إلغاء ملف الإنهاء</AlertDialogTitle>
             <AlertDialogDescription>
-              {t.status === "approved"
+              {t.status === "paid"
+                ? "الملف مصروف بالفعل — سيتم التراجع عن تسجيل الصرف والاعتماد وإعادة فتح السلف التي أُقفلت تلقائياً، وإعادة الموظف لحالة نشط."
+                : t.status === "approved"
                 ? "الملف معتمد بالفعل — سيتم التراجع عن اعتماد إنهاء خدمة الموظف وإعادة فتح السلف التي أُقفلت تلقائياً عند الاعتماد."
                 : "سيتم إلغاء الملف. يمكن استعادته كمسودة لاحقاً."}
             </AlertDialogDescription>
@@ -310,6 +325,19 @@ function TerminationDetail() {
           <AlertDialogFooter>
             <AlertDialogCancel>تراجع</AlertDialogCancel>
             <AlertDialogAction onClick={() => revertApproval.mutate()} disabled={revertApproval.isPending}>تأكيد التراجع</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={confirm === "revert_disbursement"} onOpenChange={(o) => !o && setConfirm(null)}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>التراجع عن تسجيل الصرف</AlertDialogTitle>
+            <AlertDialogDescription>سيعود الملف لحالة "معتمدة" لتصحيح بنود المخالصة قبل إعادة تسجيل الصرف.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>تراجع</AlertDialogCancel>
+            <AlertDialogAction onClick={() => revertDisbursement.mutate()} disabled={revertDisbursement.isPending}>تأكيد التراجع</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
