@@ -1,8 +1,21 @@
 // Maps URL pathnames to permission module keys (see src/lib/permissions.ts).
 // Used by the route gate and nav filters.
-// Sub-links are intentionally mapped to their parent sidebar group's module
-// so denying a group permission hides all its children at once.
-
+//
+// Every prefix maps to the MOST SPECIFIC module key that owns the page, never to
+// a broader parent "group" key. Two reasons:
+//   1. Granting a parent already covers its children — can() in use-permissions.ts
+//      and has_permission() in the DB both walk ancestors ("financials.balance" →
+//      "financials"), so mapping to the leaf loses nothing and makes the leaf
+//      toggles in the permissions matrix actually do something.
+//   2. Folding a page into an unrelated parent silently strands grants. /alerts and
+//      /copilot used to be gated on "dashboard": five users held "alerts"/"copilot"
+//      grants and still could not open either page, because only one user held
+//      "dashboard". Same for /banks (gated on "treasury"), /costs (on "invoices")
+//      and /customers/contracts (on "customers").
+//
+// Keys with no page yet — "equipment", "calendar", "projects.cashflow" — are
+// reserved in the registry on purpose; scripts/check-permissions.mjs lists them as
+// reserved rather than failing, so adding the page is all that's needed later.
 const RULES: { prefix: string; module: string }[] = [
   // ===== Settings =====
   { prefix: "/settings/permissions-dashboard", module: "settings.permissions" },
@@ -12,18 +25,20 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/settings/regional", module: "settings.regional" },
   { prefix: "/settings", module: "settings" },
 
-  // ===== Executive Leadership group → dashboard =====
+  // ===== Executive Leadership =====
   { prefix: "/dashboard", module: "dashboard" },
   { prefix: "/executive", module: "dashboard" },
   { prefix: "/board", module: "dashboard" },
-  { prefix: "/forecasting", module: "dashboard" },
-  { prefix: "/scenarios", module: "dashboard" },
-  { prefix: "/alerts", module: "dashboard" },
-  { prefix: "/copilot", module: "dashboard" },
+  // Financial analysis pages own the "analysis" key (التحليل المالي).
+  { prefix: "/forecasting", module: "analysis" },
+  { prefix: "/scenarios", module: "analysis" },
+  // Own keys — both are granted far more widely than "dashboard" ever was.
+  { prefix: "/alerts", module: "alerts" },
+  { prefix: "/copilot", module: "copilot" },
 
   // ===== Customers (AR) group =====
-  { prefix: "/customers/contracts", module: "customers" },
-  { prefix: "/customers/invoices", module: "customers" },
+  { prefix: "/customers/contracts", module: "contracts" },
+  { prefix: "/customers/invoices", module: "invoices" },
   { prefix: "/customers/collections", module: "customers" },
   { prefix: "/customers/retention", module: "customers" },
   { prefix: "/customers/aging", module: "customers" },
@@ -32,8 +47,8 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/customers", module: "customers" },
 
   // ===== Vendors (AP) group =====
-  { prefix: "/vendors/contracts", module: "vendors" },
-  { prefix: "/vendors/invoices", module: "vendors" },
+  { prefix: "/vendors/contracts", module: "contracts" },
+  { prefix: "/vendors/invoices", module: "invoices" },
   { prefix: "/vendors/payments", module: "vendors" },
   { prefix: "/vendors/aging", module: "vendors" },
   { prefix: "/vendors/intelligence", module: "vendors" },
@@ -41,32 +56,33 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/vendors", module: "vendors" },
 
   // ===== Projects group =====
-  { prefix: "/projects/progress", module: "projects" },
-  { prefix: "/control/projects", module: "projects" },
-  { prefix: "/projects", module: "projects" },
+  { prefix: "/projects/progress", module: "projects.progress" },
+  // مركز التحكم بالمشاريع — contract value vs. budget vs. actual cost.
+  { prefix: "/control/projects", module: "projects.profitability" },
+  { prefix: "/projects", module: "projects.list" },
 
   // ===== Costs group =====
-  { prefix: "/control/costs", module: "invoices" },
-  { prefix: "/costs", module: "invoices" },
-  { prefix: "/control", module: "invoices" },
+  { prefix: "/control/costs", module: "costs" },
+  { prefix: "/costs", module: "costs" },
+  { prefix: "/control", module: "costs" },
 
   // ===== Treasury group =====
   { prefix: "/treasury/forecast", module: "treasury" },
   { prefix: "/treasury", module: "treasury" },
-  { prefix: "/cash-flow/matrix", module: "treasury" },
-  { prefix: "/cash-flow", module: "treasury" },
-  { prefix: "/banks", module: "treasury" },
+  { prefix: "/cash-flow/matrix", module: "cashflow" },
+  { prefix: "/cash-flow", module: "cashflow" },
+  { prefix: "/banks", module: "banks" },
 
   // ===== Assets & Accounting group =====
   { prefix: "/fixed-assets", module: "assets" },
   { prefix: "/trial-balance", module: "assets" },
 
-  // ===== Financial Analysis group =====
-  { prefix: "/financials/balance-sheet", module: "financials" },
-  { prefix: "/financials/income-statement", module: "financials" },
-  { prefix: "/financials/cash-flow", module: "financials" },
-  { prefix: "/financials/equity", module: "financials" },
-  { prefix: "/financials/kpis", module: "financials" },
+  // ===== Financial statements =====
+  { prefix: "/financials/balance-sheet", module: "financials.balance" },
+  { prefix: "/financials/income-statement", module: "financials.income" },
+  { prefix: "/financials/cash-flow", module: "financials.cashflow" },
+  { prefix: "/financials/equity", module: "financials.equity" },
+  { prefix: "/financials/kpis", module: "financials.kpis" },
   { prefix: "/financials", module: "financials" },
 
   // ===== Reports & Imports group =====

@@ -72,9 +72,11 @@ function TrackingPage() {
   const { data: trips = [] } = useQuery({
     queryKey: ["fleet_trips_for_vehicle", selectedVehicle],
     enabled: !!selectedVehicle,
+    // أعمدة fleet_trips هي start_at/end_at — كانت started_at/ended_at فيفشل
+    // الاستعلام بالكامل وتظهر قائمة الرحلات فارغة دائماً.
     queryFn: async () => (await (supabase as any).from("fleet_trips")
-      .select("id,started_at,ended_at").eq("vehicle_id", selectedVehicle)
-      .order("started_at", { ascending: false }).limit(50)).data ?? [],
+      .select("id,start_at,end_at").eq("vehicle_id", selectedVehicle)
+      .order("start_at", { ascending: false }).limit(50)).data ?? [],
   });
 
   const { data: trail = [] } = useQuery({
@@ -248,7 +250,7 @@ function TrackingPage() {
                 <SelectItem value="__all">كل رحلات المركبة</SelectItem>
                 {(trips as any[]).map((t) => (
                   <SelectItem key={t.id} value={t.id}>
-                    {new Date(t.started_at).toLocaleString("ar-SA")}
+                    {t.start_at ? new Date(t.start_at).toLocaleString("ar-SA") : "بدون تاريخ بداية"}
                   </SelectItem>
                 ))}
               </SelectContent>
