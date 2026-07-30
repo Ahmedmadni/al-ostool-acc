@@ -59,11 +59,18 @@ function NewTermination() {
   const { data: employees = [] } = useQuery({
     queryKey: ["fs_employees"],
     queryFn: async () => {
+      const base = "id, full_name_ar, employee_no, hire_date, is_saudi, basic_salary, housing_allowance, transport_allowance, other_allowances, gross_salary, national_id, iqama_number, department_id, job_title_id";
       const { data, error } = await (supabase as any).from("hr_employees")
-        .select("id, full_name_ar, employee_no, hire_date, is_saudi, basic_salary, housing_allowance, transport_allowance, other_allowances, gross_salary, national_id, iqama_number, department_id, job_title_id, penalty_clause_amount")
-        .eq("status", "active").order("full_name_ar");
-      if (error) throw error;
-      return data ?? [];
+        .select(`${base}, penalty_clause_amount`).eq("status", "active").order("full_name_ar");
+      if (!error) return data ?? [];
+      // penalty_clause_amount predates a pending migration in some
+      // environments — fall back to the base columns so the employee list
+      // (and the rest of the settlement form) still works; the Article 77
+      // suggestion simply won't auto-fill from the penalty clause.
+      const { data: fallback, error: fallbackError } = await (supabase as any).from("hr_employees")
+        .select(base).eq("status", "active").order("full_name_ar");
+      if (fallbackError) throw error;
+      return fallback ?? [];
     },
   });
 
