@@ -51,6 +51,9 @@ function TerminationDetail() {
       if (status === "approved") {
         const { error } = await (supabase as any).rpc("hr_termination_approve", { _termination_id: id });
         if (error) throw error;
+      } else if (status === "paid") {
+        const { error } = await (supabase as any).rpc("hr_termination_mark_paid", { _termination_id: id });
+        if (error) throw error;
       } else {
         const { error } = await (supabase as any).from("hr_terminations").update({ status }).eq("id", id);
         if (error) throw error;
