@@ -82,6 +82,8 @@ function PayrollDetail() {
     "الأساسي": l.basic_salary, "سكن": l.housing_allowance, "نقل": l.transport_allowance,
     "بدلات": l.other_allowances, "الإجمالي": l.gross_salary,
     "تأمينات (موظف)": l.gosi_employee, "قسط سلفة": l.loan_deduction ?? 0,
+    "أيام بدون أجر": l.unpaid_leave_days ?? 0, "خصم بدون أجر": l.unpaid_leave_deduction ?? 0,
+    "أيام مرضية": l.sick_leave_days ?? 0, "خصم مرضي": l.sick_leave_deduction ?? 0,
     "استقطاعات": l.total_deductions, "الصافي": l.net_salary,
     "IBAN": l.hr_employees?.bank_iban,
   }));
@@ -147,6 +149,7 @@ function PayrollDetail() {
             <TableHead>سكن</TableHead><TableHead>نقل</TableHead><TableHead>بدلات</TableHead>
             <TableHead>الإجمالي</TableHead><TableHead>تأمينات</TableHead>
             <TableHead>قسط سلفة</TableHead>
+            <TableHead>بدون أجر</TableHead><TableHead>مرضي</TableHead>
             <TableHead>استقطاعات</TableHead><TableHead>الصافي</TableHead>
           </TableRow></TableHeader>
           <TableBody>
@@ -160,6 +163,12 @@ function PayrollDetail() {
                 <TableCell className="font-semibold">{fmtSAR(l.gross_salary)}</TableCell>
                 <TableCell>{fmtSAR(l.gosi_employee)}</TableCell>
                 <TableCell className={Number(l.loan_deduction) > 0 ? "text-destructive" : "text-muted-foreground"}>{fmtSAR(l.loan_deduction ?? 0)}</TableCell>
+                <TableCell className={Number(l.unpaid_leave_deduction) > 0 ? "text-destructive" : "text-muted-foreground"}>
+                  {Number(l.unpaid_leave_days ?? 0)} يوم / {fmtSAR(l.unpaid_leave_deduction ?? 0)}
+                </TableCell>
+                <TableCell className={Number(l.sick_leave_deduction) > 0 ? "text-destructive" : "text-muted-foreground"}>
+                  {Number(l.sick_leave_days ?? 0)} يوم / {fmtSAR(l.sick_leave_deduction ?? 0)}
+                </TableCell>
                 <TableCell>{fmtSAR(l.total_deductions)}</TableCell>
                 <TableCell className="font-semibold text-primary">{fmtSAR(l.net_salary)}</TableCell>
               </TableRow>

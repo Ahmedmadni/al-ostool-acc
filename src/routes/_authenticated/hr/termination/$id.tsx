@@ -122,7 +122,7 @@ function TerminationDetail() {
       const { error } = await (supabase as any).rpc("hr_termination_refresh_components", { _termination_id: id });
       if (error) throw error;
     },
-    onSuccess: () => { invalidate(); toast.success("تم تحديث رصيد السلف والإجازات"); },
+    onSuccess: () => { invalidate(); toast.success("تم تحديث مدة الخدمة والمكافأة ورصيد الإجازة والسلف"); },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -131,14 +131,13 @@ function TerminationDetail() {
       const days = Number(p.leave_balance_days) || 0;
       const dailyWage = Number(t?.hr_employees?.gross_salary ?? 0) / 30;
       const { error } = await (supabase as any).from("hr_terminations").update({
-        eos_amount: Number(p.eos_amount) || 0,
         leave_balance_days: days,
-        leave_balance_amount: p.leave_value_overridden ? Number(p.leave_balance_amount) || 0 : Math.round(days * dailyWage * 100) / 100,
+        leave_balance_amount: Math.round(days * dailyWage * 100) / 100,
         outstanding_allowances: Number(p.outstanding_allowances) || 0,
         other_receivables: Number(p.other_receivables) || 0,
         outstanding_deductions: Number(p.outstanding_deductions) || 0,
-        loan_settlement: Number(p.loan_settlement) || 0,
         other_payables: Number(p.other_payables) || 0,
+        settlement_details: { ...(t?.settlement_details ?? {}), leave_days_override: days },
       }).eq("id", id);
       if (error) throw error;
     },
@@ -187,7 +186,7 @@ function TerminationDetail() {
           )}
           {canEdit && canWrite && (
             <Button variant="outline" onClick={() => refreshComponents.mutate()} disabled={refreshComponents.isPending}>
-              <RefreshCw className="w-4 h-4 ml-2" />تحديث السلف والإجازات
+              <RefreshCw className="w-4 h-4 ml-2" />إعادة احتساب المكونات النظامية
             </Button>
           )}
           {canEdit && canWrite && <Button variant="outline" onClick={openEdit}><Pencil className="w-4 h-4 ml-2" />تعديل البنود</Button>}
@@ -262,7 +261,10 @@ function TerminationDetail() {
           <DialogHeader><DialogTitle>تعديل بنود المخالصة</DialogTitle></DialogHeader>
           {form && (
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>مكافأة نهاية الخدمة</Label><Input type="number" value={form.eos_amount} onChange={(e) => setForm({ ...form, eos_amount: e.target.value })} /></div>
+              <div>
+                <Label>مكافأة نهاية الخدمة</Label><Input type="number" value={form.eos_amount} disabled />
+                <p className="text-[11px] text-muted-foreground mt-1">تُحتسب مركزياً من مدة الخدمة الفعلية وسبب الإنهاء.</p>
+              </div>
               <div>
                 <Label>رصيد الإجازات (عدد الأيام)</Label>
                 <Input type="number" step="0.5" value={form.leave_balance_days} onChange={(e) => setDays(e.target.value)} />
@@ -270,17 +272,20 @@ function TerminationDetail() {
               </div>
               <div>
                 <Label>قيمة رصيد الإجازات</Label>
-                <Input type="number" value={form.leave_balance_amount}
-                  onChange={(e) => setForm({ ...form, leave_balance_amount: e.target.value, leave_value_overridden: true })} />
+                <Input type="number" value={form.leave_balance_amount} disabled />
+                <p className="text-[11px] text-muted-foreground mt-1">تُحسب تلقائياً من عدد الأيام والأجر اليومي.</p>
               </div>
               <div><Label>بدلات مستحقة</Label><Input type="number" value={form.outstanding_allowances} onChange={(e) => setForm({ ...form, outstanding_allowances: e.target.value })} /></div>
               <div><Label>مستحقات أخرى</Label><Input type="number" value={form.other_receivables} onChange={(e) => setForm({ ...form, other_receivables: e.target.value })} /></div>
               <div><Label>استقطاعات معلقة</Label><Input type="number" value={form.outstanding_deductions} onChange={(e) => setForm({ ...form, outstanding_deductions: e.target.value })} /></div>
-              <div><Label>تسوية السلف</Label><Input type="number" value={form.loan_settlement} onChange={(e) => setForm({ ...form, loan_settlement: e.target.value })} /></div>
+              <div>
+                <Label>تسوية السلف</Label><Input type="number" value={form.loan_settlement} disabled />
+                <p className="text-[11px] text-muted-foreground mt-1">تُقرأ من الرصيد الفعلي وتُقفل عند الاعتماد.</p>
+              </div>
               <div><Label>مستحقات على الموظف</Label><Input type="number" value={form.other_payables} onChange={(e) => setForm({ ...form, other_payables: e.target.value })} /></div>
             </div>
           )}
-          <p className="text-xs text-muted-foreground">صافي المخالصة يُعاد احتسابه تلقائياً من هذه البنود عند الحفظ. تعديل عدد الأيام يُحدّث القيمة تلقائياً بالأجر اليومي؛ يمكن تجاوز القيمة يدوياً بعد ذلك. استخدم زر "تحديث السلف والإجازات" لإعادة تعبئة رصيد السلف والإجازات من البيانات الفعلية بدل الإدخال اليدوي.</p>
+          <p className="text-xs text-muted-foreground">صافي المخالصة يُعاد احتسابه تلقائياً من هذه البنود عند الحفظ. يمكن تعديل عدد أيام الإجازة كاستثناء موثق، أما قيمتها ومكافأة نهاية الخدمة وتسوية السلف فتُحسب مركزياً. استخدم زر "إعادة احتساب المكونات النظامية" لجلب أحدث مدة خدمة وأرصدة فعلية.</p>
           <DialogFooter><Button onClick={() => saveLineItems.mutate(form)} disabled={saveLineItems.isPending}>حفظ</Button></DialogFooter>
         </DialogContent>
       </Dialog>
