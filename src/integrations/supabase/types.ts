@@ -2413,6 +2413,430 @@ export type Database = {
           },
         ]
       }
+      hr_attendance_correction_requests: {
+        Row: {
+          attendance_day_id: string
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_notes: string | null
+          employee_id: string
+          id: string
+          original_snapshot: Json
+          reason: string
+          requested_by: string
+          requested_check_in: string | null
+          requested_check_out: string | null
+          status: string
+        }
+        Insert: {
+          attendance_day_id: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_notes?: string | null
+          employee_id: string
+          id?: string
+          original_snapshot: Json
+          reason: string
+          requested_by: string
+          requested_check_in?: string | null
+          requested_check_out?: string | null
+          status?: string
+        }
+        Update: {
+          attendance_day_id?: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_notes?: string | null
+          employee_id?: string
+          id?: string
+          original_snapshot?: Json
+          reason?: string
+          requested_by?: string
+          requested_check_in?: string | null
+          requested_check_out?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      hr_attendance_days: {
+        Row: {
+          actual_minutes: number
+          approval_status: string
+          approved_at: string | null
+          approved_by: string | null
+          assignment_id: string | null
+          calculated_at: string
+          calculation_details: Json
+          early_leave_minutes: number
+          employee_id: string
+          first_check_in: string | null
+          group_id: string | null
+          id: string
+          last_check_out: string | null
+          late_minutes: number
+          notes: string | null
+          overtime_minutes: number
+          schedule_id: string | null
+          scheduled_minutes: number
+          status: string
+          updated_at: string
+          work_date: string
+        }
+        Insert: { id?: string; employee_id: string; work_date: string; assignment_id?: string | null; group_id?: string | null; schedule_id?: string | null; first_check_in?: string | null; last_check_out?: string | null; scheduled_minutes?: number; actual_minutes?: number; late_minutes?: number; early_leave_minutes?: number; overtime_minutes?: number; status: string; approval_status?: string; approved_by?: string | null; approved_at?: string | null; notes?: string | null; calculation_details?: Json; calculated_at?: string; updated_at?: string }
+        Update: { id?: string; employee_id?: string; work_date?: string; assignment_id?: string | null; group_id?: string | null; schedule_id?: string | null; first_check_in?: string | null; last_check_out?: string | null; scheduled_minutes?: number; actual_minutes?: number; late_minutes?: number; early_leave_minutes?: number; overtime_minutes?: number; status?: string; approval_status?: string; approved_by?: string | null; approved_at?: string | null; notes?: string | null; calculation_details?: Json; calculated_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      hr_attendance_holidays: {
+        Row: { id: string; name_ar: string; date_from: string; date_to: string; group_id: string | null; is_paid: boolean; notes: string | null; created_by: string | null; created_at: string; updated_at: string }
+        Insert: { id?: string; name_ar: string; date_from: string; date_to: string; group_id?: string | null; is_paid?: boolean; notes?: string | null; created_by?: string | null; created_at?: string; updated_at?: string }
+        Update: { id?: string; name_ar?: string; date_from?: string; date_to?: string; group_id?: string | null; is_paid?: boolean; notes?: string | null; created_by?: string | null; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      hr_attendance_period_audit: {
+        Row: { id: string; period_id: string; action: string; actor_id: string; reason: string | null; snapshot: Json; created_at: string }
+        Insert: { id?: string; period_id: string; action: string; actor_id: string; reason?: string | null; snapshot: Json; created_at?: string }
+        Update: { id?: string; period_id?: string; action?: string; actor_id?: string; reason?: string | null; snapshot?: Json; created_at?: string }
+        Relationships: []
+      }
+      hr_attendance_periods: {
+        Row: { id: string; period_year: number; period_month: number; status: string; summary_snapshot: Json; closed_by: string | null; closed_at: string | null; reopened_by: string | null; reopened_at: string | null; reopen_reason: string | null; created_at: string; updated_at: string }
+        Insert: { id?: string; period_year: number; period_month: number; status?: string; summary_snapshot?: Json; closed_by?: string | null; closed_at?: string | null; reopened_by?: string | null; reopened_at?: string | null; reopen_reason?: string | null; created_at?: string; updated_at?: string }
+        Update: { id?: string; period_year?: number; period_month?: number; status?: string; summary_snapshot?: Json; closed_by?: string | null; closed_at?: string | null; reopened_by?: string | null; reopened_at?: string | null; reopen_reason?: string | null; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      hr_attendance_policies: {
+        Row: { id: string; group_id: string; grace_minutes: number; minimum_overtime_minutes: number; deduct_absence: boolean; deduct_late_minutes: boolean; pay_overtime: boolean; overtime_multiplier: number; salary_day_divisor: number; require_daily_approval: boolean; created_at: string; updated_at: string }
+        Insert: { id?: string; group_id: string; grace_minutes?: number; minimum_overtime_minutes?: number; deduct_absence?: boolean; deduct_late_minutes?: boolean; pay_overtime?: boolean; overtime_multiplier?: number; salary_day_divisor?: number; require_daily_approval?: boolean; created_at?: string; updated_at?: string }
+        Update: { id?: string; group_id?: string; grace_minutes?: number; minimum_overtime_minutes?: number; deduct_absence?: boolean; deduct_late_minutes?: boolean; pay_overtime?: boolean; overtime_multiplier?: number; salary_day_divisor?: number; require_daily_approval?: boolean; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      hr_attendance_events: {
+        Row: {
+          id: string;
+          employee_id: string;
+          event_type: string;
+          source: string;
+          occurred_at: string;
+          site_id: string | null;
+          device_id: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          gps_accuracy_meters: number | null;
+          distance_from_site_meters: number | null;
+          schedule_id: string | null;
+          validation_status: string;
+          external_event_id: string | null;
+          metadata: Json;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          employee_id: string;
+          event_type: string;
+          source: string;
+          occurred_at?: string;
+          site_id?: string | null;
+          device_id?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          gps_accuracy_meters?: number | null;
+          distance_from_site_meters?: number | null;
+          schedule_id?: string | null;
+          validation_status?: string;
+          external_event_id?: string | null;
+          metadata?: Json;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          employee_id?: string;
+          event_type?: string;
+          source?: string;
+          occurred_at?: string;
+          site_id?: string | null;
+          device_id?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          gps_accuracy_meters?: number | null;
+          distance_from_site_meters?: number | null;
+          schedule_id?: string | null;
+          validation_status?: string;
+          external_event_id?: string | null;
+          metadata?: Json;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      hr_attendance_anomalies: {
+        Row: { id: string; anomaly_type: string; severity: string; employee_id: string | null; device_id: string | null; event_id: string | null; dedupe_key: string; details: Json; status: string; first_detected_at: string; last_detected_at: string; resolved_by: string | null; resolved_at: string | null; resolution_notes: string | null }
+        Insert: { id?: string; anomaly_type: string; severity: string; employee_id?: string | null; device_id?: string | null; event_id?: string | null; dedupe_key: string; details?: Json; status?: string; first_detected_at?: string; last_detected_at?: string; resolved_by?: string | null; resolved_at?: string | null; resolution_notes?: string | null }
+        Update: { id?: string; anomaly_type?: string; severity?: string; employee_id?: string | null; device_id?: string | null; event_id?: string | null; dedupe_key?: string; details?: Json; status?: string; first_detected_at?: string; last_detected_at?: string; resolved_by?: string | null; resolved_at?: string | null; resolution_notes?: string | null }
+        Relationships: []
+      }
+      hr_biometric_devices: {
+        Row: {
+          id: string;
+          device_code: string;
+          name_ar: string;
+          site_id: string | null;
+          vendor: string | null;
+          is_active: boolean;
+          last_seen_at: string | null;
+          token_hash: string | null;
+          token_last_four: string | null;
+          token_rotated_at: string | null;
+          auth_failures: number;
+          last_auth_failure_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          device_code: string;
+          name_ar: string;
+          site_id?: string | null;
+          vendor?: string | null;
+          is_active?: boolean;
+          last_seen_at?: string | null;
+          token_hash?: string | null;
+          token_last_four?: string | null;
+          token_rotated_at?: string | null;
+          auth_failures?: number;
+          last_auth_failure_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          device_code?: string;
+          name_ar?: string;
+          site_id?: string | null;
+          vendor?: string | null;
+          is_active?: boolean;
+          last_seen_at?: string | null;
+          token_hash?: string | null;
+          token_last_four?: string | null;
+          token_rotated_at?: string | null;
+          auth_failures?: number;
+          last_auth_failure_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      hr_shift_assignments: {
+        Row: {
+          id: string;
+          employee_id: string;
+          group_id: string;
+          effective_from: string;
+          effective_to: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          employee_id: string;
+          group_id: string;
+          effective_from: string;
+          effective_to?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          employee_id?: string;
+          group_id?: string;
+          effective_from?: string;
+          effective_to?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      hr_shift_group_sites: {
+        Row: { group_id: string; site_id: string };
+        Insert: { group_id: string; site_id: string };
+        Update: { group_id?: string; site_id?: string };
+        Relationships: [];
+      };
+      hr_shift_groups: {
+        Row: {
+          id: string;
+          code: string;
+          name_ar: string;
+          timezone: string;
+          work_minutes: number;
+          break_minutes: number;
+          break_is_paid: boolean;
+          is_flexible: boolean;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          name_ar: string;
+          timezone?: string;
+          work_minutes?: number;
+          break_minutes?: number;
+          break_is_paid?: boolean;
+          is_flexible?: boolean;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          code?: string;
+          name_ar?: string;
+          timezone?: string;
+          work_minutes?: number;
+          break_minutes?: number;
+          break_is_paid?: boolean;
+          is_flexible?: boolean;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      hr_shift_schedules: {
+        Row: {
+          id: string;
+          group_id: string;
+          day_of_week: number;
+          is_working_day: boolean;
+          start_time: string;
+          end_time: string;
+          checkin_open_before_minutes: number;
+          checkin_close_after_minutes: number;
+          checkout_open_before_minutes: number;
+          checkout_close_after_minutes: number;
+        };
+        Insert: {
+          id?: string;
+          group_id: string;
+          day_of_week: number;
+          is_working_day?: boolean;
+          start_time: string;
+          end_time: string;
+          checkin_open_before_minutes?: number;
+          checkin_close_after_minutes?: number;
+          checkout_open_before_minutes?: number;
+          checkout_close_after_minutes?: number;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          day_of_week?: number;
+          is_working_day?: boolean;
+          start_time?: string;
+          end_time?: string;
+          checkin_open_before_minutes?: number;
+          checkin_close_after_minutes?: number;
+          checkout_open_before_minutes?: number;
+          checkout_close_after_minutes?: number;
+        };
+        Relationships: [];
+      };
+      hr_work_sites: {
+        Row: {
+          id: string;
+          code: string;
+          name_ar: string;
+          latitude: number;
+          longitude: number;
+          radius_meters: number;
+          max_gps_accuracy_meters: number;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          name_ar: string;
+          latitude: number;
+          longitude: number;
+          radius_meters?: number;
+          max_gps_accuracy_meters?: number;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          code?: string;
+          name_ar?: string;
+          latitude?: number;
+          longitude?: number;
+          radius_meters?: number;
+          max_gps_accuracy_meters?: number;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      hr_leave_rules: {
+        Row: {
+          balance_mode: string
+          created_at: string
+          effective_from: string
+          effective_to: string | null
+          entitlement_days: number | null
+          gender_restriction: string | null
+          id: string
+          label_ar: string
+          leave_type: string
+          legal_reference: string | null
+          max_request_days: number | null
+          minimum_service_days: number
+          notes: string | null
+          pay_schedule: Json
+        }
+        Insert: {
+          balance_mode: string
+          created_at?: string
+          effective_from: string
+          effective_to?: string | null
+          entitlement_days?: number | null
+          gender_restriction?: string | null
+          id?: string
+          label_ar: string
+          leave_type: string
+          legal_reference?: string | null
+          max_request_days?: number | null
+          minimum_service_days?: number
+          notes?: string | null
+          pay_schedule?: Json
+        }
+        Update: {
+          balance_mode?: string
+          created_at?: string
+          effective_from?: string
+          effective_to?: string | null
+          entitlement_days?: number | null
+          gender_restriction?: string | null
+          id?: string
+          label_ar?: string
+          leave_type?: string
+          legal_reference?: string | null
+          max_request_days?: number | null
+          minimum_service_days?: number
+          notes?: string | null
+          pay_schedule?: Json
+        }
+        Relationships: []
+      }
       hr_leaves: {
         Row: {
           approved_at: string | null
@@ -2427,6 +2851,7 @@ export type Database = {
           leave_type: Database["public"]["Enums"]["hr_leave_type"]
           reason: string | null
           request_id: string | null
+          sick_cycle_start: string | null
           status: Database["public"]["Enums"]["hr_leave_status"]
           to_date: string
           updated_at: string
@@ -2444,6 +2869,7 @@ export type Database = {
           leave_type: Database["public"]["Enums"]["hr_leave_type"]
           reason?: string | null
           request_id?: string | null
+          sick_cycle_start?: string | null
           status?: Database["public"]["Enums"]["hr_leave_status"]
           to_date: string
           updated_at?: string
@@ -2461,6 +2887,7 @@ export type Database = {
           leave_type?: Database["public"]["Enums"]["hr_leave_type"]
           reason?: string | null
           request_id?: string | null
+          sick_cycle_start?: string | null
           status?: Database["public"]["Enums"]["hr_leave_status"]
           to_date?: string
           updated_at?: string
@@ -2585,8 +3012,12 @@ export type Database = {
       hr_payroll_lines: {
         Row: {
           absence_deduction: number | null
+          attendance_absence_days: number
+          attendance_late_minutes: number
+          attendance_overtime_minutes: number
           basic_salary: number | null
           bonuses: number | null
+          calculation_details: Json
           cost_entry_id: string | null
           created_at: string
           employee_id: string
@@ -2604,15 +3035,22 @@ export type Database = {
           overtime: number | null
           project_id: string | null
           run_id: string
+          sick_leave_days: number
+          sick_leave_deduction: number
           total_deductions: number | null
           transport_allowance: number | null
           unpaid_leave_deduction: number | null
+          unpaid_leave_days: number
           updated_at: string
         }
         Insert: {
           absence_deduction?: number | null
+          attendance_absence_days?: number
+          attendance_late_minutes?: number
+          attendance_overtime_minutes?: number
           basic_salary?: number | null
           bonuses?: number | null
+          calculation_details?: Json
           cost_entry_id?: string | null
           created_at?: string
           employee_id: string
@@ -2630,15 +3068,22 @@ export type Database = {
           overtime?: number | null
           project_id?: string | null
           run_id: string
+          sick_leave_days?: number
+          sick_leave_deduction?: number
           total_deductions?: number | null
           transport_allowance?: number | null
           unpaid_leave_deduction?: number | null
+          unpaid_leave_days?: number
           updated_at?: string
         }
         Update: {
           absence_deduction?: number | null
+          attendance_absence_days?: number
+          attendance_late_minutes?: number
+          attendance_overtime_minutes?: number
           basic_salary?: number | null
           bonuses?: number | null
+          calculation_details?: Json
           cost_entry_id?: string | null
           created_at?: string
           employee_id?: string
@@ -2656,9 +3101,12 @@ export type Database = {
           overtime?: number | null
           project_id?: string | null
           run_id?: string
+          sick_leave_days?: number
+          sick_leave_deduction?: number
           total_deductions?: number | null
           transport_allowance?: number | null
           unpaid_leave_deduction?: number | null
+          unpaid_leave_days?: number
           updated_at?: string
         }
         Relationships: [
@@ -2752,16 +3200,69 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_service_interruptions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          employee_id: string
+          exclude_from_service: boolean
+          from_date: string
+          id: string
+          legal_basis: string | null
+          notes: string | null
+          reason: string
+          to_date: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          employee_id: string
+          exclude_from_service?: boolean
+          from_date: string
+          id?: string
+          legal_basis?: string | null
+          notes?: string | null
+          reason: string
+          to_date: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          employee_id?: string
+          exclude_from_service?: boolean
+          from_date?: string
+          id?: string
+          legal_basis?: string | null
+          notes?: string | null
+          reason?: string
+          to_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_service_interruptions_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hr_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hr_terminations: {
         Row: {
           approved_at: string | null
           approved_by: string | null
           clearance_status: Json | null
           contract_id: string | null
+          calendar_service_days: number | null
           created_at: string
           created_by: string | null
           employee_id: string
           eos_amount: number | null
+          effective_service_days: number | null
+          excluded_service_days: number
           id: string
           last_working_day: string
           leave_balance_amount: number | null
@@ -2786,10 +3287,13 @@ export type Database = {
           approved_by?: string | null
           clearance_status?: Json | null
           contract_id?: string | null
+          calendar_service_days?: number | null
           created_at?: string
           created_by?: string | null
           employee_id: string
           eos_amount?: number | null
+          effective_service_days?: number | null
+          excluded_service_days?: number
           id?: string
           last_working_day: string
           leave_balance_amount?: number | null
@@ -2814,10 +3318,13 @@ export type Database = {
           approved_by?: string | null
           clearance_status?: Json | null
           contract_id?: string | null
+          calendar_service_days?: number | null
           created_at?: string
           created_by?: string | null
           employee_id?: string
           eos_amount?: number | null
+          effective_service_days?: number | null
+          excluded_service_days?: number
           id?: string
           last_working_day?: string
           leave_balance_amount?: number | null
@@ -3580,6 +4087,7 @@ export type Database = {
           status: Database["public"]["Enums"]["invoice_status"] | null
           total_amount: number | null
           updated_at: string
+          tax_category: string | null
           vat_amount: number | null
         }
         Insert: {
@@ -3597,6 +4105,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["invoice_status"] | null
           total_amount?: number | null
           updated_at?: string
+          tax_category?: string | null
           vat_amount?: number | null
         }
         Update: {
@@ -3614,6 +4123,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["invoice_status"] | null
           total_amount?: number | null
           updated_at?: string
+          tax_category?: string | null
           vat_amount?: number | null
         }
         Relationships: [
@@ -4228,6 +4738,7 @@ export type Database = {
           status: Database["public"]["Enums"]["purchase_invoice_status"] | null
           total_amount: number | null
           updated_at: string
+          tax_category: string | null
           vat_amount: number | null
           vendor_id: string | null
         }
@@ -4246,6 +4757,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["purchase_invoice_status"] | null
           total_amount?: number | null
           updated_at?: string
+          tax_category?: string | null
           vat_amount?: number | null
           vendor_id?: string | null
         }
@@ -4264,6 +4776,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["purchase_invoice_status"] | null
           total_amount?: number | null
           updated_at?: string
+          tax_category?: string | null
           vat_amount?: number | null
           vendor_id?: string | null
         }
@@ -4871,6 +5384,12 @@ export type Database = {
           },
         ]
       }
+      tax_rate_rules: {
+        Row: { id: string; tax_type: string; rate: number; effective_from: string; effective_to: string | null; source_note: string; created_by: string | null; created_at: string }
+        Insert: { id?: string; tax_type: string; rate: number; effective_from: string; effective_to?: string | null; source_note: string; created_by?: string | null; created_at?: string }
+        Update: { id?: string; tax_type?: string; rate?: number; effective_from?: string; effective_to?: string | null; source_note?: string; created_by?: string | null; created_at?: string }
+        Relationships: []
+      }
       trial_balance_entries: {
         Row: {
           account_code: string
@@ -5151,6 +5670,96 @@ export type Database = {
         }
         Relationships: []
       }
+      vat_return_adjustments: {
+        Row: { id: string; return_id: string; direction: string; tax_category: string; net_amount: number; vat_amount: number; reason: string; created_by: string; created_at: string }
+        Insert: { id?: string; return_id: string; direction: string; tax_category: string; net_amount: number; vat_amount: number; reason: string; created_by: string; created_at?: string }
+        Update: { id?: string; return_id?: string; direction?: string; tax_category?: string; net_amount?: number; vat_amount?: number; reason?: string; created_by?: string; created_at?: string }
+        Relationships: []
+      }
+      vat_return_sources: {
+        Row: { id: string; return_id: string; source_type: string; source_id: string; tax_category: string; net_amount: number; vat_amount: number; source_snapshot: Json; created_at: string }
+        Insert: { id?: string; return_id: string; source_type: string; source_id: string; tax_category: string; net_amount: number; vat_amount: number; source_snapshot: Json; created_at?: string }
+        Update: { id?: string; return_id?: string; source_type?: string; source_id?: string; tax_category?: string; net_amount?: number; vat_amount?: number; source_snapshot?: Json; created_at?: string }
+        Relationships: []
+      }
+      vat_returns: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          calculated_at: string | null
+          calculated_by: string | null
+          filed_at: string | null
+          source_fingerprint: string | null
+          status: string
+          created_at: string
+          created_by: string | null
+          data: Json
+          final_vat: number | null
+          id: string
+          net_vat: number | null
+          period_from: string
+          period_to: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          calculated_at?: string | null
+          calculated_by?: string | null
+          filed_at?: string | null
+          source_fingerprint?: string | null
+          status?: string
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          final_vat?: number | null
+          id?: string
+          net_vat?: number | null
+          period_from: string
+          period_to: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          calculated_at?: string | null
+          calculated_by?: string | null
+          filed_at?: string | null
+          source_fingerprint?: string | null
+          status?: string
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          final_vat?: number | null
+          id?: string
+          net_vat?: number | null
+          period_from?: string
+          period_to?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      zakat_account_mappings: {
+        Row: { id: string; account_code: string; target_key: string; multiplier: number; is_active: boolean; created_by: string; updated_by: string; created_at: string; updated_at: string }
+        Insert: { id?: string; account_code: string; target_key: string; multiplier?: number; is_active?: boolean; created_by: string; updated_by: string; created_at?: string; updated_at?: string }
+        Update: { id?: string; account_code?: string; target_key?: string; multiplier?: number; is_active?: boolean; created_by?: string; updated_by?: string; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      zakat_return_adjustments: {
+        Row: { id: string; return_id: string; field_key: string; amount: number; reason: string; created_by: string; created_at: string }
+        Insert: { id?: string; return_id: string; field_key: string; amount: number; reason: string; created_by: string; created_at?: string }
+        Update: { id?: string; return_id?: string; field_key?: string; amount?: number; reason?: string; created_by?: string; created_at?: string }
+        Relationships: []
+      }
+      zakat_return_sources: {
+        Row: { id: string; return_id: string; trial_balance_entry_id: string; target_key: string; multiplier: number; source_snapshot: Json; created_at: string }
+        Insert: { id?: string; return_id: string; trial_balance_entry_id: string; target_key: string; multiplier?: number; source_snapshot: Json; created_at?: string }
+        Update: { id?: string; return_id?: string; trial_balance_entry_id?: string; target_key?: string; multiplier?: number; source_snapshot?: Json; created_at?: string }
+        Relationships: []
+      }
       zakat_returns: {
         Row: {
           created_at: string
@@ -5163,6 +5772,13 @@ export type Database = {
           year_from: string
           year_to: string
           zakat_due: number | null
+          status: string
+          source_fingerprint: string | null
+          calculated_by: string | null
+          calculated_at: string | null
+          submitted_by: string | null
+          submitted_at: string | null
+          submission_reference: string | null
         }
         Insert: {
           created_at?: string
@@ -5175,6 +5791,13 @@ export type Database = {
           year_from: string
           year_to: string
           zakat_due?: number | null
+          status?: string
+          source_fingerprint?: string | null
+          calculated_by?: string | null
+          calculated_at?: string | null
+          submitted_by?: string | null
+          submitted_at?: string | null
+          submission_reference?: string | null
         }
         Update: {
           created_at?: string
@@ -5187,6 +5810,13 @@ export type Database = {
           year_from?: string
           year_to?: string
           zakat_due?: number | null
+          status?: string
+          source_fingerprint?: string | null
+          calculated_by?: string | null
+          calculated_at?: string | null
+          submitted_by?: string | null
+          submitted_at?: string | null
+          submission_reference?: string | null
         }
         Relationships: []
       }
@@ -5219,6 +5849,55 @@ export type Database = {
       }
     }
     Functions: {
+      zakat_save_account_mappings: { Args: { _mappings: Json }; Returns: number }
+      zakat_submit_return: { Args: { _return_id: string; _reference: string }; Returns: Database["public"]["Tables"]["zakat_returns"]["Row"] }
+      zakat_source_fingerprint: { Args: { _return_id: string }; Returns: string }
+      zakat_calculate_return_mapped: { Args: { _year_from: string; _year_to: string; _sources?: Json; _manual_adjustments?: Json; _form_data?: Json; _zakat_rate?: number; _income_tax_rate?: number }; Returns: Database["public"]["Tables"]["zakat_returns"]["Row"] }
+      zakat_approve_return: { Args: { _return_id: string }; Returns: Database["public"]["Tables"]["zakat_returns"]["Row"] }
+      zakat_calculate_return_flexible: { Args: { _year_from: string; _year_to: string; _sources?: Json; _manual_data?: Json; _zakat_rate?: number; _income_tax_rate?: number }; Returns: Database["public"]["Tables"]["zakat_returns"]["Row"] }
+      vat_return_stored_fingerprint: { Args: { _return_id: string }; Returns: string }
+      vat_calculate_return_flexible: { Args: { _period_from: string; _period_to: string; _sales_ids: string[]; _purchase_ids: string[]; _manual_adjustments?: Json; _carried_forward?: number; _header?: Json }; Returns: Database["public"]["Tables"]["vat_returns"]["Row"] }
+      vat_source_fingerprint: { Args: { _from: string; _to: string }; Returns: string }
+      vat_calculate_return: { Args: { _period_from: string; _period_to: string; _carried_forward?: number; _header?: Json }; Returns: Database["public"]["Tables"]["vat_returns"]["Row"] }
+      vat_approve_return: { Args: { _return_id: string }; Returns: Database["public"]["Tables"]["vat_returns"]["Row"] }
+      hr_attendance_register_device: { Args: { _device_code: string; _name_ar: string; _site_id: string | null; _vendor?: string | null }; Returns: Json }
+      hr_attendance_rotate_device_token: { Args: { _device_id: string }; Returns: Json }
+      hr_attendance_authenticate_device: { Args: { _device_code: string; _token: string }; Returns: boolean }
+      hr_attendance_scan_anomalies: { Args: { _from?: string; _to?: string }; Returns: number }
+      hr_attendance_resolve_anomaly: { Args: { _anomaly_id: string; _dismiss: boolean; _notes: string }; Returns: Database["public"]["Tables"]["hr_attendance_anomalies"]["Row"] }
+      hr_attendance_run_maintenance: { Args: { _work_date?: string }; Returns: Json }
+      hr_attendance_period_is_closed: { Args: { _work_date: string }; Returns: boolean }
+      hr_attendance_close_period: { Args: { _year: number; _month: number }; Returns: Database["public"]["Tables"]["hr_attendance_periods"]["Row"] }
+      hr_attendance_reopen_period: { Args: { _period_id: string; _reason: string }; Returns: Database["public"]["Tables"]["hr_attendance_periods"]["Row"] }
+      hr_attendance_request_correction: { Args: { _attendance_day_id: string; _requested_check_in: string | null; _requested_check_out: string | null; _reason: string }; Returns: Database["public"]["Tables"]["hr_attendance_correction_requests"]["Row"] }
+      hr_attendance_decide_correction: { Args: { _request_id: string; _approved: boolean; _decision_notes?: string }; Returns: Database["public"]["Tables"]["hr_attendance_correction_requests"]["Row"] }
+      hr_attendance_refresh_days: { Args: { _date_from: string; _date_to: string; _employee_id?: string }; Returns: number }
+      hr_attendance_decide_day: { Args: { _day_id: string; _approved: boolean; _notes?: string }; Returns: Database["public"]["Tables"]["hr_attendance_days"]["Row"] }
+      hr_apply_attendance_to_payroll: { Args: { _run_id: string }; Returns: number }
+      hr_attendance_mobile_punch: {
+        Args: {
+          _event_type: string;
+          _site_id: string;
+          _latitude: number;
+          _longitude: number;
+          _accuracy_meters?: number;
+        };
+        Returns: Database["public"]["Tables"]["hr_attendance_events"]["Row"];
+      };
+      hr_attendance_biometric_ingest: {
+        Args: {
+          _device_code: string;
+          _employee_no: string;
+          _event_type: string;
+          _occurred_at: string;
+          _external_event_id: string;
+        };
+        Returns: Database["public"]["Tables"]["hr_attendance_events"]["Row"];
+      };
+      hr_distance_meters: {
+        Args: { _lat1: number; _lng1: number; _lat2: number; _lng2: number };
+        Returns: number;
+      };
       calc_customer_balance: { Args: { _customer_id: string }; Returns: number }
       calc_vendor_balance: { Args: { _vendor_id: string }; Returns: number }
       can_delete_master: { Args: { _user_id: string }; Returns: boolean }
@@ -5286,6 +5965,35 @@ export type Database = {
       hr_calc_leave_entitlement: {
         Args: { _employee_id: string; _leave_type: string; _year?: number }
         Returns: number
+      }
+      hr_calculate_service_period: {
+        Args: { _as_of?: string; _employee_id: string }
+        Returns: Json
+      }
+      hr_leave_decide: {
+        Args: { _approved: boolean; _leave_id: string }
+        Returns: Database["public"]["Tables"]["hr_leaves"]["Row"]
+      }
+      hr_leave_rule: {
+        Args: { _as_of?: string; _leave_type: string }
+        Returns: Database["public"]["Tables"]["hr_leave_rules"]["Row"]
+      }
+      hr_payroll_create_run: {
+        Args: { _period_month: number; _period_year: number }
+        Returns: Database["public"]["Tables"]["hr_payroll_runs"]["Row"]
+      }
+      hr_sick_leave_pay_breakdown: {
+        Args: {
+          _daily_wage: number
+          _employee_id: string
+          _period_from: string
+          _period_to: string
+        }
+        Returns: Json
+      }
+      hr_termination_create_draft: {
+        Args: { _input: Json }
+        Returns: Database["public"]["Tables"]["hr_terminations"]["Row"]
       }
       hr_get_leave_summary: {
         Args: { _employee_id: string; _year?: number }
@@ -5814,6 +6522,9 @@ export type Database = {
         | "compensatory"
         | "maternity"
         | "paternity"
+        | "marriage"
+        | "bereavement"
+        | "sibling_bereavement"
         | "hajj"
         | "study"
         | "other"
@@ -6137,6 +6848,9 @@ export const Constants = {
         "compensatory",
         "maternity",
         "paternity",
+        "marriage",
+        "bereavement",
+        "sibling_bereavement",
         "hajj",
         "study",
         "other",

@@ -28,6 +28,7 @@ const STATUS_LABEL: Record<string, string> = {
 const LEAVE_TYPE_LABEL: Record<string, string> = {
   annual: "سنوية", sick: "مرضية", emergency: "اضطرارية", unpaid: "بدون راتب",
   maternity: "أمومة", paternity: "أبوة", hajj: "حج", study: "دراسية",
+  marriage: "زواج", bereavement: "وفاة زوج أو أصل أو فرع", sibling_bereavement: "وفاة أخ أو أخت",
   compensatory: "تعويضية", other: "أخرى",
 };
 const LEAVE_STATUS_LABEL: Record<string, { l: string; c: string }> = {

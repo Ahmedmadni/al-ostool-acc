@@ -94,7 +94,7 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/tasks", module: "tasks" },
 
   // ===== Tools group =====
-  { prefix: "/tax-tools", module: "reports" },
+  { prefix: "/tax-tools", module: "tax" },
   { prefix: "/templates", module: "reports" },
 
   // ===== HR group =====
@@ -107,6 +107,7 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/hr/compliance", module: "hr.contracts" },
   { prefix: "/hr/workflow", module: "hr.workflow" },
   { prefix: "/hr/leaves", module: "hr.leaves" },
+  { prefix: "/hr/attendance", module: "hr.attendance" },
   { prefix: "/hr/loans", module: "hr.loans" },
   { prefix: "/hr/assets", module: "hr.assets" },
   { prefix: "/hr/payroll", module: "hr.payroll" },

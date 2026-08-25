@@ -68,7 +68,7 @@ const CONTRACT_FIELDS: FieldDef[] = [
 const LEAVE_FIELDS: FieldDef[] = [
   { key: "employee_no", label: "الرقم الوظيفي", type: "id", required: true },
   { key: "leave_type", label: "نوع الإجازة", type: "enum",
-    enumValues: ["annual", "sick", "emergency", "unpaid", "maternity", "paternity", "hajj", "compensatory", "study"],
+    enumValues: ["annual", "sick", "emergency", "unpaid", "maternity", "paternity", "marriage", "bereavement", "sibling_bereavement", "hajj", "compensatory", "study"],
     required: true,
     hint: "قوى: سنوية / مرضية / اضطرارية / بدون راتب / أمومة / أبوة / حج" },
   { key: "from_date", label: "تاريخ البداية", type: "date", required: true },
