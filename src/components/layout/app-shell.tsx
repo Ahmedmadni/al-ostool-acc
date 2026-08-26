@@ -122,6 +122,7 @@ const GROUPS: NavGroup[] = [
       { to: "/hr/compliance", label: "امتثال العقود", label_en: "Contract Compliance" },
       { to: "/hr/workflow", label: "الطلبات وسير الاعتماد", label_en: "Requests & Approval Workflow" },
       { to: "/hr/leaves", label: "الإجازات", label_en: "Leaves" },
+      { to: "/hr/attendance", label: "الحضور والانصراف", label_en: "Attendance" },
       { to: "/hr/loans", label: "السلف", label_en: "Loans" },
       { to: "/hr/assets", label: "العهد", label_en: "Custody Assets" },
       { to: "/hr/payroll", label: "مسيرات الرواتب", label_en: "Payroll Runs" },
