@@ -5,6 +5,10 @@ const migration = readFileSync(
   new URL("../supabase/migrations/20260824120000_versioned_leave_compliance.sql", import.meta.url),
   "utf8",
 );
+const enumMigration = readFileSync(
+  new URL("../supabase/migrations/20260824115000_extend_hr_leave_type.sql", import.meta.url),
+  "utf8",
+);
 const page = readFileSync(
   new URL("../src/routes/_authenticated/hr/leaves/index.tsx", import.meta.url),
   "utf8",
@@ -35,6 +39,11 @@ assert.ok(
 );
 for (const leaveType of ["marriage", "bereavement", "sibling_bereavement"]) {
   assert.ok(page.includes(`v: "${leaveType}"`), `Leave UI is missing ${leaveType}`);
+  assert.ok(enumMigration.includes(`ADD VALUE IF NOT EXISTS '${leaveType}'`));
 }
+assert.ok(
+  !migration.includes("ALTER TYPE public.hr_leave_type ADD VALUE"),
+  "Enum values must be committed in the preceding migration before rule rows use them",
+);
 
 console.log("Versioned leave-compliance checks passed ✓");
