@@ -43,6 +43,23 @@ type ManualAdjustment = {
   vat_amount: number;
   reason: string;
 };
+type VatSummary = {
+  id: string;
+  period_from: string;
+  period_to: string;
+  status: string;
+  data: any;
+  net_vat: number | null;
+  final_vat: number | null;
+  filing_reference?: string | null;
+};
+type VatStatusEvent = {
+  id: string;
+  from_status: string | null;
+  to_status: string;
+  reason: string | null;
+  changed_at: string;
+};
 
 const SALES_ROWS: Omit<Row, "amount" | "adjustment">[] = [
   { code: "ع-1", label: "المبيعات الخاضعة للنسبة الأساسية 15%" },
@@ -101,6 +118,34 @@ export function VatReturnForm() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [returnHistory, setReturnHistory] = useState<VatSummary[]>([]);
+  const [statusEvents, setStatusEvents] = useState<VatStatusEvent[]>([]);
+  const [filingReference, setFilingReference] = useState("");
+  const [reopenReason, setReopenReason] = useState("");
+
+  const loadReturn = (row: VatSummary) => {
+    const value = row.data ?? {};
+    setRecordId(row.id);
+    setReturnStatus(row.status ?? "draft");
+    setFilingReference(row.filing_reference ?? "");
+    setServerTotals({ net: Number(row.net_vat ?? 0), final: Number(row.final_vat ?? 0) });
+    if (value.header) setHeader(value.header);
+    if (value.sales) setSales(value.sales);
+    if (value.purchases) setPurchases(value.purchases);
+    if (typeof value.carriedFwd === "number") setCarriedFwd(value.carriedFwd);
+    const selection = value.source_selection;
+    if (selection) {
+      const period = `${value.header?.period_from ?? row.period_from}:${value.header?.period_to ?? row.period_to}`;
+      setLoadedSelection({
+        period,
+        sales: selection.sales_ids ?? [],
+        purchases: selection.purchase_ids ?? [],
+      });
+      setSelectedSales(selection.sales_ids ?? []);
+      setSelectedPurchases(selection.purchase_ids ?? []);
+      setManualAdjustments(selection.manual_adjustments ?? []);
+    }
+  };
 
   // Loads the most recently saved return (this mirrors the old single-slot
   // localStorage behaviour, but now shared across users/devices and durable
@@ -111,33 +156,26 @@ export function VatReturnForm() {
         .from("vat_returns" as any)
         .select("*")
         .order("updated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .limit(25);
       if (error) toast.error(error.message);
-      const row = data as any;
-      if (row?.data) {
-        const v = row.data;
-        setRecordId(row.id);
-        setReturnStatus(row.status ?? "draft");
-        setServerTotals({ net: Number(row.net_vat ?? 0), final: Number(row.final_vat ?? 0) });
-        if (v.header) setHeader(v.header);
-        if (v.sales) setSales(v.sales);
-        if (v.purchases) setPurchases(v.purchases);
-        if (typeof v.carriedFwd === "number") setCarriedFwd(v.carriedFwd);
-        const selection = v.source_selection;
-        if (selection) {
-          const period = `${v.header?.period_from ?? row.period_from}:${v.header?.period_to ?? row.period_to}`;
-          const savedSales = selection.sales_ids ?? [];
-          const savedPurchases = selection.purchase_ids ?? [];
-          setLoadedSelection({ period, sales: savedSales, purchases: savedPurchases });
-          setSelectedSales(savedSales);
-          setSelectedPurchases(savedPurchases);
-          setManualAdjustments(selection.manual_adjustments ?? []);
-        }
-      }
+      const rows = (data ?? []) as unknown as VatSummary[];
+      setReturnHistory(rows);
+      if (rows[0]) loadReturn(rows[0]);
       setLoading(false);
     })();
   }, []);
+
+  useEffect(() => {
+    if (!recordId) return;
+    (async () => {
+      const { data } = await supabase
+        .from("vat_return_status_events" as any)
+        .select("id,from_status,to_status,reason,changed_at")
+        .eq("return_id", recordId)
+        .order("changed_at", { ascending: false });
+      setStatusEvents((data ?? []) as unknown as VatStatusEvent[]);
+    })();
+  }, [recordId, returnStatus]);
 
   useEffect(() => {
     if (!header.period_from || !header.period_to) {
@@ -195,6 +233,14 @@ export function VatReturnForm() {
   const purchTotalVat = useMemo(() => purchases.reduce((s, r) => s + calcRow(r), 0), [purchases]);
   const netVat = serverTotals?.net ?? salesTotalVat - purchTotalVat;
   const finalVat = serverTotals?.final ?? netVat - carriedFwd;
+  const manualNet = useMemo(
+    () => manualAdjustments.reduce((sum, row) => sum + row.net_amount, 0),
+    [manualAdjustments],
+  );
+  const manualVat = useMemo(
+    () => manualAdjustments.reduce((sum, row) => sum + row.vat_amount, 0),
+    [manualAdjustments],
+  );
 
   const reset = () => {
     if (
@@ -267,6 +313,35 @@ export function VatReturnForm() {
     toast.success("تم اعتماد الإقرار");
   };
 
+  const fileReturn = async () => {
+    if (!recordId) return;
+    const { data, error } = await (supabase as any).rpc("vat_file_return", {
+      _return_id: recordId,
+      _reference: filingReference,
+    });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setReturnStatus((data as any)?.status ?? "filed");
+    toast.success("تم تسجيل تقديم إقرار الضريبة");
+  };
+
+  const reopenReturn = async () => {
+    if (!recordId) return;
+    const { data, error } = await (supabase as any).rpc("vat_reopen_return", {
+      _return_id: recordId,
+      _reason: reopenReason,
+    });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setReturnStatus((data as any)?.status ?? "calculated");
+    setReopenReason("");
+    toast.success("أعيد فتح الإقرار مع تسجيل السبب");
+  };
+
   const exportExcel = () => {
     const aoa: any[][] = [
       ["إقرار ضريبة القيمة المضافة"],
@@ -312,6 +387,46 @@ export function VatReturnForm() {
     const ws = XLSX.utils.aoa_to_sheet(aoa);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "VAT");
+    const audit: any[][] = [
+      ["النوع", "رقم الفاتورة", "التاريخ", "التصنيف", "صافي المبلغ", "الضريبة", "الحالة"],
+    ];
+    eligibleSales.forEach((row) =>
+      audit.push([
+        "مبيعات",
+        row.invoice_number,
+        row.issue_date,
+        row.tax_category ?? "غير مصنفة",
+        row.amount,
+        row.vat_amount,
+        selectedSales.includes(row.id) ? "مختارة" : "مستبعدة",
+      ]),
+    );
+    eligiblePurchases.forEach((row) =>
+      audit.push([
+        "مشتريات",
+        row.invoice_number,
+        row.issue_date,
+        row.tax_category ?? "غير مصنفة",
+        row.amount,
+        row.vat_amount,
+        selectedPurchases.includes(row.id) ? "مختارة" : "مستبعدة",
+      ]),
+    );
+    audit.push([], ["التعديلات اليدوية"], ["النوع", "التصنيف", "الصافي", "الضريبة", "السبب"]);
+    manualAdjustments.forEach((row) =>
+      audit.push([row.direction, row.tax_category, row.net_amount, row.vat_amount, row.reason]),
+    );
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(audit), "تدقيق المصادر");
+    const timeline = [
+      ["من حالة", "إلى حالة", "التاريخ", "السبب"],
+      ...statusEvents.map((event) => [
+        event.from_status ?? "—",
+        event.to_status,
+        event.changed_at,
+        event.reason ?? "انتقال تشغيلي",
+      ]),
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(timeline), "سجل الحالات");
     XLSX.writeFile(wb, `vat_return_${header.period_from || "period"}.xlsx`);
     toast.success("تم تصدير Excel");
   };
@@ -319,14 +434,51 @@ export function VatReturnForm() {
   return (
     <div className="space-y-4">
       <div className="flex gap-2 no-print flex-wrap items-center">
+        <select
+          className="h-9 max-w-64 rounded border bg-background px-2 text-sm"
+          value={recordId ?? ""}
+          onChange={(event) => {
+            const row = returnHistory.find((item) => item.id === event.target.value);
+            if (row) loadReturn(row);
+          }}
+        >
+          <option value="">إقرار جديد</option>
+          {returnHistory.map((row) => (
+            <option key={row.id} value={row.id}>
+              {row.period_from} — {row.period_to} ({row.status})
+            </option>
+          ))}
+        </select>
         <Button size="sm" onClick={save} disabled={saving || loading} className="gap-2">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {saving ? "جارٍ الاحتساب..." : "احتساب من الفواتير وحفظ"}
         </Button>
-        {recordId && (
-          <span className="text-xs text-muted-foreground">
-            الحالة: {returnStatus === "approved" ? "معتمد" : "محسوب"}
-          </span>
+        {recordId && <span className="text-xs text-muted-foreground">الحالة: {returnStatus}</span>}
+        {returnStatus === "approved" && (
+          <div className="flex gap-2">
+            <Input
+              className="h-8 w-48"
+              placeholder="مرجع تقديم الإقرار"
+              value={filingReference}
+              onChange={(event) => setFilingReference(event.target.value)}
+            />
+            <Button size="sm" variant="secondary" onClick={fileReturn}>
+              تسجيل التقديم
+            </Button>
+          </div>
+        )}
+        {(returnStatus === "approved" || returnStatus === "filed") && (
+          <div className="flex gap-2">
+            <Input
+              className="h-8 w-56"
+              placeholder="سبب إعادة الفتح (10 أحرف على الأقل)"
+              value={reopenReason}
+              onChange={(event) => setReopenReason(event.target.value)}
+            />
+            <Button size="sm" variant="destructive" onClick={reopenReturn}>
+              إعادة فتح رقابية
+            </Button>
+          </div>
         )}
         {returnStatus === "calculated" && (
           <Button size="sm" variant="secondary" onClick={approve}>
@@ -351,6 +503,43 @@ export function VatReturnForm() {
         المبالغ والضريبة أدناه تُقرأ من الفواتير الصادرة والمستلمة المصنفة ضريبياً. لا يمكن اعتماد
         الإقرار إذا تغيرت الفواتير بعد الاحتساب.
       </Card>
+      <Card className="p-4 no-print space-y-3">
+        <div className="font-semibold">ملخص تدقيق مصادر VAT</div>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+          <div className="rounded border p-2">
+            المبيعات المختارة: {selectedSales.length} / {eligibleSales.length}
+          </div>
+          <div className="rounded border p-2">
+            المشتريات المختارة: {selectedPurchases.length} / {eligiblePurchases.length}
+          </div>
+          <div className="rounded border p-2">صافي التعديلات اليدوية: {fmtSAR(manualNet)}</div>
+          <div className="rounded border p-2">ضريبة التعديلات اليدوية: {fmtSAR(manualVat)}</div>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          يتضمن تصدير Excel ورقة للفواتير المختارة والمستبعدة والتعديلات، وورقة مستقلة لسجل انتقالات
+          الحالة.
+        </p>
+      </Card>
+      {recordId && (
+        <Card className="p-4 space-y-2 no-print">
+          <div className="font-semibold">السجل الزمني للإقرار</div>
+          {statusEvents.length === 0 ? (
+            <p className="text-sm text-muted-foreground">لا توجد انتقالات حالة مسجلة بعد.</p>
+          ) : (
+            statusEvents.map((event) => (
+              <div key={event.id} className="flex flex-wrap gap-2 rounded border p-2 text-sm">
+                <span>
+                  {event.from_status ?? "—"} ← {event.to_status}
+                </span>
+                <span className="text-muted-foreground">
+                  {new Date(event.changed_at).toLocaleString("ar-SA")}
+                </span>
+                <span className="flex-1">{event.reason ?? "انتقال تشغيلي"}</span>
+              </div>
+            ))
+          )}
+        </Card>
+      )}
 
       <Card className="p-4 space-y-4 no-print">
         <div>

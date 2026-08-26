@@ -56,6 +56,21 @@ type TrialBalanceSource = {
   balance: number | null;
 };
 type ZakatAdjustment = { field_key: string; amount: number; reason: string };
+type ReturnSummary = {
+  id: string;
+  year_from: string;
+  year_to: string;
+  status: string;
+  data: any;
+  submission_reference?: string | null;
+};
+type StatusEvent = {
+  id: string;
+  from_status: string | null;
+  to_status: string;
+  reason: string | null;
+  changed_at: string;
+};
 const ZAKAT_TARGETS = [
   ["revenue", "الإيرادات"],
   ["expense", "المصروفات"],
@@ -187,6 +202,21 @@ export function ZakatReturnForm() {
     reason: "",
   });
   const [submissionReference, setSubmissionReference] = useState("");
+  const [returnHistory, setReturnHistory] = useState<ReturnSummary[]>([]);
+  const [statusEvents, setStatusEvents] = useState<StatusEvent[]>([]);
+  const [reopenReason, setReopenReason] = useState("");
+
+  const loadReturn = (row: ReturnSummary) => {
+    const value = row.data ?? {};
+    setRecordId(row.id);
+    setReturnStatus(row.status ?? "draft");
+    setSubmissionReference(row.submission_reference ?? "");
+    if (value.identity) setIdentity(value.identity);
+    if (value.nums) setNums(value.nums);
+    if (value.bsOpen) setBsOpen(value.bsOpen);
+    if (value.bsClose) setBsClose(value.bsClose);
+    if (value.accountant) setAccountant(value.accountant);
+  };
 
   // Loads the most recently saved return (mirrors the old single-slot
   // localStorage behaviour, now shared and durable via Supabase).
@@ -196,20 +226,11 @@ export function ZakatReturnForm() {
         .from("zakat_returns" as any)
         .select("*")
         .order("updated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .limit(25);
       if (error) toast.error(error.message);
-      const row = data as any;
-      if (row?.data) {
-        const v = row.data;
-        setRecordId(row.id);
-        setReturnStatus(row.status ?? "draft");
-        if (v.identity) setIdentity(v.identity);
-        if (v.nums) setNums(v.nums);
-        if (v.bsOpen) setBsOpen(v.bsOpen);
-        if (v.bsClose) setBsClose(v.bsClose);
-        if (v.accountant) setAccountant(v.accountant);
-      }
+      const rows = (data ?? []) as unknown as ReturnSummary[];
+      setReturnHistory(rows);
+      if (rows[0]) loadReturn(rows[0]);
       setLoading(false);
     })();
   }, []);
@@ -255,7 +276,7 @@ export function ZakatReturnForm() {
   useEffect(() => {
     if (!recordId) return;
     (async () => {
-      const [{ data: sources }, { data: adjustments }] = await Promise.all([
+      const [{ data: sources }, { data: adjustments }, { data: events }] = await Promise.all([
         supabase
           .from("zakat_return_sources" as any)
           .select("trial_balance_entry_id,target_key")
@@ -264,6 +285,11 @@ export function ZakatReturnForm() {
           .from("zakat_return_adjustments" as any)
           .select("field_key,amount,reason")
           .eq("return_id", recordId),
+        supabase
+          .from("zakat_return_status_events" as any)
+          .select("id,from_status,to_status,reason,changed_at")
+          .eq("return_id", recordId)
+          .order("changed_at", { ascending: false }),
       ]);
       const restored = (sources ?? []) as any[];
       if (restored.length) {
@@ -279,6 +305,7 @@ export function ZakatReturnForm() {
           reason: row.reason,
         })),
       );
+      setStatusEvents((events ?? []) as unknown as StatusEvent[]);
     })();
   }, [recordId]);
 
@@ -313,9 +340,30 @@ export function ZakatReturnForm() {
 
   const taxBase = n("tax_base");
   const taxDue = taxBase * taxRates.income_tax_rate;
-
   const sumKeys = (obj: NumMap, keys: { key: string; negative?: boolean }[]) =>
     keys.reduce((s, k) => s + (k.negative ? -1 : 1) * (obj[k.key] ?? 0), 0);
+
+  const mappedTotals = useMemo(() => {
+    const totals: NumMap = {};
+    for (const row of ledgerSources) {
+      if (!selectedSources.includes(row.id) || !sourceTargets[row.id]) continue;
+      totals[sourceTargets[row.id]] =
+        (totals[sourceTargets[row.id]] ?? 0) + Number(row.balance ?? 0);
+    }
+    return totals;
+  }, [ledgerSources, selectedSources, sourceTargets]);
+  const manualTotals = useMemo(
+    () =>
+      manualAdjustments.reduce<NumMap>((totals, row) => {
+        totals[row.field_key] = (totals[row.field_key] ?? 0) + row.amount;
+        return totals;
+      }, {}),
+    [manualAdjustments],
+  );
+  const openingAssets = sumKeys(bsOpen, [...BS_CURRENT_ASSETS, ...BS_FIXED_ASSETS]);
+  const openingFunding = sumKeys(bsOpen, [...BS_CURRENT_LIAB, ...BS_LONG_LIAB, ...BS_EQUITY]);
+  const closingAssets = sumKeys(bsClose, [...BS_CURRENT_ASSETS, ...BS_FIXED_ASSETS]);
+  const closingFunding = sumKeys(bsClose, [...BS_CURRENT_LIAB, ...BS_LONG_LIAB, ...BS_EQUITY]);
 
   const reset = () => {
     if (
@@ -409,6 +457,21 @@ export function ZakatReturnForm() {
     toast.success("تم تسجيل تقديم الإقرار");
   };
 
+  const reopenReturn = async () => {
+    if (!recordId) return;
+    const { data, error } = await (supabase as any).rpc("zakat_reopen_return", {
+      _return_id: recordId,
+      _reason: reopenReason,
+    });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setReturnStatus((data as any)?.status ?? "calculated");
+    setReopenReason("");
+    toast.success("أعيد فتح الإقرار مع تسجيل السبب");
+  };
+
   const exportExcel = () => {
     const wb = XLSX.utils.book_new();
     const summary: any[][] = [
@@ -470,6 +533,20 @@ export function ZakatReturnForm() {
     pushSec("حقوق الملكية", BS_EQUITY);
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(bs), "المركز المالي");
 
+    const audit: any[][] = [["رمز الحساب", "اسم الحساب", "الرصيد", "بند الإقرار", "الحالة"]];
+    ledgerSources.forEach((row) =>
+      audit.push([
+        row.account_code,
+        row.account_name,
+        Number(row.balance ?? 0),
+        sourceTargets[row.id] ?? "غير مصنف",
+        selectedSources.includes(row.id) ? "مختار" : "مستبعد",
+      ]),
+    );
+    audit.push([], ["التعديلات اليدوية"], ["البند", "المبلغ", "السبب"]);
+    manualAdjustments.forEach((row) => audit.push([row.field_key, row.amount, row.reason]));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(audit), "تدقيق المصادر");
+
     XLSX.writeFile(wb, `zakat_return_${identity.year_to || "year"}.xlsx`);
     toast.success("تم تصدير Excel");
   };
@@ -477,6 +554,21 @@ export function ZakatReturnForm() {
   return (
     <div className="space-y-4">
       <div className="flex gap-2 no-print flex-wrap items-center">
+        <select
+          className="h-9 max-w-64 rounded border bg-background px-2 text-sm"
+          value={recordId ?? ""}
+          onChange={(event) => {
+            const row = returnHistory.find((item) => item.id === event.target.value);
+            if (row) loadReturn(row);
+          }}
+        >
+          <option value="">إقرار جديد</option>
+          {returnHistory.map((row) => (
+            <option key={row.id} value={row.id}>
+              {row.year_from} — {row.year_to} ({row.status})
+            </option>
+          ))}
+        </select>
         <Button size="sm" onClick={save} disabled={saving || loading} className="gap-2">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {saving ? "جارٍ الحفظ..." : "حفظ الإقرار"}
@@ -500,6 +592,19 @@ export function ZakatReturnForm() {
             />
             <Button size="sm" variant="secondary" onClick={submitReturn}>
               تسجيل التقديم
+            </Button>
+          </div>
+        )}
+        {(returnStatus === "approved" || returnStatus === "submitted") && (
+          <div className="flex items-center gap-2">
+            <Input
+              className="h-8 w-56"
+              placeholder="سبب إعادة الفتح (10 أحرف على الأقل)"
+              value={reopenReason}
+              onChange={(event) => setReopenReason(event.target.value)}
+            />
+            <Button size="sm" variant="destructive" onClick={reopenReturn}>
+              إعادة فتح رقابية
             </Button>
           </div>
         )}
@@ -719,6 +824,69 @@ export function ZakatReturnForm() {
           </div>
         ))}
       </Card>
+
+      <Card className="p-4 space-y-3">
+        <div className="font-semibold">مراجعة الأرصدة والتعديلات</div>
+        <div className="overflow-auto rounded border">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-muted">
+                <th className="p-2 text-right">بند الإقرار</th>
+                <th>الرصيد الدفتري</th>
+                <th>التعديل اليدوي</th>
+                <th>القيمة النهائية</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ZAKAT_TARGETS.map(([key, label]) => (
+                <tr key={key} className="border-t">
+                  <td className="p-2">{label}</td>
+                  <td className="text-center">{fmtSAR(mappedTotals[key] ?? 0)}</td>
+                  <td className="text-center">{fmtSAR(manualTotals[key] ?? 0)}</td>
+                  <td className="text-center font-medium">
+                    {fmtSAR((mappedTotals[key] ?? 0) + (manualTotals[key] ?? 0))}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="grid gap-2 md:grid-cols-2 text-sm">
+          <div
+            className={`rounded border p-2 ${Math.abs(openingAssets - openingFunding) > 0.01 ? "border-destructive bg-destructive/5" : "border-emerald-500 bg-emerald-50"}`}
+          >
+            اتزان بداية الفترة: الأصول {fmtSAR(openingAssets)} — الخصوم وحقوق الملكية{" "}
+            {fmtSAR(openingFunding)} — الفرق {fmtSAR(openingAssets - openingFunding)}
+          </div>
+          <div
+            className={`rounded border p-2 ${Math.abs(closingAssets - closingFunding) > 0.01 ? "border-destructive bg-destructive/5" : "border-emerald-500 bg-emerald-50"}`}
+          >
+            اتزان نهاية الفترة: الأصول {fmtSAR(closingAssets)} — الخصوم وحقوق الملكية{" "}
+            {fmtSAR(closingFunding)} — الفرق {fmtSAR(closingAssets - closingFunding)}
+          </div>
+        </div>
+      </Card>
+
+      {recordId && (
+        <Card className="p-4 space-y-2">
+          <div className="font-semibold">السجل الزمني للإقرار</div>
+          {statusEvents.length === 0 ? (
+            <p className="text-sm text-muted-foreground">لا توجد انتقالات حالة مسجلة بعد.</p>
+          ) : (
+            statusEvents.map((event) => (
+              <div key={event.id} className="flex flex-wrap gap-2 rounded border p-2 text-sm">
+                <span>
+                  {event.from_status ?? "—"} ← {event.to_status}
+                </span>
+                <span className="text-muted-foreground">
+                  {new Date(event.changed_at).toLocaleString("ar-SA")}
+                </span>
+                <span className="flex-1">{event.reason ?? "انتقال تشغيلي"}</span>
+              </div>
+            ))
+          )}
+        </Card>
+      )}
 
       <Card className="p-6">
         <div className="text-center mb-4 border-b pb-3">

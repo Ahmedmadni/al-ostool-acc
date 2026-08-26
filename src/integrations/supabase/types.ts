@@ -5670,6 +5670,12 @@ export type Database = {
         }
         Relationships: []
       }
+      vat_return_status_events: {
+        Row: { id: string; return_id: string; from_status: string | null; to_status: string; reason: string | null; changed_by: string | null; changed_at: string }
+        Insert: { id?: string; return_id: string; from_status?: string | null; to_status: string; reason?: string | null; changed_by?: string | null; changed_at?: string }
+        Update: { id?: string; return_id?: string; from_status?: string | null; to_status?: string; reason?: string | null; changed_by?: string | null; changed_at?: string }
+        Relationships: []
+      }
       vat_return_adjustments: {
         Row: { id: string; return_id: string; direction: string; tax_category: string; net_amount: number; vat_amount: number; reason: string; created_by: string; created_at: string }
         Insert: { id?: string; return_id: string; direction: string; tax_category: string; net_amount: number; vat_amount: number; reason: string; created_by: string; created_at?: string }
@@ -5689,6 +5695,8 @@ export type Database = {
           calculated_at: string | null
           calculated_by: string | null
           filed_at: string | null
+          filed_by: string | null
+          filing_reference: string | null
           source_fingerprint: string | null
           status: string
           created_at: string
@@ -5708,6 +5716,8 @@ export type Database = {
           calculated_at?: string | null
           calculated_by?: string | null
           filed_at?: string | null
+          filed_by?: string | null
+          filing_reference?: string | null
           source_fingerprint?: string | null
           status?: string
           created_at?: string
@@ -5727,6 +5737,8 @@ export type Database = {
           calculated_at?: string | null
           calculated_by?: string | null
           filed_at?: string | null
+          filed_by?: string | null
+          filing_reference?: string | null
           source_fingerprint?: string | null
           status?: string
           created_at?: string
@@ -5746,6 +5758,12 @@ export type Database = {
         Row: { id: string; account_code: string; target_key: string; multiplier: number; is_active: boolean; created_by: string; updated_by: string; created_at: string; updated_at: string }
         Insert: { id?: string; account_code: string; target_key: string; multiplier?: number; is_active?: boolean; created_by: string; updated_by: string; created_at?: string; updated_at?: string }
         Update: { id?: string; account_code?: string; target_key?: string; multiplier?: number; is_active?: boolean; created_by?: string; updated_by?: string; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      zakat_return_status_events: {
+        Row: { id: string; return_id: string; from_status: string | null; to_status: string; reason: string | null; changed_by: string | null; changed_at: string }
+        Insert: { id?: string; return_id: string; from_status?: string | null; to_status: string; reason?: string | null; changed_by?: string | null; changed_at?: string }
+        Update: { id?: string; return_id?: string; from_status?: string | null; to_status?: string; reason?: string | null; changed_by?: string | null; changed_at?: string }
         Relationships: []
       }
       zakat_return_adjustments: {
@@ -5849,6 +5867,9 @@ export type Database = {
       }
     }
     Functions: {
+      vat_file_return: { Args: { _return_id: string; _reference: string }; Returns: Database["public"]["Tables"]["vat_returns"]["Row"] }
+      vat_reopen_return: { Args: { _return_id: string; _reason: string }; Returns: Database["public"]["Tables"]["vat_returns"]["Row"] }
+      zakat_reopen_return: { Args: { _return_id: string; _reason: string }; Returns: Database["public"]["Tables"]["zakat_returns"]["Row"] }
       zakat_save_account_mappings: { Args: { _mappings: Json }; Returns: number }
       zakat_submit_return: { Args: { _return_id: string; _reference: string }; Returns: Database["public"]["Tables"]["zakat_returns"]["Row"] }
       zakat_source_fingerprint: { Args: { _return_id: string }; Returns: string }
