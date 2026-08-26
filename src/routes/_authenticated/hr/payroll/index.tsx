@@ -13,7 +13,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Plus, FileSpreadsheet, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { fmtSAR } from "@/lib/format";
-import { calcPayrollLine } from "@/lib/hr-calculations";
 import { exportToExcel } from "@/lib/export";
 
 export const Route = createFileRoute("/_authenticated/hr/payroll/")({ component: PayrollPage });
@@ -39,47 +38,11 @@ function PayrollPage() {
 
   const create = useMutation({
     mutationFn: async (p: any) => {
-      const run_no = `PR-${p.period_year}-${String(p.period_month).padStart(2, "0")}`;
-      const { data: run, error } = await (supabase as any).from("hr_payroll_runs")
-        .insert({ run_no, period_year: p.period_year, period_month: p.period_month, status: "draft" })
-        .select().single();
+      const { data: run, error } = await (supabase as any).rpc("hr_payroll_create_run", {
+        _period_year: Number(p.period_year),
+        _period_month: Number(p.period_month),
+      });
       if (error) throw error;
-      // Auto-generate payroll lines for all active employees
-      const { data: emps } = await (supabase as any).from("hr_employees").select("id, basic_salary, housing_allowance, transport_allowance, other_allowances, is_saudi").eq("status", "active");
-      if (emps?.length) {
-        // Active loan installments are pulled in automatically instead of being
-        // left for whoever prepares the run to remember and re-enter by hand.
-        const { data: activeLoans } = await (supabase as any).from("hr_loans")
-          .select("employee_id, monthly_deduction").eq("status", "active");
-        const loanDeductionByEmployee = new Map<string, number>();
-        for (const l of (activeLoans as any[]) ?? []) {
-          loanDeductionByEmployee.set(l.employee_id, (loanDeductionByEmployee.get(l.employee_id) ?? 0) + Number(l.monthly_deduction || 0));
-        }
-
-        let totalGross = 0, totalDed = 0, totalGosi = 0, totalNet = 0;
-        const lines = emps.map((e: any) => {
-          const loanDeduction = loanDeductionByEmployee.get(e.id) ?? 0;
-          const c = calcPayrollLine({
-            basic: e.basic_salary || 0, housing: e.housing_allowance || 0,
-            transport: e.transport_allowance || 0, otherAllowances: e.other_allowances || 0,
-            isSaudi: !!e.is_saudi, loanDeduction,
-          });
-          totalGross += c.gross; totalDed += c.totalDeductions; totalGosi += c.gosiEmployer + c.gosiEmployee; totalNet += c.net;
-          return {
-            run_id: run.id, employee_id: e.id,
-            basic_salary: e.basic_salary || 0, housing_allowance: e.housing_allowance || 0,
-            transport_allowance: e.transport_allowance || 0, other_allowances: e.other_allowances || 0,
-            loan_deduction: loanDeduction,
-            gross_salary: c.gross, gosi_employee: c.gosiEmployee, gosi_employer: c.gosiEmployer,
-            total_deductions: c.totalDeductions, net_salary: c.net,
-          };
-        });
-        await (supabase as any).from("hr_payroll_lines").insert(lines);
-        await (supabase as any).from("hr_payroll_runs").update({
-          employees_count: emps.length, total_gross: totalGross, total_deductions: totalDed,
-          total_gosi: totalGosi, total_net: totalNet,
-        }).eq("id", run.id);
-      }
       return run;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["hr_payroll_runs"] }); setOpen(false); toast.success("تم إنشاء المسير"); },

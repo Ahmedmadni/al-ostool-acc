@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Check, X, FileSpreadsheet, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { exportToExcel } from "@/lib/export";
+import { usePermissions } from "@/hooks/use-permissions";
 
 export const Route = createFileRoute("/_authenticated/hr/leaves/")({ component: LeavesPage });
 
@@ -22,6 +23,8 @@ const LEAVE_TYPES = [
   { v: "annual", l: "سنوية" }, { v: "sick", l: "مرضية" },
   { v: "emergency", l: "اضطرارية" }, { v: "unpaid", l: "بدون راتب" },
   { v: "maternity", l: "أمومة" }, { v: "paternity", l: "أبوة" },
+  { v: "marriage", l: "زواج" }, { v: "bereavement", l: "وفاة زوج أو أصل أو فرع" },
+  { v: "sibling_bereavement", l: "وفاة أخ أو أخت" },
   { v: "hajj", l: "حج" }, { v: "study", l: "دراسية" },
   { v: "compensatory", l: "تعويضية" }, { v: "other", l: "أخرى" },
 ];
@@ -35,6 +38,7 @@ const STATUS: Record<string, { l: string; c: string }> = {
 
 function LeavesPage() {
   const qc = useQueryClient();
+  const { can } = usePermissions();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<any>({
     employee_id: "", leave_type: "annual", from_date: "", to_date: "", reason: "",
@@ -49,6 +53,18 @@ function LeavesPage() {
     queryKey: ["hr_employees_min"],
     queryFn: async () => (await (supabase as any).from("hr_employees").select("id, full_name_ar, employee_no").eq("status", "active").order("full_name_ar")).data ?? [],
   });
+  const { data: leaveRules = [] } = useQuery({
+    queryKey: ["hr_leave_rules_current"],
+    queryFn: async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      const { data, error } = await (supabase as any).from("hr_leave_rules")
+        .select("leave_type,label_ar,effective_from,effective_to,max_request_days,balance_mode,legal_reference,notes")
+        .lte("effective_from", today).order("effective_from", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).filter((r: any) => !r.effective_to || r.effective_to >= today)
+        .filter((r: any, i: number, rows: any[]) => rows.findIndex((x) => x.leave_type === r.leave_type) === i);
+    },
+  });
 
   // Shows the employee's remaining balance for the selected leave type before
   // they submit — previously this was only discovered after submission, via
@@ -59,12 +75,16 @@ function LeavesPage() {
     enabled: !!form.employee_id,
   });
   const selectedTypeBalance = (leaveSummary as any[]).find((s) => s.leave_type === form.leave_type);
+  const selectedRule = (leaveRules as any[]).find((r) => r.leave_type === form.leave_type);
   const requestedDays = form.from_date && form.to_date
     ? Math.max(1, Math.round((new Date(form.to_date).getTime() - new Date(form.from_date).getTime()) / 86400000) + 1)
     : 0;
-  // Mirrors hr_leaves_balance_sync(): unpaid/compensatory leave has no balance cap.
-  const isUncapped = form.leave_type === "unpaid" || form.leave_type === "compensatory";
-  const exceedsBalance = !isUncapped && !!selectedTypeBalance && requestedDays > Number(selectedTypeBalance.remaining ?? 0);
+  const usesBalance = selectedRule?.balance_mode === "annual" || selectedRule?.balance_mode === "rolling_year";
+  const isUncapped = selectedRule?.balance_mode === "uncapped";
+  const isPerEvent = selectedRule?.balance_mode === "per_event";
+  const exceedsBalance = usesBalance && !!selectedTypeBalance && requestedDays > Number(selectedTypeBalance.remaining ?? 0);
+  const exceedsMax = Number(selectedRule?.max_request_days ?? 0) > 0
+    && requestedDays > Number(selectedRule.max_request_days);
 
   const create = useMutation({
     mutationFn: async (payload: any) => {
@@ -77,8 +97,8 @@ function LeavesPage() {
   });
 
   const setStatus = useMutation({
-    mutationFn: async ({ id, status }: any) => {
-      const { error } = await (supabase as any).from("hr_leaves").update({ status, approved_at: new Date().toISOString() }).eq("id", id);
+    mutationFn: async ({ id, approved }: { id: string; approved: boolean }) => {
+      const { error } = await (supabase as any).rpc("hr_leave_decide", { _leave_id: id, _approved: approved });
       if (error) throw error;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["hr_leaves"] }); toast.success("تم التحديث"); },
@@ -119,7 +139,13 @@ function LeavesPage() {
                 {form.employee_id && isUncapped && (
                   <p className="text-xs mt-1 text-muted-foreground">هذا النوع بلا سقف رصيد (لا يُخصم من رصيد الإجازات السنوية).</p>
                 )}
-                {form.employee_id && !isUncapped && selectedTypeBalance && (
+                {form.employee_id && isPerEvent && selectedRule && (
+                  <p className={`text-xs mt-1 ${exceedsMax ? "text-destructive font-medium" : "text-muted-foreground"}`}>
+                    إجازة لكل واقعة{selectedRule.max_request_days ? ` — الحد الأقصى للطلب ${selectedRule.max_request_days} يوم` : ""}
+                    {selectedRule.legal_reference ? ` — ${selectedRule.legal_reference}` : ""}
+                  </p>
+                )}
+                {form.employee_id && usesBalance && selectedTypeBalance && (
                   <p className={`text-xs mt-1 ${exceedsBalance ? "text-destructive font-medium" : "text-muted-foreground"}`}>
                     الرصيد المتبقي: {selectedTypeBalance.remaining} يوم (المستحق {selectedTypeBalance.entitled} — المستخدم {selectedTypeBalance.used}
                     {Number(selectedTypeBalance.pending) > 0 ? ` — قيد الاعتماد ${selectedTypeBalance.pending}` : ""})
@@ -130,15 +156,15 @@ function LeavesPage() {
                 <div><Label>من</Label><Input type="date" value={form.from_date} onChange={(e) => setForm({ ...form, from_date: e.target.value })} /></div>
                 <div><Label>إلى</Label><Input type="date" value={form.to_date} onChange={(e) => setForm({ ...form, to_date: e.target.value })} /></div>
               </div>
-              {exceedsBalance && (
+              {(exceedsBalance || exceedsMax) && (
                 <p className="text-xs text-destructive">
-                  عدد الأيام المطلوبة ({requestedDays}) يتجاوز الرصيد المتبقي ({selectedTypeBalance?.remaining}) — سيُرفض الطلب تلقائياً عند الاعتماد.
+                  عدد الأيام المطلوبة ({requestedDays}) يتجاوز {exceedsMax ? `حد الطلب (${selectedRule?.max_request_days})` : `الرصيد المتبقي (${selectedTypeBalance?.remaining})`}.
                 </p>
               )}
               <div><Label>السبب</Label><Textarea value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} /></div>
             </div>
             <DialogFooter>
-              <Button onClick={() => create.mutate(form)} disabled={!form.employee_id || !form.from_date || !form.to_date || exceedsBalance}>إرسال الطلب</Button>
+              <Button onClick={() => create.mutate(form)} disabled={!form.employee_id || !form.from_date || !form.to_date || exceedsBalance || exceedsMax}>إرسال الطلب</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -161,10 +187,10 @@ function LeavesPage() {
                 <TableCell>{l.days_count}</TableCell>
                 <TableCell><Badge className={STATUS[l.status]?.c}>{STATUS[l.status]?.l ?? l.status}</Badge></TableCell>
                 <TableCell>
-                  {l.status === "pending" && (
+                  {l.status === "pending" && can("hr.leaves", "approve") && (
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => setStatus.mutate({ id: l.id, status: "approved" })}><Check className="w-3 h-3" /></Button>
-                      <Button size="sm" variant="outline" onClick={() => setStatus.mutate({ id: l.id, status: "rejected" })}><X className="w-3 h-3" /></Button>
+                      <Button size="sm" variant="outline" onClick={() => setStatus.mutate({ id: l.id, approved: true })}><Check className="w-3 h-3" /></Button>
+                      <Button size="sm" variant="outline" onClick={() => setStatus.mutate({ id: l.id, approved: false })}><X className="w-3 h-3" /></Button>
                     </div>
                   )}
                 </TableCell>

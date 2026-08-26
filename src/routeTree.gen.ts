@@ -86,6 +86,7 @@ import { Route as AuthenticatedFleetTrackingIndexRouteImport } from './routes/_a
 import { Route as AuthenticatedFleetTripsIndexRouteImport } from './routes/_authenticated/fleet/trips/index'
 import { Route as AuthenticatedFleetVehiclesIndexRouteImport } from './routes/_authenticated/fleet/vehicles/index'
 import { Route as AuthenticatedHrAssetsIndexRouteImport } from './routes/_authenticated/hr/assets/index'
+import { Route as AuthenticatedHrAttendanceIndexRouteImport } from './routes/_authenticated/hr/attendance/index'
 import { Route as AuthenticatedHrAuditIndexRouteImport } from './routes/_authenticated/hr/audit/index'
 import { Route as AuthenticatedHrComplianceIndexRouteImport } from './routes/_authenticated/hr/compliance/index'
 import { Route as AuthenticatedHrContractsIndexRouteImport } from './routes/_authenticated/hr/contracts/index'
@@ -108,6 +109,8 @@ import { Route as AuthenticatedTasksReportsEmployeePerformanceRouteImport } from
 import { Route as AuthenticatedTasksReportsTaskCompletionRouteImport } from './routes/_authenticated/tasks/reports/task-completion'
 import { Route as AuthenticatedVendorsStatementIdRouteImport } from './routes/_authenticated/vendors/statement.$id'
 import { Route as ApiPublicFleetIngestRouteImport } from './routes/api/public/fleet/ingest'
+import { Route as ApiPublicHrAttendanceIngestRouteImport } from './routes/api/public/hr/attendance-ingest'
+import { Route as ApiPublicHrAttendanceMaintenanceRouteImport } from './routes/api/public/hr/attendance-maintenance'
 import { Route as AuthenticatedHrQiwaMappingIndexRouteImport } from './routes/_authenticated/hr/qiwa/mapping/index'
 
 const IndexRoute = IndexRouteImport.update({
@@ -556,6 +559,12 @@ const AuthenticatedHrAssetsIndexRoute =
     path: '/hr/assets/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedHrAttendanceIndexRoute =
+  AuthenticatedHrAttendanceIndexRouteImport.update({
+    id: '/hr/attendance/',
+    path: '/hr/attendance/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedHrAuditIndexRoute =
   AuthenticatedHrAuditIndexRouteImport.update({
     id: '/hr/audit/',
@@ -687,6 +696,18 @@ const ApiPublicFleetIngestRoute = ApiPublicFleetIngestRouteImport.update({
   path: '/api/public/fleet/ingest',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHrAttendanceIngestRoute =
+  ApiPublicHrAttendanceIngestRouteImport.update({
+    id: '/api/public/hr/attendance-ingest',
+    path: '/api/public/hr/attendance-ingest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHrAttendanceMaintenanceRoute =
+  ApiPublicHrAttendanceMaintenanceRouteImport.update({
+    id: '/api/public/hr/attendance-maintenance',
+    path: '/api/public/hr/attendance-maintenance',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedHrQiwaMappingIndexRoute =
   AuthenticatedHrQiwaMappingIndexRouteImport.update({
     id: '/hr/qiwa/mapping/',
@@ -775,6 +796,8 @@ export interface FileRoutesByFullPath {
   '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
   '/api/public/fleet/ingest': typeof ApiPublicFleetIngestRoute
+  '/api/public/hr/attendance-ingest': typeof ApiPublicHrAttendanceIngestRoute
+  '/api/public/hr/attendance-maintenance': typeof ApiPublicHrAttendanceMaintenanceRoute
   '/fleet/drivers/': typeof AuthenticatedFleetDriversIndexRoute
   '/fleet/fuel/': typeof AuthenticatedFleetFuelIndexRoute
   '/fleet/maintenance/': typeof AuthenticatedFleetMaintenanceIndexRoute
@@ -782,6 +805,7 @@ export interface FileRoutesByFullPath {
   '/fleet/trips/': typeof AuthenticatedFleetTripsIndexRoute
   '/fleet/vehicles/': typeof AuthenticatedFleetVehiclesIndexRoute
   '/hr/assets/': typeof AuthenticatedHrAssetsIndexRoute
+  '/hr/attendance/': typeof AuthenticatedHrAttendanceIndexRoute
   '/hr/audit/': typeof AuthenticatedHrAuditIndexRoute
   '/hr/compliance/': typeof AuthenticatedHrComplianceIndexRoute
   '/hr/contracts/': typeof AuthenticatedHrContractsIndexRoute
@@ -876,6 +900,8 @@ export interface FileRoutesByTo {
   '/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
   '/api/public/fleet/ingest': typeof ApiPublicFleetIngestRoute
+  '/api/public/hr/attendance-ingest': typeof ApiPublicHrAttendanceIngestRoute
+  '/api/public/hr/attendance-maintenance': typeof ApiPublicHrAttendanceMaintenanceRoute
   '/fleet/drivers': typeof AuthenticatedFleetDriversIndexRoute
   '/fleet/fuel': typeof AuthenticatedFleetFuelIndexRoute
   '/fleet/maintenance': typeof AuthenticatedFleetMaintenanceIndexRoute
@@ -883,6 +909,7 @@ export interface FileRoutesByTo {
   '/fleet/trips': typeof AuthenticatedFleetTripsIndexRoute
   '/fleet/vehicles': typeof AuthenticatedFleetVehiclesIndexRoute
   '/hr/assets': typeof AuthenticatedHrAssetsIndexRoute
+  '/hr/attendance': typeof AuthenticatedHrAttendanceIndexRoute
   '/hr/audit': typeof AuthenticatedHrAuditIndexRoute
   '/hr/compliance': typeof AuthenticatedHrComplianceIndexRoute
   '/hr/contracts': typeof AuthenticatedHrContractsIndexRoute
@@ -979,6 +1006,8 @@ export interface FileRoutesById {
   '/_authenticated/tasks/reports/task-completion': typeof AuthenticatedTasksReportsTaskCompletionRoute
   '/_authenticated/vendors/statement/$id': typeof AuthenticatedVendorsStatementIdRoute
   '/api/public/fleet/ingest': typeof ApiPublicFleetIngestRoute
+  '/api/public/hr/attendance-ingest': typeof ApiPublicHrAttendanceIngestRoute
+  '/api/public/hr/attendance-maintenance': typeof ApiPublicHrAttendanceMaintenanceRoute
   '/_authenticated/fleet/drivers/': typeof AuthenticatedFleetDriversIndexRoute
   '/_authenticated/fleet/fuel/': typeof AuthenticatedFleetFuelIndexRoute
   '/_authenticated/fleet/maintenance/': typeof AuthenticatedFleetMaintenanceIndexRoute
@@ -986,6 +1015,7 @@ export interface FileRoutesById {
   '/_authenticated/fleet/trips/': typeof AuthenticatedFleetTripsIndexRoute
   '/_authenticated/fleet/vehicles/': typeof AuthenticatedFleetVehiclesIndexRoute
   '/_authenticated/hr/assets/': typeof AuthenticatedHrAssetsIndexRoute
+  '/_authenticated/hr/attendance/': typeof AuthenticatedHrAttendanceIndexRoute
   '/_authenticated/hr/audit/': typeof AuthenticatedHrAuditIndexRoute
   '/_authenticated/hr/compliance/': typeof AuthenticatedHrComplianceIndexRoute
   '/_authenticated/hr/contracts/': typeof AuthenticatedHrContractsIndexRoute
@@ -1082,6 +1112,8 @@ export interface FileRouteTypes {
     | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
     | '/api/public/fleet/ingest'
+    | '/api/public/hr/attendance-ingest'
+    | '/api/public/hr/attendance-maintenance'
     | '/fleet/drivers/'
     | '/fleet/fuel/'
     | '/fleet/maintenance/'
@@ -1089,6 +1121,7 @@ export interface FileRouteTypes {
     | '/fleet/trips/'
     | '/fleet/vehicles/'
     | '/hr/assets/'
+    | '/hr/attendance/'
     | '/hr/audit/'
     | '/hr/compliance/'
     | '/hr/contracts/'
@@ -1183,6 +1216,8 @@ export interface FileRouteTypes {
     | '/tasks/reports/task-completion'
     | '/vendors/statement/$id'
     | '/api/public/fleet/ingest'
+    | '/api/public/hr/attendance-ingest'
+    | '/api/public/hr/attendance-maintenance'
     | '/fleet/drivers'
     | '/fleet/fuel'
     | '/fleet/maintenance'
@@ -1190,6 +1225,7 @@ export interface FileRouteTypes {
     | '/fleet/trips'
     | '/fleet/vehicles'
     | '/hr/assets'
+    | '/hr/attendance'
     | '/hr/audit'
     | '/hr/compliance'
     | '/hr/contracts'
@@ -1285,6 +1321,8 @@ export interface FileRouteTypes {
     | '/_authenticated/tasks/reports/task-completion'
     | '/_authenticated/vendors/statement/$id'
     | '/api/public/fleet/ingest'
+    | '/api/public/hr/attendance-ingest'
+    | '/api/public/hr/attendance-maintenance'
     | '/_authenticated/fleet/drivers/'
     | '/_authenticated/fleet/fuel/'
     | '/_authenticated/fleet/maintenance/'
@@ -1292,6 +1330,7 @@ export interface FileRouteTypes {
     | '/_authenticated/fleet/trips/'
     | '/_authenticated/fleet/vehicles/'
     | '/_authenticated/hr/assets/'
+    | '/_authenticated/hr/attendance/'
     | '/_authenticated/hr/audit/'
     | '/_authenticated/hr/compliance/'
     | '/_authenticated/hr/contracts/'
@@ -1311,6 +1350,8 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
   ApiPublicFleetIngestRoute: typeof ApiPublicFleetIngestRoute
+  ApiPublicHrAttendanceIngestRoute: typeof ApiPublicHrAttendanceIngestRoute
+  ApiPublicHrAttendanceMaintenanceRoute: typeof ApiPublicHrAttendanceMaintenanceRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1854,6 +1895,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHrAssetsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/hr/attendance/': {
+      id: '/_authenticated/hr/attendance/'
+      path: '/hr/attendance'
+      fullPath: '/hr/attendance/'
+      preLoaderRoute: typeof AuthenticatedHrAttendanceIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/hr/audit/': {
       id: '/_authenticated/hr/audit/'
       path: '/hr/audit'
@@ -2008,6 +2056,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicFleetIngestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hr/attendance-ingest': {
+      id: '/api/public/hr/attendance-ingest'
+      path: '/api/public/hr/attendance-ingest'
+      fullPath: '/api/public/hr/attendance-ingest'
+      preLoaderRoute: typeof ApiPublicHrAttendanceIngestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hr/attendance-maintenance': {
+      id: '/api/public/hr/attendance-maintenance'
+      path: '/api/public/hr/attendance-maintenance'
+      fullPath: '/api/public/hr/attendance-maintenance'
+      preLoaderRoute: typeof ApiPublicHrAttendanceMaintenanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/hr/qiwa/mapping/': {
       id: '/_authenticated/hr/qiwa/mapping/'
       path: '/hr/qiwa/mapping'
@@ -2103,6 +2165,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFleetTripsIndexRoute: typeof AuthenticatedFleetTripsIndexRoute
   AuthenticatedFleetVehiclesIndexRoute: typeof AuthenticatedFleetVehiclesIndexRoute
   AuthenticatedHrAssetsIndexRoute: typeof AuthenticatedHrAssetsIndexRoute
+  AuthenticatedHrAttendanceIndexRoute: typeof AuthenticatedHrAttendanceIndexRoute
   AuthenticatedHrAuditIndexRoute: typeof AuthenticatedHrAuditIndexRoute
   AuthenticatedHrComplianceIndexRoute: typeof AuthenticatedHrComplianceIndexRoute
   AuthenticatedHrContractsIndexRoute: typeof AuthenticatedHrContractsIndexRoute
@@ -2212,6 +2275,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFleetTripsIndexRoute: AuthenticatedFleetTripsIndexRoute,
   AuthenticatedFleetVehiclesIndexRoute: AuthenticatedFleetVehiclesIndexRoute,
   AuthenticatedHrAssetsIndexRoute: AuthenticatedHrAssetsIndexRoute,
+  AuthenticatedHrAttendanceIndexRoute: AuthenticatedHrAttendanceIndexRoute,
   AuthenticatedHrAuditIndexRoute: AuthenticatedHrAuditIndexRoute,
   AuthenticatedHrComplianceIndexRoute: AuthenticatedHrComplianceIndexRoute,
   AuthenticatedHrContractsIndexRoute: AuthenticatedHrContractsIndexRoute,
@@ -2235,6 +2299,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
   ApiPublicFleetIngestRoute: ApiPublicFleetIngestRoute,
+  ApiPublicHrAttendanceIngestRoute: ApiPublicHrAttendanceIngestRoute,
+  ApiPublicHrAttendanceMaintenanceRoute: ApiPublicHrAttendanceMaintenanceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
