@@ -78,6 +78,30 @@ async function ingest(request: Request) {
   return json(errors.length ? 207 : 200, { accepted, rejected: errors.length, errors });
 }
 
+async function capabilities(request: Request) {
+  const auth = request.headers.get("authorization") ?? "";
+  const provided = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+  const deviceCode = new URL(request.url).searchParams.get("device_code")?.trim() ?? "";
+  if (!provided || !deviceCode) return json(401, { error: "device_credentials_required" });
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: authenticated, error } = await supabaseAdmin.rpc(
+    "hr_attendance_authenticate_device",
+    { _device_code: deviceCode, _token: provided },
+  );
+  if (error || !authenticated) return json(401, { error: "invalid_device_credentials" });
+  return json(200, {
+    status: "ready",
+    device_code: deviceCode,
+    server_time: new Date().toISOString(),
+    capabilities: { batch_ingest: true, max_events: MAX_EVENTS, idempotency: "external_event_id" },
+  });
+}
+
 export const Route = createFileRoute("/api/public/hr/attendance-ingest")({
-  server: { handlers: { POST: ({ request }) => ingest(request) } },
+  server: {
+    handlers: {
+      GET: ({ request }) => capabilities(request),
+      POST: ({ request }) => ingest(request),
+    },
+  },
 });
