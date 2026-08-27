@@ -2249,6 +2249,7 @@ export type Database = {
       hr_employees: {
         Row: {
           address: string | null
+          annual_leave_days: number | null
           bank_iban: string | null
           bank_name: string | null
           basic_salary: number | null
@@ -2297,6 +2298,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          annual_leave_days?: number | null
           bank_iban?: string | null
           bank_name?: string | null
           basic_salary?: number | null
@@ -2345,6 +2347,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          annual_leave_days?: number | null
           bank_iban?: string | null
           bank_name?: string | null
           basic_salary?: number | null
@@ -2429,7 +2432,7 @@ export type Database = {
           days: number
           employee_id: string
           id: string
-          leave_type: string
+          leave_type: Database["public"]["Enums"]["hr_leave_type"]
           reason: string | null
           year: number
         }
@@ -2439,7 +2442,7 @@ export type Database = {
           days: number
           employee_id: string
           id?: string
-          leave_type: string
+          leave_type: Database["public"]["Enums"]["hr_leave_type"]
           reason?: string | null
           year: number
         }
@@ -2449,7 +2452,7 @@ export type Database = {
           days?: number
           employee_id?: string
           id?: string
-          leave_type?: string
+          leave_type?: Database["public"]["Enums"]["hr_leave_type"]
           reason?: string | null
           year?: number
         }
@@ -3357,6 +3360,7 @@ export type Database = {
           id: string
           last_working_day: string
           leave_balance_amount: number | null
+          leave_balance_days: number | null
           loan_settlement: number | null
           net_settlement: number | null
           other_payables: number | null
@@ -3387,6 +3391,7 @@ export type Database = {
           id?: string
           last_working_day: string
           leave_balance_amount?: number | null
+          leave_balance_days?: number | null
           loan_settlement?: number | null
           net_settlement?: number | null
           other_payables?: number | null
@@ -3417,6 +3422,7 @@ export type Database = {
           id?: string
           last_working_day?: string
           leave_balance_amount?: number | null
+          leave_balance_days?: number | null
           loan_settlement?: number | null
           net_settlement?: number | null
           other_payables?: number | null
@@ -5597,6 +5603,45 @@ export type Database = {
         }
         Relationships: []
       }
+      vat_returns: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          final_vat: number | null
+          id: string
+          net_vat: number | null
+          period_from: string
+          period_to: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          final_vat?: number | null
+          id?: string
+          net_vat?: number | null
+          period_from: string
+          period_to: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          final_vat?: number | null
+          id?: string
+          net_vat?: number | null
+          period_from?: string
+          period_to?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       vendor_contacts: {
         Row: {
           created_at: string
@@ -6015,6 +6060,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      current_job_title_id: { Args: never; Returns: string }
       get_email_by_employee_id: {
         Args: { _employee_id: string }
         Returns: string
@@ -6084,6 +6130,10 @@ export type Database = {
           used: number
         }[]
       }
+      hr_leave_accrued_for_settlement: {
+        Args: { _as_of?: string; _employee_id: string }
+        Returns: number
+      }
       hr_leave_balance_report: {
         Args: { _leave_type?: string; _year?: number }
         Returns: {
@@ -6096,6 +6146,34 @@ export type Database = {
           remaining: number
           used: number
         }[]
+      }
+      hr_payroll_mark_paid: {
+        Args: { _run_id: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          employees_count: number | null
+          id: string
+          notes: string | null
+          paid_at: string | null
+          period_month: number
+          period_year: number
+          run_no: string
+          status: Database["public"]["Enums"]["hr_payroll_status"]
+          total_deductions: number | null
+          total_gosi: number | null
+          total_gross: number | null
+          total_net: number | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "hr_payroll_runs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       hr_termination_approve: {
         Args: { _termination_id: string }
@@ -6111,6 +6189,44 @@ export type Database = {
           id: string
           last_working_day: string
           leave_balance_amount: number | null
+          leave_balance_days: number | null
+          loan_settlement: number | null
+          net_settlement: number | null
+          other_payables: number | null
+          other_receivables: number | null
+          outstanding_allowances: number | null
+          outstanding_deductions: number | null
+          reason: Database["public"]["Enums"]["hr_termination_reason"]
+          reason_details: string | null
+          request_id: string | null
+          service_years: number | null
+          settlement_details: Json | null
+          status: string
+          termination_no: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "hr_terminations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      hr_termination_cancel: {
+        Args: { _reason?: string; _termination_id: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          clearance_status: Json | null
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          employee_id: string
+          eos_amount: number | null
+          id: string
+          last_working_day: string
+          leave_balance_amount: number | null
+          leave_balance_days: number | null
           loan_settlement: number | null
           net_settlement: number | null
           other_payables: number | null
@@ -6137,6 +6253,43 @@ export type Database = {
         Args: { _employee_id: string }
         Returns: Json
       }
+      hr_termination_mark_paid: {
+        Args: { _termination_id: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          clearance_status: Json | null
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          employee_id: string
+          eos_amount: number | null
+          id: string
+          last_working_day: string
+          leave_balance_amount: number | null
+          leave_balance_days: number | null
+          loan_settlement: number | null
+          net_settlement: number | null
+          other_payables: number | null
+          other_receivables: number | null
+          outstanding_allowances: number | null
+          outstanding_deductions: number | null
+          reason: Database["public"]["Enums"]["hr_termination_reason"]
+          reason_details: string | null
+          request_id: string | null
+          service_years: number | null
+          settlement_details: Json | null
+          status: string
+          termination_no: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "hr_terminations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       hr_termination_refresh_components: {
         Args: { _termination_id: string }
         Returns: {
@@ -6151,6 +6304,192 @@ export type Database = {
           id: string
           last_working_day: string
           leave_balance_amount: number | null
+          leave_balance_days: number | null
+          loan_settlement: number | null
+          net_settlement: number | null
+          other_payables: number | null
+          other_receivables: number | null
+          outstanding_allowances: number | null
+          outstanding_deductions: number | null
+          reason: Database["public"]["Enums"]["hr_termination_reason"]
+          reason_details: string | null
+          request_id: string | null
+          service_years: number | null
+          settlement_details: Json | null
+          status: string
+          termination_no: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "hr_terminations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      hr_termination_reject: {
+        Args: { _reason?: string; _termination_id: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          clearance_status: Json | null
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          employee_id: string
+          eos_amount: number | null
+          id: string
+          last_working_day: string
+          leave_balance_amount: number | null
+          leave_balance_days: number | null
+          loan_settlement: number | null
+          net_settlement: number | null
+          other_payables: number | null
+          other_receivables: number | null
+          outstanding_allowances: number | null
+          outstanding_deductions: number | null
+          reason: Database["public"]["Enums"]["hr_termination_reason"]
+          reason_details: string | null
+          request_id: string | null
+          service_years: number | null
+          settlement_details: Json | null
+          status: string
+          termination_no: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "hr_terminations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      hr_termination_restore: {
+        Args: { _termination_id: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          clearance_status: Json | null
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          employee_id: string
+          eos_amount: number | null
+          id: string
+          last_working_day: string
+          leave_balance_amount: number | null
+          leave_balance_days: number | null
+          loan_settlement: number | null
+          net_settlement: number | null
+          other_payables: number | null
+          other_receivables: number | null
+          outstanding_allowances: number | null
+          outstanding_deductions: number | null
+          reason: Database["public"]["Enums"]["hr_termination_reason"]
+          reason_details: string | null
+          request_id: string | null
+          service_years: number | null
+          settlement_details: Json | null
+          status: string
+          termination_no: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "hr_terminations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      hr_termination_revert_approval: {
+        Args: { _termination_id: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          clearance_status: Json | null
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          employee_id: string
+          eos_amount: number | null
+          id: string
+          last_working_day: string
+          leave_balance_amount: number | null
+          leave_balance_days: number | null
+          loan_settlement: number | null
+          net_settlement: number | null
+          other_payables: number | null
+          other_receivables: number | null
+          outstanding_allowances: number | null
+          outstanding_deductions: number | null
+          reason: Database["public"]["Enums"]["hr_termination_reason"]
+          reason_details: string | null
+          request_id: string | null
+          service_years: number | null
+          settlement_details: Json | null
+          status: string
+          termination_no: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "hr_terminations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      hr_termination_revert_disbursement: {
+        Args: { _termination_id: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          clearance_status: Json | null
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          employee_id: string
+          eos_amount: number | null
+          id: string
+          last_working_day: string
+          leave_balance_amount: number | null
+          leave_balance_days: number | null
+          loan_settlement: number | null
+          net_settlement: number | null
+          other_payables: number | null
+          other_receivables: number | null
+          outstanding_allowances: number | null
+          outstanding_deductions: number | null
+          reason: Database["public"]["Enums"]["hr_termination_reason"]
+          reason_details: string | null
+          request_id: string | null
+          service_years: number | null
+          settlement_details: Json | null
+          status: string
+          termination_no: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "hr_terminations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      hr_termination_undo_approval: {
+        Args: { _target_status: string; _termination_id: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          clearance_status: Json | null
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          employee_id: string
+          eos_amount: number | null
+          id: string
+          last_working_day: string
+          leave_balance_amount: number | null
+          leave_balance_days: number | null
           loan_settlement: number | null
           net_settlement: number | null
           other_payables: number | null
@@ -6352,6 +6691,9 @@ export type Database = {
         | "retirement"
         | "death"
         | "other"
+        | "probation"
+        | "arbitrary_dismissal"
+        | "unlawful_resignation"
       invoice_status:
         | "draft"
         | "issued"
@@ -6679,6 +7021,9 @@ export const Constants = {
         "retirement",
         "death",
         "other",
+        "probation",
+        "arbitrary_dismissal",
+        "unlawful_resignation",
       ],
       invoice_status: ["draft", "issued", "due", "overdue", "paid", "unbilled"],
       po_status: ["draft", "approved", "partial", "received", "cancelled"],
