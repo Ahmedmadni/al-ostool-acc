@@ -76,6 +76,27 @@ function NewTermination() {
 
   const emp = useMemo(() => (employees as any[]).find((e) => e.id === employeeId), [employees, employeeId]);
 
+  const { data: servicePeriod, isLoading: servicePeriodLoading, error: servicePeriodError } = useQuery({
+    queryKey: ["hr_service_period", employeeId, lastDay],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("hr_calculate_service_period", {
+        _employee_id: employeeId,
+        _as_of: lastDay,
+      });
+      if (error) throw error;
+      return data as {
+        calendar_days: number;
+        excluded_days: number;
+        manual_excluded_days: number;
+        statutory_unpaid_excluded_days: number;
+        effective_days: number;
+        effective_years: number;
+        details: unknown[];
+      };
+    },
+    enabled: !!employeeId && !!lastDay,
+  });
+
   // Article 77 compensation basis: the contract's own penalty clause first,
   // else the remaining value of a fixed-term contract — both only ever
   // pre-fill the input; the amount stays manually editable (per policy: no
@@ -158,7 +179,8 @@ function NewTermination() {
     const transport = Number(emp.transport_allowance ?? 0);
     const other = Number(emp.other_allowances ?? 0);
     const gross = Number(emp.gross_salary ?? (basic + housing + transport + other));
-    const yrs = emp.hire_date ? serviceYears(emp.hire_date, lastDay) : 0;
+    const calendarYrs = emp.hire_date ? serviceYears(emp.hire_date, lastDay) : 0;
+    const yrs = servicePeriod ? Number(servicePeriod.effective_years ?? 0) : calendarYrs;
 
     const eos = calcEndOfService(gross, yrs, reason);
     const dailyGross = gross / 30;
@@ -186,36 +208,29 @@ function NewTermination() {
       yrs, eos, dailyGross, leaveValue, noticeValue, unpaidValue,
       monthEarned, gosiEmployee, loanBalance, article77Value, receivables, deductions, net,
     };
-  }, [emp, reason, lastDay, unpaidDays, lastMonthDays, leaveBalanceDays, noticeDays, otherReceivables, otherDeductions, loanBalance, isArticle77, article77Amount, article77Direction]);
+  }, [emp, reason, lastDay, servicePeriod, unpaidDays, lastMonthDays, leaveBalanceDays, noticeDays, otherReceivables, otherDeductions, loanBalance, isArticle77, article77Amount, article77Direction]);
 
   const save = useMutation({
     mutationFn: async () => {
       if (!emp || !calc) throw new Error("اختر موظفاً أولاً");
-      const termination_no = "TERM-" + Date.now().toString().slice(-8);
-      const { data: clr } = await (supabase as any).rpc("hr_termination_clearance", { _employee_id: employeeId });
+      if (servicePeriodError) throw servicePeriodError;
+      if (servicePeriodLoading || !servicePeriod) throw new Error("انتظر اكتمال احتساب مدة الخدمة");
 
-      const { data: row, error } = await (supabase as any).from("hr_terminations").insert({
-        termination_no, employee_id: employeeId, reason, reason_details: reasonDetails,
-        last_working_day: lastDay, service_years: calc.yrs,
-        eos_amount: calc.eos,
-        leave_balance_days: leaveBalanceDays,
-        leave_balance_amount: calc.leaveValue,
-        other_receivables: Math.round((calc.noticeValue + calc.monthEarned + otherReceivables
-          + (article77Direction === "employee" ? calc.article77Value : 0)) * 100) / 100,
-        outstanding_deductions: Math.round((calc.gosiEmployee + calc.unpaidValue + otherDeductions) * 100) / 100,
-        loan_settlement: calc.loanBalance,
-        other_payables: article77Direction === "company" ? calc.article77Value : 0,
-        settlement_details: {
-          notice_days: noticeDays, notice_value: calc.noticeValue,
-          unpaid_days: unpaidDays, unpaid_value: calc.unpaidValue,
-          last_month_days: lastMonthDays,
-          month_earned: calc.monthEarned, gosi_employee: calc.gosiEmployee,
-          leave_days: leaveBalanceDays, other_receivables_manual: otherReceivables,
-          other_deductions_manual: otherDeductions,
-          ...(isArticle77 ? { article77: { amount: calc.article77Value, direction: article77Direction, basis: article77Suggestion.basis } } : {}),
-        },
-        clearance_status: clr ?? {}, status: "draft",
-      }).select("id").single();
+      const { data: row, error } = await (supabase as any).rpc("hr_termination_create_draft", { _input: {
+        employee_id: employeeId,
+        reason,
+        reason_details: reasonDetails,
+        last_working_day: lastDay,
+        notice_days: noticeDays,
+        last_month_days: lastMonthDays,
+        last_period_unpaid_days: unpaidDays,
+        other_receivables: otherReceivables,
+        other_deductions: otherDeductions,
+        leave_days_override: leaveDaysTouched ? leaveBalanceDays : null,
+        article77_amount: isArticle77 ? article77Amount : 0,
+        article77_direction: article77Direction,
+        article77_basis: article77Suggestion.basis,
+      } });
       if (error) throw error;
       return row.id as string;
     },
@@ -279,8 +294,9 @@ function NewTermination() {
             <p className="text-[11px] text-muted-foreground mt-1">اتركه صفراً إذا صُرف راتب الشهر الأخير ضمن مسير الرواتب، أو أدخل أيام العمل الفعلية إذا انتهت الخدمة خلال الشهر.</p>
           </div>
           <div>
-            <Label className="text-xs">أيام غير مدفوعة (غياب/انقطاع)</Label>
+            <Label className="text-xs">أيام غير مدفوعة في فترة الراتب الأخيرة</Label>
             <Input type="number" min={0} max={31} value={unpaidDays} onChange={(e) => setUnpaidDays(Number(e.target.value) || 0)} />
+            <p className="text-[11px] text-muted-foreground mt-1">هذا الحقل للخصم المالي فقط؛ فترات توقف الخدمة التاريخية تُقرأ تلقائياً من سجل الإجازات والانقطاعات.</p>
           </div>
           <div>
             <Label className="text-xs">مستحقات إضافية (بدلات/مكافآت)</Label>
@@ -325,6 +341,12 @@ function NewTermination() {
         </Card>
       )}
 
+      {servicePeriodError && (
+        <Card className="p-4 border-destructive/40 bg-destructive/5 text-sm text-destructive print:hidden">
+          تعذر احتساب مدة الخدمة من الخادم: {(servicePeriodError as Error).message}. لن يُسمح بحفظ المخالصة حتى معالجة الخطأ.
+        </Card>
+      )}
+
       {calc && emp && (
         <div id="settlement-doc" className="space-y-4 print:space-y-3">
           <Card className="p-6 print:shadow-none print:border-0">
@@ -343,11 +365,24 @@ function NewTermination() {
               <Field label="الجنسية" value={emp.is_saudi ? "سعودي" : "غير سعودي"} />
               <Field label="تاريخ التعيين" value={emp.hire_date || "—"} />
               <Field label="آخر يوم عمل" value={lastDay} />
-              <Field label="مدة الخدمة" value={`${calc.yrs} سنة`} />
+              <Field label="مدة الخدمة المحتسبة" value={`${calc.yrs.toFixed(4)} سنة`} />
+              {servicePeriod && <Field label="مدة الخدمة الإجمالية" value={`${servicePeriod.calendar_days} يوم`} />}
+              {servicePeriod && <Field label="المدة المستبعدة من الخدمة" value={`${servicePeriod.excluded_days} يوم`} />}
               <Field label="الراتب الأساسي" value={fmtSAR(calc.basic)} />
               <Field label="إجمالي الراتب الشهري" value={fmtSAR(calc.gross)} />
               <Field label="الأجر اليومي" value={fmtSAR(calc.dailyGross)} />
             </div>
+
+            {servicePeriod && servicePeriod.excluded_days > 0 && (
+              <div className="mb-4 rounded-md border border-amber-500/40 bg-amber-500/5 p-3 text-xs">
+                <div className="font-semibold mb-1">تفصيل المدة المستبعدة من الخدمة</div>
+                <div className="flex flex-wrap gap-x-6 gap-y-1 text-muted-foreground">
+                  <span>إجازة غير مدفوعة زائدة على 20 يوماً في سنة الخدمة: {servicePeriod.statutory_unpaid_excluded_days} يوم</span>
+                  <span>فترات توقف معتمدة يدوياً: {servicePeriod.manual_excluded_days} يوم</span>
+                </div>
+                <p className="mt-1 text-muted-foreground">تُدمج الفترات المتداخلة قبل الحساب، لذلك قد لا يساوي مجموع التصنيفين الإجمالي المستبعد.</p>
+              </div>
+            )}
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
@@ -366,7 +401,7 @@ function NewTermination() {
                 <div className="font-semibold mb-2 text-rose-700">الاستقطاعات</div>
                 <SettlementRow label="رصيد السلف القائمة (صافي)" value={calc.loanBalance} negative />
                 <SettlementRow label="حصة التأمينات الاجتماعية" value={calc.gosiEmployee} negative />
-                <SettlementRow label={`أيام غير مدفوعة (${unpaidDays} يوم)`} value={calc.unpaidValue} negative />
+                <SettlementRow label={`أيام غير مدفوعة بفترة الراتب الأخيرة (${unpaidDays} يوم)`} value={calc.unpaidValue} negative />
                 <SettlementRow label="استقطاعات أخرى" value={otherDeductions} negative />
                 {article77Direction === "company" && <SettlementRow label="تعويض المادة 77 (ترك عمل غير مشروع)" value={calc.article77Value} negative />}
                 <div className="border-t mt-2 pt-2 flex justify-between font-semibold">
@@ -396,8 +431,9 @@ function NewTermination() {
           </Card>
 
           <div className="flex justify-end print:hidden">
-            <Button size="lg" className="gap-2" onClick={() => save.mutate()} disabled={save.isPending}>
-              <Save className="w-4 h-4" />{save.isPending ? "جارٍ الحفظ..." : "حفظ كملف إنهاء خدمة رسمي"}
+            <Button size="lg" className="gap-2" onClick={() => save.mutate()}
+              disabled={save.isPending || servicePeriodLoading || !servicePeriod || !!servicePeriodError}>
+              <Save className="w-4 h-4" />{save.isPending ? "جارٍ الحفظ..." : servicePeriodLoading ? "جارٍ احتساب مدة الخدمة..." : "حفظ كملف إنهاء خدمة رسمي"}
             </Button>
           </div>
         </div>

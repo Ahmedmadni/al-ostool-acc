@@ -37,6 +37,9 @@ const LEAVE_TYPE_MAP: Record<string, string> = {
   "بدون راتب": "unpaid", "Unpaid": "unpaid",
   "أمومة": "maternity", "Maternity": "maternity",
   "أبوة": "paternity",
+  "زواج": "marriage", "Marriage": "marriage",
+  "وفاة زوج أو أصل أو فرع": "bereavement", "Bereavement": "bereavement",
+  "وفاة أخ أو أخت": "sibling_bereavement", "Sibling Bereavement": "sibling_bereavement",
   "حج": "hajj", "Hajj": "hajj",
 };
 

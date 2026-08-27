@@ -15,6 +15,7 @@ import { exportToExcel } from "@/lib/export";
 const LEAVE_TYPE_LABEL: Record<string, string> = {
   annual: "سنوية", sick: "مرضية", emergency: "اضطرارية", unpaid: "بدون راتب",
   maternity: "أمومة", paternity: "أبوة", hajj: "حج", study: "دراسية", compensatory: "تعويضية",
+  marriage: "زواج", bereavement: "وفاة زوج أو أصل أو فرع", sibling_bereavement: "وفاة أخ أو أخت",
 };
 
 export const Route = createFileRoute("/_authenticated/hr/reports/")({ component: HrReports });
