@@ -90,13 +90,19 @@ FOR EACH ROW EXECUTE FUNCTION public.hr_attendance_holiday_audit_guard();
 CREATE OR REPLACE FUNCTION public.hr_attendance_correction_audit_guard()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY INVOKER SET search_path='' AS $$
 BEGIN
+  IF NOT EXISTS(SELECT 1 FROM public.hr_attendance_days d
+    WHERE d.id=NEW.attendance_day_id AND d.employee_id=NEW.employee_id) THEN
+    RAISE EXCEPTION 'طلب التصحيح لا يطابق موظف سجل الحضور';
+  END IF;
+  IF TG_OP='INSERT' THEN RETURN NEW; END IF;
   IF ROW(NEW.employee_id,NEW.attendance_day_id,NEW.requested_check_in,NEW.requested_check_out,
       NEW.reason,NEW.original_snapshot,NEW.requested_by,NEW.created_at)
     IS DISTINCT FROM ROW(OLD.employee_id,OLD.attendance_day_id,OLD.requested_check_in,OLD.requested_check_out,
       OLD.reason,OLD.original_snapshot,OLD.requested_by,OLD.created_at) THEN
     RAISE EXCEPTION 'حقول طلب التصحيح الأصلية غير قابلة للتعديل';
   END IF;
-  IF OLD.status='pending' AND NEW.status IN ('approved','rejected') THEN RETURN NEW; END IF;
+  IF OLD.status='pending' AND NEW.status IN ('approved','rejected')
+    AND NEW.applied_snapshot IS NULL THEN RETURN NEW; END IF;
   IF OLD.status='pending' AND NEW.status='cancelled' AND NEW.requested_by=auth.uid() THEN RETURN NEW; END IF;
   IF OLD.status='approved' AND NEW.status='approved' AND OLD.applied_snapshot IS NULL
     AND NEW.applied_snapshot IS NOT NULL
@@ -104,7 +110,7 @@ BEGIN
       IS NOT DISTINCT FROM ROW(OLD.decided_by,OLD.decided_at,OLD.decision_notes) THEN RETURN NEW; END IF;
   RAISE EXCEPTION 'انتقال حالة طلب التصحيح غير مسموح';
 END; $$;
-CREATE TRIGGER trg_hr_attendance_correction_audit BEFORE UPDATE ON public.hr_attendance_correction_requests
+CREATE TRIGGER trg_hr_attendance_correction_audit BEFORE INSERT OR UPDATE ON public.hr_attendance_correction_requests
 FOR EACH ROW EXECUTE FUNCTION public.hr_attendance_correction_audit_guard();
 
 CREATE OR REPLACE FUNCTION public.hr_attendance_request_correction(
@@ -128,8 +134,9 @@ BEGIN
   SELECT * INTO v_schedule FROM public.hr_shift_schedules WHERE id=v_day.schedule_id;
   SELECT * INTO v_group FROM public.hr_shift_groups WHERE id=v_day.group_id;
   v_start := (v_day.work_date+v_schedule.start_time) AT TIME ZONE v_group.timezone;
-  v_end := (v_day.work_date+v_schedule.end_time) AT TIME ZONE v_group.timezone;
-  IF v_end<=v_start THEN v_end:=v_end+INTERVAL '1 day'; END IF;
+  v_end := (v_day.work_date+v_schedule.end_time
+    +CASE WHEN v_schedule.end_time<=v_schedule.start_time THEN INTERVAL '1 day' ELSE INTERVAL '0' END)
+    AT TIME ZONE v_group.timezone;
   IF (_requested_check_in IS NOT NULL AND _requested_check_in NOT BETWEEN v_start-INTERVAL '12 hours' AND v_end+INTERVAL '12 hours')
     OR (_requested_check_out IS NOT NULL AND _requested_check_out NOT BETWEEN v_start-INTERVAL '12 hours' AND v_end+INTERVAL '12 hours') THEN
     RAISE EXCEPTION 'الوقت المطلوب بعيد عن نافذة يوم الدوام';
@@ -168,8 +175,9 @@ BEGIN
   IF v_schedule.id IS NULL OR v_group.id IS NULL THEN RAISE EXCEPTION 'لا يمكن تصحيح يوم بلا وردية وجدول صالحين'; END IF;
   SELECT * INTO v_policy FROM public.hr_attendance_policies WHERE group_id=v_day.group_id;
   v_start:=(v_day.work_date+v_schedule.start_time) AT TIME ZONE v_group.timezone;
-  v_end:=(v_day.work_date+v_schedule.end_time) AT TIME ZONE v_group.timezone;
-  IF v_end<=v_start THEN v_end:=v_end+INTERVAL '1 day'; END IF;
+  v_end:=(v_day.work_date+v_schedule.end_time
+    +CASE WHEN v_schedule.end_time<=v_schedule.start_time THEN INTERVAL '1 day' ELSE INTERVAL '0' END)
+    AT TIME ZONE v_group.timezone;
   IF NOT _capture_snapshot AND v_request.applied_snapshot IS NOT NULL THEN
     v_in:=(v_request.applied_snapshot->>'first_check_in')::TIMESTAMPTZ;
     v_out:=(v_request.applied_snapshot->>'last_check_out')::TIMESTAMPTZ;
@@ -245,6 +253,7 @@ END; $$;
 -- Wrap the D3.2 processor so configured holidays become rest days and never
 -- create absence/late/overtime payroll inputs.
 ALTER FUNCTION public.hr_attendance_refresh_days(DATE,DATE,UUID) RENAME TO hr_attendance_refresh_days_core;
+REVOKE ALL ON FUNCTION public.hr_attendance_refresh_days_core(DATE,DATE,UUID) FROM PUBLIC,anon,authenticated,service_role;
 CREATE OR REPLACE FUNCTION public.hr_attendance_refresh_days(_date_from DATE,_date_to DATE,_employee_id UUID DEFAULT NULL)
 RETURNS INTEGER LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
 DECLARE v_count INTEGER; v_approvals JSONB; v_audit_times JSONB; v_lock RECORD;

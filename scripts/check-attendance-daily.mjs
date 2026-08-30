@@ -48,6 +48,28 @@ test("refresh and approval use the same per-day transaction lock", () => {
   );
 });
 
+test("bulk refresh locks employees in a deterministic order", () => {
+  assert.match(
+    migration,
+    /FOR v_emp IN SELECT id FROM public\.hr_employees[\s\S]*?ORDER BY id[\s\S]*?LOOP/,
+  );
+});
+
+test("renamed payroll core is not executable by client or service roles", () => {
+  assert.match(
+    migration,
+    /REVOKE ALL ON FUNCTION public\.hr_payroll_create_run_leave_core\(INTEGER,INTEGER\) FROM PUBLIC,anon,authenticated,service_role/,
+  );
+});
+
+test("Gate 1 privileged functions use an empty search path", () => {
+  assert.equal(
+    (migration.match(/SECURITY DEFINER SET search_path\s*=\s*'' AS \$\$/g) ?? []).length,
+    5,
+  );
+  assert.doesNotMatch(migration, /SECURITY DEFINER SET search_path\s*=\s*public/);
+});
+
 test("identical refresh is a no-op and changed approved facts are rejected", () => {
   assert.match(migration, /approved attendance day .* correction\/reopening is required/);
   assert.match(migration, /IS DISTINCT FROM ROW\(EXCLUDED\.assignment_id/);
@@ -148,6 +170,17 @@ test("22:00–06:00 Riyadh punches remain one work date across UTC midnight", ()
   assert.equal(night.overtime, 0);
   assert.equal(night.status, "present");
 });
+test("overnight end advances the local date before timezone conversion", () => {
+  assert.match(
+    migration,
+    /v_day \+ v_schedule\.end_time\s*\+ CASE WHEN v_schedule\.end_time <= v_schedule\.start_time THEN INTERVAL '1 day'/,
+  );
+  assert.doesNotMatch(migration, /v_end\s*:=\s*v_end\s*\+\s*INTERVAL '1 day'/);
+  // America/New_York enters DST on 2026-03-08: local 22:00→06:00 is seven real hours.
+  const start = Date.parse("2026-03-08T03:00:00Z");
+  const localNextDayEnd = Date.parse("2026-03-08T10:00:00Z");
+  assert.equal((localNextDayEnd - start) / 3_600_000, 7);
+});
 test("timezone model converts local shift boundaries once to instants", () => {
   assert.match(
     migration,
@@ -174,6 +207,13 @@ test("payroll application replaces prior attendance effects", () => {
 test("attendance UI calls only the protected processing and decision RPCs", () => {
   assert.ok(page.includes('.rpc("hr_attendance_refresh_days"'));
   assert.ok(page.includes('.rpc("hr_attendance_decide_day"'));
+});
+
+test("refresh return value is documented as processed logical days", () => {
+  assert.match(
+    migration,
+    /Return processed logical employee\/days, including deterministic no-op reruns/,
+  );
 });
 
 console.log(`Attendance daily-processing checks passed: ${tests} tests`);

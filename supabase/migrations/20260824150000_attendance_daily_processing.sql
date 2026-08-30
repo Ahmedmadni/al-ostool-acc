@@ -90,7 +90,7 @@ CREATE POLICY hr_attendance_days_read ON public.hr_attendance_days FOR SELECT TO
 CREATE OR REPLACE FUNCTION public.hr_attendance_refresh_days(
   _date_from DATE, _date_to DATE, _employee_id UUID DEFAULT NULL
 ) RETURNS INTEGER
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
 DECLARE
   v_emp RECORD; v_day DATE; v_assignment RECORD; v_schedule public.hr_shift_schedules;
   v_policy public.hr_attendance_policies; v_start TIMESTAMPTZ; v_end TIMESTAMPTZ;
@@ -107,6 +107,7 @@ BEGIN
 
   FOR v_emp IN SELECT id FROM public.hr_employees
     WHERE status IN ('active','on_leave') AND (_employee_id IS NULL OR id = _employee_id)
+    ORDER BY id
   LOOP
     FOR v_day IN SELECT generate_series(_date_from, _date_to, INTERVAL '1 day')::DATE LOOP
       -- Serialize refresh/approval for one logical attendance day.  The unique
@@ -127,8 +128,9 @@ BEGIN
       SELECT * INTO v_policy FROM public.hr_attendance_policies WHERE group_id = v_assignment.group_id;
 
       v_start := (v_day + v_schedule.start_time) AT TIME ZONE v_assignment.timezone;
-      v_end := (v_day + v_schedule.end_time) AT TIME ZONE v_assignment.timezone;
-      IF v_end <= v_start THEN v_end := v_end + INTERVAL '1 day'; END IF;
+      v_end := (v_day + v_schedule.end_time
+        + CASE WHEN v_schedule.end_time <= v_schedule.start_time THEN INTERVAL '1 day' ELSE INTERVAL '0' END)
+        AT TIME ZONE v_assignment.timezone;
       v_scheduled := v_assignment.work_minutes;
 
       SELECT MIN(occurred_at) FILTER (WHERE event_type='check_in'),
@@ -226,6 +228,7 @@ BEGIN
           EXCLUDED.first_check_in,EXCLUDED.last_check_out,EXCLUDED.scheduled_minutes,
           EXCLUDED.actual_minutes,EXCLUDED.late_minutes,EXCLUDED.early_leave_minutes,
           EXCLUDED.overtime_minutes,EXCLUDED.status,EXCLUDED.calculation_details);
+      -- Return processed logical employee/days, including deterministic no-op reruns.
       v_count := v_count + 1; v_assignment := NULL; v_schedule := NULL; v_policy := NULL;
       v_leave_id := NULL; v_existing := NULL; v_details := NULL;
     END LOOP;
@@ -234,7 +237,7 @@ BEGIN
 END; $$;
 
 CREATE OR REPLACE FUNCTION public.hr_attendance_decide_day(_day_id UUID, _approved BOOLEAN, _notes TEXT DEFAULT NULL)
-RETURNS public.hr_attendance_days LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+RETURNS public.hr_attendance_days LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
 DECLARE v_row public.hr_attendance_days; v_employee_id UUID; v_work_date DATE;
 BEGIN
   IF NOT (public.has_permission(auth.uid(),'hr.attendance','approve') OR public.is_admin(auth.uid())) THEN
@@ -257,7 +260,7 @@ ALTER TABLE public.hr_payroll_lines
   ADD COLUMN IF NOT EXISTS attendance_overtime_minutes INTEGER NOT NULL DEFAULT 0;
 
 CREATE OR REPLACE FUNCTION public.hr_apply_attendance_to_payroll(_run_id UUID) RETURNS INTEGER
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
 DECLARE v_run public.hr_payroll_runs; v_line RECORD; v_abs NUMERIC; v_late INTEGER; v_ot INTEGER;
   v_abs_fraction NUMERIC; v_late_fraction NUMERIC; v_ot_factor NUMERIC;
   v_abs_ded NUMERIC; v_late_ded NUMERIC; v_ot_pay NUMERIC; v_changed INTEGER := 0;
@@ -299,8 +302,9 @@ BEGIN
 END; $$;
 
 ALTER FUNCTION public.hr_payroll_create_run(INTEGER,INTEGER) RENAME TO hr_payroll_create_run_leave_core;
+REVOKE ALL ON FUNCTION public.hr_payroll_create_run_leave_core(INTEGER,INTEGER) FROM PUBLIC,anon,authenticated,service_role;
 CREATE OR REPLACE FUNCTION public.hr_payroll_create_run(_period_year INTEGER,_period_month INTEGER)
-RETURNS public.hr_payroll_runs LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+RETURNS public.hr_payroll_runs LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
 DECLARE v_run public.hr_payroll_runs;
 BEGIN
   v_run:=public.hr_payroll_create_run_leave_core(_period_year,_period_month);
@@ -320,7 +324,7 @@ REVOKE INSERT,UPDATE,DELETE ON public.hr_attendance_days FROM authenticated;
 
 -- Keep the unified cost ledger aligned with the approved attendance-adjusted pay.
 CREATE OR REPLACE FUNCTION public.hr_sync_payroll_cost_entries(_run_id UUID)
-RETURNS INTEGER LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+RETURNS INTEGER LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
 DECLARE v_run public.hr_payroll_runs; v_line RECORD; v_cost UUID; v_created INTEGER:=0;
 BEGIN
   SELECT * INTO v_run FROM public.hr_payroll_runs WHERE id=_run_id;

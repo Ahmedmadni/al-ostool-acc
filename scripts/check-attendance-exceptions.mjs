@@ -39,6 +39,13 @@ test("partial application and nested refresh wrappers fail explicitly", () => {
   assert.match(migration, /expected Gate 1 hr_attendance_refresh_days/);
 });
 
+test("renamed attendance core is not executable by client or service roles", () => {
+  assert.match(
+    migration,
+    /REVOKE ALL ON FUNCTION public\.hr_attendance_refresh_days_core\(DATE,DATE,UUID\) FROM PUBLIC,anon,authenticated,service_role/,
+  );
+});
+
 test("raw attendance evidence is never mutated or fabricated by corrections", () => {
   assert.doesNotMatch(migration, /UPDATE public\.hr_attendance_events/);
   assert.doesNotMatch(migration, /INSERT INTO public\.hr_attendance_events/);
@@ -150,6 +157,16 @@ test("decision captures immutable applied values while refresh reuses them", () 
   assert.match(migration, /AND applied_snapshot IS NULL/);
   assert.match(migration, /NOT _capture_snapshot AND v_request\.applied_snapshot IS NOT NULL/);
 });
+test("initial decision cannot inject an applied snapshot", () => {
+  assert.match(
+    migration,
+    /OLD\.status='pending' AND NEW\.status IN \('approved','rejected'\)\s+AND NEW\.applied_snapshot IS NULL/,
+  );
+});
+test("correction employee must match its attendance day", () => {
+  assert.match(migration, /d\.id=NEW\.attendance_day_id AND d\.employee_id=NEW\.employee_id/);
+  assert.match(migration, /BEFORE INSERT OR UPDATE ON public\.hr_attendance_correction_requests/);
+});
 test("duplicate application replaces facts rather than accumulating them", () => {
   const applied = calculate(base, { lastOut: base.end });
   assert.deepEqual(
@@ -169,6 +186,17 @@ test("refresh restores approved corrected results without bypassing Gate 1", () 
 test("latest approved correction wins deterministically", () => {
   assert.match(migration, /DISTINCT ON \(request\.attendance_day_id\)/);
   assert.match(migration, /request\.decided_at DESC,request\.id DESC/);
+});
+test("correction shift end uses the next local date before timezone conversion", () => {
+  assert.equal(
+    (
+      migration.match(
+        /v_day\.work_date\+v_schedule\.end_time\s*\+CASE WHEN v_schedule\.end_time<=v_schedule\.start_time THEN INTERVAL '1 day'/g,
+      ) ?? []
+    ).length,
+    2,
+  );
+  assert.doesNotMatch(migration, /v_end\s*:=\s*v_end\s*\+\s*INTERVAL '1 day'/);
 });
 test("direct client mutation is denied and RPC execution is explicit", () => {
   assert.match(
