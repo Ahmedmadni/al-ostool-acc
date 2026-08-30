@@ -1,5 +1,34 @@
 -- Phase D3.2: auditable daily attendance processing and approved payroll inputs.
 
+-- This migration deliberately fails on both a complete rerun and a partial
+-- application.  Supabase migrations are transactional; accepting pre-existing
+-- objects here would make it impossible to know whether the payroll wrapper and
+-- the attendance schema came from the same atomic application.
+DO $$
+BEGIN
+  IF to_regclass('public.hr_attendance_policies') IS NOT NULL
+     OR to_regclass('public.hr_attendance_days') IS NOT NULL
+     OR to_regprocedure('public.hr_attendance_refresh_days(date,date,uuid)') IS NOT NULL
+     OR to_regprocedure('public.hr_attendance_decide_day(uuid,boolean,text)') IS NOT NULL
+     OR to_regprocedure('public.hr_apply_attendance_to_payroll(uuid)') IS NOT NULL
+     OR to_regprocedure('public.hr_payroll_create_run_leave_core(integer,integer)') IS NOT NULL
+     OR EXISTS (
+       SELECT 1 FROM information_schema.columns
+       WHERE table_schema='public' AND table_name='hr_payroll_lines'
+         AND column_name IN ('attendance_absence_days','attendance_late_minutes','attendance_overtime_minutes')
+     ) THEN
+    RAISE EXCEPTION USING
+      ERRCODE = '55000',
+      MESSAGE = 'attendance daily migration is already or partially applied; inspect schema history before retrying';
+  END IF;
+  IF to_regprocedure('public.hr_payroll_create_run(integer,integer)') IS NULL THEN
+    RAISE EXCEPTION USING
+      ERRCODE = '55000',
+      MESSAGE = 'expected leave-aware hr_payroll_create_run(integer,integer) is missing';
+  END IF;
+END;
+$$;
+
 CREATE TABLE public.hr_attendance_policies (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   group_id UUID NOT NULL UNIQUE REFERENCES public.hr_shift_groups(id) ON DELETE CASCADE,
@@ -67,7 +96,7 @@ DECLARE
   v_policy public.hr_attendance_policies; v_start TIMESTAMPTZ; v_end TIMESTAMPTZ;
   v_in TIMESTAMPTZ; v_out TIMESTAMPTZ; v_scheduled INTEGER; v_actual INTEGER;
   v_late INTEGER; v_early INTEGER; v_overtime INTEGER; v_status TEXT; v_count INTEGER := 0;
-  v_leave_id UUID;
+  v_leave_id UUID; v_existing public.hr_attendance_days; v_details JSONB;
 BEGIN
   IF NOT (public.has_permission(auth.uid(),'hr.attendance','edit') OR public.is_admin(auth.uid()) OR auth.role() = 'service_role') THEN
     RAISE EXCEPTION 'ليست لديك صلاحية معالجة الحضور';
@@ -80,6 +109,10 @@ BEGIN
     WHERE status IN ('active','on_leave') AND (_employee_id IS NULL OR id = _employee_id)
   LOOP
     FOR v_day IN SELECT generate_series(_date_from, _date_to, INTERVAL '1 day')::DATE LOOP
+      -- Serialize refresh/approval for one logical attendance day.  The unique
+      -- constraint remains the final duplicate-row guard; this lock prevents a
+      -- concurrent approval from racing a newly calculated result.
+      PERFORM pg_advisory_xact_lock(hashtextextended(v_emp.id::TEXT || ':' || v_day::TEXT, 0));
       SELECT a.id assignment_id, a.group_id, g.timezone, g.work_minutes, g.break_minutes
       INTO v_assignment FROM public.hr_shift_assignments a
       JOIN public.hr_shift_groups g ON g.id = a.group_id AND g.is_active
@@ -126,20 +159,38 @@ BEGIN
         IF v_overtime < COALESCE(v_policy.minimum_overtime_minutes,30) THEN v_overtime := 0; END IF;
       END IF;
 
+      v_details := jsonb_build_object('engine','attendance-daily-v1','timezone',v_assignment.timezone,
+        'scheduled_start',v_start,'scheduled_end',v_end,'break_minutes',v_assignment.break_minutes,
+        'leave_id',v_leave_id,'deduct_absence',COALESCE(v_policy.deduct_absence,false),
+        'deduct_late_minutes',COALESCE(v_policy.deduct_late_minutes,false),
+        'pay_overtime',COALESCE(v_policy.pay_overtime,false),
+        'overtime_multiplier',COALESCE(v_policy.overtime_multiplier,1.5),
+        'salary_day_divisor',COALESCE(v_policy.salary_day_divisor,30),
+        'salary_day_minutes',v_assignment.work_minutes);
+
+      SELECT * INTO v_existing FROM public.hr_attendance_days
+      WHERE employee_id=v_emp.id AND work_date=v_day FOR UPDATE;
+      IF v_existing.approval_status = 'approved' AND ROW(
+          v_existing.assignment_id,v_existing.group_id,v_existing.schedule_id,
+          v_existing.first_check_in,v_existing.last_check_out,v_existing.scheduled_minutes,
+          v_existing.actual_minutes,v_existing.late_minutes,v_existing.early_leave_minutes,
+          v_existing.overtime_minutes,v_existing.status,v_existing.calculation_details
+        ) IS DISTINCT FROM ROW(
+          v_assignment.assignment_id,v_assignment.group_id,v_schedule.id,
+          v_in,v_out,v_scheduled,v_actual,v_late,v_early,v_overtime,v_status,v_details
+        ) THEN
+        RAISE EXCEPTION USING
+          ERRCODE = '55000',
+          MESSAGE = format('approved attendance day %s for employee %s changed; correction/reopening is required', v_day, v_emp.id);
+      END IF;
+
       INSERT INTO public.hr_attendance_days(employee_id,work_date,assignment_id,group_id,schedule_id,
         first_check_in,last_check_out,scheduled_minutes,actual_minutes,late_minutes,early_leave_minutes,
         overtime_minutes,status,approval_status,calculation_details,calculated_at)
       VALUES (v_emp.id,v_day,v_assignment.assignment_id,v_assignment.group_id,v_schedule.id,
         v_in,v_out,v_scheduled,v_actual,v_late,v_early,v_overtime,v_status,
         CASE WHEN COALESCE(v_policy.require_daily_approval,true) THEN 'pending' ELSE 'approved' END,
-        jsonb_build_object('engine','attendance-daily-v1','timezone',v_assignment.timezone,
-          'scheduled_start',v_start,'scheduled_end',v_end,'break_minutes',v_assignment.break_minutes,
-          'leave_id',v_leave_id,'deduct_absence',COALESCE(v_policy.deduct_absence,false),
-          'deduct_late_minutes',COALESCE(v_policy.deduct_late_minutes,false),
-          'pay_overtime',COALESCE(v_policy.pay_overtime,false),
-          'overtime_multiplier',COALESCE(v_policy.overtime_multiplier,1.5),
-          'salary_day_divisor',COALESCE(v_policy.salary_day_divisor,30),
-          'salary_day_minutes',v_assignment.work_minutes), now())
+        v_details, now())
       ON CONFLICT (employee_id,work_date) DO UPDATE SET
         assignment_id=EXCLUDED.assignment_id,group_id=EXCLUDED.group_id,schedule_id=EXCLUDED.schedule_id,
         first_check_in=EXCLUDED.first_check_in,last_check_out=EXCLUDED.last_check_out,
@@ -164,8 +215,19 @@ BEGIN
           IS NOT DISTINCT FROM ROW(EXCLUDED.first_check_in,EXCLUDED.last_check_out,EXCLUDED.actual_minutes,
           EXCLUDED.late_minutes,EXCLUDED.early_leave_minutes,EXCLUDED.overtime_minutes,EXCLUDED.status,
           EXCLUDED.calculation_details) THEN hr_attendance_days.approved_at ELSE NULL END,
-        calculation_details=EXCLUDED.calculation_details,calculated_at=now(),updated_at=now();
-      v_count := v_count + 1; v_assignment := NULL; v_schedule := NULL; v_policy := NULL; v_leave_id := NULL;
+        calculation_details=EXCLUDED.calculation_details,calculated_at=now(),updated_at=now()
+      -- Identical input is a true no-op, including audit timestamps.  Approved
+      -- changed input was rejected above rather than silently reopened.
+      WHERE ROW(hr_attendance_days.assignment_id,hr_attendance_days.group_id,hr_attendance_days.schedule_id,
+          hr_attendance_days.first_check_in,hr_attendance_days.last_check_out,hr_attendance_days.scheduled_minutes,
+          hr_attendance_days.actual_minutes,hr_attendance_days.late_minutes,hr_attendance_days.early_leave_minutes,
+          hr_attendance_days.overtime_minutes,hr_attendance_days.status,hr_attendance_days.calculation_details)
+        IS DISTINCT FROM ROW(EXCLUDED.assignment_id,EXCLUDED.group_id,EXCLUDED.schedule_id,
+          EXCLUDED.first_check_in,EXCLUDED.last_check_out,EXCLUDED.scheduled_minutes,
+          EXCLUDED.actual_minutes,EXCLUDED.late_minutes,EXCLUDED.early_leave_minutes,
+          EXCLUDED.overtime_minutes,EXCLUDED.status,EXCLUDED.calculation_details);
+      v_count := v_count + 1; v_assignment := NULL; v_schedule := NULL; v_policy := NULL;
+      v_leave_id := NULL; v_existing := NULL; v_details := NULL;
     END LOOP;
   END LOOP;
   RETURN v_count;
@@ -173,11 +235,15 @@ END; $$;
 
 CREATE OR REPLACE FUNCTION public.hr_attendance_decide_day(_day_id UUID, _approved BOOLEAN, _notes TEXT DEFAULT NULL)
 RETURNS public.hr_attendance_days LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
-DECLARE v_row public.hr_attendance_days;
+DECLARE v_row public.hr_attendance_days; v_employee_id UUID; v_work_date DATE;
 BEGIN
   IF NOT (public.has_permission(auth.uid(),'hr.attendance','approve') OR public.is_admin(auth.uid())) THEN
     RAISE EXCEPTION 'ليست لديك صلاحية اعتماد الحضور';
   END IF;
+  SELECT employee_id,work_date INTO v_employee_id,v_work_date
+  FROM public.hr_attendance_days WHERE id=_day_id;
+  IF NOT FOUND THEN RAISE EXCEPTION 'سجل اليوم غير موجود'; END IF;
+  PERFORM pg_advisory_xact_lock(hashtextextended(v_employee_id::TEXT || ':' || v_work_date::TEXT, 0));
   UPDATE public.hr_attendance_days SET approval_status=CASE WHEN _approved THEN 'approved' ELSE 'rejected' END,
     approved_by=auth.uid(),approved_at=now(),notes=NULLIF(BTRIM(_notes),'')
   WHERE id=_day_id AND approval_status='pending' RETURNING * INTO v_row;
