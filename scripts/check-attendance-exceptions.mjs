@@ -240,22 +240,41 @@ test("request, decision and apply share Gate 1 employee-date locking", () => {
   assert.match(migration, /WHERE id=_request_id FOR UPDATE/);
 });
 test("corrected refresh pre-locks the full Gate 1 employee-date range", () => {
-  const lockLoop = migration.match(/FOR v_lock IN([\s\S]*?)END LOOP;/)?.[1] ?? "";
-  assert.match(lockLoop, /FROM public\.hr_employees e/);
+  const materialization =
+    migration.match(
+      /SELECT COALESCE\(array_agg\(e\.id ORDER BY e\.id\)[\s\S]*?v_employee_ids[\s\S]*?;/,
+    )?.[0] ?? "";
+  assert.match(materialization, /FROM public\.hr_employees e/);
   assert.match(
-    lockLoop,
-    /generate_series\(_date_from,_date_to,INTERVAL '1 day'\) day\(work_date\)/,
-  );
-  assert.match(
-    lockLoop,
+    materialization,
     /e\.status IN \('active','on_leave'\) AND \(_employee_id IS NULL OR e\.id=_employee_id\)/,
   );
-  assert.match(lockLoop, /ORDER BY e\.id,day\.work_date/);
-  assert.match(
-    lockLoop,
-    /hashtextextended\(v_lock\.employee_id::TEXT\|\|':'\|\|v_lock\.work_date::TEXT,0\)/,
-  );
+  const lockLoop =
+    migration.match(/FOREACH v_employee IN ARRAY v_employee_ids LOOP([\s\S]*?)END LOOP;/)?.[1] ??
+    "";
+  assert.match(lockLoop, /generate_series\(_date_from,_date_to,INTERVAL '1 day'\)::DATE/);
+  assert.match(lockLoop, /hashtextextended\(v_employee::TEXT\|\|':'\|\|v_day::TEXT,0\)/);
   assert.doesNotMatch(lockLoop, /hr_attendance_correction_requests|status='approved'/);
+});
+test("core processing reuses only the materialized employee universe", () => {
+  assert.match(
+    migration,
+    /FOREACH v_employee IN ARRAY v_employee_ids LOOP\s+v_core_count:=public\.hr_attendance_refresh_days_core\(_date_from,_date_to,v_employee\)/,
+  );
+  assert.doesNotMatch(
+    migration,
+    /hr_attendance_refresh_days_core\(_date_from,_date_to,_employee_id\)/,
+  );
+  assert.doesNotMatch(migration, /hr_attendance_refresh_days_core\(_date_from,_date_to,NULL\)/);
+  assert.match(migration, /v_count:=v_count\+COALESCE\(v_core_count,0\)/);
+});
+test("employees activated after materialization wait for the next refresh", () => {
+  const fixedUniverse = ["employee-b"];
+  const liveEmployeesAfterActivation = ["employee-a", "employee-b"];
+  const currentRefresh = [...fixedUniverse];
+  assert.deepEqual(currentRefresh, ["employee-b"]);
+  assert.ok(!currentRefresh.includes("employee-a"));
+  assert.deepEqual(liveEmployeesAfterActivation, ["employee-a", "employee-b"]);
 });
 test("holiday overlay refuses to reopen an approved day silently", () => {
   assert.match(migration, /تغيير عطلة يؤثر في يوم معتمد/);

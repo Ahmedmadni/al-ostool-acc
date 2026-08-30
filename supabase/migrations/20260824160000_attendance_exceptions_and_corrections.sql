@@ -256,7 +256,8 @@ ALTER FUNCTION public.hr_attendance_refresh_days(DATE,DATE,UUID) RENAME TO hr_at
 REVOKE ALL ON FUNCTION public.hr_attendance_refresh_days_core(DATE,DATE,UUID) FROM PUBLIC,anon,authenticated,service_role;
 CREATE OR REPLACE FUNCTION public.hr_attendance_refresh_days(_date_from DATE,_date_to DATE,_employee_id UUID DEFAULT NULL)
 RETURNS INTEGER LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
-DECLARE v_count INTEGER; v_approvals JSONB; v_audit_times JSONB; v_lock RECORD;
+DECLARE v_count INTEGER:=0; v_core_count INTEGER; v_approvals JSONB; v_audit_times JSONB;
+  v_employee_ids UUID[]; v_employee UUID; v_day DATE;
 BEGIN
   IF NOT (public.has_permission(auth.uid(),'hr.attendance','edit') OR public.is_admin(auth.uid()) OR auth.role()='service_role') THEN
     RAISE EXCEPTION 'ليست لديك صلاحية معالجة الحضور';
@@ -264,33 +265,36 @@ BEGIN
   IF _date_from IS NULL OR _date_to IS NULL OR _date_to<_date_from OR _date_to-_date_from>92 THEN
     RAISE EXCEPTION 'الفترة غير صالحة أو تتجاوز 93 يوماً';
   END IF;
-  -- Acquire the complete Gate 1 employee/date universe in exactly the order
-  -- used by the core.  The core's repeated locks are reentrant in this xact.
-  FOR v_lock IN
-    SELECT e.id employee_id,day.work_date::DATE work_date
-    FROM public.hr_employees e
-    CROSS JOIN LATERAL generate_series(_date_from,_date_to,INTERVAL '1 day') day(work_date)
-    WHERE e.status IN ('active','on_leave') AND (_employee_id IS NULL OR e.id=_employee_id)
-    ORDER BY e.id,day.work_date
-  LOOP
-    PERFORM pg_advisory_xact_lock(hashtextextended(v_lock.employee_id::TEXT||':'||v_lock.work_date::TEXT,0));
+  -- Materialize the Gate 1 employee universe once for this invocation.  Later
+  -- status changes are intentionally deferred to the next refresh.
+  SELECT COALESCE(array_agg(e.id ORDER BY e.id),'{}'::UUID[]) INTO v_employee_ids
+  FROM public.hr_employees e
+  WHERE e.status IN ('active','on_leave') AND (_employee_id IS NULL OR e.id=_employee_id);
+  -- Acquire every fixed employee/date key before reading correction state.
+  FOREACH v_employee IN ARRAY v_employee_ids LOOP
+    FOR v_day IN SELECT generate_series(_date_from,_date_to,INTERVAL '1 day')::DATE LOOP
+      PERFORM pg_advisory_xact_lock(hashtextextended(v_employee::TEXT||':'||v_day::TEXT,0));
+    END LOOP;
   END LOOP;
   SELECT COALESCE(jsonb_agg(jsonb_build_object('day_id',d.id,'calculated_at',d.calculated_at,
     'updated_at',d.updated_at)),'[]'::JSONB) INTO v_audit_times
   FROM public.hr_attendance_days d WHERE d.work_date BETWEEN _date_from AND _date_to
-    AND (_employee_id IS NULL OR d.employee_id=_employee_id)
+    AND d.employee_id=ANY(v_employee_ids)
     AND EXISTS(SELECT 1 FROM public.hr_attendance_correction_requests r
       WHERE r.attendance_day_id=d.id AND r.status='approved');
   SELECT COALESCE(jsonb_agg(jsonb_build_object('day_id',d.id,'approved_by',d.approved_by,
     'approved_at',d.approved_at)),'[]'::JSONB) INTO v_approvals
   FROM public.hr_attendance_days d WHERE d.approval_status='approved'
-    AND d.work_date BETWEEN _date_from AND _date_to AND (_employee_id IS NULL OR d.employee_id=_employee_id)
+    AND d.work_date BETWEEN _date_from AND _date_to AND d.employee_id=ANY(v_employee_ids)
     AND EXISTS(SELECT 1 FROM public.hr_attendance_correction_requests r
       WHERE r.attendance_day_id=d.id AND r.status='approved');
   UPDATE public.hr_attendance_days d SET approval_status='pending',approved_by=NULL,approved_at=NULL
   FROM jsonb_to_recordset(v_approvals) AS a(day_id UUID,approved_by UUID,approved_at TIMESTAMPTZ)
   WHERE d.id=a.day_id;
-  v_count:=public.hr_attendance_refresh_days_core(_date_from,_date_to,_employee_id);
+  FOREACH v_employee IN ARRAY v_employee_ids LOOP
+    v_core_count:=public.hr_attendance_refresh_days_core(_date_from,_date_to,v_employee);
+    v_count:=v_count+COALESCE(v_core_count,0);
+  END LOOP;
   -- Gate 1 recalculates raw facts first; approved overrides are then reapplied
   -- deterministically without changing their immutable decision snapshots.
   PERFORM public.hr_attendance_apply_correction(r.id,false)
@@ -299,7 +303,7 @@ BEGIN
     FROM public.hr_attendance_correction_requests request
     WHERE request.status='approved' ORDER BY request.attendance_day_id,request.decided_at DESC,request.id DESC
   ) r JOIN public.hr_attendance_days d ON d.id=r.attendance_day_id
-  WHERE d.work_date BETWEEN _date_from AND _date_to AND (_employee_id IS NULL OR d.employee_id=_employee_id);
+  WHERE d.work_date BETWEEN _date_from AND _date_to AND d.employee_id=ANY(v_employee_ids);
   UPDATE public.hr_attendance_days d SET approval_status='approved',approved_by=a.approved_by,approved_at=a.approved_at
   FROM jsonb_to_recordset(v_approvals) AS a(day_id UUID,approved_by UUID,approved_at TIMESTAMPTZ)
   WHERE d.id=a.day_id;
@@ -309,14 +313,14 @@ BEGIN
   IF EXISTS(
     SELECT 1 FROM public.hr_attendance_days d JOIN public.hr_attendance_holidays h
       ON d.work_date BETWEEN h.date_from AND h.date_to AND (h.group_id IS NULL OR h.group_id=d.group_id)
-    WHERE d.work_date BETWEEN _date_from AND _date_to AND (_employee_id IS NULL OR d.employee_id=_employee_id)
+    WHERE d.work_date BETWEEN _date_from AND _date_to AND d.employee_id=ANY(v_employee_ids)
       AND d.approval_status='approved' AND (d.calculation_details->>'holiday_id') IS DISTINCT FROM h.id::TEXT
   ) THEN RAISE EXCEPTION 'تغيير عطلة يؤثر في يوم معتمد؛ يلزم مسار تصحيح أو إعادة فتح'; END IF;
   WITH holiday_matches AS (
     SELECT DISTINCT ON (d.id) d.id day_id,h.id,h.name_ar,h.is_paid
     FROM public.hr_attendance_days d JOIN public.hr_attendance_holidays h
       ON d.work_date BETWEEN h.date_from AND h.date_to AND (h.group_id IS NULL OR h.group_id=d.group_id)
-    WHERE d.work_date BETWEEN _date_from AND _date_to AND (_employee_id IS NULL OR d.employee_id=_employee_id)
+    WHERE d.work_date BETWEEN _date_from AND _date_to AND d.employee_id=ANY(v_employee_ids)
     ORDER BY d.id,h.group_id NULLS LAST
   )
   UPDATE public.hr_attendance_days d SET status='rest_day',actual_minutes=0,late_minutes=0,
