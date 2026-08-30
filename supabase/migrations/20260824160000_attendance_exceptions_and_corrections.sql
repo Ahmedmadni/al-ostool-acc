@@ -258,11 +258,20 @@ CREATE OR REPLACE FUNCTION public.hr_attendance_refresh_days(_date_from DATE,_da
 RETURNS INTEGER LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
 DECLARE v_count INTEGER; v_approvals JSONB; v_audit_times JSONB; v_lock RECORD;
 BEGIN
-  FOR v_lock IN SELECT d.employee_id,d.work_date FROM public.hr_attendance_days d
-    WHERE d.work_date BETWEEN _date_from AND _date_to AND (_employee_id IS NULL OR d.employee_id=_employee_id)
-      AND EXISTS(SELECT 1 FROM public.hr_attendance_correction_requests r
-        WHERE r.attendance_day_id=d.id AND r.status='approved')
-    ORDER BY d.employee_id,d.work_date
+  IF NOT (public.has_permission(auth.uid(),'hr.attendance','edit') OR public.is_admin(auth.uid()) OR auth.role()='service_role') THEN
+    RAISE EXCEPTION 'ليست لديك صلاحية معالجة الحضور';
+  END IF;
+  IF _date_from IS NULL OR _date_to IS NULL OR _date_to<_date_from OR _date_to-_date_from>92 THEN
+    RAISE EXCEPTION 'الفترة غير صالحة أو تتجاوز 93 يوماً';
+  END IF;
+  -- Acquire the complete Gate 1 employee/date universe in exactly the order
+  -- used by the core.  The core's repeated locks are reentrant in this xact.
+  FOR v_lock IN
+    SELECT e.id employee_id,day.work_date::DATE work_date
+    FROM public.hr_employees e
+    CROSS JOIN LATERAL generate_series(_date_from,_date_to,INTERVAL '1 day') day(work_date)
+    WHERE e.status IN ('active','on_leave') AND (_employee_id IS NULL OR e.id=_employee_id)
+    ORDER BY e.id,day.work_date
   LOOP
     PERFORM pg_advisory_xact_lock(hashtextextended(v_lock.employee_id::TEXT||':'||v_lock.work_date::TEXT,0));
   END LOOP;

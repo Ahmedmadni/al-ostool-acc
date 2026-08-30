@@ -239,6 +239,24 @@ test("request, decision and apply share Gate 1 employee-date locking", () => {
   );
   assert.match(migration, /WHERE id=_request_id FOR UPDATE/);
 });
+test("corrected refresh pre-locks the full Gate 1 employee-date range", () => {
+  const lockLoop = migration.match(/FOR v_lock IN([\s\S]*?)END LOOP;/)?.[1] ?? "";
+  assert.match(lockLoop, /FROM public\.hr_employees e/);
+  assert.match(
+    lockLoop,
+    /generate_series\(_date_from,_date_to,INTERVAL '1 day'\) day\(work_date\)/,
+  );
+  assert.match(
+    lockLoop,
+    /e\.status IN \('active','on_leave'\) AND \(_employee_id IS NULL OR e\.id=_employee_id\)/,
+  );
+  assert.match(lockLoop, /ORDER BY e\.id,day\.work_date/);
+  assert.match(
+    lockLoop,
+    /hashtextextended\(v_lock\.employee_id::TEXT\|\|':'\|\|v_lock\.work_date::TEXT,0\)/,
+  );
+  assert.doesNotMatch(lockLoop, /hr_attendance_correction_requests|status='approved'/);
+});
 test("holiday overlay refuses to reopen an approved day silently", () => {
   assert.match(migration, /تغيير عطلة يؤثر في يوم معتمد/);
 });
