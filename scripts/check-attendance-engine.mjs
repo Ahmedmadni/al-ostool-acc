@@ -49,8 +49,8 @@ assert.ok(
 );
 assert.ok(page.includes("8 ساعات + ساعة راحة"), "Shift UI must expose the 8+1 break model");
 assert.ok(
-  endpoint.includes("hr_attendance_authenticate_device"),
-  "Biometric endpoint must authenticate the individual device token",
+  endpoint.includes("hr_attendance_claim_biometric_request"),
+  "Biometric endpoint must authenticate and replay-protect the individual device request",
 );
 assert.ok(endpoint.includes("external_event_id"), "Biometric ingestion must be idempotent");
 

@@ -23,6 +23,7 @@
     "check:attendance-exceptions": "node scripts/check-attendance-exceptions.mjs",
     "check:attendance-close": "node scripts/check-attendance-close.mjs",
     "check:attendance-operations": "node scripts/check-attendance-operations.mjs",
+    "check:attendance-api-security": "node scripts/check-attendance-api-security.mjs",
     "check:vat": "node scripts/check-vat-engine.mjs",
     "check:vat-flexibility": "node scripts/check-vat-flexibility.mjs",
     "check:zakat-flexibility": "node scripts/check-zakat-flexibility.mjs",
