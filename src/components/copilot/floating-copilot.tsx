@@ -92,22 +92,21 @@ export function FloatingCopilot() {
 
   if (path === "/login") return null;
 
-  const side = dir === "rtl" ? "left-6" : "right-6";
+  const side = dir === "rtl" ? "left-4 md:left-6" : "right-4 md:right-6";
+
+  // Open/close via the header button (custom event from AppShell)
+  useEffect(() => {
+    const onToggle = () => setOpen((o) => !o);
+    window.addEventListener("toggle-floating-copilot", onToggle);
+    return () => window.removeEventListener("toggle-floating-copilot", onToggle);
+  }, []);
 
   return (
     <>
-      {!open && (
-        <Button
-          onClick={() => setOpen(true)}
-          className={`fixed bottom-24 md:bottom-6 ${side} z-50 h-14 w-14 rounded-full shadow-2xl bg-gradient-to-br from-primary to-accent no-print`}
-          title={t("copilot")}
-        >
-          <Bot className="w-6 h-6" />
-        </Button>
-      )}
-
       {open && (
-        <Card className={`fixed bottom-24 md:bottom-6 ${side} z-50 w-[400px] max-w-[calc(100vw-3rem)] h-[560px] flex flex-col shadow-2xl border-2 no-print`} dir={dir}>
+        <>
+        <div className="fixed inset-0 z-40 bg-black/30 no-print md:bg-transparent" onClick={() => setOpen(false)} />
+        <Card className={`fixed top-20 ${side} z-50 w-[400px] max-w-[calc(100vw-2rem)] h-[min(560px,calc(100vh-120px))] flex flex-col shadow-2xl border-2 no-print`} dir={dir}>
           <div className="flex items-center justify-between p-3 border-b bg-gradient-to-l from-primary/10 to-accent/10">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
@@ -153,6 +152,7 @@ export function FloatingCopilot() {
             </Button>
           </div>
         </Card>
+        </>
       )}
     </>
   );
