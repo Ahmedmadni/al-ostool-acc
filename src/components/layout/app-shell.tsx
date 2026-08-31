@@ -339,6 +339,22 @@ export function AppShell({ children }: { children: ReactNode }) {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+          <Button
+            variant="ghost" size="icon"
+            title={lang === "en" ? "Calculator" : "الآلة الحاسبة"}
+            aria-label={lang === "en" ? "Calculator" : "الآلة الحاسبة"}
+            onClick={() => window.dispatchEvent(new CustomEvent("toggle-floating-calculator"))}
+          >
+            <Calculator className="w-5 h-5" />
+          </Button>
+          <Button
+            variant="ghost" size="icon"
+            title={t("copilot")}
+            aria-label={t("copilot")}
+            onClick={() => window.dispatchEvent(new CustomEvent("toggle-floating-copilot"))}
+          >
+            <Sparkles className="w-5 h-5" />
+          </Button>
           <NotificationsBell />
           <Button variant="ghost" size="icon" asChild title={lang === "en" ? "My Notes" : "ملاحظاتي الشخصية"}>
             <Link to="/notes"><FileText className="w-5 h-5" /></Link>

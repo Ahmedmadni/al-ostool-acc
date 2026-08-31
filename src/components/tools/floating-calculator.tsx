@@ -127,6 +127,13 @@ export function FloatingCalculator() {
     showFlash("M−");
   };
 
+  // Open/close via the header button (custom event from AppShell)
+  useEffect(() => {
+    const onToggle = () => setOpen((o) => !o);
+    window.addEventListener("toggle-floating-calculator", onToggle);
+    return () => window.removeEventListener("toggle-floating-calculator", onToggle);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -141,31 +148,17 @@ export function FloatingCalculator() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        title="الآلة الحاسبة"
-        aria-label="الآلة الحاسبة"
-        className="fixed left-4 md:left-6 z-40 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 flex items-center justify-center no-print"
-        style={{ bottom: "calc(env(safe-area-inset-bottom) + 172px)" }}
-
-      >
-        <CalcIcon className="w-5 h-5" />
-      </button>
-
       {open && (
         <>
           <div
-            className="md:hidden fixed inset-0 z-40 bg-black/40 no-print"
+            className="fixed inset-0 z-40 bg-black/40 no-print"
             onClick={() => setOpen(false)}
           />
           <div
-            className="fixed z-50 no-print bg-card border border-border shadow-2xl
-              inset-x-2 rounded-xl
-              md:inset-auto md:left-6 md:w-72 md:rounded-xl"
+            className="fixed z-50 no-print bg-card border border-border shadow-2xl rounded-xl
+              inset-x-2 top-20 mx-auto w-[calc(100vw-1rem)] max-w-72"
             style={{
-              bottom: "calc(env(safe-area-inset-bottom) + 140px)",
-              maxHeight: "calc(100vh - env(safe-area-inset-bottom) - 160px)",
+              maxHeight: "calc(100vh - env(safe-area-inset-bottom) - 120px)",
               overflowY: "auto",
             }}
             dir="ltr"
