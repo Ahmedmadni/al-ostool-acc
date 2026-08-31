@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /$
+Disallow: /api/
+Disallow: /settings
+Disallow: /hr
+Disallow: /customers
+Disallow: /vendors
+Disallow: /financials
+Disallow: /executive
+Disallow: /fleet
+Disallow: /reports
+
+Sitemap: https://al-ostool-acc.lovable.app/sitemap.xml
