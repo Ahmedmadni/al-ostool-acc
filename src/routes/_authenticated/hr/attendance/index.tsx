@@ -139,7 +139,9 @@ function AttendancePage() {
       (
         await (supabase as any)
           .from("hr_biometric_devices")
-          .select("*,hr_work_sites(name_ar)")
+          .select(
+            "id,device_code,name_ar,site_id,vendor,is_active,last_seen_at,created_at,updated_at,token_last_four,token_rotated_at,auth_failures,last_auth_failure_at,hr_work_sites(name_ar)",
+          )
           .order("name_ar")
       ).data ?? [],
   });
