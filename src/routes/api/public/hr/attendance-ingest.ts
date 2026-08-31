@@ -58,7 +58,7 @@ async function ingest(request: Request) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const deviceCodes = [...new Set(validated.map((event) => event.device_code))];
   if (deviceCodes.length !== 1) return json(422, { error: "one_device_per_batch_required" });
-  const { data: authenticated, error: authError } = await supabaseAdmin.rpc(
+  const { data: authenticated, error: authError } = await (supabaseAdmin as any).rpc(
     "hr_attendance_authenticate_device",
     { _device_code: deviceCodes[0], _token: provided },
   );

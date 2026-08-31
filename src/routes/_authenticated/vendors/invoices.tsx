@@ -36,7 +36,7 @@ function Page() {
     mutationFn: async ({ id, tax_category }: { id: string; tax_category: string }) => {
       const { error } = await supabase
         .from("purchase_invoices")
-        .update({ tax_category })
+        .update({ tax_category } as any)
         .eq("id", id);
       if (error) throw error;
     },

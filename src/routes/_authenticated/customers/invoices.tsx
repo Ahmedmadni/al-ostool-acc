@@ -33,7 +33,7 @@ function Page() {
   const qc = useQueryClient();
   const classify = useMutation({
     mutationFn: async ({ id, tax_category }: { id: string; tax_category: string }) => {
-      const { error } = await supabase.from("invoices").update({ tax_category }).eq("id", id);
+      const { error } = await supabase.from("invoices").update({ tax_category } as any).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["invoices"] }),
