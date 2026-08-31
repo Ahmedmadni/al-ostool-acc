@@ -135,6 +135,13 @@ async function ingest(request: Request) {
   const bodyHash = await sha256(raw);
   const timestampMs = Date.parse(requestTimestamp);
   const now = Date.now();
+  const canonical = `POST\n${INGEST_PATH}\n${requestTimestamp}\n${nonce}\n${bodyHash}`;
+  // Establish request integrity before JSON decoding or any durable rejection
+  // write. This validates possession of the supplied credential; registered
+  // device authentication remains the subsequent constant-work database claim.
+  if (!(await verifyHmac(token, signature, canonical)))
+    return json(401, { error: "invalid_request_authentication" });
+
   const { sourceIp, userAgent } = requestMetadata(request);
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const secureRpc = supabaseAdmin.rpc.bind(supabaseAdmin) as unknown as (
@@ -198,12 +205,6 @@ async function ingest(request: Request) {
       });
   }
 
-  const canonical = `POST\n${INGEST_PATH}\n${requestTimestamp}\n${nonce}\n${bodyHash}`;
-  if (!(await verifyHmac(token, signature, canonical))) {
-    await audit("invalid_signature", deviceCodes[0]);
-    return json(401, { error: "invalid_request_authentication" });
-  }
-
   const { data: rawClaim, error: claimError } = await secureRpc(
     "hr_attendance_claim_biometric_request",
     {
@@ -263,6 +264,9 @@ async function ingest(request: Request) {
 // presented as protection in a distributed serverless runtime; HTTP 429 is not
 // claimed until that deployment control exists. Bcrypt makes invalid-credential
 // traffic intentionally expensive, while unknown devices bypass bcrypt in SQL.
+// Accepted timing/enumeration trade-off: unknown devices do not run dummy bcrypt.
+// The external authentication response remains generic; distributed rate limiting
+// is required before Production to bound probing and credential-guessing traffic.
 export const Route = createFileRoute("/api/public/hr/attendance-ingest")({
   server: { handlers: { POST: ({ request }) => ingest(request) } },
 });

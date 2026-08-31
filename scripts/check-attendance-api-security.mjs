@@ -11,7 +11,12 @@ const migration = readFileSync(
   "supabase/migrations/20260825220000_biometric_api_security.sql",
   "utf8",
 );
-const all = `${foundation}\n${migration}`;
+const reviewFixes = readFileSync(
+  "supabase/migrations/20260825230000_gate5_security_review_fixes.sql",
+  "utf8",
+);
+const attendanceUi = readFileSync("src/routes/_authenticated/hr/attendance/index.tsx", "utf8");
+const all = `${foundation}\n${migration}\n${reviewFixes}`;
 const has = (source, token) =>
   assert.ok(source.includes(token), `Missing Gate 5 invariant: ${token}`);
 
@@ -186,6 +191,47 @@ assert.ok(!foundation.match(/GRANT SELECT\s+ON public\.hr_biometric_devices/));
 assert.ok(!api.includes("console."));
 assert.ok(!migration.includes("_token,jsonb") && !migration.includes("'token',_token"));
 has(api, '"cache-control": "no-store"');
+
+// Provisioning is an authenticated UI operation, explicitly denied to every
+// implicit/default or unnecessary role, and still authorized inside each RPC.
+for (const signature of [
+  "hr_attendance_register_device(TEXT,TEXT,UUID,TEXT)",
+  "hr_attendance_rotate_device_token(UUID)",
+]) {
+  has(reviewFixes, `REVOKE ALL ON FUNCTION public.${signature}`);
+  const revoke = reviewFixes.slice(
+    reviewFixes.indexOf(`REVOKE ALL ON FUNCTION public.${signature}`),
+  );
+  assert.match(revoke.split(";")[0], /FROM PUBLIC,anon,authenticated,service_role/);
+  has(reviewFixes, `GRANT EXECUTE ON FUNCTION public.${signature}`);
+}
+for (const functionName of ["hr_attendance_register_device", "hr_attendance_rotate_device_token"]) {
+  const start = migration.indexOf(`CREATE OR REPLACE FUNCTION public.${functionName}`);
+  const body = migration.slice(start, migration.indexOf("$$;", start));
+  has(
+    body,
+    "public.has_permission(auth.uid(),'hr.attendance','edit') OR public.is_admin(auth.uid())",
+  );
+}
+assert.ok(!reviewFixes.match(/GRANT EXECUTE[\s\S]*?\bTO\s+(?:PUBLIC|anon|service_role)\b/));
+
+// The authenticated device screen requests exactly its granted safe columns.
+const deviceQuery = attendanceUi.slice(
+  attendanceUi.indexOf('queryKey: ["hr_biometric_devices"]'),
+  attendanceUi.indexOf('queryKey: ["hr_attendance_anomalies"]'),
+);
+assert.ok(!deviceQuery.includes('.select("*'));
+for (const field of ["id", "device_code", "name_ar", "last_seen_at", "auth_failures"])
+  has(deviceQuery, field);
+for (const secret of ["token_hash", "raw_token", "credential_verifier"])
+  assert.ok(!deviceQuery.includes(secret));
+has(deviceQuery, "hr_work_sites(name_ar)");
+
+// Raw bytes are hashed and HMAC-verified before parsing or durable audit work.
+assert.ok(api.indexOf("await verifyHmac(") < api.indexOf("JSON.parse("));
+assert.ok(api.indexOf("await verifyHmac(") < api.indexOf('await audit("'));
+has(api, "Accepted timing/enumeration trade-off");
+has(reviewFixes, "Medium / Deferred operational integrity limitation");
 
 // Public clients cannot execute the service-role trust-boundary functions or legacy ingest.
 for (const signature of [
