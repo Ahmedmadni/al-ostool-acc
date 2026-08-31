@@ -74,7 +74,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "منصة الأعمال المتكاملة | شركة الأسطول الآلي" },
       { name: "twitter:title", content: "منصة الأعمال المتكاملة | شركة الأسطول الآلي" },
       { property: "og:description", content: "منصة الأسطول الآلي لإدارة العملاء والموردين والتحليل المالي والمشاريع والموارد البشرية والنقليات في مكان واحد." },
-      { name: "twitter:description", content: "نظام متكامل لإدارة العملاء والذمم المدينة وتحليل المشاريع والفوترة لشركة الأسطول الآلي" },
+      { name: "twitter:description", content: "منصة الأسطول الآلي لإدارة العملاء والموردين والتحليل المالي والمشاريع والموارد البشرية والنقليات في مكان واحد." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/LXTaZvI6vDfCRSePzYJGlChgDtj2/social-images/social-1780804595330-ChatGPT_Image_Jun_7,_2026,_06_56_03_AM.webp" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/LXTaZvI6vDfCRSePzYJGlChgDtj2/social-images/social-1780804595330-ChatGPT_Image_Jun_7,_2026,_06_56_03_AM.webp" },
       { name: "twitter:card", content: "summary_large_image" },
