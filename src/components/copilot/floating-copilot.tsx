@@ -152,6 +152,7 @@ export function FloatingCopilot() {
             </Button>
           </div>
         </Card>
+        </>
       )}
     </>
   );
