@@ -372,6 +372,8 @@ function AttendancePage() {
   const createDevice = useMutation({
     mutationFn: async () => {
       const { data, error } = await (supabase as any).rpc("hr_attendance_register_device", {
+        // Inert compatibility parameter. The DEV-* code is issued server-side by
+        // hr_biometric_device_code_seq; a non-empty value here is rejected.
         _device_code: "",
         _name_ar: device.name_ar,
         _site_id: device.site_id || null,

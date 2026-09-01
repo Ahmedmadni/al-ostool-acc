@@ -21,7 +21,11 @@ assert.match(page, /rpc\("hr_attendance_create_shift_group"/);
 assert.doesNotMatch(page, /id="site-code"/);
 assert.doesNotMatch(page, /id="group-code"/);
 assert.doesNotMatch(page, /id="device-code"/);
-assert.match(api, /GET: \(\{ request \}\) => capabilities\(request\)/);
-assert.match(api, /idempotency: "external_event_id"/);
+// Gate 5 removed the unauthenticated GET capabilities endpoint; the ingest route
+// must stay POST-only, and idempotency is carried by external_event_id.
+assert.match(api, /server: \{ handlers: \{ POST: \(\{ request \}\) => ingest\(request\) \} \}/);
+assert.doesNotMatch(api, /\bGET:/);
+assert.match(api, /_external_event_id: event\.external_event_id/);
+assert.match(api, /status: z\.enum\(\["created", "duplicate", "rejected", "conflict"\]\)/);
 
 console.log("HR sequential codes and biometric device API checks passed.");

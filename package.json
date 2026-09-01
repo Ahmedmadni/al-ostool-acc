@@ -38,7 +38,8 @@
     "check:cost-aux-imports": "node scripts/check-cost-aux-imports.mjs",
     "check:cost-period-operations": "node scripts/check-cost-period-operations.mjs",
     "check:cost-budgets": "node scripts/check-cost-budgets.mjs",
-    "check:hr-sequential-codes-api": "node scripts/check-hr-sequential-codes-api.mjs"
+    "check:hr-sequential-codes-api": "node scripts/check-hr-sequential-codes-api.mjs",
+    "check:gate6-sequential-codes": "node scripts/check-gate6-sequential-codes.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
