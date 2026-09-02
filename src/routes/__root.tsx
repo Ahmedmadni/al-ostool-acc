@@ -69,12 +69,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "منصة إدارة العملاء والتحليل المالي والمشاريع - شركة الأسطول الآلي" },
-      { name: "description", content: "نظام متكامل لإدارة العملاء والذمم المدينة وتحليل المشاريع والفوترة لشركة الأسطول الآلي" },
-      { property: "og:title", content: "منصة إدارة العملاء والتحليل المالي والمشاريع - شركة الأسطول الآلي" },
-      { name: "twitter:title", content: "منصة إدارة العملاء والتحليل المالي والمشاريع - شركة الأسطول الآلي" },
-      { property: "og:description", content: "نظام متكامل لإدارة العملاء والذمم المدينة وتحليل المشاريع والفوترة لشركة الأسطول الآلي" },
-      { name: "twitter:description", content: "نظام متكامل لإدارة العملاء والذمم المدينة وتحليل المشاريع والفوترة لشركة الأسطول الآلي" },
+      { title: "منصة الأعمال المتكاملة | شركة الأسطول الآلي" },
+      { name: "description", content: "منصة الأسطول الآلي لإدارة العملاء والموردين والتحليل المالي والمشاريع والموارد البشرية والنقليات في مكان واحد." },
+      { property: "og:title", content: "منصة الأعمال المتكاملة | شركة الأسطول الآلي" },
+      { name: "twitter:title", content: "منصة الأعمال المتكاملة | شركة الأسطول الآلي" },
+      { property: "og:description", content: "منصة الأسطول الآلي لإدارة العملاء والموردين والتحليل المالي والمشاريع والموارد البشرية والنقليات في مكان واحد." },
+      { name: "twitter:description", content: "منصة الأسطول الآلي لإدارة العملاء والموردين والتحليل المالي والمشاريع والموارد البشرية والنقليات في مكان واحد." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/LXTaZvI6vDfCRSePzYJGlChgDtj2/social-images/social-1780804595330-ChatGPT_Image_Jun_7,_2026,_06_56_03_AM.webp" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/LXTaZvI6vDfCRSePzYJGlChgDtj2/social-images/social-1780804595330-ChatGPT_Image_Jun_7,_2026,_06_56_03_AM.webp" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -96,6 +96,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "شركة الأسطول الآلي",
+              alternateName: "Al-Ostool Al-Ali Co.",
+              url: "https://al-ostool-acc.lovable.app",
+              logo: "https://al-ostool-acc.lovable.app/icons/icon-512.png",
+            },
+            {
+              "@type": "WebSite",
+              name: "منصة شركة الأسطول الآلي",
+              url: "https://al-ostool-acc.lovable.app",
+              inLanguage: "ar",
+            },
+          ],
+        }),
+      },
     ],
   }),
   shellComponent: RootShell,

@@ -205,8 +205,8 @@ export function VatReturnForm() {
         toast.error(salesResult.error?.message ?? purchasesResult.error?.message);
         return;
       }
-      const salesRows = (salesResult.data ?? []) as SourceInvoice[];
-      const purchaseRows = (purchasesResult.data ?? []) as SourceInvoice[];
+      const salesRows = (salesResult.data ?? []) as unknown as SourceInvoice[];
+      const purchaseRows = (purchasesResult.data ?? []) as unknown as SourceInvoice[];
       setEligibleSales(salesRows);
       setEligiblePurchases(purchaseRows);
       const period = `${header.period_from}:${header.period_to}`;

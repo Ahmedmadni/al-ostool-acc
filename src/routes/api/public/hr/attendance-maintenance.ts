@@ -27,7 +27,7 @@ async function run(request: Request) {
   if (workDate && !/^\d{4}-\d{2}-\d{2}$/.test(workDate))
     return response(422, { error: "invalid_date" });
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin.rpc("hr_attendance_run_maintenance", {
+  const { data, error } = await (supabaseAdmin as any).rpc("hr_attendance_run_maintenance", {
     _work_date: workDate,
   });
   if (error) return response(500, { error: "maintenance_failed" });

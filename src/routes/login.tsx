@@ -14,7 +14,26 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export const Route = createFileRoute("/login")({ component: LoginPage });
+const LOGIN_TITLE = "تسجيل الدخول | شركة الأسطول الآلي";
+const LOGIN_DESC =
+  "سجّل الدخول إلى منصة شركة الأسطول الآلي للوصول إلى إدارة العملاء والتحليل المالي والمشاريع والموارد البشرية.";
+
+export const Route = createFileRoute("/login")({
+  component: LoginPage,
+  head: () => ({
+    meta: [
+      { title: LOGIN_TITLE },
+      { name: "description", content: LOGIN_DESC },
+      { property: "og:title", content: LOGIN_TITLE },
+      { property: "og:description", content: LOGIN_DESC },
+      { property: "og:url", content: "https://al-ostool-acc.lovable.app/login" },
+      { name: "twitter:title", content: LOGIN_TITLE },
+      { name: "twitter:description", content: LOGIN_DESC },
+      { name: "robots", content: "noindex, follow" },
+    ],
+    links: [{ rel: "canonical", href: "https://al-ostool-acc.lovable.app/login" }],
+  }),
+});
 
 type Option = { id: string; name_ar: string };
 
