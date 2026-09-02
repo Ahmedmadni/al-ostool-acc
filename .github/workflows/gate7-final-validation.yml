@@ -1,0 +1,182 @@
+name: Gate 7 final validation
+
+on:
+  push:
+    branches:
+      - gate7-attendance-payroll-integration
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: gate7
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d gate7"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fix caller-sensitive payroll line guard
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path=Path('supabase/migrations/20260902090000_gate7_attendance_payroll_cost_hardening.sql')
+          s=path.read_text()
+          start=s.index('CREATE OR REPLACE FUNCTION public.hr_payroll_line_gate7_guard()')
+          end=s.index('CREATE TRIGGER trg_hr_payroll_lines_gate7_guard', start)
+          seg=s[start:end]
+          if "SECURITY DEFINER" not in seg:
+              raise SystemExit('expected SECURITY DEFINER in guard segment')
+          seg=seg.replace('SECURITY DEFINER', 'SECURITY INVOKER', 1)
+          seg=seg.replace("IF v_status<>'draft' THEN", "IF v_status IS DISTINCT FROM 'draft' THEN", 1)
+          s=s[:start]+seg+s[end:]
+          path.write_text(s)
+
+          checker=Path('scripts/check-gate7-payroll-cost-integration.mjs')
+          c=checker.read_text()
+          marker='for (const invariant of mustContain) {'
+          proof='''const lineGuardSegment = migration.slice(\n  migration.indexOf("CREATE OR REPLACE FUNCTION public.hr_payroll_line_gate7_guard()"),\n  migration.indexOf("CREATE TRIGGER trg_hr_payroll_lines_gate7_guard"),\n);\nassert.ok(lineGuardSegment.includes("SECURITY INVOKER"), "Payroll-line caller guard must execute as invoker so current_user reflects the API caller");\nassert.ok(!lineGuardSegment.includes("SECURITY DEFINER"), "Payroll-line caller guard must not hide the caller behind the function owner");\nassert.ok(lineGuardSegment.includes("v_status IS DISTINCT FROM 'draft'"), "Missing/hidden payroll status must fail closed");\n\n'''
+          if proof not in c:
+              c=c.replace(marker, proof+marker)
+          checker.write_text(c)
+          PY
+
+      - name: Install dependencies
+        run: npm install --no-package-lock --ignore-scripts
+
+      - name: Run code verification
+        run: |
+          npm run check:gate7-payroll-cost
+          npm run check:payroll
+          npm run check:leave-compliance
+          npm run check:attendance
+          npm run check:attendance-daily
+          npm run check:attendance-exceptions
+          npm run check:attendance-close
+          npm run check:attendance-operations
+          npm run check:attendance-api-security
+          npm run check:gate6-sequential-codes
+          npm run check:cost-workflow
+          npm run check:cost-period-operations
+          npm run check:cost-imports
+          npm run check:cost-aux-imports
+          npm run check:cost-budgets
+          npm run typecheck
+          npm run verify
+          npm run build
+          git diff --check
+
+      - name: Build isolated PostgreSQL fixture
+        run: |
+          psql -h 127.0.0.1 -U postgres -d gate7 -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE anon NOLOGIN;
+          CREATE ROLE authenticated NOLOGIN;
+          CREATE ROLE service_role NOLOGIN;
+          CREATE SCHEMA auth;
+          CREATE EXTENSION IF NOT EXISTS pgcrypto;
+          CREATE TABLE auth.users(id uuid PRIMARY KEY DEFAULT gen_random_uuid());
+          CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT NULL::uuid $$;
+          CREATE FUNCTION auth.role() RETURNS text LANGUAGE sql STABLE AS $$ SELECT COALESCE(current_setting('request.jwt.claim.role',true),'') $$;
+          CREATE TYPE public.hr_payroll_status AS ENUM ('draft','pending_approval','approved','paid','cancelled');
+          CREATE TABLE public.hr_attendance_periods(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),period_year int NOT NULL,period_month int NOT NULL,status text NOT NULL,summary_snapshot jsonb NOT NULL DEFAULT '{}'::jsonb,closed_by uuid,closed_at timestamptz,reopened_by uuid,reopened_at timestamptz,reopen_reason text,created_at timestamptz DEFAULT now(),updated_at timestamptz DEFAULT now(),UNIQUE(period_year,period_month));
+          CREATE TABLE public.hr_attendance_days(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),employee_id uuid NOT NULL,work_date date NOT NULL,status text NOT NULL,approval_status text NOT NULL,scheduled_minutes int DEFAULT 0,actual_minutes int DEFAULT 0,late_minutes int DEFAULT 0,early_leave_minutes int DEFAULT 0,overtime_minutes int DEFAULT 0,calculation_details jsonb NOT NULL DEFAULT '{}'::jsonb);
+          CREATE TABLE public.hr_payroll_runs(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),run_no text NOT NULL,period_year int NOT NULL,period_month int NOT NULL,status public.hr_payroll_status NOT NULL DEFAULT 'draft');
+          CREATE TABLE public.hr_employees(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),employee_no text NOT NULL,full_name_ar text NOT NULL,department_id uuid);
+          CREATE TABLE public.projects(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),name text);
+          CREATE TABLE public.hr_payroll_lines(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),run_id uuid NOT NULL REFERENCES public.hr_payroll_runs(id),employee_id uuid NOT NULL REFERENCES public.hr_employees(id),project_id uuid REFERENCES public.projects(id),cost_entry_id uuid,attendance_absence_days numeric NOT NULL DEFAULT 0,attendance_late_minutes int NOT NULL DEFAULT 0,attendance_overtime_minutes int NOT NULL DEFAULT 0,absence_deduction numeric DEFAULT 0,late_deduction numeric DEFAULT 0,overtime numeric DEFAULT 0,gross_salary numeric DEFAULT 0,gosi_employee numeric DEFAULT 0,gosi_employer numeric DEFAULT 0,loan_deduction numeric DEFAULT 0,unpaid_leave_deduction numeric DEFAULT 0,sick_leave_deduction numeric DEFAULT 0,total_deductions numeric DEFAULT 0,net_salary numeric DEFAULT 0);
+          CREATE TABLE public.cost_entries(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),category text,description text,project text,project_id uuid,department_id uuid,period text,amount numeric,meta jsonb NOT NULL DEFAULT '{}'::jsonb,imported_by uuid,workflow_status text NOT NULL DEFAULT 'posted',source_type text NOT NULL DEFAULT 'legacy');
+          ALTER TABLE public.hr_payroll_lines ADD CONSTRAINT hr_payroll_lines_cost_entry_fkey FOREIGN KEY(cost_entry_id) REFERENCES public.cost_entries(id);
+          CREATE TABLE public.cost_periods(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),period text UNIQUE NOT NULL,status text NOT NULL);
+          CREATE FUNCTION public.hr_attendance_lock_periods(date,date) RETURNS void LANGUAGE plpgsql AS $$ BEGIN PERFORM 1; END $$;
+          CREATE FUNCTION public.hr_apply_attendance_to_payroll(uuid) RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$ BEGIN RETURN 1; END $$;
+          CREATE FUNCTION public.hr_sync_payroll_cost_entries(uuid) RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$ BEGIN RETURN 0; END $$;
+          SQL
+
+      - name: Apply Gate 7 migration
+        run: psql -h 127.0.0.1 -U postgres -d gate7 -v ON_ERROR_STOP=1 -f supabase/migrations/20260902090000_gate7_attendance_payroll_cost_hardening.sql
+
+      - name: Run PostgreSQL behavior assertions
+        run: |
+          psql -h 127.0.0.1 -U postgres -d gate7 -v ON_ERROR_STOP=1 <<'SQL'
+          DO $$
+          DECLARE v_emp uuid:=gen_random_uuid(); v_run uuid:=gen_random_uuid(); v_period uuid:=gen_random_uuid(); v_line uuid:=gen_random_uuid(); v_hash1 text; v_hash2 text; v_count int;
+          BEGIN
+            INSERT INTO public.hr_employees(id,employee_no,full_name_ar) VALUES(v_emp,'E-001','موظف اختبار');
+            INSERT INTO public.hr_attendance_periods(id,period_year,period_month,status,summary_snapshot,closed_at) VALUES(v_period,2026,8,'closed','{"approved":1}'::jsonb,clock_timestamp());
+            INSERT INTO public.hr_attendance_days(employee_id,work_date,status,approval_status,late_minutes,overtime_minutes,calculation_details) VALUES(v_emp,'2026-08-10','present','approved',10,60,'{"deduct_late_minutes":true,"pay_overtime":true}'::jsonb);
+            INSERT INTO public.hr_payroll_runs(id,run_no,period_year,period_month,status) VALUES(v_run,'PR-2026-08',2026,8,'draft');
+            INSERT INTO public.hr_payroll_lines(id,run_id,employee_id,gross_salary,gosi_employer) VALUES(v_line,v_run,v_emp,10000,1000);
+            PERFORM public.hr_apply_attendance_to_payroll(v_run);
+            SELECT attendance_snapshot_hash INTO v_hash1 FROM public.hr_payroll_runs WHERE id=v_run;
+            IF v_hash1 IS NULL OR (SELECT attendance_apply_count FROM public.hr_payroll_runs WHERE id=v_run)<>1 THEN RAISE EXCEPTION 'first apply metadata mismatch'; END IF;
+            PERFORM public.hr_apply_attendance_to_payroll(v_run);
+            IF (SELECT attendance_apply_count FROM public.hr_payroll_runs WHERE id=v_run)<>2 OR (SELECT attendance_snapshot_hash FROM public.hr_payroll_runs WHERE id=v_run) IS DISTINCT FROM v_hash1 THEN RAISE EXCEPTION 'same-snapshot reapply mismatch'; END IF;
+            UPDATE public.hr_attendance_periods SET status='open',closed_at=NULL WHERE id=v_period;
+            IF NOT public.hr_payroll_attendance_is_stale(v_run) THEN RAISE EXCEPTION 'reopen did not stale payroll'; END IF;
+            BEGIN UPDATE public.hr_payroll_runs SET status='pending_approval' WHERE id=v_run; RAISE EXCEPTION 'stale payroll advanced'; EXCEPTION WHEN OTHERS THEN IF SQLERRM='stale payroll advanced' THEN RAISE; END IF; END;
+            UPDATE public.hr_attendance_days SET late_minutes=20 WHERE employee_id=v_emp;
+            UPDATE public.hr_attendance_periods SET status='closed',closed_at=clock_timestamp(),summary_snapshot='{"generation":2}'::jsonb WHERE id=v_period;
+            PERFORM public.hr_apply_attendance_to_payroll(v_run);
+            SELECT attendance_snapshot_hash INTO v_hash2 FROM public.hr_payroll_runs WHERE id=v_run;
+            IF v_hash2=v_hash1 THEN RAISE EXCEPTION 'reclose did not change snapshot'; END IF;
+            UPDATE public.hr_payroll_runs SET status='pending_approval' WHERE id=v_run;
+            UPDATE public.hr_payroll_runs SET status='approved' WHERE id=v_run;
+            PERFORM set_config('request.jwt.claim.role','service_role',false);
+            v_count:=public.hr_sync_payroll_cost_entries(v_run); IF v_count<>1 THEN RAISE EXCEPTION 'first cost sync mismatch'; END IF;
+            v_count:=public.hr_sync_payroll_cost_entries(v_run); IF v_count<>0 THEN RAISE EXCEPTION 'second cost sync not idempotent'; END IF;
+            IF (SELECT count(*) FROM public.cost_entries WHERE meta->>'payroll_line_id'=v_line::text)<>1 THEN RAISE EXCEPTION 'duplicate payroll cost'; END IF;
+            INSERT INTO public.cost_periods(period,status) VALUES('2026-08','closed');
+            BEGIN PERFORM public.hr_sync_payroll_cost_entries(v_run); RAISE EXCEPTION 'closed cost period accepted'; EXCEPTION WHEN OTHERS THEN IF SQLERRM='closed cost period accepted' THEN RAISE; END IF; END;
+          END $$;
+
+          GRANT SELECT,UPDATE ON public.hr_payroll_runs,public.hr_payroll_lines TO authenticated;
+          DO $$
+          DECLARE v_run uuid:=gen_random_uuid(); v_emp uuid:=gen_random_uuid(); v_line uuid:=gen_random_uuid();
+          BEGIN
+            INSERT INTO public.hr_employees(id,employee_no,full_name_ar) VALUES(v_emp,'E-002','حارس صلاحيات');
+            INSERT INTO public.hr_payroll_runs(id,run_no,period_year,period_month,status) VALUES(v_run,'PR-GUARD',2026,7,'draft');
+            INSERT INTO public.hr_payroll_lines(id,run_id,employee_id,absence_deduction) VALUES(v_line,v_run,v_emp,0);
+            PERFORM set_config('gate7.test_run',v_run::text,false);
+            PERFORM set_config('gate7.test_line',v_line::text,false);
+          END $$;
+          SET ROLE authenticated;
+          DO $$
+          DECLARE v_line uuid:=current_setting('gate7.test_line')::uuid;
+          BEGIN
+            BEGIN UPDATE public.hr_payroll_lines SET absence_deduction=10 WHERE id=v_line; RAISE EXCEPTION 'direct derived mutation accepted'; EXCEPTION WHEN OTHERS THEN IF SQLERRM='direct derived mutation accepted' THEN RAISE; END IF; END;
+          END $$;
+          RESET ROLE;
+          UPDATE public.hr_payroll_runs SET status='approved' WHERE id=current_setting('gate7.test_run')::uuid;
+          SET ROLE authenticated;
+          DO $$
+          DECLARE v_line uuid:=current_setting('gate7.test_line')::uuid;
+          BEGIN
+            BEGIN UPDATE public.hr_payroll_lines SET gross_salary=1 WHERE id=v_line; RAISE EXCEPTION 'frozen line mutation accepted'; EXCEPTION WHEN OTHERS THEN IF SQLERRM='frozen line mutation accepted' THEN RAISE; END IF; END;
+          END $$;
+          RESET ROLE;
+          SQL
+
+      - name: Commit validated fix and remove temporary workflow
+        if: success()
+        run: |
+          rm .github/workflows/gate7-final-validation.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add supabase/migrations/20260902090000_gate7_attendance_payroll_cost_hardening.sql scripts/check-gate7-payroll-cost-integration.mjs .github/workflows/gate7-final-validation.yml
+          git commit -m "Fix Gate 7 payroll line caller guard"
+          git push origin HEAD:gate7-attendance-payroll-integration
