@@ -56,6 +56,14 @@ const mustContain = [
   "GRANT EXECUTE ON FUNCTION public.hr_sync_payroll_cost_entries(UUID) TO service_role",
   "manual reconciliation is required before migration",
 ];
+const lineGuardSegment = migration.slice(
+  migration.indexOf("CREATE OR REPLACE FUNCTION public.hr_payroll_line_gate7_guard()"),
+  migration.indexOf("CREATE TRIGGER trg_hr_payroll_lines_gate7_guard"),
+);
+assert.ok(lineGuardSegment.includes("SECURITY INVOKER"), "Payroll-line caller guard must execute as invoker so current_user reflects the API caller");
+assert.ok(!lineGuardSegment.includes("SECURITY DEFINER"), "Payroll-line caller guard must not hide the caller behind the function owner");
+assert.ok(lineGuardSegment.includes("v_status IS DISTINCT FROM 'draft'"), "Missing/hidden payroll status must fail closed");
+
 for (const invariant of mustContain) {
   assert.ok(migration.includes(invariant), `Gate 7 migration missing invariant: ${invariant}`);
 }

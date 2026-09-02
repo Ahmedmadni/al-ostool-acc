@@ -241,7 +241,7 @@ FOR EACH ROW EXECUTE FUNCTION public.hr_payroll_attendance_status_guard();
 CREATE OR REPLACE FUNCTION public.hr_payroll_line_gate7_guard()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY INVOKER
 SET search_path=''
 AS $$
 DECLARE
@@ -249,7 +249,7 @@ DECLARE
 BEGIN
   IF TG_OP='UPDATE' AND current_user IN ('anon','authenticated','service_role') THEN
     SELECT status INTO v_status FROM public.hr_payroll_runs WHERE id=OLD.run_id;
-    IF v_status<>'draft' THEN
+    IF v_status IS DISTINCT FROM 'draft' THEN
       RAISE EXCEPTION 'بنود مسير الرواتب غير قابلة للتعديل بعد مغادرة حالة المسودة';
     END IF;
 
