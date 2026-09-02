@@ -3,10 +3,6 @@
 -- entitlements.  Event leave is validated per request rather than pretending
 -- to be a renewable annual balance.
 
-ALTER TYPE public.hr_leave_type ADD VALUE IF NOT EXISTS 'marriage';
-ALTER TYPE public.hr_leave_type ADD VALUE IF NOT EXISTS 'bereavement';
-ALTER TYPE public.hr_leave_type ADD VALUE IF NOT EXISTS 'sibling_bereavement';
-
 CREATE TABLE public.hr_leave_rules (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   leave_type TEXT NOT NULL,

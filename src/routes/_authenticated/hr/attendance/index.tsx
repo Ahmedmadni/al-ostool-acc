@@ -69,14 +69,12 @@ function AttendancePage() {
   const [siteId, setSiteId] = useState("");
   const [locating, setLocating] = useState(false);
   const [siteForm, setSiteForm] = useState({
-    code: "",
     name_ar: "",
     latitude: "",
     longitude: "",
     radius_meters: "150",
   });
   const [groupForm, setGroupForm] = useState({
-    code: "",
     name_ar: "",
     start_time: "08:00",
     end_time: "16:00",
@@ -97,7 +95,7 @@ function AttendancePage() {
     group_id: "",
     effective_from: new Date().toISOString().slice(0, 10),
   });
-  const [device, setDevice] = useState({ device_code: "", name_ar: "", site_id: "", vendor: "" });
+  const [device, setDevice] = useState({ name_ar: "", site_id: "", vendor: "" });
   const [policyForm, setPolicyForm] = useState({
     group_id: "",
     grace_minutes: "0",
@@ -121,6 +119,7 @@ function AttendancePage() {
     group_id: "",
   });
   const [deviceToken, setDeviceToken] = useState("");
+  const [issuedDeviceCode, setIssuedDeviceCode] = useState("");
   const [reopenReason, setReopenReason] = useState("");
 
   const { data: sites = [] } = useQuery({
@@ -140,7 +139,9 @@ function AttendancePage() {
       (
         await (supabase as any)
           .from("hr_biometric_devices")
-          .select("*,hr_work_sites(name_ar)")
+          .select(
+            "id,device_code,name_ar,site_id,vendor,is_active,last_seen_at,created_at,updated_at,token_last_four,token_rotated_at,auth_failures,last_auth_failure_at,hr_work_sites(name_ar)",
+          )
           .order("name_ar")
       ).data ?? [],
   });
@@ -318,11 +319,11 @@ function AttendancePage() {
 
   const createSite = useMutation({
     mutationFn: async () => {
-      const { error } = await (supabase as any).from("hr_work_sites").insert({
-        ...siteForm,
-        latitude: Number(siteForm.latitude),
-        longitude: Number(siteForm.longitude),
-        radius_meters: Number(siteForm.radius_meters),
+      const { error } = await (supabase as any).rpc("hr_attendance_create_site", {
+        _name_ar: siteForm.name_ar,
+        _latitude: Number(siteForm.latitude),
+        _longitude: Number(siteForm.longitude),
+        _radius_meters: Number(siteForm.radius_meters),
       });
       if (error) throw error;
     },
@@ -335,43 +336,20 @@ function AttendancePage() {
 
   const createGroup = useMutation({
     mutationFn: async () => {
-      const breakMinutes = Number(groupForm.break_minutes);
-      const { data: group, error } = await (supabase as any)
-        .from("hr_shift_groups")
-        .insert({
-          code: groupForm.code,
-          name_ar: groupForm.name_ar,
-          work_minutes: 480,
-          break_minutes: breakMinutes,
-          break_is_paid: false,
-        })
-        .select("id")
-        .single();
-      if (error) throw error;
-      const { error: policyError } = await (supabase as any)
-        .from("hr_attendance_policies")
-        .insert({ group_id: group.id });
-      if (policyError) throw policyError;
       if (!workingDays.length) throw new Error("اختر يوم عمل واحداً على الأقل");
-      const { error: scheduleError } = await (supabase as any).from("hr_shift_schedules").insert(
-        workingDays.map((day) => ({
-          group_id: group.id,
-          day_of_week: day,
-          start_time: groupForm.start_time,
-          end_time: groupForm.end_time,
-          checkin_open_before_minutes: Number(groupForm.checkin_before),
-          checkin_close_after_minutes: Number(groupForm.checkin_after),
-          checkout_open_before_minutes: Number(groupForm.checkout_before),
-          checkout_close_after_minutes: Number(groupForm.checkout_after),
-        })),
-      );
-      if (scheduleError) throw scheduleError;
-      if (groupForm.site_id) {
-        const { error: siteError } = await (supabase as any)
-          .from("hr_shift_group_sites")
-          .insert({ group_id: group.id, site_id: groupForm.site_id });
-        if (siteError) throw siteError;
-      }
+      const { error } = await (supabase as any).rpc("hr_attendance_create_shift_group", {
+        _name_ar: groupForm.name_ar,
+        _start_time: groupForm.start_time,
+        _end_time: groupForm.end_time,
+        _break_minutes: Number(groupForm.break_minutes),
+        _site_id: groupForm.site_id || null,
+        _working_days: workingDays,
+        _checkin_before: Number(groupForm.checkin_before),
+        _checkin_after: Number(groupForm.checkin_after),
+        _checkout_before: Number(groupForm.checkout_before),
+        _checkout_after: Number(groupForm.checkout_after),
+      });
+      if (error) throw error;
     },
     onSuccess: () => {
       invalidate();
@@ -394,13 +372,16 @@ function AttendancePage() {
   const createDevice = useMutation({
     mutationFn: async () => {
       const { data, error } = await (supabase as any).rpc("hr_attendance_register_device", {
-        _device_code: device.device_code,
+        // Inert compatibility parameter. The DEV-* code is issued server-side by
+        // hr_biometric_device_code_seq; a non-empty value here is rejected.
+        _device_code: "",
         _name_ar: device.name_ar,
         _site_id: device.site_id || null,
         _vendor: device.vendor || null,
       });
       if (error) throw error;
       setDeviceToken(data.token);
+      setIssuedDeviceCode(data.device_code);
     },
     onSuccess: () => {
       invalidate();
@@ -415,6 +396,7 @@ function AttendancePage() {
       });
       if (error) throw error;
       setDeviceToken(data.token);
+      setIssuedDeviceCode(data.device_code);
     },
     onSuccess: () => {
       invalidate();
@@ -1246,12 +1228,6 @@ function AttendancePage() {
                 </h3>
                 <div className="grid grid-cols-2 gap-2">
                   <Field
-                    id="site-code"
-                    label="الرمز"
-                    value={siteForm.code}
-                    set={(v) => setSiteForm({ ...siteForm, code: v })}
-                  />
-                  <Field
                     id="site-name"
                     label="الاسم"
                     value={siteForm.name_ar}
@@ -1284,12 +1260,6 @@ function AttendancePage() {
                   مجموعة دوام جديدة
                 </h3>
                 <div className="grid grid-cols-2 gap-2">
-                  <Field
-                    id="group-code"
-                    label="الرمز"
-                    value={groupForm.code}
-                    set={(v) => setGroupForm({ ...groupForm, code: v })}
-                  />
                   <Field
                     id="group-name"
                     label="الاسم"
@@ -1480,12 +1450,6 @@ function AttendancePage() {
               </h3>
               <div className="grid grid-cols-2 gap-2">
                 <Field
-                  id="device-code"
-                  label="رمز الجهاز"
-                  value={device.device_code}
-                  set={(v) => setDevice({ ...device, device_code: v })}
-                />
-                <Field
                   id="device-name"
                   label="اسم الجهاز"
                   value={device.name_ar}
@@ -1520,14 +1484,21 @@ function AttendancePage() {
                     <KeyRound className="w-4 h-4" />
                     مفتاح الجهاز — يظهر مرة واحدة
                   </div>
+                  <div className="mt-2">
+                    رمز الجهاز:{" "}
+                    <code dir="ltr" className="select-all">
+                      {issuedDeviceCode}
+                    </code>
+                  </div>
                   <code dir="ltr" className="block break-all mt-2 select-all">
                     {deviceToken}
                   </code>
                 </div>
               )}
               <p className="text-xs text-muted-foreground">
-                ترسل الأجهزة إلى <code dir="ltr">/api/public/hr/attendance-ingest</code> باستخدام
-                Bearer token ومعرّف حركة فريد لمنع التكرار.
+                ينشئ النظام رمز الجهاز تسلسلياً بصيغة <code dir="ltr">DEV-000001</code>. ترسل
+                الأجهزة إلى <code dir="ltr">/api/public/hr/attendance-ingest</code> باستخدام Bearer
+                token ومعرّف حركة فريد لمنع التكرار.
               </p>
               <Table>
                 <TableHeader>

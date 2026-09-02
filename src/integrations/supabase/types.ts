@@ -645,6 +645,79 @@ export type Database = {
           },
         ]
       }
+      cost_import_batches: {
+        Row: {
+          id: string
+          import_key: string
+          file_name: string | null
+          source_type: string
+          status: string
+          row_count: number
+          accepted_count: number
+          rejected_count: number
+          total_amount: number
+          created_by: string
+          created_at: string
+        }
+        Insert: { id?: string; import_key: string; file_name?: string | null; source_type?: string; status?: string; row_count?: number; accepted_count?: number; rejected_count?: number; total_amount?: number; created_by: string; created_at?: string }
+        Update: { id?: string; import_key?: string; file_name?: string | null; source_type?: string; status?: string; row_count?: number; accepted_count?: number; rejected_count?: number; total_amount?: number; created_by?: string; created_at?: string }
+        Relationships: []
+      }
+      cost_budgets: {
+        Row: { id: string; period: string; category: string; project_id: string | null; department_id: string | null; amount: number; status: string; revision: number; notes: string | null; created_by: string; created_at: string; updated_by: string | null; updated_at: string; approved_by: string | null; approved_at: string | null }
+        Insert: { id?: string; period: string; category: string; project_id?: string | null; department_id?: string | null; amount: number; status?: string; revision?: number; notes?: string | null; created_by: string; created_at?: string; updated_by?: string | null; updated_at?: string; approved_by?: string | null; approved_at?: string | null }
+        Update: { id?: string; period?: string; category?: string; project_id?: string | null; department_id?: string | null; amount?: number; status?: string; revision?: number; notes?: string | null; created_by?: string; created_at?: string; updated_by?: string | null; updated_at?: string; approved_by?: string | null; approved_at?: string | null }
+        Relationships: []
+      }
+      cost_budget_events: {
+        Row: { id: string; budget_id: string; event_type: string; previous_amount: number | null; new_amount: number; reason: string | null; revision: number; changed_by: string | null; changed_at: string }
+        Insert: { id?: string; budget_id: string; event_type: string; previous_amount?: number | null; new_amount: number; reason?: string | null; revision: number; changed_by?: string | null; changed_at?: string }
+        Update: { id?: string; budget_id?: string; event_type?: string; previous_amount?: number | null; new_amount?: number; reason?: string | null; revision?: number; changed_by?: string | null; changed_at?: string }
+        Relationships: []
+      }
+      cost_import_lines: {
+        Row: {
+          id: string
+          batch_id: string
+          row_number: number
+          raw_data: Json
+          validation_errors: Json
+          source_record_id: string | null
+          cost_entry_id: string | null
+          created_at: string
+        }
+        Insert: { id?: string; batch_id: string; row_number: number; raw_data: Json; validation_errors?: Json; source_record_id?: string | null; cost_entry_id?: string | null; created_at?: string }
+        Update: { id?: string; batch_id?: string; row_number?: number; raw_data?: Json; validation_errors?: Json; source_record_id?: string | null; cost_entry_id?: string | null; created_at?: string }
+        Relationships: []
+      }
+      cost_periods: {
+        Row: {
+          id: string
+          period: string
+          status: string
+          reason: string | null
+          closed_by: string | null
+          closed_at: string | null
+          reopened_by: string | null
+          reopened_at: string | null
+          created_at: string
+        }
+        Insert: { id?: string; period: string; status?: string; reason?: string | null; closed_by?: string | null; closed_at?: string | null; reopened_by?: string | null; reopened_at?: string | null; created_at?: string }
+        Update: { id?: string; period?: string; status?: string; reason?: string | null; closed_by?: string | null; closed_at?: string | null; reopened_by?: string | null; reopened_at?: string | null; created_at?: string }
+        Relationships: []
+      }
+      cost_period_status_events: {
+        Row: { id: string; period: string; from_status: string | null; to_status: string; reason: string; changed_by: string | null; changed_at: string }
+        Insert: { id?: string; period: string; from_status?: string | null; to_status: string; reason: string; changed_by?: string | null; changed_at?: string }
+        Update: { id?: string; period?: string; from_status?: string | null; to_status?: string; reason?: string; changed_by?: string | null; changed_at?: string }
+        Relationships: []
+      }
+      cost_entry_status_events: {
+        Row: { id: string; cost_entry_id: string; from_status: string | null; to_status: string; reason: string | null; changed_by: string | null; changed_at: string }
+        Insert: { id?: string; cost_entry_id: string; from_status?: string | null; to_status: string; reason?: string | null; changed_by?: string | null; changed_at?: string }
+        Update: { id?: string; cost_entry_id?: string; from_status?: string | null; to_status?: string; reason?: string | null; changed_by?: string | null; changed_at?: string }
+        Relationships: []
+      }
       cost_entries: {
         Row: {
           amount: number | null
@@ -661,6 +734,13 @@ export type Database = {
           project: string | null
           project_id: string | null
           section: string | null
+          workflow_status: string
+          source_type: string
+          approved_by: string | null
+          approved_at: string | null
+          reversed_by: string | null
+          reversed_at: string | null
+          reversal_entry_id: string | null
         }
         Insert: {
           amount?: number | null
@@ -677,6 +757,13 @@ export type Database = {
           project?: string | null
           project_id?: string | null
           section?: string | null
+          workflow_status?: string
+          source_type?: string
+          approved_by?: string | null
+          approved_at?: string | null
+          reversed_by?: string | null
+          reversed_at?: string | null
+          reversal_entry_id?: string | null
         }
         Update: {
           amount?: number | null
@@ -693,6 +780,13 @@ export type Database = {
           project?: string | null
           project_id?: string | null
           section?: string | null
+          workflow_status?: string
+          source_type?: string
+          approved_by?: string | null
+          approved_at?: string | null
+          reversed_by?: string | null
+          reversed_at?: string | null
+          reversal_entry_id?: string | null
         }
         Relationships: [
           {
@@ -5219,6 +5313,68 @@ export type Database = {
       }
     }
     Functions: {
+      hr_attendance_create_site: { Args: { _name_ar: string; _latitude: number; _longitude: number; _radius_meters?: number }; Returns: Database["public"]["Tables"]["hr_work_sites"]["Row"] }
+      hr_attendance_create_shift_group: { Args: { _name_ar: string; _start_time: string; _end_time: string; _break_minutes: number; _site_id: string | null; _working_days: Json; _checkin_before?: number; _checkin_after?: number; _checkout_before?: number; _checkout_after?: number }; Returns: Database["public"]["Tables"]["hr_shift_groups"]["Row"] }
+      cost_budget_save: { Args: { _period: string; _category: string; _amount: number; _project_id?: string | null; _department_id?: string | null; _notes?: string | null; _revision_reason?: string | null }; Returns: Database["public"]["Tables"]["cost_budgets"]["Row"] }
+      cost_budget_approve: { Args: { _budget_id: string }; Returns: Database["public"]["Tables"]["cost_budgets"]["Row"] }
+      cost_entry_create_manual: { Args: { _category: string; _amount: number; _period: string; _description?: string | null; _project_id?: string | null; _department_id?: string | null }; Returns: Database["public"]["Tables"]["cost_entries"]["Row"] }
+      cost_aux_import_post: { Args: { _source_type: string; _import_key: string; _file_name: string; _rows: Json }; Returns: Json }
+      cost_entry_approve: { Args: { _entry_id: string }; Returns: Database["public"]["Tables"]["cost_entries"]["Row"] }
+      cost_entry_reverse: { Args: { _entry_id: string; _reason: string }; Returns: Database["public"]["Tables"]["cost_entries"]["Row"] }
+      cost_period_set_status: { Args: { _period: string; _closed: boolean; _reason: string }; Returns: Database["public"]["Tables"]["cost_periods"]["Row"] }
+      cost_import_post: { Args: { _import_key: string; _file_name: string; _rows: Json }; Returns: Json }
+      vat_file_return: { Args: { _return_id: string; _reference: string }; Returns: Database["public"]["Tables"]["vat_returns"]["Row"] }
+      vat_reopen_return: { Args: { _return_id: string; _reason: string }; Returns: Database["public"]["Tables"]["vat_returns"]["Row"] }
+      zakat_reopen_return: { Args: { _return_id: string; _reason: string }; Returns: Database["public"]["Tables"]["zakat_returns"]["Row"] }
+      zakat_save_account_mappings: { Args: { _mappings: Json }; Returns: number }
+      zakat_submit_return: { Args: { _return_id: string; _reference: string }; Returns: Database["public"]["Tables"]["zakat_returns"]["Row"] }
+      zakat_source_fingerprint: { Args: { _return_id: string }; Returns: string }
+      zakat_calculate_return_mapped: { Args: { _year_from: string; _year_to: string; _sources?: Json; _manual_adjustments?: Json; _form_data?: Json; _zakat_rate?: number; _income_tax_rate?: number }; Returns: Database["public"]["Tables"]["zakat_returns"]["Row"] }
+      zakat_approve_return: { Args: { _return_id: string }; Returns: Database["public"]["Tables"]["zakat_returns"]["Row"] }
+      zakat_calculate_return_flexible: { Args: { _year_from: string; _year_to: string; _sources?: Json; _manual_data?: Json; _zakat_rate?: number; _income_tax_rate?: number }; Returns: Database["public"]["Tables"]["zakat_returns"]["Row"] }
+      vat_return_stored_fingerprint: { Args: { _return_id: string }; Returns: string }
+      vat_calculate_return_flexible: { Args: { _period_from: string; _period_to: string; _sales_ids: string[]; _purchase_ids: string[]; _manual_adjustments?: Json; _carried_forward?: number; _header?: Json }; Returns: Database["public"]["Tables"]["vat_returns"]["Row"] }
+      vat_source_fingerprint: { Args: { _from: string; _to: string }; Returns: string }
+      vat_calculate_return: { Args: { _period_from: string; _period_to: string; _carried_forward?: number; _header?: Json }; Returns: Database["public"]["Tables"]["vat_returns"]["Row"] }
+      vat_approve_return: { Args: { _return_id: string }; Returns: Database["public"]["Tables"]["vat_returns"]["Row"] }
+      hr_attendance_register_device: { Args: { _device_code: string; _name_ar: string; _site_id: string | null; _vendor?: string | null }; Returns: Json }
+      hr_attendance_rotate_device_token: { Args: { _device_id: string }; Returns: Json }
+      hr_attendance_authenticate_device: { Args: { _device_code: string; _token: string }; Returns: boolean }
+      hr_attendance_scan_anomalies: { Args: { _from?: string; _to?: string }; Returns: number }
+      hr_attendance_resolve_anomaly: { Args: { _anomaly_id: string; _dismiss: boolean; _notes: string }; Returns: Database["public"]["Tables"]["hr_attendance_anomalies"]["Row"] }
+      hr_attendance_run_maintenance: { Args: { _work_date?: string }; Returns: Json }
+      hr_attendance_period_is_closed: { Args: { _work_date: string }; Returns: boolean }
+      hr_attendance_close_period: { Args: { _year: number; _month: number }; Returns: Database["public"]["Tables"]["hr_attendance_periods"]["Row"] }
+      hr_attendance_reopen_period: { Args: { _period_id: string; _reason: string }; Returns: Database["public"]["Tables"]["hr_attendance_periods"]["Row"] }
+      hr_attendance_request_correction: { Args: { _attendance_day_id: string; _requested_check_in: string | null; _requested_check_out: string | null; _reason: string }; Returns: Database["public"]["Tables"]["hr_attendance_correction_requests"]["Row"] }
+      hr_attendance_decide_correction: { Args: { _request_id: string; _approved: boolean; _decision_notes?: string }; Returns: Database["public"]["Tables"]["hr_attendance_correction_requests"]["Row"] }
+      hr_attendance_refresh_days: { Args: { _date_from: string; _date_to: string; _employee_id?: string }; Returns: number }
+      hr_attendance_decide_day: { Args: { _day_id: string; _approved: boolean; _notes?: string }; Returns: Database["public"]["Tables"]["hr_attendance_days"]["Row"] }
+      hr_apply_attendance_to_payroll: { Args: { _run_id: string }; Returns: number }
+      hr_attendance_mobile_punch: {
+        Args: {
+          _event_type: string;
+          _site_id: string;
+          _latitude: number;
+          _longitude: number;
+          _accuracy_meters?: number;
+        };
+        Returns: Database["public"]["Tables"]["hr_attendance_events"]["Row"];
+      };
+      hr_attendance_biometric_ingest: {
+        Args: {
+          _device_code: string;
+          _employee_no: string;
+          _event_type: string;
+          _occurred_at: string;
+          _external_event_id: string;
+        };
+        Returns: Database["public"]["Tables"]["hr_attendance_events"]["Row"];
+      };
+      hr_distance_meters: {
+        Args: { _lat1: number; _lng1: number; _lat2: number; _lng2: number };
+        Returns: number;
+      };
       calc_customer_balance: { Args: { _customer_id: string }; Returns: number }
       calc_vendor_balance: { Args: { _vendor_id: string }; Returns: number }
       can_delete_master: { Args: { _user_id: string }; Returns: boolean }
