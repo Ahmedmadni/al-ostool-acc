@@ -146,11 +146,13 @@ jobs:
 
           GRANT SELECT,UPDATE ON public.hr_payroll_runs,public.hr_payroll_lines TO authenticated;
           DO $$
-          DECLARE v_run uuid:=gen_random_uuid(); v_emp uuid:=gen_random_uuid(); v_line uuid:=gen_random_uuid();
+          DECLARE v_run uuid:=gen_random_uuid(); v_emp uuid:=gen_random_uuid(); v_line uuid:=gen_random_uuid(); v_period uuid:=gen_random_uuid();
           BEGIN
             INSERT INTO public.hr_employees(id,employee_no,full_name_ar) VALUES(v_emp,'E-002','حارس صلاحيات');
+            INSERT INTO public.hr_attendance_periods(id,period_year,period_month,status,summary_snapshot,closed_at) VALUES(v_period,2026,7,'closed','{"guard":1}'::jsonb,clock_timestamp());
             INSERT INTO public.hr_payroll_runs(id,run_no,period_year,period_month,status) VALUES(v_run,'PR-GUARD',2026,7,'draft');
             INSERT INTO public.hr_payroll_lines(id,run_id,employee_id,absence_deduction) VALUES(v_line,v_run,v_emp,0);
+            PERFORM public.hr_apply_attendance_to_payroll(v_run);
             PERFORM set_config('gate7.test_run',v_run::text,false);
             PERFORM set_config('gate7.test_line',v_line::text,false);
           END $$;
