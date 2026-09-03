@@ -40,7 +40,8 @@
     "check:cost-budgets": "node scripts/check-cost-budgets.mjs",
     "check:hr-sequential-codes-api": "node scripts/check-hr-sequential-codes-api.mjs",
     "check:gate6-sequential-codes": "node scripts/check-gate6-sequential-codes.mjs",
-    "check:gate7-payroll-cost": "node scripts/check-gate7-payroll-cost-integration.mjs"
+    "check:gate7-payroll-cost": "node scripts/check-gate7-payroll-cost-integration.mjs",
+    "check:gate8-payroll-cost": "node scripts/check-gate8-payroll-cost-ledger.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -110,7 +111,7 @@
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
-    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-hooks": "^6.1.1",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
     "nitro": "3.0.260603-beta",
