@@ -40,7 +40,8 @@
     "check:cost-budgets": "node scripts/check-cost-budgets.mjs",
     "check:hr-sequential-codes-api": "node scripts/check-hr-sequential-codes-api.mjs",
     "check:gate6-sequential-codes": "node scripts/check-gate6-sequential-codes.mjs",
-    "check:gate7-payroll-cost": "node scripts/check-gate7-payroll-cost-integration.mjs"
+    "check:gate7-payroll-cost": "node scripts/check-gate7-payroll-cost-integration.mjs",
+    "check:gate8-payroll-cost": "node scripts/check-gate8-payroll-cost-ledger.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
