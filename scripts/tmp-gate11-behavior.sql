@@ -182,7 +182,11 @@ BEGIN
     )
     AND (
       NOT p.prosecdef
-      OR NOT COALESCE(p.proconfig,'{}'::text[]) @> ARRAY['search_path=']::text[]
+      OR NOT EXISTS (
+        SELECT 1
+        FROM unnest(COALESCE(p.proconfig,'{}'::text[])) cfg
+        WHERE cfg IN ('search_path=','search_path=""')
+      )
     );
   IF v_bad<>0 THEN RAISE EXCEPTION '% Gate11 public cost RPCs have invalid definer/search_path posture',v_bad; END IF;
 
