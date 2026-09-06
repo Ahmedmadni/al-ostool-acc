@@ -53,14 +53,21 @@ function WorkflowPage() {
 
   const create = useMutation({
     mutationFn: async (p: any) => {
-      const request_no = "REQ-" + Date.now().toString().slice(-8);
-      const user = (await supabase.auth.getUser()).data.user;
-      const { error } = await (supabase as any).from("hr_workflow_requests").insert({
-        request_no, ...p, requested_by: user?.id, status: "pending", submitted_at: new Date().toISOString(),
+      const { error } = await (supabase as any).rpc("hr_submit_workflow_request", {
+        _request_type: p.request_type,
+        _employee_id: p.employee_id,
+        _subject: p.subject || null,
+        _notes: p.notes || null,
+        _payload: {},
       });
       if (error) throw error;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["hr_workflow"] }); setOpen(false); toast.success("تم إرسال الطلب"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["hr_workflow"] });
+      setOpen(false);
+      setForm({ request_type: "leave", employee_id: "", subject: "", notes: "" });
+      toast.success("تم إرسال الطلب");
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -96,7 +103,7 @@ function WorkflowPage() {
               <div><Label>الموضوع</Label><Input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} /></div>
               <div><Label>ملاحظات</Label><Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
             </div>
-            <DialogFooter><Button onClick={() => create.mutate(form)} disabled={!form.employee_id}>إرسال</Button></DialogFooter>
+            <DialogFooter><Button onClick={() => create.mutate(form)} disabled={!form.employee_id || create.isPending}>إرسال</Button></DialogFooter>
           </DialogContent>
         </Dialog>
         </div>
