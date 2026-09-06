@@ -49,19 +49,21 @@ SET app.test_permission = '';
 SET app.test_admin = '';
 
 -- A caller may submit only for their linked employee without delegated HR permission.
-SELECT (public.hr_submit_workflow_request(
+SELECT public.hr_submit_workflow_request(
   'leave'::public.hr_request_type,
   '10000000-0000-0000-0000-000000000001'::uuid,
   'Self request',
   'note',
   '{}'::jsonb
-)).id AS self_request_id \gset
+);
 
 DO $$
 DECLARE c integer;
 BEGIN
-  SELECT count(*) INTO c FROM public.hr_workflow_steps
-  WHERE request_id = :'self_request_id'::uuid AND action = 'pending' AND step_order = 1;
+  SELECT count(*) INTO c
+  FROM public.hr_workflow_steps s
+  JOIN public.hr_workflow_requests r ON r.id = s.request_id
+  WHERE r.subject = 'Self request' AND s.action = 'pending' AND s.step_order = 1;
   IF c <> 1 THEN RAISE EXCEPTION 'submission did not create exactly one pending approval step'; END IF;
 END $$;
 
@@ -82,22 +84,24 @@ END $$;
 
 -- Delegated HR creator can submit for another employee.
 SET app.test_permission = 'hr.workflow:create';
-SELECT (public.hr_submit_workflow_request(
+SELECT public.hr_submit_workflow_request(
   'promotion'::public.hr_request_type,
   '10000000-0000-0000-0000-000000000002'::uuid,
   'Delegated request', NULL, '{}'::jsonb
-)).id AS delegated_request_id \gset
+);
 SET app.test_permission = '';
-
-SELECT id AS self_step_id FROM public.hr_workflow_steps
-WHERE request_id = :'self_request_id'::uuid AND action = 'pending' \gset
 
 -- Request owner without approve permission cannot decide.
 DO $$
 DECLARE denied boolean := false;
+DECLARE v_step uuid;
 BEGIN
+  SELECT s.id INTO v_step
+  FROM public.hr_workflow_steps s
+  JOIN public.hr_workflow_requests r ON r.id = s.request_id
+  WHERE r.subject = 'Self request' AND s.action = 'pending';
   BEGIN
-    PERFORM public.hr_decide_workflow_step(:'self_step_id'::uuid, 'approved', NULL);
+    PERFORM public.hr_decide_workflow_step(v_step, 'approved', NULL);
   EXCEPTION WHEN OTHERS THEN
     denied := true;
   END;
@@ -105,35 +109,42 @@ BEGIN
 END $$;
 
 SET app.test_permission = 'hr.workflow:approve';
-SELECT (public.hr_decide_workflow_step(:'self_step_id'::uuid, 'approved', 'approved in test')).status AS approved_status \gset
 DO $$
+DECLARE v_step uuid;
+DECLARE v_request uuid;
+DECLARE v_status public.hr_request_status;
 BEGIN
-  IF :'approved_status' <> 'approved' THEN RAISE EXCEPTION 'approved step did not approve request'; END IF;
+  SELECT s.id, r.id INTO v_step, v_request
+  FROM public.hr_workflow_steps s
+  JOIN public.hr_workflow_requests r ON r.id = s.request_id
+  WHERE r.subject = 'Self request' AND s.action = 'pending';
+
+  SELECT (public.hr_decide_workflow_step(v_step, 'approved', 'approved in test')).status INTO v_status;
+  IF v_status <> 'approved' THEN RAISE EXCEPTION 'approved step did not approve request'; END IF;
   IF NOT EXISTS (
     SELECT 1 FROM public.hr_workflow_requests
-    WHERE id = :'self_request_id'::uuid AND status = 'approved' AND completed_at IS NOT NULL
+    WHERE id = v_request AND status = 'approved' AND completed_at IS NOT NULL
   ) THEN RAISE EXCEPTION 'approved request final state is incomplete'; END IF;
-END $$;
 
--- A repeated decision must fail closed.
-DO $$
-DECLARE denied boolean := false;
-BEGIN
   BEGIN
-    PERFORM public.hr_decide_workflow_step(:'self_step_id'::uuid, 'approved', NULL);
+    PERFORM public.hr_decide_workflow_step(v_step, 'approved', NULL);
+    RAISE EXCEPTION 'workflow step was decided twice';
   EXCEPTION WHEN OTHERS THEN
-    denied := true;
+    IF SQLERRM = 'workflow step was decided twice' THEN RAISE; END IF;
   END;
-  IF NOT denied THEN RAISE EXCEPTION 'workflow step was decided twice'; END IF;
 END $$;
 
 -- Rejection propagates to the request.
-SELECT id AS delegated_step_id FROM public.hr_workflow_steps
-WHERE request_id = :'delegated_request_id'::uuid AND action = 'pending' \gset
-SELECT (public.hr_decide_workflow_step(:'delegated_step_id'::uuid, 'rejected', 'rejected in test')).status AS rejected_status \gset
 DO $$
+DECLARE v_step uuid;
+DECLARE v_status public.hr_request_status;
 BEGIN
-  IF :'rejected_status' <> 'rejected' THEN RAISE EXCEPTION 'rejected step did not reject request'; END IF;
+  SELECT s.id INTO v_step
+  FROM public.hr_workflow_steps s
+  JOIN public.hr_workflow_requests r ON r.id = s.request_id
+  WHERE r.subject = 'Delegated request' AND s.action = 'pending';
+  SELECT (public.hr_decide_workflow_step(v_step, 'rejected', 'rejected in test')).status INTO v_status;
+  IF v_status <> 'rejected' THEN RAISE EXCEPTION 'rejected step did not reject request'; END IF;
 END $$;
 
 RESET ROLE;
@@ -141,8 +152,12 @@ RESET ROLE;
 -- Service role retains backend mutation capability.
 DO $$
 BEGIN
-  IF NOT has_table_privilege('service_role', 'public.hr_workflow_requests', 'INSERT,UPDATE,DELETE')
-     OR NOT has_table_privilege('service_role', 'public.hr_workflow_steps', 'INSERT,UPDATE,DELETE') THEN
+  IF NOT has_table_privilege('service_role', 'public.hr_workflow_requests', 'INSERT')
+     OR NOT has_table_privilege('service_role', 'public.hr_workflow_requests', 'UPDATE')
+     OR NOT has_table_privilege('service_role', 'public.hr_workflow_requests', 'DELETE')
+     OR NOT has_table_privilege('service_role', 'public.hr_workflow_steps', 'INSERT')
+     OR NOT has_table_privilege('service_role', 'public.hr_workflow_steps', 'UPDATE')
+     OR NOT has_table_privilege('service_role', 'public.hr_workflow_steps', 'DELETE') THEN
     RAISE EXCEPTION 'service_role lost backend workflow mutation privileges';
   END IF;
 END $$;
