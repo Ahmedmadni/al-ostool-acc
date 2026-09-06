@@ -189,19 +189,50 @@ $$;
 -- Serialize period close/reopen with payroll posting, including a previously
 -- absent cost_periods row. The advisory key is identical to the sync function.
 CREATE OR REPLACE FUNCTION public.cost_period_set_status(_period TEXT,_closed BOOLEAN,_reason TEXT)
-RETURNS public.cost_periods LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
-DECLARE v_period public.cost_periods; v_from TEXT;
+RETURNS public.cost_periods
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path=''
+AS $$
+DECLARE
+  v_period public.cost_periods;
+  v_from TEXT;
+  v_target TEXT;
 BEGIN
-  IF NOT (public.has_permission(auth.uid(),'costs','manage') OR public.is_admin(auth.uid())) THEN RAISE EXCEPTION 'ليست لديك صلاحية إدارة فترات التكاليف'; END IF;
-  IF _period!~'^[0-9]{4}-[0-9]{2}$' OR char_length(btrim(COALESCE(_reason,'')))<10 THEN RAISE EXCEPTION 'الفترة أو السبب غير صالح'; END IF;
+  IF NOT (public.has_permission(auth.uid(),'costs','manage') OR public.is_admin(auth.uid())) THEN
+    RAISE EXCEPTION 'ليست لديك صلاحية إدارة فترات التكاليف';
+  END IF;
+  IF _period!~'^[0-9]{4}-[0-9]{2}$' OR char_length(btrim(COALESCE(_reason,'')))<10 THEN
+    RAISE EXCEPTION 'الفترة أو السبب غير صالح';
+  END IF;
+
+  v_target:=CASE WHEN _closed THEN 'closed' ELSE 'open' END;
   PERFORM pg_advisory_xact_lock(hashtextextended('cost-period:'||_period,0));
   SELECT status INTO v_from FROM public.cost_periods WHERE period=_period FOR UPDATE;
-  IF v_from=CASE WHEN _closed THEN 'closed' ELSE 'open' END THEN RAISE EXCEPTION 'الفترة في الحالة المطلوبة بالفعل'; END IF;
+  IF v_from IS NOT DISTINCT FROM v_target THEN
+    RAISE EXCEPTION 'الفترة في الحالة المطلوبة بالفعل';
+  END IF;
+
   INSERT INTO public.cost_periods(period,status,reason,closed_by,closed_at,reopened_by,reopened_at)
-  VALUES(_period,CASE WHEN _closed THEN 'closed' ELSE 'open' END,btrim(_reason),CASE WHEN _closed THEN auth.uid() END,CASE WHEN _closed THEN now() END,CASE WHEN NOT _closed THEN auth.uid() END,CASE WHEN NOT _closed THEN now() END)
-  ON CONFLICT(period) DO UPDATE SET status=EXCLUDED.status,reason=EXCLUDED.reason,closed_by=EXCLUDED.closed_by,closed_at=EXCLUDED.closed_at,reopened_by=EXCLUDED.reopened_by,reopened_at=EXCLUDED.reopened_at RETURNING * INTO v_period;
+  VALUES(
+    _period,v_target,btrim(_reason),
+    CASE WHEN _closed THEN auth.uid() END,
+    CASE WHEN _closed THEN now() END,
+    CASE WHEN NOT _closed THEN auth.uid() END,
+    CASE WHEN NOT _closed THEN now() END
+  )
+  ON CONFLICT(period) DO UPDATE SET
+    status=EXCLUDED.status,
+    reason=EXCLUDED.reason,
+    closed_by=EXCLUDED.closed_by,
+    closed_at=EXCLUDED.closed_at,
+    reopened_by=EXCLUDED.reopened_by,
+    reopened_at=EXCLUDED.reopened_at
+  RETURNING * INTO v_period;
+
   RETURN v_period;
-END; $$;
+END;
+$$;
 
 REVOKE ALL ON FUNCTION public.hr_sync_payroll_cost_entries(UUID) FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.hr_sync_payroll_cost_entries(UUID) TO service_role;
