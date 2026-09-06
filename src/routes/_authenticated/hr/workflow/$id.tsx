@@ -38,21 +38,22 @@ function WorkflowDetail() {
       .select("*").eq("request_id", id).order("step_order")).data ?? [],
   });
 
-  // Acts on the current pending step (not the request directly) — a DB
-  // trigger then reflects that decision onto hr_workflow_requests.status, so
-  // the approval-steps table is the actual source of truth instead of being
-  // bypassed by this button.
+  // Gate 10 makes the database authoritative for workflow decisions. The UI no
+  // longer updates the step row directly; the RPC locks request+step, checks the
+  // approver permission, records the actor, and derives the request status.
   const decide = useMutation({
     mutationFn: async (action: "approved" | "rejected") => {
       const pendingStep = (steps as any[]).find((s) => s.action === "pending");
       if (!pendingStep) throw new Error("لا توجد خطوة اعتماد معلّقة لهذا الطلب");
-      const user = (await supabase.auth.getUser()).data.user;
-      const { error } = await (supabase as any).from("hr_workflow_steps")
-        .update({ action, approver_id: user?.id ?? null })
-        .eq("id", pendingStep.id);
+      const { error } = await (supabase as any).rpc("hr_decide_workflow_step", {
+        _step_id: pendingStep.id,
+        _action: action,
+        _comment: null,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["hr_workflow"] });
       qc.invalidateQueries({ queryKey: ["hr_workflow", id] });
       qc.invalidateQueries({ queryKey: ["hr_workflow_steps", id] });
       toast.success("تم التحديث");
@@ -61,6 +62,8 @@ function WorkflowDetail() {
   });
 
   if (!req) return <div className="p-6" dir="rtl">جاري التحميل...</div>;
+
+  const hasPendingStep = (steps as any[]).some((s) => s.action === "pending");
 
   return (
     <div className="p-6 space-y-6" dir="rtl">
@@ -116,10 +119,10 @@ function WorkflowDetail() {
         }
       </Card>
 
-      {req.status === "pending" && (
+      {(req.status === "pending" || req.status === "in_progress") && hasPendingStep && (
         <div className="flex gap-2 print:hidden">
-          <Button onClick={() => decide.mutate("approved")}><Check className="w-4 h-4 ml-2" />اعتماد</Button>
-          <Button variant="destructive" onClick={() => decide.mutate("rejected")}><X className="w-4 h-4 ml-2" />رفض</Button>
+          <Button onClick={() => decide.mutate("approved")} disabled={decide.isPending}><Check className="w-4 h-4 ml-2" />اعتماد</Button>
+          <Button variant="destructive" onClick={() => decide.mutate("rejected")} disabled={decide.isPending}><X className="w-4 h-4 ml-2" />رفض</Button>
         </div>
       )}
     </div>
