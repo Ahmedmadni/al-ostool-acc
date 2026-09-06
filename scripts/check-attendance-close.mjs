@@ -8,6 +8,11 @@ const page = readFileSync(
   new URL("../src/routes/_authenticated/hr/attendance/index.tsx", import.meta.url),
   "utf8",
 );
+const workspace = readFileSync(
+  new URL("../src/components/hr/attendance/attendance-workspace.tsx", import.meta.url),
+  "utf8",
+);
+const attendanceUi = `${page}\n${workspace}`;
 const hrSchema = readFileSync(
   new URL("../supabase/migrations/20260702115337_78b28f2b-db80-4ea2-904a-e74cc5438ab3.sql", import.meta.url),
   "utf8",
@@ -65,9 +70,12 @@ assert.ok(
     migration.includes("IF v_period.id IS NULL THEN RAISE EXCEPTION 'الفترة مقفلة مسبقاً'"),
   "close must reject a repeated transition without another audit row",
 );
-assert.ok(page.includes('.rpc("hr_attendance_close_period"'));
-assert.ok(page.includes('.rpc("hr_attendance_reopen_period"'));
-assert.ok(page.includes("exportAttendanceReport") && page.includes("تصدير Excel"));
+assert.ok(attendanceUi.includes('.rpc("hr_attendance_close_period"'));
+assert.ok(attendanceUi.includes('.rpc("hr_attendance_reopen_period"'));
+assert.ok(
+  attendanceUi.includes("exportAttendanceReport") && attendanceUi.includes("تصدير Excel"),
+  "Attendance UI must retain monthly export controls after refactors",
+);
 
 const expectedEmploymentDays = ({ from, to, hireDate, lastWorkingDay }) => {
   const result = [];

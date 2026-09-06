@@ -12,6 +12,11 @@ const page = readFileSync(
   new URL("../src/routes/_authenticated/hr/attendance/index.tsx", import.meta.url),
   "utf8",
 );
+const workspace = readFileSync(
+  new URL("../src/components/hr/attendance/attendance-workspace.tsx", import.meta.url),
+  "utf8",
+);
+const attendanceUi = `${page}\n${workspace}`;
 const endpoint = readFileSync(
   new URL("../src/routes/api/public/hr/attendance-ingest.ts", import.meta.url),
   "utf8",
@@ -40,14 +45,17 @@ for (const invariant of [
   assert.ok(migration.includes(invariant), `Attendance engine is missing: ${invariant}`);
 
 assert.ok(
-  page.includes("navigator.geolocation.getCurrentPosition"),
+  attendanceUi.includes("navigator.geolocation.getCurrentPosition"),
   "Mobile punch must request a fresh GPS position",
 );
 assert.ok(
-  page.includes('.rpc("hr_attendance_mobile_punch"'),
+  attendanceUi.includes('.rpc("hr_attendance_mobile_punch"'),
   "Mobile punch must use the validated RPC",
 );
-assert.ok(page.includes("8 ساعات + ساعة راحة"), "Shift UI must expose the 8+1 break model");
+assert.ok(
+  attendanceUi.includes("8 ساعات + ساعة راحة"),
+  "Shift UI must expose the 8+1 break model",
+);
 assert.ok(
   endpoint.includes("hr_attendance_claim_biometric_request"),
   "Biometric endpoint must authenticate and replay-protect the individual device request",
