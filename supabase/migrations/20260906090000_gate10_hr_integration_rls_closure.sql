@@ -212,8 +212,10 @@ BEGIN
     RAISE EXCEPTION 'Workflow step has already been decided (%)', v_step.action;
   END IF;
 
+  -- approver_id is nullable for role-based approval steps. Keep the comparison
+  -- null-safe so SQL three-valued logic can never turn NULL into an authorization pass.
   IF NOT (
-    v_step.approver_id = v_uid
+    (v_step.approver_id IS NOT NULL AND v_step.approver_id = v_uid)
     OR public.has_permission(v_uid, 'hr.workflow', 'approve')
     OR public.is_admin(v_uid)
   ) THEN
