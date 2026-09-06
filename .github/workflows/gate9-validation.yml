@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Install dependencies
         run: npm install --no-package-lock --ignore-scripts
       - name: Verify attendance refactor invariants
@@ -30,4 +32,4 @@ jobs:
       - name: Build
         run: npm run build
       - name: Diff check
-        run: git diff --check HEAD~4..HEAD
+        run: git diff --check 31a9db4878ed860d52811ff93d020a5f4d7b790d..HEAD
