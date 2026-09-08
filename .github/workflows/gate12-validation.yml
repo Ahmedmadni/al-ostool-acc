@@ -36,6 +36,7 @@ jobs:
           psql -h 127.0.0.1 -U postgres -d gate12 -f scripts/tmp-gate12-fixture.sql
           psql -h 127.0.0.1 -U postgres -d gate12 -f supabase/migrations/20260906110000_gate12_vat_engine.sql
           psql -h 127.0.0.1 -U postgres -d gate12 -f supabase/migrations/20260906110100_gate12_vat_runtime_qualification.sql
+          psql -h 127.0.0.1 -U postgres -d gate12 -f supabase/migrations/20260906110200_gate12_vat_upsert_overlap_guard.sql
           psql -h 127.0.0.1 -U postgres -d gate12 -f scripts/tmp-gate12-behavior.sql
       - name: VAT ledger concurrency serialization
         env:
