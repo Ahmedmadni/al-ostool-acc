@@ -1,0 +1,63 @@
+name: Gate 12 validation
+
+on:
+  push:
+    branches:
+      - gate12-vat-engine
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: gate12
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install dependencies
+        run: npm install --no-package-lock --ignore-scripts
+      - name: Gate 12 static checks
+        run: npm run check:gate12-vat-engine
+      - name: PostgreSQL 16 migration and behavior
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -U postgres -d gate12 -f scripts/tmp-gate12-fixture.sql
+          psql -h 127.0.0.1 -U postgres -d gate12 -f supabase/migrations/20260906110000_gate12_vat_engine.sql
+          psql -h 127.0.0.1 -U postgres -d gate12 -f scripts/tmp-gate12-behavior.sql
+      - name: VAT ledger concurrency serialization
+        env:
+          PGPASSWORD: postgres
+        run: |
+          (psql -h 127.0.0.1 -U postgres -d gate12 -v ON_ERROR_STOP=1 -c "BEGIN; SELECT pg_advisory_xact_lock(hashtextextended('tax:vat-ledger',0)); SELECT pg_sleep(4); COMMIT;" >/tmp/vat-lock.log 2>&1) &
+          holder=$!
+          sleep 1
+          start=$(date +%s)
+          psql -h 127.0.0.1 -U postgres -d gate12 -v ON_ERROR_STOP=1 -c "UPDATE public.invoices SET invoice_number='S-CONC-1-EDIT' WHERE id='10000000-0000-0000-0000-000000000004';"
+          end=$(date +%s)
+          wait "$holder"
+          elapsed=$((end-start))
+          cat /tmp/vat-lock.log
+          if [ "$elapsed" -lt 2 ]; then
+            echo "VAT invoice mutation did not serialize on the Gate 12 ledger lock (elapsed=${elapsed}s)"
+            exit 1
+          fi
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Full verification
+        run: npm run verify
+      - name: Build
+        run: npm run build
+      - name: Diff check
+        run: git diff --check 5a35969fca01ccc30b1cda117f021a22ef87804c..HEAD
