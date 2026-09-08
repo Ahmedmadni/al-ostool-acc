@@ -53,7 +53,6 @@ BEGIN
   IF (SELECT status FROM public.vat_returns WHERE id=rid)<>'approved' THEN RAISE EXCEPTION 'VAT approval failed'; END IF;
 END $$;
 
--- OLD date protection: moving a finalized source out must fail.
 DO $$
 BEGIN
   BEGIN
@@ -64,7 +63,6 @@ BEGIN
   END;
 END $$;
 
--- NEW date protection: moving a qualifying source into a finalized period must fail.
 DO $$
 BEGIN
   BEGIN
@@ -85,7 +83,6 @@ BEGIN
   END;
 END $$;
 
--- Calculated sources may change, but approval must detect source drift.
 DO $$
 DECLARE rid uuid;
 BEGIN
@@ -127,7 +124,6 @@ BEGIN
   PERFORM public.vat_approve_return(rid);
 END $$;
 
--- Filing validates the durable snapshot/fingerprint again.
 DO $$
 DECLARE rid uuid; original_snapshot jsonb;
 BEGIN
@@ -141,9 +137,7 @@ BEGIN
     RAISE EXCEPTION 'filing accepted tampered VAT snapshot';
   EXCEPTION WHEN OTHERS THEN
     IF SQLERRM='filing accepted tampered VAT snapshot'
-       OR (position('تغير مصدر مختار' in SQLERRM)=0 AND position('تغيرت لقطة' in SQLERRM)=0) THEN
-      RAISE;
-    END IF;
+       OR (position('تغير مصدر مختار' in SQLERRM)=0 AND position('تغيرت لقطة' in SQLERRM)=0) THEN RAISE; END IF;
   END;
   UPDATE public.vat_return_sources SET source_snapshot=original_snapshot
   WHERE return_id=rid AND source_type='sales_invoice';
@@ -154,7 +148,6 @@ BEGIN
   IF (SELECT count(*) FROM public.vat_return_status_events WHERE return_id=rid)<3 THEN RAISE EXCEPTION 'VAT status audit events missing'; END IF;
 END $$;
 
--- Rate windows cannot overlap.
 DO $$
 BEGIN
   BEGIN
@@ -166,18 +159,17 @@ BEGIN
   END;
 END $$;
 
--- A rate already used by the still-approved February return is immutable in a way that would change that return.
 DO $$
 BEGIN
   BEGIN
     UPDATE public.tax_rate_rules SET rate=0.16 WHERE tax_type='vat' AND effective_from='2020-07-01';
     RAISE EXCEPTION 'finalized VAT rate changed';
   EXCEPTION WHEN OTHERS THEN
-    IF SQLERRM='finalized VAT rate changed' OR position('إقرار معتمد أو مقدم' in SQLERRM)=0 THEN RAISE; END IF;
+    IF SQLERRM='finalized VAT rate changed'
+       OR (position('إقراراً معتمداً أو مقدماً' in SQLERRM)=0 AND position('إقرار معتمد أو مقدم' in SQLERRM)=0) THEN RAISE; END IF;
   END;
 END $$;
 
--- ACL posture.
 DO $$
 DECLARE v_bad integer;
 BEGIN
