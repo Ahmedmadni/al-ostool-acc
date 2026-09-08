@@ -140,7 +140,10 @@ BEGIN
     PERFORM public.vat_file_return(rid,'REF-001');
     RAISE EXCEPTION 'filing accepted tampered VAT snapshot';
   EXCEPTION WHEN OTHERS THEN
-    IF SQLERRM='filing accepted tampered VAT snapshot' OR position('تغيرت لقطة' in SQLERRM)=0 THEN RAISE; END IF;
+    IF SQLERRM='filing accepted tampered VAT snapshot'
+       OR (position('تغير مصدر مختار' in SQLERRM)=0 AND position('تغيرت لقطة' in SQLERRM)=0) THEN
+      RAISE;
+    END IF;
   END;
   UPDATE public.vat_return_sources SET source_snapshot=original_snapshot
   WHERE return_id=rid AND source_type='sales_invoice';
