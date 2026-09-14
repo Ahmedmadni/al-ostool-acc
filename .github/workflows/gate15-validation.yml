@@ -1,0 +1,72 @@
+name: Gate 15 validation
+
+on:
+  push:
+    branches:
+      - gate15-real-estate-facilities-engine
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: gate15
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install dependencies
+        run: |
+          cp package.json /tmp/package-gate15.json
+          npm pkg set 'dependencies.@tanstack/react-router=1.170.18'
+          npm pkg set 'dependencies.@tanstack/react-start=1.168.34'
+          npm pkg set 'dependencies.@tanstack/router-plugin=1.168.23'
+          npm install --no-package-lock --ignore-scripts
+          mv /tmp/package-gate15.json package.json
+      - name: Gate 15 static checks
+        run: node scripts/check-gate15-real-estate-facilities.mjs
+      - name: PostgreSQL 16 migration and behavior
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -U postgres -d gate15 -f scripts/tmp-gate15-fixture.sql
+          psql -h 127.0.0.1 -U postgres -d gate15 -f supabase/migrations/20260914120000_gate15_real_estate_preflight.sql
+          psql -h 127.0.0.1 -U postgres -d gate15 -f supabase/migrations/20260914120100_gate15_real_estate_foundation.sql
+          psql -h 127.0.0.1 -U postgres -d gate15 -f supabase/migrations/20260914120200_gate15_real_estate_runtime.sql
+          psql -h 127.0.0.1 -U postgres -d gate15 -f supabase/migrations/20260914120300_gate15_real_estate_integrity_hardening.sql
+          psql -h 127.0.0.1 -U postgres -d gate15 -f scripts/tmp-gate15-behavior.sql
+      - name: Gate 15 full partial-application preflight
+        env:
+          PGPASSWORD: postgres
+        run: |
+          createdb -h 127.0.0.1 -U postgres gate15_partial
+          psql -h 127.0.0.1 -U postgres -d gate15_partial -f scripts/tmp-gate15-fixture.sql
+          psql -h 127.0.0.1 -U postgres -d gate15_partial -v ON_ERROR_STOP=1 -c "CREATE TABLE public.re_units(id uuid PRIMARY KEY);"
+          set +e
+          psql -h 127.0.0.1 -U postgres -d gate15_partial -v ON_ERROR_STOP=1 -f supabase/migrations/20260914120000_gate15_real_estate_preflight.sql >/tmp/gate15-partial.log 2>&1
+          code=$?
+          set -e
+          cat /tmp/gate15-partial.log
+          if [ "$code" -eq 0 ]; then
+            echo "Gate 15 preflight accepted a partial application state"
+            exit 1
+          fi
+          grep -q "partially applied" /tmp/gate15-partial.log
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Full verification
+        run: npm run verify
+      - name: Build
+        run: npm run build
+      - name: Diff check
+        run: git diff --check eeb7d15278fd5c9e7bc83683ca5976dbeaafa65c..HEAD
