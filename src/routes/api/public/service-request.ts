@@ -5,7 +5,21 @@ const MAX_BODY_BYTES = 32 * 1024;
 
 const RequestSchema = z.object({
   companyCode: z.enum(["OM", "RE", "CORE"]),
-  requestType: z.enum(["maintenance", "facility", "complaint", "leasing_enquiry", "property_enquiry", "general"]),
+  requestType: z.enum([
+    "maintenance",
+    "emergency_maintenance",
+    "preventive_maintenance",
+    "maintenance_contract",
+    "facility",
+    "quote_request",
+    "investment_enquiry",
+    "investment_opportunity",
+    "property_management",
+    "leasing_enquiry",
+    "property_enquiry",
+    "complaint",
+    "general",
+  ]),
   contactName: z.string().trim().min(2).max(200),
   contactPhone: z.string().trim().max(40).optional().default(""),
   contactEmail: z.string().trim().email().max(320).or(z.literal("")).optional().default(""),
@@ -18,10 +32,12 @@ const RequestSchema = z.object({
   if (!value.contactPhone && !value.contactEmail) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "phone_or_email_required", path: ["contactPhone"] });
   }
-  if (value.requestType === "maintenance" && value.companyCode !== "OM") {
+  const maintenanceOnly = ["maintenance", "emergency_maintenance", "preventive_maintenance", "maintenance_contract", "quote_request"];
+  const realEstateOnly = ["investment_enquiry", "investment_opportunity", "property_management", "leasing_enquiry", "property_enquiry"];
+  if (maintenanceOnly.includes(value.requestType) && value.companyCode !== "OM") {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "maintenance_company_mismatch", path: ["requestType"] });
   }
-  if (["leasing_enquiry", "property_enquiry"].includes(value.requestType) && value.companyCode !== "RE") {
+  if (realEstateOnly.includes(value.requestType) && value.companyCode !== "RE") {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "real_estate_company_mismatch", path: ["requestType"] });
   }
 });
