@@ -8,6 +8,7 @@ const hub = fs.readFileSync('src/components/customer-service/customer-service-hu
 const servicePage = fs.readFileSync('src/components/public/company-service-page.tsx', 'utf8');
 const appCta = fs.readFileSync('src/components/public/app-download-cta.tsx', 'utf8');
 const appRoute = fs.readFileSync('src/routes/app.tsx', 'utf8');
+const envExample = fs.readFileSync('.env.example', 'utf8');
 const home = fs.readFileSync('src/routes/index.tsx', 'utf8');
 const authLayout = fs.readFileSync('src/routes/_authenticated.tsx', 'utf8');
 const maintenancePage = fs.readFileSync('src/routes/companies.maintenance.tsx', 'utf8');
@@ -71,6 +72,7 @@ const checks = [
 
   ['stable public app route', /createFileRoute\("\/app"\)/.test(appRoute)],
   ['app store links are environment-driven', /VITE_PUBLIC_APP_STORE_URL/.test(appCta) && /VITE_PUBLIC_GOOGLE_PLAY_URL/.test(appCta)],
+  ['app store deployment variables documented', /VITE_PUBLIC_APP_STORE_URL=""/.test(envExample) && /VITE_PUBLIC_GOOGLE_PLAY_URL=""/.test(envExample)],
   ['unreleased app has safe coming-soon state', /التطبيق قادم قريبًا/.test(appCta) && /قريبًا/.test(appCta)],
   ['no hard-coded fake store URL', !/apps\.apple\.com\//.test(appCta) && !/play\.google\.com\//.test(appCta)],
 
