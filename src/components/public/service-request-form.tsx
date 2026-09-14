@@ -9,15 +9,22 @@ type Props = {
 
 const requestTypes: Record<CompanyCode, Array<{ value: string; label: string }>> = {
   OM: [
-    { value: "maintenance", label: "طلب صيانة" },
-    { value: "facility", label: "طلب تشغيل / مرافق" },
+    { value: "maintenance", label: "طلب صيانة / إصلاح" },
+    { value: "emergency_maintenance", label: "بلاغ صيانة طارئة" },
+    { value: "preventive_maintenance", label: "طلب صيانة وقائية" },
+    { value: "maintenance_contract", label: "طلب عقد تشغيل وصيانة" },
+    { value: "facility", label: "طلب تشغيل / إدارة مرافق" },
+    { value: "quote_request", label: "طلب معاينة / عرض سعر" },
     { value: "complaint", label: "شكوى أو ملاحظة" },
     { value: "general", label: "طلب عام" },
   ],
   RE: [
-    { value: "leasing_enquiry", label: "استفسار تأجير" },
-    { value: "property_enquiry", label: "استفسار عقاري" },
-    { value: "facility", label: "طلب مرافق / صيانة وحدة" },
+    { value: "investment_enquiry", label: "طلب استثمار عقاري" },
+    { value: "investment_opportunity", label: "عرض فرصة / أصل استثماري" },
+    { value: "property_management", label: "طلب إدارة عقار / محفظة" },
+    { value: "leasing_enquiry", label: "استفسار تأجير / إعادة تأجير" },
+    { value: "property_enquiry", label: "استفسار عن عقار أو وحدة" },
+    { value: "facility", label: "طلب مرافق / صيانة عقار" },
     { value: "complaint", label: "شكوى أو ملاحظة" },
     { value: "general", label: "طلب عام" },
   ],
@@ -27,14 +34,34 @@ const requestTypes: Record<CompanyCode, Array<{ value: string; label: string }>>
   ],
 };
 
+const contextCopy: Record<CompanyCode, { label: string; placeholder: string; titlePlaceholder: string }> = {
+  OM: {
+    label: "الموقع / الفرع / رقم الأصل (اختياري)",
+    placeholder: "مثال: الرياض - فرع العليا - وحدة تكييف AHU-04",
+    titlePlaceholder: "مثال: عطل تكييف بالطابق الثالث",
+  },
+  RE: {
+    label: "المدينة / العقار / نطاق الاستثمار (اختياري)",
+    placeholder: "مثال: الرياض - مبنى تجاري - نطاق استثماري 5–10 مليون ريال",
+    titlePlaceholder: "مثال: طلب دراسة فرصة استثمار عقاري",
+  },
+  CORE: {
+    label: "مرجع أو موقع الطلب (اختياري)",
+    placeholder: "أي مرجع يساعد الفريق على معالجة الطلب",
+    titlePlaceholder: "اكتب عنوانًا مختصرًا للطلب",
+  },
+};
+
 export function PublicServiceRequestForm({ companyCode }: Props) {
   const options = requestTypes[companyCode];
+  const copy = contextCopy[companyCode];
   const initialType = options[0]?.value ?? "general";
   const [requestType, setRequestType] = useState(initialType);
   const [priority, setPriority] = useState("normal");
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState("");
+  const [context, setContext] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [website, setWebsite] = useState("");
@@ -52,6 +79,9 @@ export function PublicServiceRequestForm({ companyCode }: Props) {
     }
     setSubmitting(true);
     try {
+      const enrichedDescription = [context.trim() ? `${copy.label.replace(" (اختياري)", "")}: ${context.trim()}` : "", description.trim()]
+        .filter(Boolean)
+        .join("\n\n");
       const response = await fetch("/api/public/service-request", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -62,7 +92,7 @@ export function PublicServiceRequestForm({ companyCode }: Props) {
           contactPhone,
           contactEmail,
           title,
-          description,
+          description: enrichedDescription,
           priority,
           requestKey,
           website,
@@ -103,7 +133,7 @@ export function PublicServiceRequestForm({ companyCode }: Props) {
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-300/10 text-amber-200"><ShieldCheck className="h-5 w-5" /></span>
         <div>
           <h3 className="font-black">نموذج طلب الخدمة</h3>
-          <p className="mt-1 text-xs leading-6 text-slate-400">بعد الإرسال تحصل على رقم متابعة موحد ويرتبط الطلب بالشركة والفريق المختص.</p>
+          <p className="mt-1 text-xs leading-6 text-slate-400">اختر الخدمة المطلوبة وأرسل البيانات الأساسية؛ سيصدر لك رقم متابعة موحد ويرتبط الطلب بالشركة والفريق المختص.</p>
         </div>
       </div>
 
@@ -121,16 +151,17 @@ export function PublicServiceRequestForm({ companyCode }: Props) {
         <Field label="الاسم *"><input required maxLength={200} value={contactName} onChange={(e) => setContactName(e.target.value)} className="input-public" /></Field>
         <Field label="الجوال"><input inputMode="tel" maxLength={40} value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} className="input-public" /></Field>
         <Field label="البريد الإلكتروني"><input type="email" maxLength={320} value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} className="input-public" /></Field>
-        <Field label="عنوان الطلب *"><input required minLength={3} maxLength={300} value={title} onChange={(e) => setTitle(e.target.value)} className="input-public" /></Field>
+        <Field label={copy.label}><input maxLength={300} placeholder={copy.placeholder} value={context} onChange={(e) => setContext(e.target.value)} className="input-public" /></Field>
+        <Field label="عنوان الطلب *" className="sm:col-span-2"><input required minLength={3} maxLength={300} placeholder={copy.titlePlaceholder} value={title} onChange={(e) => setTitle(e.target.value)} className="input-public" /></Field>
       </div>
-      <Field label="التفاصيل" className="mt-4"><textarea rows={4} maxLength={8000} value={description} onChange={(e) => setDescription(e.target.value)} className="input-public resize-y" /></Field>
+      <Field label="التفاصيل" className="mt-4"><textarea rows={4} maxLength={7600} placeholder={companyCode === "RE" ? "اذكر نوع الأصل أو الفرصة، الهدف الاستثماري، المدة وأي تفاصيل متاحة." : companyCode === "OM" ? "صف العطل أو نطاق الخدمة، وقت ظهور المشكلة وأي ملاحظات تساعد فريق الصيانة." : "اكتب تفاصيل الطلب."} value={description} onChange={(e) => setDescription(e.target.value)} className="input-public resize-y" /></Field>
       <div className="hidden" aria-hidden="true"><label>Website<input tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} /></label></div>
       {error && <div className="mt-4 rounded-xl border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-100">{error}</div>}
       <button disabled={submitting} type="submit" className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-300 px-5 py-3 text-sm font-black text-slate-950 disabled:opacity-60">
         {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         {submitting ? "جارٍ إرسال الطلب..." : "إرسال والحصول على رقم متابعة"}
       </button>
-      <style>{`.input-public{width:100%;border-radius:.75rem;border:1px solid rgba(255,255,255,.12);background:rgba(2,6,23,.55);padding:.7rem .85rem;color:white;outline:none}.input-public:focus{border-color:rgba(252,211,77,.55)}.input-public option{background:#0f172a}`}</style>
+      <style>{`.input-public{width:100%;border-radius:.75rem;border:1px solid rgba(255,255,255,.12);background:rgba(2,6,23,.55);padding:.7rem .85rem;color:white;outline:none}.input-public:focus{border-color:rgba(252,211,77,.55)}.input-public::placeholder{color:rgba(148,163,184,.65)}.input-public option{background:#0f172a}`}</style>
     </form>
   );
 }
