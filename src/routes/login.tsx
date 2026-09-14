@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { HardHat, ShieldCheck, BarChart3, Brain, Globe } from "lucide-react";
+import { HardHat, ShieldCheck, BarChart3, Brain, Globe, Building2, Wrench } from "lucide-react";
 import logo from "@/assets/logo.ico";
 import hero from "@/assets/login-hero.jpg";
 import { useI18n, LANGS, type Lang } from "@/lib/i18n";
@@ -14,9 +14,9 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const LOGIN_TITLE = "تسجيل الدخول | شركة الأسطول الآلي";
+const LOGIN_TITLE = "بوابة الأنظمة | مجموعة الأسطول الآلي";
 const LOGIN_DESC =
-  "سجّل الدخول إلى منصة شركة الأسطول الآلي للوصول إلى إدارة العملاء والتحليل المالي والمشاريع والموارد البشرية.";
+  "سجّل الدخول إلى بوابة مجموعة الأسطول الآلي للوصول إلى النظام المؤسسي وأنظمة الصيانة والتشغيل والاستثمار العقاري وإدارة المرافق.";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -36,11 +36,34 @@ export const Route = createFileRoute("/login")({
 });
 
 type Option = { id: string; name_ar: string };
+type SystemKey = "corporate" | "maintenance" | "real_estate";
+
+const systems = [
+  {
+    key: "corporate" as const,
+    icon: HardHat,
+    title: "النظام المؤسسي",
+    description: "المالية • المشاريع • الموارد البشرية • التكاليف",
+  },
+  {
+    key: "maintenance" as const,
+    icon: Wrench,
+    title: "الصيانة والتشغيل",
+    description: "طلبات الخدمة • أوامر العمل • الأصول • SLA",
+  },
+  {
+    key: "real_estate" as const,
+    icon: Building2,
+    title: "الاستثمار العقاري",
+    description: "العقارات • التأجير • الإشغال • إدارة المرافق",
+  },
+];
 
 function LoginPage() {
   const navigate = useNavigate();
   const { lang, setLang, t } = useI18n();
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const [selectedSystem, setSelectedSystem] = useState<SystemKey>("corporate");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPwd, setConfirmPwd] = useState("");
@@ -69,7 +92,6 @@ function LoginPage() {
     setLoading(true);
     try {
       if (mode === "login") {
-        // السماح بتسجيل الدخول بالبريد الإلكتروني أو الرقم الوظيفي
         let loginEmail = email.trim();
         if (loginEmail && !loginEmail.includes("@")) {
           const { data: resolved, error: rpcErr } = await (supabase as any)
@@ -83,7 +105,6 @@ function LoginPage() {
         }
         const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
         if (error) throw error;
-        // Check profile status
         const { data: prof } = await (supabase as any)
           .from("profiles").select("status").eq("id", data.user!.id).maybeSingle();
         const status = prof?.status ?? "active";
@@ -98,7 +119,13 @@ function LoginPage() {
           return;
         }
         toast.success("تم تسجيل الدخول بنجاح");
-        navigate({ to: "/dashboard" });
+        if (selectedSystem === "maintenance") {
+          navigate({ to: "/maintenance" });
+        } else if (selectedSystem === "real_estate") {
+          navigate({ to: "/real-estate" });
+        } else {
+          navigate({ to: "/dashboard" });
+        }
       } else {
         if (!employeeId || !fullName || !email || !deptId || !jobId || !password) {
           toast.error("الحقول المعلّمة بنجمة (*) مطلوبة");
@@ -149,20 +176,20 @@ function LoginPage() {
             <img src={logo} alt="" className="w-full h-full object-contain" />
           </div>
           <div>
-            <div className="font-bold text-lg">{lang === "en" ? "Al-Ostool Al-Ali Co." : "شركة الأسطول الآلي"}</div>
-            <div className="text-xs text-white/75">Al-Ostool Al-Ali Co.</div>
+            <div className="font-bold text-lg">{lang === "en" ? "Al-Ostool Al-Ali Group" : "مجموعة الأسطول الآلي"}</div>
+            <div className="text-xs text-white/75">Al-Ostool Al-Ali Group</div>
           </div>
         </div>
         <div className="relative space-y-6 max-w-xl">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/20 border border-accent/40 text-accent text-xs font-semibold">
-            <HardHat className="w-3.5 h-3.5" /> Corporate Industrial Intelligence
+            <HardHat className="w-3.5 h-3.5" /> Integrated Group Operating Platform
           </div>
           <h1 className="text-4xl xl:text-5xl font-extrabold leading-tight">
             {t("heroTagline")}
             <span className="block text-accent mt-2">{t("heroTaglineSub")}</span>
           </h1>
           <p className="text-white/85 text-lg leading-relaxed">
-            {t("heroSubtitle")}
+            النظام المؤسسي والتشغيل والصيانة والاستثمار العقاري وإدارة المرافق في بوابة موحدة لشركات المجموعة.
           </p>
           <div className="grid grid-cols-3 gap-3 pt-4">
             {[{ icon: BarChart3, label: t("heroFeature1") }, { icon: Brain, label: t("heroFeature2") }, { icon: ShieldCheck, label: t("heroFeature3") }].map((f, i) => (
@@ -173,11 +200,10 @@ function LoginPage() {
             ))}
           </div>
         </div>
-        <div className="relative text-xs text-white/60">© {new Date().getFullYear()} {lang === "en" ? "Al-Ostool Al-Ali" : "الأسطول الآلي"} • {t("footerRights")}</div>
+        <div className="relative text-xs text-white/60">© {new Date().getFullYear()} {lang === "en" ? "Al-Ostool Al-Ali Group" : "مجموعة الأسطول الآلي"} • {t("footerRights")}</div>
       </div>
 
       <div className="relative flex items-center justify-center p-6 lg:p-12 bg-background overflow-y-auto">
-        {/* خلفية زخرفية بأشكال عضوية رصاصية فاتحة */}
         <svg
           className="pointer-events-none absolute inset-0 w-full h-full text-muted-foreground/15"
           xmlns="http://www.w3.org/2000/svg"
@@ -194,19 +220,12 @@ function LoginPage() {
               <circle cx="30" cy="30" r="6" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.35" />
             </pattern>
           </defs>
-          {/* أشكال أوراق/أيدي عضوية كبيرة شفافة */}
-          <path d="M-40 120 C 120 40, 260 140, 240 280 S 80 420, 40 360 -60 240 -40 120 Z"
-            fill="currentColor" opacity="0.18" />
-          <path d="M620 -20 C 760 60, 820 220, 720 320 S 520 360, 500 240 540 60 620 -20 Z"
-            fill="currentColor" opacity="0.14" />
-          <path d="M-20 560 C 120 500, 280 580, 300 700 S 140 820, 40 780 -80 660 -20 560 Z"
-            fill="currentColor" opacity="0.16" />
-          <path d="M520 540 C 660 480, 820 560, 820 700 S 700 820, 600 780 460 660 520 540 Z"
-            fill="currentColor" opacity="0.13" />
-          {/* بصمات/حلقات */}
+          <path d="M-40 120 C 120 40, 260 140, 240 280 S 80 420, 40 360 -60 240 -40 120 Z" fill="currentColor" opacity="0.18" />
+          <path d="M620 -20 C 760 60, 820 220, 720 320 S 520 360, 500 240 540 60 620 -20 Z" fill="currentColor" opacity="0.14" />
+          <path d="M-20 560 C 120 500, 280 580, 300 700 S 140 820, 40 780 -80 660 -20 560 Z" fill="currentColor" opacity="0.16" />
+          <path d="M520 540 C 660 480, 820 560, 820 700 S 700 820, 600 780 460 660 520 540 Z" fill="currentColor" opacity="0.13" />
           <circle cx="120" cy="640" r="90" fill="url(#ringsLogin)" />
           <circle cx="680" cy="160" r="110" fill="url(#ringsLogin)" />
-          {/* رقاط */}
           <rect x="40" y="380" width="180" height="180" fill="url(#dotsLogin)" />
           <rect x="560" y="380" width="200" height="220" fill="url(#dotsLogin)" />
         </svg>
@@ -215,8 +234,8 @@ function LoginPage() {
             <div className="lg:hidden flex items-center gap-3">
               <img src={logo} alt="" className="w-12 h-12 rounded-lg bg-white p-1.5 shadow" />
               <div>
-                <div className="font-bold">{lang === "en" ? "Al-Ostool Al-Ali" : "الأسطول الآلي"}</div>
-                <div className="text-xs text-muted-foreground">{t("heroTagline")}</div>
+                <div className="font-bold">{lang === "en" ? "Al-Ostool Group" : "مجموعة الأسطول الآلي"}</div>
+                <div className="text-xs text-muted-foreground">بوابة الأنظمة الموحدة</div>
               </div>
             </div>
             <DropdownMenu>
@@ -237,9 +256,46 @@ function LoginPage() {
           </div>
 
           <h2 className="text-2xl font-bold mb-1">{mode === "login" ? t("loginWelcomeBack") : t("loginCreateAccount")}</h2>
-          <p className="text-sm text-muted-foreground mb-6">
-            {mode === "login" ? t("loginSubtitleLogin") : t("loginSubtitleSignup")}
+          <p className="text-sm text-muted-foreground mb-5">
+            {mode === "login" ? "اختر النظام ثم سجّل الدخول بحساب المجموعة الموحد." : t("loginSubtitleSignup")}
           </p>
+
+          {mode === "login" && (
+            <div className="mb-5 space-y-2">
+              {systems.map((system) => {
+                const Icon = system.icon;
+                const active = selectedSystem === system.key;
+                return (
+                  <button
+                    type="button"
+                    key={system.key}
+                    onClick={() => setSelectedSystem(system.key)}
+                    className={`w-full rounded-xl border p-3 text-start transition ${
+                      active
+                        ? "border-primary/55 bg-primary/8 shadow-sm"
+                        : "border-border bg-card/70 hover:border-primary/25 hover:bg-accent/30"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg ${active ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}>
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="font-bold">{system.title}</div>
+                          {active && <span className="text-[10px] font-bold text-primary">محدد</span>}
+                        </div>
+                        <div className="mt-1 truncate text-xs text-muted-foreground">{system.description}</div>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+              <p className="px-1 pt-1 text-[11px] leading-5 text-muted-foreground">
+                ظهور النظام لا يمنح صلاحية تلقائيًا؛ يتم التحقق من صلاحية الشركة والموديول بعد تسجيل الدخول.
+              </p>
+            </div>
+          )}
 
           <form onSubmit={submit} className="space-y-3">
             {mode === "signup" && (
@@ -311,7 +367,6 @@ function LoginPage() {
               {mode === "login" ? t("loginNoAccount") : t("loginHaveAccount")}
             </button>
           </div>
-
         </div>
       </div>
     </div>
