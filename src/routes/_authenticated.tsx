@@ -16,7 +16,7 @@ function AuthLayout() {
   const navigate = useNavigate();
   const [launcherOpen, setLauncherOpen] = useState(false);
   useEffect(() => {
-    if (!loading && !user) navigate({ to: "/login" });
+    if (!loading && !user) navigate({ to: "/log" });
   }, [loading, user, navigate]);
 
   if (loading || !user) {
