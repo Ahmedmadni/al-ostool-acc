@@ -7,6 +7,9 @@ const hub = fs.readFileSync('src/components/customer-service/customer-service-hu
 const servicePage = fs.readFileSync('src/components/public/company-service-page.tsx', 'utf8');
 const maintenancePage = fs.readFileSync('src/routes/companies.maintenance.tsx', 'utf8');
 const realEstatePage = fs.readFileSync('src/routes/companies.real-estate.tsx', 'utf8');
+const logRoute = fs.readFileSync('src/routes/log.tsx', 'utf8');
+const legacyLogin = fs.readFileSync('src/routes/login.tsx', 'utf8');
+const rootRoute = fs.readFileSync('src/routes/__root.tsx', 'utf8');
 
 const checks = [
   ['partial-application preflight', /appears already or partially applied/.test(migration)],
@@ -36,6 +39,10 @@ const checks = [
   ['company page renders request form', /PublicServiceRequestForm/.test(servicePage)],
   ['maintenance company scoped OM', /companyCode="OM"/.test(maintenancePage)],
   ['real estate company scoped RE', /companyCode="RE"/.test(realEstatePage)],
+  ['hidden employee route', /createFileRoute\("\/log"\)/.test(logRoute)],
+  ['employee route excluded from indexing', /noindex, nofollow, noarchive/.test(logRoute)],
+  ['legacy login redirects to hidden route', /redirect\(\{ to: "\/log", replace: true \}\)/.test(legacyLogin)],
+  ['public legacy login links hidden', /a\[href=\\"\/login\\"\]\{display:none!important\}/.test(rootRoute)],
 ];
 
 const failed = checks.filter(([, ok]) => !ok);
