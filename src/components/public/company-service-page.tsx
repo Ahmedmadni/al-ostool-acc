@@ -1,4 +1,4 @@
-import { ArrowLeft, Building2, CheckCircle2, ChevronLeft } from "lucide-react";
+import { Building2, CheckCircle2, ChevronLeft } from "lucide-react";
 import logo from "@/assets/logo.ico";
 import { PublicServiceRequestForm } from "@/components/public/service-request-form";
 
@@ -26,10 +26,7 @@ export function CompanyServicePage({ eyebrow, title, subtitle, description, serv
             <span className="grid h-11 w-11 place-items-center rounded-xl bg-white p-1.5"><img src={logo} alt="شعار مجموعة الأسطول الآلي" className="h-full w-full object-contain" /></span>
             <span><strong className="block text-sm">مجموعة الأسطول الآلي</strong><span className="text-[10px] tracking-[0.14em] text-slate-400">AL-OSTOOL AL-ALI GROUP</span></span>
           </a>
-          <div className="flex items-center gap-2">
-            <a href="/" className="hidden rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/5 sm:inline-flex">الرئيسية</a>
-            <a href="/login" className="inline-flex items-center gap-2 rounded-xl bg-amber-300 px-4 py-2.5 text-sm font-bold text-slate-950">بوابة الأنظمة<ArrowLeft className="h-4 w-4" /></a>
-          </div>
+          <a href="/" className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/5">الرئيسية</a>
         </div>
       </header>
 
@@ -80,7 +77,7 @@ export function CompanyServicePage({ eyebrow, title, subtitle, description, serv
             <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">مركز الطلبات الموحد يربط الطلب بالشركة والفريق المختص ويصدر رقم متابعة، ثم يسمح بتحويل طلبات الصيانة والمرافق إلى دورة أوامر العمل الداخلية دون تكرار البيانات.</p>
             <div className="mt-5 space-y-2 text-xs text-slate-400"><div>• قناة موحدة للصيانة والمرافق والشكاوى والاستفسارات.</div><div>• رقم متابعة وحالة وأولوية وسجل انتقالات.</div><div>• لا تُمنح الواجهة العامة أي صلاحية قراءة على بيانات النظام الداخلية.</div></div>
           </div>
-          {companyCode ? <PublicServiceRequestForm companyCode={companyCode} /> : <a href="/login" className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-300 px-6 py-3 text-sm font-bold text-slate-950">دخول بوابة الأنظمة<ArrowLeft className="h-4 w-4" /></a>}
+          {companyCode ? <PublicServiceRequestForm companyCode={companyCode} /> : <a href="/#contact" className="inline-flex items-center justify-center rounded-xl bg-amber-300 px-6 py-3 text-sm font-bold text-slate-950">تواصل مع المجموعة</a>}
         </div>
       </section>
 
