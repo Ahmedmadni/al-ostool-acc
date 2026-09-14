@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { CustomerServiceHub } from "@/components/customer-service/customer-service-hub";
 
 export function ModuleAccessGuard({
   companyCode,
@@ -51,5 +52,18 @@ export function ModuleAccessGuard({
     );
   }
 
-  return <>{children}</>;
+  const serviceCompany = companyCode === "OM" || companyCode === "RE" ? companyCode : null;
+  return (
+    <>
+      {children}
+      {serviceCompany && (
+        <div className="px-4 pb-6 md:px-6">
+          <CustomerServiceHub
+            companyCode={serviceCompany}
+            title={serviceCompany === "OM" ? "خدمة عملاء الصيانة والتشغيل" : "خدمة المستأجرين والمرافق"}
+          />
+        </div>
+      )}
+    </>
+  );
 }
