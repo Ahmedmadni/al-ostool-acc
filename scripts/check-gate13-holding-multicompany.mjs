@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 const migration = readFileSync("supabase/migrations/20260914090000_gate13_holding_multicompany_foundation.sql", "utf8");
 const home = readFileSync("src/routes/index.tsx", "utf8");
 const login = readFileSync("src/routes/login.tsx", "utf8");
+const corePublic = readFileSync("src/routes/companies.al-ostool.tsx", "utf8");
 const maintenancePublic = readFileSync("src/routes/companies.maintenance.tsx", "utf8");
 const realEstatePublic = readFileSync("src/routes/companies.real-estate.tsx", "utf8");
 const publicShell = readFileSync("src/components/public/company-service-page.tsx", "utf8");
@@ -48,16 +49,17 @@ assert.ok(realEstateInternal.includes('companyCode="RE"') && realEstateInternal.
 assert.ok(accessGuard.includes('rpc("group_has_module_access"'), "module access RPC guard missing");
 assert.ok(accessGuard.includes('setState(!error && data === true ? "allowed" : "denied")'), "module access guard must fail closed");
 
-for (const route of ["/companies/maintenance", "/companies/real-estate"]) {
+for (const route of ["/companies/al-ostool", "/companies/maintenance", "/companies/real-estate"]) {
   assert.ok(sitemap.includes(route), `sitemap missing ${route}`);
 }
 
-for (const publicFile of [maintenancePublic, realEstatePublic, publicShell, home]) {
+for (const publicFile of [corePublic, maintenancePublic, realEstatePublic, publicShell, home]) {
   for (const unsafe of [".insert(", ".update(", ".delete(", ".upsert("]) {
     assert.ok(!publicFile.includes(unsafe), `public page contains direct data mutation ${unsafe}`);
   }
 }
 
+assert.ok(corePublic.includes("شركة الأسطول الآلي") && corePublic.includes("إدارة وتنفيذ المشاريع"), "core company public scope incomplete");
 assert.ok(maintenancePublic.includes("صيانة التكييف") && maintenancePublic.includes("أنظمة الحريق"), "maintenance public scope incomplete");
 assert.ok(realEstatePublic.includes("التأجير وإعادة التأجير") && realEstatePublic.includes("الإشغال"), "real-estate public scope incomplete");
 
