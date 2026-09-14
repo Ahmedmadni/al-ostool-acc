@@ -31,12 +31,6 @@ type PropertyRow = {
   status: string;
 };
 
-type UnitRow = {
-  id: string;
-  status: string;
-  asking_rent_monthly: number | null;
-};
-
 type LeaseRow = {
   id: string;
   lease_no: string;
@@ -51,6 +45,20 @@ type ScheduleRow = {
   due_date: string;
   amount: number;
   status: string;
+};
+
+type PortfolioSnapshot = {
+  properties?: number;
+  units?: number;
+  occupied?: number;
+  available?: number;
+  occupancy_rate?: number;
+  active_leases?: number;
+  expiring_60_days?: number;
+  monthly_rent_roll?: number;
+  receivables_90_days?: number;
+  allocated_costs?: number;
+  facility_links?: number;
 };
 
 const propertyTypeAr: Record<string, string> = {
@@ -87,52 +95,23 @@ const cards = [
 
 async function loadRealEstateDashboard() {
   const db = supabase as any;
-  const [properties, units, tenantLeases, masterLeases, schedules, facilities, costLinks] = await Promise.all([
+  const [properties, tenantLeases, masterLeases, schedules, snapshot] = await Promise.all([
     db.from("re_properties").select("id,property_code,name_ar,property_type,ownership_model,status").order("created_at", { ascending: false }).limit(8),
-    db.from("re_units").select("id,status,asking_rent_monthly", { count: "exact" }),
     db.from("re_tenant_leases").select("id,lease_no,monthly_rent,start_date,end_date,status").order("created_at", { ascending: false }).limit(10),
     db.from("re_master_leases").select("id,lease_no,monthly_rent,start_date,end_date,status").order("created_at", { ascending: false }).limit(8),
     db.from("re_lease_schedules").select("id,due_date,amount,status").gte("due_date", new Date().toISOString().slice(0, 10)).order("due_date", { ascending: true }).limit(12),
-    db.from("re_facility_links").select("id", { count: "exact" }),
-    db.from("re_property_cost_links").select("allocated_amount"),
+    db.rpc("re_portfolio_snapshot"),
   ]);
 
-  const firstError = [properties, units, tenantLeases, masterLeases, schedules, facilities, costLinks].find((x) => x.error)?.error;
+  const firstError = [properties, tenantLeases, masterLeases, schedules, snapshot].find((x) => x.error)?.error;
   if (firstError) throw firstError;
 
-  const propertyRows = (properties.data ?? []) as PropertyRow[];
-  const unitRows = (units.data ?? []) as UnitRow[];
-  const leaseRows = (tenantLeases.data ?? []) as LeaseRow[];
-  const masterRows = (masterLeases.data ?? []) as LeaseRow[];
-  const scheduleRows = (schedules.data ?? []) as ScheduleRow[];
-  const activeLeases = leaseRows.filter((l) => l.status === "active");
-  const now = Date.now();
-  const in60Days = now + 60 * 24 * 60 * 60 * 1000;
-  const expiringSoon = activeLeases.filter((l) => {
-    const end = new Date(l.end_date).getTime();
-    return end >= now && end <= in60Days;
-  }).length;
-  const occupied = unitRows.filter((u) => u.status === "occupied").length;
-  const available = unitRows.filter((u) => u.status === "available").length;
-  const totalUnits = units.count ?? unitRows.length;
-  const scheduledRevenue = scheduleRows.filter((s) => s.status !== "waived").reduce((sum, s) => sum + Number(s.amount ?? 0), 0);
-  const allocatedCosts = (costLinks.data ?? []).reduce((sum: number, row: any) => sum + Number(row.allocated_amount ?? 0), 0);
-
   return {
-    properties: propertyRows,
-    units: unitRows,
-    tenantLeases: leaseRows,
-    masterLeases: masterRows,
-    schedules: scheduleRows,
-    totalUnits,
-    occupied,
-    available,
-    activeLeases: activeLeases.length,
-    monthlyRentRoll: activeLeases.reduce((sum, l) => sum + Number(l.monthly_rent ?? 0), 0),
-    expiringSoon,
-    scheduledRevenue,
-    allocatedCosts,
-    facilityLinks: facilities.count ?? (facilities.data?.length ?? 0),
+    properties: (properties.data ?? []) as PropertyRow[],
+    tenantLeases: (tenantLeases.data ?? []) as LeaseRow[],
+    masterLeases: (masterLeases.data ?? []) as LeaseRow[],
+    schedules: (schedules.data ?? []) as ScheduleRow[],
+    snapshot: (snapshot.data ?? {}) as PortfolioSnapshot,
   };
 }
 
@@ -142,8 +121,7 @@ function RealEstateModuleLanding() {
     queryFn: loadRealEstateDashboard,
     retry: false,
   });
-
-  const occupancyRate = data?.totalUnits ? Math.round((data.occupied / data.totalUnits) * 100) : 0;
+  const snapshot = data?.snapshot ?? {};
 
   return (
     <ModuleAccessGuard companyCode="RE" moduleKey="real_estate">
@@ -160,10 +138,10 @@ function RealEstateModuleLanding() {
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <Metric icon={Home} label="إجمالي الوحدات" value={data?.totalUnits ?? 0} />
-              <Metric icon={KeyRound} label="وحدات مشغولة" value={data?.occupied ?? 0} />
-              <Metric icon={DoorOpen} label="وحدات متاحة" value={data?.available ?? 0} />
-              <Metric icon={BarChart3} label="نسبة الإشغال" value={`${occupancyRate}%`} />
+              <Metric icon={Home} label="إجمالي الوحدات" value={snapshot.units ?? 0} />
+              <Metric icon={KeyRound} label="وحدات مشغولة" value={snapshot.occupied ?? 0} />
+              <Metric icon={DoorOpen} label="وحدات متاحة" value={snapshot.available ?? 0} />
+              <Metric icon={BarChart3} label="نسبة الإشغال" value={`${snapshot.occupancy_rate ?? 0}%`} />
             </div>
           </div>
         </div>
@@ -187,10 +165,10 @@ function RealEstateModuleLanding() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <MetricCard icon={CircleDollarSign} label="الإيجار الشهري النشط" value={fmtSAR(data?.monthlyRentRoll ?? 0)} />
-          <MetricCard icon={CalendarClock} label="عقود تنتهي خلال 60 يوم" value={data?.expiringSoon ?? 0} />
-          <MetricCard icon={Wrench} label="روابط الصيانة والمرافق" value={data?.facilityLinks ?? 0} />
-          <MetricCard icon={BarChart3} label="تكاليف مخصصة للعقار" value={fmtSAR(data?.allocatedCosts ?? 0)} />
+          <MetricCard icon={CircleDollarSign} label="الإيجار الشهري النشط" value={fmtSAR(snapshot.monthly_rent_roll ?? 0)} />
+          <MetricCard icon={CalendarClock} label="عقود تنتهي خلال 60 يوم" value={snapshot.expiring_60_days ?? 0} />
+          <MetricCard icon={Wrench} label="روابط الصيانة والمرافق" value={snapshot.facility_links ?? 0} />
+          <MetricCard icon={BarChart3} label="تكاليف مخصصة للعقار" value={fmtSAR(snapshot.allocated_costs ?? 0)} />
         </div>
 
         <div className="grid gap-4 lg:grid-cols-3">
@@ -228,7 +206,7 @@ function RealEstateModuleLanding() {
                   <div className="mt-2 text-xs text-muted-foreground">{formatDate(schedule.due_date)}</div>
                 </div>
               ))}
-              {!!data?.scheduledRevenue && <div className="pt-2 text-xs text-muted-foreground">إجمالي المعروض: {fmtSAR(data.scheduledRevenue)}</div>}
+              <div className="pt-2 text-xs text-muted-foreground">استحقاقات 90 يوم: {fmtSAR(snapshot.receivables_90_days ?? 0)}</div>
             </CardContent>
           </Card>
         </div>
