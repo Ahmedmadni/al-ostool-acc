@@ -1,5 +1,20 @@
 BEGIN;
 
+DO $$
+DECLARE
+  v_found INTEGER := 0;
+BEGIN
+  v_found := v_found + CASE WHEN to_regclass('public.group_companies') IS NOT NULL THEN 1 ELSE 0 END;
+  v_found := v_found + CASE WHEN to_regclass('public.group_modules') IS NOT NULL THEN 1 ELSE 0 END;
+  v_found := v_found + CASE WHEN to_regclass('public.group_company_modules') IS NOT NULL THEN 1 ELSE 0 END;
+  v_found := v_found + CASE WHEN to_regclass('public.group_user_module_access') IS NOT NULL THEN 1 ELSE 0 END;
+  v_found := v_found + CASE WHEN to_regprocedure('public.group_has_module_access(text,text)') IS NOT NULL THEN 1 ELSE 0 END;
+
+  IF v_found > 0 AND v_found < 5 THEN
+    RAISE EXCEPTION 'Gate 13 multi-company foundation appears partially applied (%/5 objects found); stop and reconcile before retry', v_found;
+  END IF;
+END $$;
+
 CREATE TABLE IF NOT EXISTS public.group_companies (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   code TEXT NOT NULL UNIQUE CHECK (code = upper(code) AND code ~ '^[A-Z0-9_]{2,24}$'),
