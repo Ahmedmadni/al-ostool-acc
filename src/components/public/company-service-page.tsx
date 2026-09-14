@@ -1,6 +1,7 @@
 import { Building2, CheckCircle2, ChevronLeft } from "lucide-react";
 import logo from "@/assets/logo.ico";
 import { PublicServiceRequestForm } from "@/components/public/service-request-form";
+import { AppDownloadCta } from "@/components/public/app-download-cta";
 
 type ServiceItem = { title: string; description: string };
 type CompanyCode = "OM" | "RE" | "CORE";
@@ -18,6 +19,8 @@ type CompanyServicePageProps = {
 };
 
 export function CompanyServicePage({ eyebrow, title, subtitle, description, services, highlights, requestLabel, accentLabel, companyCode }: CompanyServicePageProps) {
+  const appSource = companyCode === "OM" ? "maintenance" : companyCode === "RE" ? "real-estate" : "group";
+
   return (
     <main dir="rtl" className="min-h-screen bg-[#07111f] text-white">
       <header className="border-b border-white/10 bg-[#07111f]/95 backdrop-blur-xl">
@@ -42,6 +45,7 @@ export function CompanyServicePage({ eyebrow, title, subtitle, description, serv
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="#request" className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-slate-950">{requestLabel}<ChevronLeft className="h-4 w-4" /></a>
               <a href="#services" className="rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-bold">عرض الخدمات</a>
+              <a href="/app" className="rounded-xl border border-cyan-300/20 bg-cyan-300/[0.07] px-5 py-3 text-sm font-bold text-cyan-100">التطبيق قريبًا</a>
             </div>
           </div>
           <div className="rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 shadow-2xl backdrop-blur-xl">
@@ -69,16 +73,20 @@ export function CompanyServicePage({ eyebrow, title, subtitle, description, serv
         </div>
       </section>
 
-      <section id="request" className="px-5 pb-20 lg:px-8">
+      <section id="request" className="px-5 pb-12 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-8 rounded-[2rem] border border-amber-300/20 bg-gradient-to-l from-amber-300/15 via-white/[0.04] to-transparent p-7 lg:grid-cols-[.8fr_1.2fr] lg:items-start lg:p-10">
           <div>
             <div className="text-sm font-bold text-amber-300">طلبات العملاء</div>
             <h2 className="mt-2 text-2xl font-black">ابدأ طلبك من بوابة خدمات المجموعة</h2>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">مركز الطلبات الموحد يربط الطلب بالشركة والفريق المختص ويصدر رقم متابعة، ثم يسمح بتحويل طلبات الصيانة والمرافق إلى دورة أوامر العمل الداخلية دون تكرار البيانات.</p>
-            <div className="mt-5 space-y-2 text-xs text-slate-400"><div>• قناة موحدة للصيانة والمرافق والشكاوى والاستفسارات.</div><div>• رقم متابعة وحالة وأولوية وسجل انتقالات.</div><div>• لا تُمنح الواجهة العامة أي صلاحية قراءة على بيانات النظام الداخلية.</div></div>
+            <div className="mt-5 space-y-2 text-xs text-slate-400"><div>• نماذج متخصصة للاستثمار العقاري والتأجير وإدارة العقار والصيانة والتشغيل.</div><div>• رقم متابعة وحالة وأولوية وسجل انتقالات.</div><div>• لا تُمنح الواجهة العامة أي صلاحية قراءة على بيانات النظام الداخلية.</div></div>
           </div>
           {companyCode ? <PublicServiceRequestForm companyCode={companyCode} /> : <a href="/#contact" className="inline-flex items-center justify-center rounded-xl bg-amber-300 px-6 py-3 text-sm font-bold text-slate-950">تواصل مع المجموعة</a>}
         </div>
+      </section>
+
+      <section className="px-5 pb-20 lg:px-8">
+        <div className="mx-auto max-w-7xl"><AppDownloadCta compact source={appSource} /></div>
       </section>
 
       <footer className="border-t border-white/10 py-7 text-sm text-slate-500"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-5 sm:flex-row lg:px-8"><span>© {new Date().getFullYear()} مجموعة الأسطول الآلي</span><a href="/" className="transition hover:text-slate-300">العودة إلى المجموعة</a></div></footer>
