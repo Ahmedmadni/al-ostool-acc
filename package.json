@@ -17,7 +17,7 @@
     "check:leave-compliance": "node scripts/check-leave-compliance.mjs",
     "check:payroll": "node scripts/check-payroll-engine.mjs",
     "check:attendance": "node scripts/check-attendance-engine.mjs",
-    "verify": "npm run typecheck && npm run check:permissions && npm run check:columns && npm run check:hr-service && npm run check:termination && npm run check:leave-compliance && npm run check:payroll && npm run check:attendance && npm run check:attendance-daily && npm run check:attendance-exceptions && npm run check:attendance-close && npm run check:attendance-operations && npm run check:hr-sequential-codes-api && npm run check:vat && npm run check:vat-flexibility && npm run check:vat-history && npm run check:zakat-flexibility && npm run check:zakat-mapping && npm run check:zakat-workflow && npm run check:zakat-audit && npm run check:zakat-history && npm run check:tax-audit-hardening && npm run check:cost-imports && npm run check:cost-workflow && npm run check:cost-aux-imports && npm run check:cost-period-operations && npm run check:cost-budgets && npm run check:gate10-hr-integration-rls && npm run check:gate11-cost-accounting && npm run check:gate12-vat-engine && npm run check:gate13-holding-multicompany && npm run check:gate14-maintenance-operations && npm run check:gate15-real-estate-facilities",
+    "verify": "npm run typecheck && npm run check:permissions && npm run check:columns && npm run check:hr-service && npm run check:termination && npm run check:leave-compliance && npm run check:payroll && npm run check:attendance && npm run check:attendance-daily && npm run check:attendance-exceptions && npm run check:attendance-close && npm run check:attendance-operations && npm run check:hr-sequential-codes-api && npm run check:vat && npm run check:vat-flexibility && npm run check:vat-history && npm run check:zakat-flexibility && npm run check:zakat-mapping && npm run check:zakat-workflow && npm run check:zakat-audit && npm run check:zakat-history && npm run check:tax-audit-hardening && npm run check:cost-imports && npm run check:cost-workflow && npm run check:cost-aux-imports && npm run check:cost-period-operations && npm run check:cost-budgets && npm run check:gate10-hr-integration-rls && npm run check:gate11-cost-accounting && npm run check:gate12-vat-engine && npm run check:gate13-holding-multicompany && npm run check:gate14-maintenance-operations && npm run check:gate15-real-estate-facilities && npm run check:gate16-customer-service-hub",
     "format": "prettier --write .",
     "check:attendance-daily": "node scripts/check-attendance-daily.mjs",
     "check:attendance-exceptions": "node scripts/check-attendance-exceptions.mjs",
@@ -47,7 +47,8 @@
     "check:gate12-vat-engine": "node scripts/check-gate12-vat-engine.mjs",
     "check:gate13-holding-multicompany": "node scripts/check-gate13-holding-multicompany.mjs",
     "check:gate14-maintenance-operations": "node scripts/check-gate14-maintenance-operations.mjs",
-    "check:gate15-real-estate-facilities": "node scripts/check-gate15-real-estate-facilities.mjs"
+    "check:gate15-real-estate-facilities": "node scripts/check-gate15-real-estate-facilities.mjs",
+    "check:gate16-customer-service-hub": "node scripts/check-gate16-customer-service-hub.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

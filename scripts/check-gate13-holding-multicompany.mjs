@@ -3,7 +3,8 @@ import { readFileSync } from "node:fs";
 
 const migration = readFileSync("supabase/migrations/20260914090000_gate13_holding_multicompany_foundation.sql", "utf8");
 const home = readFileSync("src/routes/index.tsx", "utf8");
-const login = readFileSync("src/routes/login.tsx", "utf8");
+const login = readFileSync("src/routes/log.tsx", "utf8");
+const legacyLogin = readFileSync("src/routes/login.tsx", "utf8");
 const corePublic = readFileSync("src/routes/companies.al-ostool.tsx", "utf8");
 const maintenancePublic = readFileSync("src/routes/companies.maintenance.tsx", "utf8");
 const realEstatePublic = readFileSync("src/routes/companies.real-estate.tsx", "utf8");
@@ -35,14 +36,19 @@ for (const seed of ["'HOLDING'", "'CORE'", "'OM'", "'RE'", "'corporate_erp'", "'
 }
 
 assert.ok(!home.includes("redirect({"), "holding home must not redirect to internal ERP");
-for (const marker of ["مجموعة الأسطول الآلي", "/companies/maintenance", "/companies/real-estate", "/login"]) {
+for (const marker of ["مجموعة الأسطول الآلي", "/companies/maintenance", "/companies/real-estate"]) {
   assert.ok(home.includes(marker), `holding home marker ${marker} missing`);
 }
+assert.ok(!home.includes('href="/login"') && !home.includes('href="/log"'), "employee login must remain hidden from public holding home");
 
 for (const marker of ["corporate", "maintenance", "real_estate", "/maintenance", "/real-estate", "/dashboard"]) {
   assert.ok(login.includes(marker), `login module selector marker ${marker} missing`);
 }
+assert.ok(login.includes('createFileRoute("/log")'), "canonical employee login must be /log");
+assert.ok(login.includes("noindex, nofollow, noarchive"), "hidden employee login must be excluded from search indexing");
+assert.ok(legacyLogin.includes('redirect({ to: "/log", replace: true })'), "legacy /login route must redirect to /log");
 assert.ok(login.includes("ظهور النظام لا يمنح صلاحية تلقائيًا"), "login permission disclaimer missing");
+assert.ok(!publicShell.includes('href="/login"') && !publicShell.includes('href="/log"'), "employee login must remain hidden from public company shell");
 
 assert.ok(maintenanceInternal.includes('companyCode="OM"') && maintenanceInternal.includes('moduleKey="maintenance"'), "maintenance module guard missing");
 assert.ok(realEstateInternal.includes('companyCode="RE"') && realEstateInternal.includes('moduleKey="real_estate"'), "real-estate module guard missing");

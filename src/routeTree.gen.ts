@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as AppRouteImport } from './routes/app'
+import { Route as LogRouteImport } from './routes/log'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
@@ -85,6 +87,7 @@ import { Route as AuthenticatedWarehousesIssuesRouteImport } from './routes/_aut
 import { Route as AuthenticatedWarehousesItemsRouteImport } from './routes/_authenticated/warehouses/items'
 import { Route as AuthenticatedWarehousesReceiptsRouteImport } from './routes/_authenticated/warehouses/receipts'
 import { Route as AuthenticatedWarehousesStockRouteImport } from './routes/_authenticated/warehouses/stock'
+import { Route as ApiPublicServiceRequestRouteImport } from './routes/api/public/service-request'
 import { Route as AuthenticatedFleetDriversIndexRouteImport } from './routes/_authenticated/fleet/drivers/index'
 import { Route as AuthenticatedFleetFuelIndexRouteImport } from './routes/_authenticated/fleet/fuel/index'
 import { Route as AuthenticatedFleetMaintenanceIndexRouteImport } from './routes/_authenticated/fleet/maintenance/index'
@@ -126,6 +129,16 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LogRoute = LogRouteImport.update({
+  id: '/log',
+  path: '/log',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -554,6 +567,11 @@ const AuthenticatedWarehousesStockRoute =
     path: '/warehouses/stock',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const ApiPublicServiceRequestRoute = ApiPublicServiceRequestRouteImport.update({
+  id: '/api/public/service-request',
+  path: '/api/public/service-request',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedFleetDriversIndexRoute =
   AuthenticatedFleetDriversIndexRouteImport.update({
     id: '/fleet/drivers/',
@@ -754,6 +772,8 @@ const AuthenticatedHrQiwaMappingIndexRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRoute
+  '/log': typeof LogRoute
   '/login': typeof LoginRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -802,6 +822,7 @@ export interface FileRoutesByFullPath {
   '/warehouses/items': typeof AuthenticatedWarehousesItemsRoute
   '/warehouses/receipts': typeof AuthenticatedWarehousesReceiptsRoute
   '/warehouses/stock': typeof AuthenticatedWarehousesStockRoute
+  '/api/public/service-request': typeof ApiPublicServiceRequestRoute
   '/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/banks/': typeof AuthenticatedBanksIndexRoute
   '/board/': typeof AuthenticatedBoardIndexRoute
@@ -864,6 +885,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app': typeof AppRoute
+  '/log': typeof LogRoute
   '/login': typeof LoginRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -912,6 +935,7 @@ export interface FileRoutesByTo {
   '/warehouses/items': typeof AuthenticatedWarehousesItemsRoute
   '/warehouses/receipts': typeof AuthenticatedWarehousesReceiptsRoute
   '/warehouses/stock': typeof AuthenticatedWarehousesStockRoute
+  '/api/public/service-request': typeof ApiPublicServiceRequestRoute
   '/alerts': typeof AuthenticatedAlertsIndexRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
   '/board': typeof AuthenticatedBoardIndexRoute
@@ -976,6 +1000,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/app': typeof AppRoute
+  '/log': typeof LogRoute
   '/login': typeof LoginRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
@@ -1024,6 +1050,7 @@ export interface FileRoutesById {
   '/_authenticated/warehouses/items': typeof AuthenticatedWarehousesItemsRoute
   '/_authenticated/warehouses/receipts': typeof AuthenticatedWarehousesReceiptsRoute
   '/_authenticated/warehouses/stock': typeof AuthenticatedWarehousesStockRoute
+  '/api/public/service-request': typeof ApiPublicServiceRequestRoute
   '/_authenticated/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/_authenticated/banks/': typeof AuthenticatedBanksIndexRoute
   '/_authenticated/board/': typeof AuthenticatedBoardIndexRoute
@@ -1088,6 +1115,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/app'
+    | '/log'
     | '/login'
     | '/sitemap.xml'
     | '/account'
@@ -1136,6 +1165,7 @@ export interface FileRouteTypes {
     | '/warehouses/items'
     | '/warehouses/receipts'
     | '/warehouses/stock'
+    | '/api/public/service-request'
     | '/alerts/'
     | '/banks/'
     | '/board/'
@@ -1198,6 +1228,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/app'
+    | '/log'
     | '/login'
     | '/sitemap.xml'
     | '/account'
@@ -1246,6 +1278,7 @@ export interface FileRouteTypes {
     | '/warehouses/items'
     | '/warehouses/receipts'
     | '/warehouses/stock'
+    | '/api/public/service-request'
     | '/alerts'
     | '/banks'
     | '/board'
@@ -1309,6 +1342,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/app'
+    | '/log'
     | '/login'
     | '/sitemap.xml'
     | '/_authenticated/account'
@@ -1357,6 +1392,7 @@ export interface FileRouteTypes {
     | '/_authenticated/warehouses/items'
     | '/_authenticated/warehouses/receipts'
     | '/_authenticated/warehouses/stock'
+    | '/api/public/service-request'
     | '/_authenticated/alerts/'
     | '/_authenticated/banks/'
     | '/_authenticated/board/'
@@ -1421,11 +1457,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  AppRoute: typeof AppRoute
+  LogRoute: typeof LogRoute
   LoginRoute: typeof LoginRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   CompaniesAlOstoolRoute: typeof CompaniesAlOstoolRoute
   CompaniesMaintenanceRoute: typeof CompaniesMaintenanceRoute
   CompaniesRealEstateRoute: typeof CompaniesRealEstateRoute
+  ApiPublicServiceRequestRoute: typeof ApiPublicServiceRequestRoute
   ApiPublicFleetIngestRoute: typeof ApiPublicFleetIngestRoute
   ApiPublicHrAttendanceIngestRoute: typeof ApiPublicHrAttendanceIngestRoute
   ApiPublicHrAttendanceMaintenanceRoute: typeof ApiPublicHrAttendanceMaintenanceRoute
@@ -1445,6 +1484,20 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/log': {
+      id: '/log'
+      path: '/log'
+      fullPath: '/log'
+      preLoaderRoute: typeof LogRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1965,6 +2018,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWarehousesStockRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/service-request': {
+      id: '/api/public/service-request'
+      path: '/api/public/service-request'
+      fullPath: '/api/public/service-request'
+      preLoaderRoute: typeof ApiPublicServiceRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/fleet/drivers/': {
       id: '/_authenticated/fleet/drivers/'
       path: '/fleet/drivers'
@@ -2420,11 +2480,14 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  AppRoute: AppRoute,
+  LogRoute: LogRoute,
   LoginRoute: LoginRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   CompaniesAlOstoolRoute: CompaniesAlOstoolRoute,
   CompaniesMaintenanceRoute: CompaniesMaintenanceRoute,
   CompaniesRealEstateRoute: CompaniesRealEstateRoute,
+  ApiPublicServiceRequestRoute: ApiPublicServiceRequestRoute,
   ApiPublicFleetIngestRoute: ApiPublicFleetIngestRoute,
   ApiPublicHrAttendanceIngestRoute: ApiPublicHrAttendanceIngestRoute,
   ApiPublicHrAttendanceMaintenanceRoute: ApiPublicHrAttendanceMaintenanceRoute,
