@@ -11,6 +11,7 @@ const maintenancePage = fs.readFileSync('src/routes/companies.maintenance.tsx', 
 const realEstatePage = fs.readFileSync('src/routes/companies.real-estate.tsx', 'utf8');
 const logRoute = fs.readFileSync('src/routes/log.tsx', 'utf8');
 const legacyLogin = fs.readFileSync('src/routes/login.tsx', 'utf8');
+const robots = fs.readFileSync('public/robots.txt', 'utf8');
 
 const checks = [
   ['partial-application preflight', /appears already or partially applied/.test(migration)],
@@ -46,6 +47,7 @@ const checks = [
   ['public home exposes no employee login link', !home.includes('href="/login"') && !home.includes('href="/log"')],
   ['public company shell exposes no employee login link', !servicePage.includes('href="/login"') && !servicePage.includes('href="/log"')],
   ['protected routes redirect to hidden login path', /navigate\(\{ to: "\/log" \}\)/.test(authLayout)],
+  ['crawler excludes hidden login', /Disallow: \/log(?:\n|$)/.test(robots) && /Disallow: \/login(?:\n|$)/.test(robots)],
 ];
 
 const failed = checks.filter(([, ok]) => !ok);
