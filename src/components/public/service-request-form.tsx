@@ -1,4 +1,5 @@
 import { FormEvent, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { CheckCircle2, Loader2, Send, ShieldCheck } from "lucide-react";
 
 type CompanyCode = "OM" | "RE" | "CORE";
@@ -166,6 +167,6 @@ export function PublicServiceRequestForm({ companyCode }: Props) {
   );
 }
 
-function Field({ label, children, className = "" }: { label: string; children: React.ReactNode; className?: string }) {
+function Field({ label, children, className = "" }: { label: string; children: ReactNode; className?: string }) {
   return <label className={`block text-right ${className}`}><span className="mb-1.5 block text-xs font-bold text-slate-300">{label}</span>{children}</label>;
 }
