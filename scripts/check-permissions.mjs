@@ -46,10 +46,10 @@ const routeSrc = read("src/lib/route-permissions.ts");
 const rules = [...routeSrc.matchAll(/\{\s*prefix:\s*"([^"]+)",\s*module:\s*"([^"]+)"\s*\}/g)].map(
   (m) => ({ prefix: m[1], module: m[2] }),
 );
-const independentStart = routeSrc.indexOf("export const INDEPENDENTLY_GUARDED");
-const independentBlock = independentStart >= 0
-  ? routeSrc.slice(independentStart, routeSrc.indexOf("];", independentStart) + 2)
-  : "";
+const independentMatch = routeSrc.match(
+  /export const INDEPENDENTLY_GUARDED\s*=\s*\[([\s\S]*?)\]\s*as const;/,
+);
+const independentBlock = independentMatch?.[1] ?? "";
 const independentlyGuarded = new Set(
   [...independentBlock.matchAll(/"([^"]+)"/g)].map((m) => m[1]),
 );
