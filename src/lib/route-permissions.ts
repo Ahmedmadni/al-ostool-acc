@@ -141,6 +141,14 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/notifications", module: "notifications" },
 ];
 
+// Authenticated routes whose authorization belongs to a separate fail-closed domain
+// rather than the legacy permission_modules tree. Each route must render its own
+// guard; scripts/check-permissions.mjs verifies that the guard is actually present.
+export const INDEPENDENTLY_GUARDED = [
+  "/maintenance",
+  "/real-estate",
+] as const;
+
 // Pages that are always accessible to any authenticated user (no permission required).
 const ALWAYS_ALLOWED = [
   "/account", "/notes", "/", "",
@@ -148,6 +156,9 @@ const ALWAYS_ALLOWED = [
 
 export function pathToModule(pathname: string): string | null {
   if (ALWAYS_ALLOWED.includes(pathname)) return null;
+  // These routes are intentionally delegated to ModuleAccessGuard, which validates
+  // company + module access through group_has_module_access().
+  if ((INDEPENDENTLY_GUARDED as readonly string[]).includes(pathname)) return null;
   // sort by length desc to favor most specific prefix
   const sorted = [...RULES].sort((a, b) => b.prefix.length - a.prefix.length);
   for (const r of sorted) {
