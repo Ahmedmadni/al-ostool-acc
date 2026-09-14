@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  ArrowLeft,
   Building2,
   ChartNoAxesCombined,
   ChevronLeft,
@@ -97,13 +96,6 @@ function HoldingHomePage() {
             <a className="transition hover:text-white" href="#capabilities">منظومة الأعمال</a>
             <a className="transition hover:text-white" href="#contact">تواصل معنا</a>
           </nav>
-          <a
-            href="/login"
-            className="inline-flex items-center gap-2 rounded-xl border border-amber-300/40 bg-amber-300 px-4 py-2.5 text-sm font-bold text-slate-950 transition hover:bg-amber-200"
-          >
-            بوابة الأنظمة
-            <ArrowLeft className="h-4 w-4" />
-          </a>
         </div>
       </header>
 
@@ -133,12 +125,6 @@ function HoldingHomePage() {
               >
                 استكشف شركات المجموعة
                 <ChevronLeft className="h-4 w-4" />
-              </a>
-              <a
-                href="/login"
-                className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10"
-              >
-                الدخول إلى الأنظمة
               </a>
             </div>
           </div>
