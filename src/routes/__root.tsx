@@ -133,7 +133,6 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="ar" dir="rtl">
       <head>
         <HeadContent />
-        <style>{`a[href="/login"]{display:none!important}`}</style>
       </head>
       <body>
         {children}
