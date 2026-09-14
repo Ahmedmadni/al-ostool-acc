@@ -42,7 +42,7 @@ const checks = [
   ['hidden employee route', /createFileRoute\("\/log"\)/.test(logRoute)],
   ['employee route excluded from indexing', /noindex, nofollow, noarchive/.test(logRoute)],
   ['legacy login redirects to hidden route', /redirect\(\{ to: "\/log", replace: true \}\)/.test(legacyLogin)],
-  ['public legacy login links hidden', /a\[href=\\"\/login\\"\]\{display:none!important\}/.test(rootRoute)],
+  ['public legacy login links hidden', rootRoute.includes('a[href="/login"]{display:none!important}')],
 ];
 
 const failed = checks.filter(([, ok]) => !ok);
