@@ -3,7 +3,7 @@ BEGIN;
 DO $$
 DECLARE
   v_found integer := 0;
-  v_expected constant integer := 15;
+  v_expected constant integer := 16;
 BEGIN
   v_found := v_found + CASE WHEN to_regclass('public.re_properties') IS NOT NULL THEN 1 ELSE 0 END;
   v_found := v_found + CASE WHEN to_regclass('public.re_buildings') IS NOT NULL THEN 1 ELSE 0 END;
@@ -20,6 +20,7 @@ BEGIN
   v_found := v_found + CASE WHEN to_regclass('public.re_tenant_lease_seq') IS NOT NULL THEN 1 ELSE 0 END;
   v_found := v_found + CASE WHEN to_regprocedure('public.re_create_property(text,text,text,text,text,numeric,numeric)') IS NOT NULL THEN 1 ELSE 0 END;
   v_found := v_found + CASE WHEN to_regprocedure('public.re_create_tenant_lease(uuid,uuid,date,date,numeric,numeric,text)') IS NOT NULL THEN 1 ELSE 0 END;
+  v_found := v_found + CASE WHEN to_regprocedure('public.re_portfolio_snapshot()') IS NOT NULL THEN 1 ELSE 0 END;
 
   IF v_found > 0 AND v_found < v_expected THEN
     RAISE EXCEPTION 'Gate 15 real estate and facilities appears partially applied (%/% core markers found); stop and reconcile before retry', v_found, v_expected;
