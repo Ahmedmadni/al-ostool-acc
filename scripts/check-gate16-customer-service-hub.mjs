@@ -5,11 +5,12 @@ const api = fs.readFileSync('src/routes/api/public/service-request.ts', 'utf8');
 const form = fs.readFileSync('src/components/public/service-request-form.tsx', 'utf8');
 const hub = fs.readFileSync('src/components/customer-service/customer-service-hub.tsx', 'utf8');
 const servicePage = fs.readFileSync('src/components/public/company-service-page.tsx', 'utf8');
+const home = fs.readFileSync('src/routes/index.tsx', 'utf8');
+const authLayout = fs.readFileSync('src/routes/_authenticated.tsx', 'utf8');
 const maintenancePage = fs.readFileSync('src/routes/companies.maintenance.tsx', 'utf8');
 const realEstatePage = fs.readFileSync('src/routes/companies.real-estate.tsx', 'utf8');
 const logRoute = fs.readFileSync('src/routes/log.tsx', 'utf8');
 const legacyLogin = fs.readFileSync('src/routes/login.tsx', 'utf8');
-const rootRoute = fs.readFileSync('src/routes/__root.tsx', 'utf8');
 
 const checks = [
   ['partial-application preflight', /appears already or partially applied/.test(migration)],
@@ -42,7 +43,9 @@ const checks = [
   ['hidden employee route', /createFileRoute\("\/log"\)/.test(logRoute)],
   ['employee route excluded from indexing', /noindex, nofollow, noarchive/.test(logRoute)],
   ['legacy login redirects to hidden route', /redirect\(\{ to: "\/log", replace: true \}\)/.test(legacyLogin)],
-  ['public legacy login links hidden', rootRoute.includes('a[href="/login"]{display:none!important}')],
+  ['public home exposes no employee login link', !home.includes('href="/login"') && !home.includes('href="/log"')],
+  ['public company shell exposes no employee login link', !servicePage.includes('href="/login"') && !servicePage.includes('href="/log"')],
+  ['protected routes redirect to hidden login path', /navigate\(\{ to: "\/log" \}\)/.test(authLayout)],
 ];
 
 const failed = checks.filter(([, ok]) => !ok);
