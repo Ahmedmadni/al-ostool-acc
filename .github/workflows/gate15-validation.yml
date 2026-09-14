@@ -46,6 +46,7 @@ jobs:
           psql -h 127.0.0.1 -U postgres -d gate15 -f supabase/migrations/20260914120300_gate15_real_estate_integrity_hardening.sql
           psql -h 127.0.0.1 -U postgres -d gate15 -f supabase/migrations/20260914120400_gate15_real_estate_reporting_billing.sql
           psql -h 127.0.0.1 -U postgres -d gate15 -f scripts/tmp-gate15-behavior.sql
+          psql -h 127.0.0.1 -U postgres -d gate15 -f scripts/tmp-gate15-reporting-behavior.sql
       - name: Gate 15 full partial-application preflight
         env:
           PGPASSWORD: postgres
