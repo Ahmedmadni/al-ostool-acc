@@ -1,0 +1,73 @@
+name: Gate 14 validation
+
+on:
+  push:
+    branches:
+      - gate14-maintenance-operations-engine
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: gate14
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install dependencies
+        run: |
+          cp package.json /tmp/package-gate14.json
+          npm pkg set 'dependencies.@tanstack/react-router=1.170.18'
+          npm pkg set 'dependencies.@tanstack/react-start=1.168.34'
+          npm pkg set 'dependencies.@tanstack/router-plugin=1.168.23'
+          npm install --no-package-lock --ignore-scripts
+          mv /tmp/package-gate14.json package.json
+      - name: Gate 14 static checks
+        run: npm run check:gate14-maintenance-operations
+      - name: PostgreSQL 16 migration and hardened behavior
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -U postgres -d gate14 -f scripts/tmp-gate14-fixture.sql
+          psql -h 127.0.0.1 -U postgres -d gate14 -f supabase/migrations/20260914105900_gate14_maintenance_preflight.sql
+          psql -h 127.0.0.1 -U postgres -d gate14 -f supabase/migrations/20260914110000_gate14_maintenance_operations_engine.sql
+          psql -h 127.0.0.1 -U postgres -d gate14 -f supabase/migrations/20260914110100_gate14_maintenance_runtime.sql
+          psql -h 127.0.0.1 -U postgres -d gate14 -f supabase/migrations/20260914110200_gate14_maintenance_authorization_hardening.sql
+          psql -h 127.0.0.1 -U postgres -d gate14 -f supabase/migrations/20260914110300_gate14_maintenance_integrity_hardening.sql
+          psql -h 127.0.0.1 -U postgres -d gate14 -f scripts/tmp-gate14-behavior.sql
+      - name: Gate 14 full partial-application preflight
+        env:
+          PGPASSWORD: postgres
+        run: |
+          createdb -h 127.0.0.1 -U postgres gate14_partial
+          psql -h 127.0.0.1 -U postgres -d gate14_partial -f scripts/tmp-gate14-fixture.sql
+          psql -h 127.0.0.1 -U postgres -d gate14_partial -v ON_ERROR_STOP=1 -c "CREATE TABLE public.ops_service_requests(id uuid PRIMARY KEY);"
+          set +e
+          psql -h 127.0.0.1 -U postgres -d gate14_partial -v ON_ERROR_STOP=1 -f supabase/migrations/20260914105900_gate14_maintenance_preflight.sql >/tmp/gate14-partial.log 2>&1
+          code=$?
+          set -e
+          cat /tmp/gate14-partial.log
+          if [ "$code" -eq 0 ]; then
+            echo "Gate14 full preflight accepted a partial application state"
+            exit 1
+          fi
+          grep -q "partially applied" /tmp/gate14-partial.log
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Full verification
+        run: npm run verify
+      - name: Build
+        run: npm run build
+      - name: Diff check
+        run: git diff --check 3c62b8605c2224e0f3d064565352b485c1325b5e..HEAD
