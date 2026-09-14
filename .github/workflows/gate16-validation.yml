@@ -10,7 +10,20 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: gate16
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,9 +32,41 @@ jobs:
         with:
           node-version: 24
       - name: Install dependencies
-        run: npm install --no-package-lock --ignore-scripts
+        run: |
+          cp package.json /tmp/package-gate16.json
+          npm pkg set 'dependencies.@tanstack/react-router=1.170.18'
+          npm pkg set 'dependencies.@tanstack/react-start=1.168.34'
+          npm pkg set 'dependencies.@tanstack/router-plugin=1.168.23'
+          npm install --no-package-lock --ignore-scripts
+          mv /tmp/package-gate16.json package.json
       - name: Gate 16 static checks
         run: npm run check:gate16-customer-service-hub
+      - name: PostgreSQL 16 migration and behavior
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -U postgres -d gate16 -f scripts/tmp-gate16-fixture.sql
+          psql -h 127.0.0.1 -U postgres -d gate16 -f supabase/migrations/20260914130000_gate16_customer_service_hub.sql
+          psql -h 127.0.0.1 -U postgres -d gate16 -f supabase/migrations/20260914131000_gate16_service_catalog.sql
+          psql -h 127.0.0.1 -U postgres -d gate16 -f scripts/tmp-gate16-behavior.sql
+      - name: Gate 16 partial-application preflight
+        env:
+          PGPASSWORD: postgres
+        shell: bash
+        run: |
+          createdb -h 127.0.0.1 -U postgres gate16_partial
+          psql -h 127.0.0.1 -U postgres -d gate16_partial -f scripts/tmp-gate16-fixture.sql
+          psql -h 127.0.0.1 -U postgres -d gate16_partial -v ON_ERROR_STOP=1 -c "CREATE TABLE public.cs_tickets(id uuid PRIMARY KEY);"
+          set +e
+          psql -h 127.0.0.1 -U postgres -d gate16_partial -v ON_ERROR_STOP=1 -f supabase/migrations/20260914130000_gate16_customer_service_hub.sql >/tmp/gate16-partial.log 2>&1
+          code=$?
+          set -e
+          cat /tmp/gate16-partial.log
+          if [ "$code" -eq 0 ]; then
+            echo "Gate 16 preflight accepted a partial application state"
+            exit 1
+          fi
+          grep -q "already or partially applied" /tmp/gate16-partial.log
       - name: Generate route tree and build
         run: npm run build
       - name: Commit generated route tree when needed
