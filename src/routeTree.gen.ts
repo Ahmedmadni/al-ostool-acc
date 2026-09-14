@@ -85,6 +85,7 @@ import { Route as AuthenticatedWarehousesIssuesRouteImport } from './routes/_aut
 import { Route as AuthenticatedWarehousesItemsRouteImport } from './routes/_authenticated/warehouses/items'
 import { Route as AuthenticatedWarehousesReceiptsRouteImport } from './routes/_authenticated/warehouses/receipts'
 import { Route as AuthenticatedWarehousesStockRouteImport } from './routes/_authenticated/warehouses/stock'
+import { Route as ApiPublicServiceRequestRouteImport } from './routes/api/public/service-request'
 import { Route as AuthenticatedFleetDriversIndexRouteImport } from './routes/_authenticated/fleet/drivers/index'
 import { Route as AuthenticatedFleetFuelIndexRouteImport } from './routes/_authenticated/fleet/fuel/index'
 import { Route as AuthenticatedFleetMaintenanceIndexRouteImport } from './routes/_authenticated/fleet/maintenance/index'
@@ -554,6 +555,11 @@ const AuthenticatedWarehousesStockRoute =
     path: '/warehouses/stock',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const ApiPublicServiceRequestRoute = ApiPublicServiceRequestRouteImport.update({
+  id: '/api/public/service-request',
+  path: '/api/public/service-request',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedFleetDriversIndexRoute =
   AuthenticatedFleetDriversIndexRouteImport.update({
     id: '/fleet/drivers/',
@@ -802,6 +808,7 @@ export interface FileRoutesByFullPath {
   '/warehouses/items': typeof AuthenticatedWarehousesItemsRoute
   '/warehouses/receipts': typeof AuthenticatedWarehousesReceiptsRoute
   '/warehouses/stock': typeof AuthenticatedWarehousesStockRoute
+  '/api/public/service-request': typeof ApiPublicServiceRequestRoute
   '/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/banks/': typeof AuthenticatedBanksIndexRoute
   '/board/': typeof AuthenticatedBoardIndexRoute
@@ -912,6 +919,7 @@ export interface FileRoutesByTo {
   '/warehouses/items': typeof AuthenticatedWarehousesItemsRoute
   '/warehouses/receipts': typeof AuthenticatedWarehousesReceiptsRoute
   '/warehouses/stock': typeof AuthenticatedWarehousesStockRoute
+  '/api/public/service-request': typeof ApiPublicServiceRequestRoute
   '/alerts': typeof AuthenticatedAlertsIndexRoute
   '/banks': typeof AuthenticatedBanksIndexRoute
   '/board': typeof AuthenticatedBoardIndexRoute
@@ -1024,6 +1032,7 @@ export interface FileRoutesById {
   '/_authenticated/warehouses/items': typeof AuthenticatedWarehousesItemsRoute
   '/_authenticated/warehouses/receipts': typeof AuthenticatedWarehousesReceiptsRoute
   '/_authenticated/warehouses/stock': typeof AuthenticatedWarehousesStockRoute
+  '/api/public/service-request': typeof ApiPublicServiceRequestRoute
   '/_authenticated/alerts/': typeof AuthenticatedAlertsIndexRoute
   '/_authenticated/banks/': typeof AuthenticatedBanksIndexRoute
   '/_authenticated/board/': typeof AuthenticatedBoardIndexRoute
@@ -1136,6 +1145,7 @@ export interface FileRouteTypes {
     | '/warehouses/items'
     | '/warehouses/receipts'
     | '/warehouses/stock'
+    | '/api/public/service-request'
     | '/alerts/'
     | '/banks/'
     | '/board/'
@@ -1246,6 +1256,7 @@ export interface FileRouteTypes {
     | '/warehouses/items'
     | '/warehouses/receipts'
     | '/warehouses/stock'
+    | '/api/public/service-request'
     | '/alerts'
     | '/banks'
     | '/board'
@@ -1357,6 +1368,7 @@ export interface FileRouteTypes {
     | '/_authenticated/warehouses/items'
     | '/_authenticated/warehouses/receipts'
     | '/_authenticated/warehouses/stock'
+    | '/api/public/service-request'
     | '/_authenticated/alerts/'
     | '/_authenticated/banks/'
     | '/_authenticated/board/'
@@ -1426,6 +1438,7 @@ export interface RootRouteChildren {
   CompaniesAlOstoolRoute: typeof CompaniesAlOstoolRoute
   CompaniesMaintenanceRoute: typeof CompaniesMaintenanceRoute
   CompaniesRealEstateRoute: typeof CompaniesRealEstateRoute
+  ApiPublicServiceRequestRoute: typeof ApiPublicServiceRequestRoute
   ApiPublicFleetIngestRoute: typeof ApiPublicFleetIngestRoute
   ApiPublicHrAttendanceIngestRoute: typeof ApiPublicHrAttendanceIngestRoute
   ApiPublicHrAttendanceMaintenanceRoute: typeof ApiPublicHrAttendanceMaintenanceRoute
@@ -1965,6 +1978,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWarehousesStockRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/service-request': {
+      id: '/api/public/service-request'
+      path: '/api/public/service-request'
+      fullPath: '/api/public/service-request'
+      preLoaderRoute: typeof ApiPublicServiceRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/fleet/drivers/': {
       id: '/_authenticated/fleet/drivers/'
       path: '/fleet/drivers'
@@ -2425,6 +2445,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompaniesAlOstoolRoute: CompaniesAlOstoolRoute,
   CompaniesMaintenanceRoute: CompaniesMaintenanceRoute,
   CompaniesRealEstateRoute: CompaniesRealEstateRoute,
+  ApiPublicServiceRequestRoute: ApiPublicServiceRequestRoute,
   ApiPublicFleetIngestRoute: ApiPublicFleetIngestRoute,
   ApiPublicHrAttendanceIngestRoute: ApiPublicHrAttendanceIngestRoute,
   ApiPublicHrAttendanceMaintenanceRoute: ApiPublicHrAttendanceMaintenanceRoute,
