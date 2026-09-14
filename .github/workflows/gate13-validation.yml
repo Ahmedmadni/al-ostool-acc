@@ -1,0 +1,63 @@
+name: Gate 13 validation
+
+on:
+  push:
+    branches:
+      - gate13-holding-multicompany-portal
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: gate13
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install dependencies
+        run: npm install --no-package-lock --ignore-scripts
+      - name: Gate 13 static checks
+        run: npm run check:gate13-holding-multicompany
+      - name: PostgreSQL 16 migration and behavior
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -U postgres -d gate13 -f scripts/tmp-gate13-fixture.sql
+          psql -h 127.0.0.1 -U postgres -d gate13 -f supabase/migrations/20260914090000_gate13_holding_multicompany_foundation.sql
+          psql -h 127.0.0.1 -U postgres -d gate13 -f scripts/tmp-gate13-behavior.sql
+      - name: Gate 13 partial-application preflight
+        env:
+          PGPASSWORD: postgres
+        run: |
+          createdb -h 127.0.0.1 -U postgres gate13_partial
+          psql -h 127.0.0.1 -U postgres -d gate13_partial -f scripts/tmp-gate13-fixture.sql
+          psql -h 127.0.0.1 -U postgres -d gate13_partial -v ON_ERROR_STOP=1 -c "CREATE TABLE public.group_companies(id uuid PRIMARY KEY);"
+          set +e
+          psql -h 127.0.0.1 -U postgres -d gate13_partial -v ON_ERROR_STOP=1 -f supabase/migrations/20260914090000_gate13_holding_multicompany_foundation.sql >/tmp/gate13-partial.log 2>&1
+          code=$?
+          set -e
+          cat /tmp/gate13-partial.log
+          if [ "$code" -eq 0 ]; then
+            echo "Gate13 migration accepted a partial application state"
+            exit 1
+          fi
+          grep -q "partially applied" /tmp/gate13-partial.log
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Full verification
+        run: npm run verify
+      - name: Build
+        run: npm run build
+      - name: Diff check
+        run: git diff --check c7895b2fd190e27a988b625cf6541a6104f6be07..HEAD
