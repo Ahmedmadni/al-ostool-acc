@@ -26,7 +26,13 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install dependencies
-        run: npm install --no-package-lock --ignore-scripts
+        run: |
+          cp package.json /tmp/package-gate14.json
+          npm pkg set 'dependencies.@tanstack/react-router=1.170.18'
+          npm pkg set 'dependencies.@tanstack/react-start=1.168.34'
+          npm pkg set 'dependencies.@tanstack/router-plugin=1.168.23'
+          npm install --no-package-lock --ignore-scripts
+          mv /tmp/package-gate14.json package.json
       - name: Gate 14 static checks
         run: node scripts/check-gate14-maintenance-operations.mjs
       - name: PostgreSQL 16 migration and behavior
