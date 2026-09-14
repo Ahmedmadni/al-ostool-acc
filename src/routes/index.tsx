@@ -13,12 +13,12 @@ import logo from "@/assets/logo.ico";
 
 const subsidiaries = [
   {
-    eyebrow: "الأنظمة المؤسسية",
+    eyebrow: "الأعمال والمشاريع",
     title: "شركة الأسطول الآلي",
     description:
-      "المنصة المؤسسية الحالية لإدارة المالية والمشاريع والموارد البشرية والرواتب والتكاليف والضرائب ضمن بيئة تشغيل مترابطة.",
-    href: "/login",
-    action: "دخول النظام المؤسسي",
+      "الشركة التشغيلية الأساسية للمجموعة، مع منظومة مؤسسية لإدارة المالية والمشاريع والموارد البشرية والرواتب والتكاليف والضرائب.",
+    href: "/companies/al-ostool",
+    action: "استكشف الشركة",
     icon: HardHat,
   },
   {
@@ -34,7 +34,7 @@ const subsidiaries = [
     eyebrow: "الاستثمار وإدارة المرافق",
     title: "شركة الاستثمار العقاري وإدارة المرافق",
     description:
-      "إدارة الأصول والمباني والوحدات السكنية والفندقية والتأجير وإعادة التأجير وتجربة المستأجر وخدمات المرافق.",
+      "إدارة المباني والوحدات السكنية والفندقية والتأجير وإعادة التأجير والإشغال وتجربة المستأجر وخدمات المرافق.",
     href: "/companies/real-estate",
     action: "استكشف القطاع العقاري",
     icon: Building2,
@@ -67,7 +67,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "مجموعة الأسطول الآلي تجمع الحلول المؤسسية والتشغيل والصيانة والاستثمار العقاري وإدارة المرافق ضمن منظومة أعمال متكاملة.",
+          "مجموعة الأسطول الآلي تجمع الأعمال والمشاريع والتشغيل والصيانة والاستثمار العقاري وإدارة المرافق ضمن منظومة أعمال متكاملة.",
       },
       { property: "og:title", content: "مجموعة الأسطول الآلي" },
       {
@@ -123,7 +123,7 @@ function HoldingHomePage() {
               </span>
             </h1>
             <p className="mt-7 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-              من الإدارة المؤسسية إلى التشغيل والصيانة والاستثمار العقاري وإدارة المرافق، تربط مجموعة الأسطول الآلي
+              من الأعمال والمشاريع إلى التشغيل والصيانة والاستثمار العقاري وإدارة المرافق، تربط مجموعة الأسطول الآلي
               شركاتها وخدماتها في منظومة رقمية موحدة تخدم العملاء وتمنح الإدارة رؤية تشغيلية ومالية متكاملة.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
@@ -161,7 +161,7 @@ function HoldingHomePage() {
                   ["02", "الصيانة والتشغيل", "Service • Assets • Work Orders • SLA"],
                   ["03", "العقارات والمرافق", "Properties • Leasing • Facilities • Tenants"],
                 ].map(([number, title, subtitle]) => (
-                  <div key={number} className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-black/15 p-4 transition hover:border-amber-300/30 hover:bg-white/[0.06]">
+                  <div key={number} className="flex items-center gap-4 rounded-2xl border border-white/10 bg-black/15 p-4 transition hover:border-amber-300/30 hover:bg-white/[0.06]">
                     <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/5 font-mono text-sm text-amber-200">
                       {number}
                     </div>
@@ -183,7 +183,7 @@ function HoldingHomePage() {
             <div className="text-sm font-bold text-amber-300">شركات المجموعة</div>
             <h2 className="mt-3 text-3xl font-black sm:text-4xl">قطاعات متخصصة، رؤية واحدة</h2>
             <p className="mt-4 leading-7 text-slate-400">
-              لكل شركة نطاق تشغيلي وخدمات متخصصة، بينما تتشارك المجموعة الحوكمة والبيانات والأنظمة المالية ومؤشرات الأداء.
+              لكل شركة صفحة خدمات ونطاق تشغيلي مستقل، بينما تتشارك المجموعة الحوكمة والبيانات والأنظمة المالية ومؤشرات الأداء.
             </p>
           </div>
           <div className="grid gap-5 lg:grid-cols-3">
@@ -227,7 +227,7 @@ function HoldingHomePage() {
             <div className="text-sm font-bold text-amber-300">خدمات المجموعة</div>
             <h2 className="mt-2 text-2xl font-black sm:text-3xl">لديك مشروع أو طلب خدمة؟</h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
-              اختر الشركة والنشاط المناسب. بوابة طلبات العملاء الموحدة ستربط طلبك مباشرة بفريق التشغيل المختص وتتيح تتبع حالته.
+              اختر الشركة والنشاط المناسب. مركز طلبات العملاء الموحد سيحوّل الطلب إلى الشركة والفريق المختص مع رقم متابعة وحالة وSLA دون كشف الأنظمة الداخلية.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
