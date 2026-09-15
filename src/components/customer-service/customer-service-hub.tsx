@@ -11,8 +11,13 @@ const statusLabel: Record<string, string> = {
   waiting_customer: "بانتظار العميل", resolved: "تم الحل", closed: "مغلق", cancelled: "ملغي",
 };
 const typeLabel: Record<string, string> = {
-  maintenance: "صيانة", facility: "مرافق", complaint: "شكوى", leasing_enquiry: "استفسار تأجير",
-  property_enquiry: "استفسار عقاري", general: "طلب عام",
+  maintenance: "صيانة", emergency_maintenance: "صيانة طارئة", preventive_maintenance: "صيانة وقائية",
+  maintenance_contract: "عقد صيانة", facility: "مرافق", quote_request: "طلب عرض",
+  investment_enquiry: "استثمار عقاري", investment_opportunity: "فرصة استثمارية", property_management: "إدارة عقار",
+  leasing_enquiry: "استفسار تأجير", property_enquiry: "استفسار عقاري", project_opportunity: "فرصة مشروع",
+  erp_consulting: "ERP", digital_platform: "منصة رقمية", integration_automation: "تكامل وأتمتة", data_bi: "بيانات وBI",
+  cloud_infrastructure: "سحابة وبنية تقنية", managed_it_support: "دعم تقني", cybersecurity: "أمن سيبراني",
+  complaint: "شكوى", general: "طلب عام",
 };
 const priorityLabel: Record<string, string> = { low: "منخفض", normal: "عادي", high: "مرتفع", critical: "حرج" };
 
@@ -24,7 +29,7 @@ type Ticket = {
   created_at: string;
 };
 
-type Props = { companyCode: "OM" | "RE"; title?: string };
+type Props = { companyCode: "OM" | "RE" | "IT"; title?: string };
 
 async function loadTickets(companyCode: string) {
   const db = supabase as any;
@@ -71,12 +76,12 @@ export function CustomerServiceHub({ companyCode, title = "مركز خدمة ا�
     <Card className="rounded-2xl">
       <CardHeader className="border-b border-border pb-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div><CardTitle className="flex items-center gap-2 text-base"><TicketCheck className="h-5 w-5 text-primary" />{title}</CardTitle><p className="mt-1 text-xs text-muted-foreground">قناة موحدة للطلبات والشكاوى والاستفسارات مع حالة وأولوية وربط بمحرك الصيانة.</p></div>
+          <div><CardTitle className="flex items-center gap-2 text-base"><TicketCheck className="h-5 w-5 text-primary" />{title}</CardTitle><p className="mt-1 text-xs text-muted-foreground">قناة موحدة للطلبات والشكاوى والاستفسارات مع حالة وأولوية وSLA وربط بالموديول التشغيلي المناسب.</p></div>
           <Button variant="outline" size="sm" onClick={refresh}><RefreshCw className="ml-2 h-4 w-4" />تحديث</Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-5 p-5">
-        {error && <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-200">مركز خدمة العملاء جاهز في الكود وسيظهر فور تطبيق Gate 16 على قاعدة البيانات النهائية.</div>}
+        {error && <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-200">مركز خدمة العملاء جاهز في الكود وسيظهر فور تطبيق migrations الخاصة بالمجموعة وقاعدة البيانات النهائية.</div>}
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <MiniMetric icon={TicketCheck} label="طلبات نشطة" value={metrics.open} />
           <MiniMetric icon={Clock3} label="بانتظار العميل" value={metrics.waiting} />
@@ -104,7 +109,7 @@ export function CustomerServiceHub({ companyCode, title = "مركز خدمة ا�
                     {["triaged", "assigned", "waiting_customer"].includes(ticket.status) && <Action disabled={transition.isPending} onClick={() => transition.mutate({ id: ticket.id, status: "in_progress" })} icon={Clock3}>بدء المعالجة</Action>}
                     {ticket.status === "in_progress" && <Action disabled={transition.isPending} onClick={() => transition.mutate({ id: ticket.id, status: "resolved" })} icon={CheckCircle2}>تم الحل</Action>}
                     {ticket.status === "resolved" && <Action disabled={transition.isPending} onClick={() => transition.mutate({ id: ticket.id, status: "closed" })} icon={CheckCircle2}>إغلاق</Action>}
-                    {["maintenance", "facility"].includes(ticket.request_type) && !ticket.ops_service_request_id && <Action disabled={convert.isPending} onClick={() => convert.mutate(ticket.id)} icon={Wrench}>تحويل إلى طلب صيانة</Action>}
+                    {["maintenance", "emergency_maintenance", "preventive_maintenance", "facility"].includes(ticket.request_type) && !ticket.ops_service_request_id && <Action disabled={convert.isPending} onClick={() => convert.mutate(ticket.id)} icon={Wrench}>تحويل إلى طلب صيانة</Action>}
                   </div>
                   {(transition.error || convert.error) && <div className="mt-3 text-xs text-destructive">تعذر تنفيذ الإجراء. تحقق من الصلاحيات وربط العميل ثم أعد المحاولة.</div>}
                 </div>
