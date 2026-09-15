@@ -17,7 +17,7 @@ export function MobileBottomNav({ onOpenLauncher }: Props) {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-card/95 backdrop-blur border-t border-border no-print"
+      className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-card/95 backdrop-blur border-t border-border no-print shadow-[0_-8px_24px_color-mix(in_oklab,var(--foreground)_6%,transparent)]"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <ul className="grid grid-cols-5">
@@ -28,7 +28,7 @@ export function MobileBottomNav({ onOpenLauncher }: Props) {
               <Link
                 to={to}
                 className={`flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] min-h-[56px] transition-colors ${
-                  active ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                  active ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <Icon className="w-5 h-5" />

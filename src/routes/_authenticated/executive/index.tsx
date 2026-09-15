@@ -200,7 +200,7 @@ const ICONS: Record<string, any> = { company: ShieldCheck, financial: Activity, 
 function ScoreCard({ score, lang }: { score: any; lang: string }) {
   const Icon = ICONS[score.key] ?? Activity;
   return (
-    <Card className={`border-2 ${STATUS_COLORS[score.status]}`}>
+    <Card className={`border ${STATUS_COLORS[score.status]}`}>
       <CardContent className="p-5">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -231,7 +231,7 @@ function ExecutiveSummaryCard() {
   };
   const copy = async () => { await navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); };
   return (
-    <Card className="border-2 border-primary/30">
+    <Card className="border-primary/30">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-2 flex-wrap">
           <span className="flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary" />{t("executiveSummary")}</span>
@@ -316,11 +316,11 @@ function ExecutivePage() {
   const truncated = Array.from(new Set([...(health?.dataQuality?.truncated ?? []), ...(alerts?.dataQuality?.truncated ?? [])]));
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-7" dir="rtl">
       <DataTruncationBanner truncated={truncated} />
       <PageHeader
-        title="مركز القيادة التنفيذي الموحد"
-        description={`لوحة موحّدة: KPIs + صحة استراتيجية + رؤى AI + تنبيهات — ${periodLabel}`}
+        title="مركز القيادة التنفيذي"
+        description={`نظرة موحّدة على الأداء المالي والتشغيلي والمخاطر — ${periodLabel}`}
         actions={
           <>
             <Select value={period} onValueChange={(v) => setPeriod(v as Period)}>
@@ -342,7 +342,7 @@ function ExecutivePage() {
       />
 
       {/* Snapshot KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 gap-4">
         <KpiCard title="إجمالي الإيرادات" value={fmtSAR(data?.snapshot.revCurr ?? 0)} icon={TrendingUp} color="success"
           hint={data ? `${data.snapshot.revChange >= 0 ? "▲" : "▼"} ${fmtPercent(Math.abs(data.snapshot.revChange))} مقارنة بالفترة السابقة` : "—"} />
         <KpiCard title="صافي الربح" value={fmtSAR(data?.snapshot.netProfit ?? 0)}
@@ -357,7 +357,7 @@ function ExecutivePage() {
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto rounded-md bg-secondary p-1">
           <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
           <TabsTrigger value="health">الصحة الاستراتيجية</TabsTrigger>
           <TabsTrigger value="ai">الملخص والرؤى AI</TabsTrigger>
@@ -367,32 +367,32 @@ function ExecutivePage() {
         {/* ================= TAB 1: Overview (charts) ================= */}
         <TabsContent value="overview" className="space-y-4 mt-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card className="p-4">
-              <div className="text-sm font-semibold mb-3">الإيرادات وصافي الربح — آخر 12 شهراً</div>
+             <Card className="p-5">
+               <div className="text-sm font-semibold mb-5">الإيرادات وصافي الربح — آخر 12 شهراً</div>
               <ResponsiveContainer width="100%" height={280}>
                 <ComposedChart data={data?.trend12 ?? []}>
-                  <CartesianGrid strokeDasharray="3 3" />
+                   <CartesianGrid stroke="var(--border)" vertical={false} />
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`} />
                   <Tooltip formatter={(v: number) => fmtSAR(v)} />
                   <Legend />
-                  <Line type="monotone" dataKey="revenue" stroke="hsl(217 91% 60%)" strokeWidth={2} name="الإيرادات" dot={false} />
-                  <Line type="monotone" dataKey="profit" stroke="hsl(142 71% 45%)" strokeWidth={2} name="صافي الربح" dot={false} />
+                   <Line type="monotone" dataKey="revenue" stroke="var(--chart-3)" strokeWidth={2.5} name="الإيرادات" dot={false} />
+                   <Line type="monotone" dataKey="profit" stroke="var(--chart-1)" strokeWidth={2.5} name="صافي الربح" dot={false} />
                 </ComposedChart>
               </ResponsiveContainer>
             </Card>
-            <Card className="p-4">
-              <div className="text-sm font-semibold mb-3">التدفق النقدي — آخر 6 أشهر</div>
+             <Card className="p-5">
+               <div className="text-sm font-semibold mb-5">التدفق النقدي — آخر 6 أشهر</div>
               <ResponsiveContainer width="100%" height={280}>
                 <ComposedChart data={data?.cashFlow6 ?? []}>
-                  <CartesianGrid strokeDasharray="3 3" />
+                   <CartesianGrid stroke="var(--border)" vertical={false} />
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`} />
                   <Tooltip formatter={(v: number) => fmtSAR(v)} />
                   <Legend />
-                  <Bar dataKey="collections" fill="hsl(142 71% 45%)" name="التحصيلات" />
-                  <Bar dataKey="payments" fill="hsl(0 84% 60%)" name="المدفوعات" />
-                  <Line type="monotone" dataKey="net" stroke="hsl(217 91% 60%)" strokeWidth={2} name="صافي النقد التراكمي" dot={false} />
+                   <Bar dataKey="collections" fill="var(--chart-1)" radius={[4, 4, 0, 0]} name="التحصيلات" />
+                   <Bar dataKey="payments" fill="var(--chart-4)" radius={[4, 4, 0, 0]} name="المدفوعات" />
+                   <Line type="monotone" dataKey="net" stroke="var(--chart-3)" strokeWidth={2.5} name="صافي النقد التراكمي" dot={false} />
                 </ComposedChart>
               </ResponsiveContainer>
             </Card>

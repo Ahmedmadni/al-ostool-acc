@@ -132,7 +132,7 @@ function VendorsPage() {
             exportTitle="قائمة الموردين"
             extra={<Button variant="outline" size="sm" onClick={() => setOpenImp(true)} className="gap-1"><Upload className="w-4 h-4" /> استيراد</Button>}
           />
-          <div className="overflow-x-auto border rounded-md">
+          <div className="overflow-x-auto border border-border/80 rounded-md">
             <Table>
               <TableHeader>
                 <TableRow>

@@ -243,56 +243,56 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="w-64 bg-sidebar text-sidebar-foreground flex-col fixed inset-y-0 right-0 z-30 no-print hidden md:flex">
-        <div className="p-5 border-b border-sidebar-border flex items-center gap-3">
-          <img src={logo} alt="" className="w-10 h-10 rounded-md bg-white p-1" />
+      <aside className="w-64 bg-sidebar text-sidebar-foreground flex-col fixed inset-y-0 right-0 z-30 no-print hidden md:flex border-l border-sidebar-border shadow-xl shadow-foreground/5">
+        <div className="h-20 px-5 border-b border-sidebar-border flex items-center gap-3 shrink-0">
+          <img src={logo} alt="شعار الأسطول الآلي" className="w-10 h-10 rounded-md bg-card p-1 ring-1 ring-sidebar-border" />
           <div>
-            <div className="font-bold text-sm leading-tight">{lang === "en" ? "Al-Ostool Al-Ali" : "الأسطول الآلي"}</div>
-            <div className="text-xs text-sidebar-foreground/70">{lang === "en" ? "Financial Intelligence & Contracting" : "الذكاء المالي والمقاولات"}</div>
+            <div className="font-bold text-sm leading-tight text-sidebar-foreground">{lang === "en" ? "Al-Ostool Al-Ali" : "مجموعة الأسطول الآلي"}</div>
+            <div className="text-[11px] text-sidebar-foreground/55 mt-1">{lang === "en" ? "Enterprise operations" : "منظومة إدارة الأعمال"}</div>
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1 scrollbar-thin">
           {allGroups.map((group) => {
             const Icon = group.icon;
             const open = openMap[group.key] ?? group.key === activeGroupKey;
             const groupActive = group.key === activeGroupKey;
             return (
-              <div key={group.key} className="mb-1.5">
+              <div key={group.key} className="mb-1">
                 <button
                   type="button"
                   onClick={() => toggleGroup(group.key)}
-                  className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-md text-sm transition-all border shadow-sm ${
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-md text-sm transition-colors border ${
                     groupActive
-                      ? "bg-sidebar-accent text-sidebar-foreground font-semibold border-accent/60 shadow-md"
-                      : "bg-sidebar-accent/30 hover:bg-sidebar-accent/60 text-sidebar-foreground border-sidebar-border/50"
+                      ? "bg-sidebar-accent text-sidebar-primary font-semibold border-sidebar-border"
+                      : "hover:bg-sidebar-accent/70 text-sidebar-foreground/75 border-transparent"
                   }`}
                 >
-                  <span className={`flex items-center justify-center w-7 h-7 rounded-md border shrink-0 ${
+                  <span className={`flex items-center justify-center w-7 h-7 rounded-md shrink-0 ${
                     groupActive
-                      ? "bg-accent/20 border-accent/70 text-accent"
-                      : "bg-sidebar/60 border-sidebar-border/60 text-accent/90"
+                      ? "bg-sidebar-primary/15 text-sidebar-primary"
+                      : "bg-sidebar-accent text-sidebar-foreground/70"
                   }`}>
                     <Icon className="w-4 h-4" />
                   </span>
                   <span className="flex-1 text-right font-semibold">{lang === "en" ? group.label_en : group.label}</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
                 </button>
                 {open && (
-                  <div className="mt-1 mr-3 ms-1 bg-sidebar/40 border border-sidebar-border/40 rounded-md p-1.5 space-y-0.5 shadow-inner">
+                  <div className="mt-1 mr-3 border-r border-sidebar-border pr-2 py-1 space-y-0.5">
                     {group.links.map((link) => {
                       const active = path === link.to || (link.to !== "/dashboard" && path.startsWith(link.to) && path.split("/").length === link.to.split("/").length);
                       return (
                         <Link
                           key={link.to}
                           to={link.to}
-                          className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] transition-colors border border-transparent ${
+                            className={`flex items-center gap-2 px-3 py-2 rounded-md text-[13px] transition-colors ${
                             active
-                              ? "bg-sidebar-primary/15 text-sidebar-primary-foreground font-medium border-r-2 !border-r-primary"
-                              : "hover:bg-sidebar-accent/50 text-sidebar-foreground/75"
+                                ? "bg-sidebar-primary/12 text-sidebar-primary font-semibold"
+                                : "hover:bg-sidebar-accent/60 text-sidebar-foreground/65 hover:text-sidebar-foreground"
                           }`}
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${active ? "bg-primary" : "bg-sidebar-foreground/30"}`} />
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${active ? "bg-sidebar-primary" : "bg-sidebar-foreground/25"}`} />
                           <span className="flex-1">{lang === "en" ? link.label_en : link.label}</span>
                           {active && <ChevronLeft className="w-3 h-3" />}
                         </Link>
@@ -307,26 +307,29 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 
         <div className="p-3 border-t border-sidebar-border">
-          <div className="text-xs text-sidebar-foreground/70 mb-1 truncate">{user?.email}</div>
-          <div className="text-xs text-sidebar-foreground/60 mb-2">
-            {roles.map((r) => roleLabel[r] ?? r).join(" • ") || "—"}
+          <div className="flex items-center gap-3 rounded-md bg-sidebar-accent/60 p-2.5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-sidebar-primary/15 text-sm font-bold text-sidebar-primary">{user?.email?.slice(0, 1).toUpperCase() ?? "A"}</div>
+            <div className="min-w-0 flex-1">
+              <div className="text-xs text-sidebar-foreground truncate">{user?.email}</div>
+              <div className="text-[10px] text-sidebar-foreground/50 truncate">{roles.map((r) => roleLabel[r] ?? r).join(" • ") || "—"}</div>
+            </div>
+            <Button variant="ghost" size="icon" onClick={logout} title={t("logout")} aria-label={t("logout")} className="text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground">
+              <LogOut className="w-4 h-4" />
+            </Button>
           </div>
-          <Button variant="secondary" size="sm" onClick={logout} className="w-full gap-2">
-            <LogOut className="w-4 h-4" /> {t("logout")}
-          </Button>
         </div>
       </aside>
 
       <div className="flex-1 md:mr-64 flex flex-col min-w-0">
-        <header className="h-16 bg-card border-b border-border flex items-center px-6 gap-4 sticky top-0 z-20 no-print">
-          <div className="max-w-md w-full relative">
+        <header className="h-16 bg-card/95 backdrop-blur border-b border-border/80 flex items-center px-4 md:px-6 gap-2 sticky top-0 z-20 no-print shadow-sm shadow-foreground/[0.02]">
+          <div className="max-w-md w-full relative hidden sm:block">
             <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input placeholder={t("search")} className="pr-10" />
           </div>
-          <div className="ms-auto flex items-center gap-2" />
+          <div className="ms-auto flex items-center gap-1" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" title="Language" className="font-semibold gap-1">
+              <Button variant="ghost" size="sm" title="Language" className="font-semibold gap-1 text-muted-foreground">
                 {LANGS.find((l) => l.code === lang)?.native ?? lang}
               </Button>
             </DropdownMenuTrigger>
@@ -340,7 +343,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </DropdownMenuContent>
           </DropdownMenu>
           <Button
-            variant="ghost" size="icon"
+            variant="outline" size="icon"
             title={lang === "en" ? "Calculator" : "الآلة الحاسبة"}
             aria-label={lang === "en" ? "Calculator" : "الآلة الحاسبة"}
             onClick={() => window.dispatchEvent(new CustomEvent("toggle-floating-calculator"))}
@@ -348,7 +351,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Calculator className="w-5 h-5" />
           </Button>
           <Button
-            variant="ghost" size="icon"
+            variant="outline" size="icon"
             title={t("copilot")}
             aria-label={t("copilot")}
             onClick={() => window.dispatchEvent(new CustomEvent("toggle-floating-copilot"))}
@@ -368,7 +371,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         </header>
 
-        <main className="flex-1 p-6 overflow-x-hidden">{children}</main>
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden">{children}</main>
       </div>
     </div>
   );
