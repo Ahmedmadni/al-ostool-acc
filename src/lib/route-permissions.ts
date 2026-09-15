@@ -18,8 +18,7 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/alerts", module: "alerts" },
   { prefix: "/copilot", module: "copilot" },
 
-  // ===== Customers (AR) + shared customer service =====
-  { prefix: "/customer-service", module: "customers" },
+  // ===== Customers (AR) =====
   { prefix: "/customers/contracts", module: "contracts" },
   { prefix: "/customers/invoices", module: "invoices" },
   { prefix: "/customers/collections", module: "customers" },
@@ -117,17 +116,19 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/notifications", module: "notifications" },
 ];
 
-// Authenticated routes whose authorization belongs to the company/module access domain.
-// Each route must render ModuleAccessGuard; scripts/check-permissions.mjs verifies this.
+// Authenticated single-company routes whose authorization belongs to the
+// company/module access domain and is enforced by ModuleAccessGuard.
 export const INDEPENDENTLY_GUARDED = [
   "/maintenance",
   "/real-estate",
   "/technology",
 ] as const;
 
-// Pages that are always accessible to any authenticated user (no permission required).
+// Routes that may be entered by any authenticated user and enforce their own
+// business-domain access internally. /customer-service uses OR access across
+// OM/RE/IT and fails closed when the user has none of those company modules.
 const ALWAYS_ALLOWED = [
-  "/apps", "/account", "/notes", "/", "",
+  "/apps", "/customer-service", "/account", "/notes", "/", "",
 ];
 
 export function pathToModule(pathname: string): string | null {
