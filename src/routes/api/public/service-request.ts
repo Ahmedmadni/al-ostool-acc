@@ -4,7 +4,7 @@ import { z } from "zod";
 const MAX_BODY_BYTES = 32 * 1024;
 
 const RequestSchema = z.object({
-  companyCode: z.enum(["OM", "RE", "CORE"]),
+  companyCode: z.enum(["OM", "RE", "CORE", "IT"]),
   requestType: z.enum([
     "maintenance",
     "emergency_maintenance",
@@ -17,6 +17,14 @@ const RequestSchema = z.object({
     "property_management",
     "leasing_enquiry",
     "property_enquiry",
+    "project_opportunity",
+    "erp_consulting",
+    "digital_platform",
+    "integration_automation",
+    "data_bi",
+    "cloud_infrastructure",
+    "managed_it_support",
+    "cybersecurity",
     "complaint",
     "general",
   ]),
@@ -32,13 +40,14 @@ const RequestSchema = z.object({
   if (!value.contactPhone && !value.contactEmail) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "phone_or_email_required", path: ["contactPhone"] });
   }
-  const maintenanceOnly = ["maintenance", "emergency_maintenance", "preventive_maintenance", "maintenance_contract", "quote_request"];
-  const realEstateOnly = ["investment_enquiry", "investment_opportunity", "property_management", "leasing_enquiry", "property_enquiry"];
-  if (maintenanceOnly.includes(value.requestType) && value.companyCode !== "OM") {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "maintenance_company_mismatch", path: ["requestType"] });
-  }
-  if (realEstateOnly.includes(value.requestType) && value.companyCode !== "RE") {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "real_estate_company_mismatch", path: ["requestType"] });
+  const scoped: Partial<Record<(typeof value)["companyCode"], string[]>> = {
+    OM: ["maintenance", "emergency_maintenance", "preventive_maintenance", "maintenance_contract", "facility", "quote_request", "complaint", "general"],
+    RE: ["investment_enquiry", "investment_opportunity", "property_management", "leasing_enquiry", "property_enquiry", "facility", "complaint", "general"],
+    CORE: ["project_opportunity", "quote_request", "complaint", "general"],
+    IT: ["erp_consulting", "digital_platform", "integration_automation", "data_bi", "cloud_infrastructure", "managed_it_support", "cybersecurity", "quote_request", "complaint", "general"],
+  };
+  if (!scoped[value.companyCode]?.includes(value.requestType)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "request_company_mismatch", path: ["requestType"] });
   }
 });
 
