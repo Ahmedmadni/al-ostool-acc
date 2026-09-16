@@ -6,7 +6,7 @@ on:
       - gate19-production-verification
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: gate19-production-verification
@@ -23,7 +23,26 @@ jobs:
         with:
           node-version: 24
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.21
+
+      - name: Synchronize Bun lockfile
+        id: lock
+        shell: bash
+        run: |
+          bun install --lockfile-only --ignore-scripts
+          if ! git diff --quiet -- bun.lock; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add bun.lock
+            git commit -m "Gate 19: refresh Bun lockfile"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Install deterministic compatibility set
+        if: steps.lock.outputs.changed != 'true'
         shell: bash
         run: |
           cp package.json /tmp/gate19-package.json
@@ -34,6 +53,7 @@ jobs:
           mv /tmp/gate19-package.json package.json
 
       - name: Audit production dependencies
+        if: steps.lock.outputs.changed != 'true'
         shell: bash
         run: |
           mkdir -p /tmp/gate19-audit
@@ -46,25 +66,30 @@ jobs:
           npm audit --omit=dev --audit-level=high
 
       - name: Report full dependency audit
-        if: always()
+        if: steps.lock.outputs.changed != 'true' && always()
         shell: bash
         run: |
           cd /tmp/gate19-audit
           npm audit --audit-level=critical || true
 
       - name: Permanent production-readiness checker
+        if: steps.lock.outputs.changed != 'true'
         run: npm run check:gate19-production
 
       - name: Production build
+        if: steps.lock.outputs.changed != 'true'
         run: npm run build
 
       - name: Typecheck
+        if: steps.lock.outputs.changed != 'true'
         run: npm run typecheck
 
       - name: Full regression verification
+        if: steps.lock.outputs.changed != 'true'
         run: npm run verify
 
       - name: Repository diff hygiene
+        if: steps.lock.outputs.changed != 'true'
         shell: bash
         run: |
           git diff --check

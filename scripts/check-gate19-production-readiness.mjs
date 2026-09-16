@@ -6,6 +6,11 @@ import { join, relative } from "node:path";
 const ROOT = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
 const read = (path) => readFileSync(join(ROOT, path), "utf8");
 const pkg = JSON.parse(read("package.json"));
+assert.equal(
+  pkg.dependencies.xlsx,
+  "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+  "SheetJS must use the patched authoritative 0.20.3 tarball",
+);
 const lock = JSON.parse(read("bun.lock"));
 
 assert.equal(
