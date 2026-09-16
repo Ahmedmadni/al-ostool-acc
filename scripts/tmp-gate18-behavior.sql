@@ -3,7 +3,8 @@
 DO $$
 DECLARE
   v_return public.zakat_returns;
-  v_mapping public.zakat_account_mappings;
+  v_mapping_id uuid;
+  v_mapping_version integer;
   v_event_count integer;
 BEGIN
   PERFORM set_config('request.jwt.claim.role','authenticated',true);
@@ -15,13 +16,13 @@ BEGIN
   PERFORM public.zakat_save_account_mappings(
     '[{"account_code":"3000","target_key":"z_capital","multiplier":1}]'::jsonb
   );
-  SELECT * INTO v_mapping FROM public.zakat_account_mappings WHERE account_code='3000';
-  IF v_mapping.version<>2 THEN RAISE EXCEPTION 'Gate18 test: mapping version was not incremented'; END IF;
-  SELECT count(*) INTO v_event_count FROM public.zakat_account_mapping_events WHERE mapping_id=v_mapping.id;
+  SELECT id,version INTO v_mapping_id,v_mapping_version FROM public.zakat_account_mappings WHERE account_code='3000';
+  IF v_mapping_version<>2 THEN RAISE EXCEPTION 'Gate18 test: mapping version was not incremented'; END IF;
+  SELECT count(*) INTO v_event_count FROM public.zakat_account_mapping_events WHERE mapping_id=v_mapping_id;
   IF v_event_count<>2 THEN RAISE EXCEPTION 'Gate18 test: mapping audit events missing'; END IF;
 
   BEGIN
-    UPDATE public.zakat_account_mappings SET target_key='z_retained' WHERE id=v_mapping.id;
+    UPDATE public.zakat_account_mappings SET target_key='z_retained' WHERE id=v_mapping_id;
     RAISE EXCEPTION 'Gate18 test: direct mapping update was accepted';
   EXCEPTION WHEN OTHERS THEN
     IF SQLERRM LIKE 'Gate18 test:%' THEN RAISE; END IF;
