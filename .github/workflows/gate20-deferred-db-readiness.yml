@@ -1,0 +1,54 @@
+name: Gate 20 Deferred DB Rollout Readiness
+
+on:
+  push:
+    branches:
+      - gate20-deferred-db-rollout-readiness
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gate20-deferred-db-rollout-readiness
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install deterministic compatibility set
+        shell: bash
+        run: |
+          cp package.json /tmp/gate20-package.json
+          npm pkg set 'dependencies.@tanstack/react-router=1.170.18'
+          npm pkg set 'dependencies.@tanstack/react-start=1.168.34'
+          npm pkg set 'dependencies.@tanstack/router-plugin=1.168.23'
+          npm install --no-package-lock --ignore-scripts
+          mv /tmp/gate20-package.json package.json
+
+      - name: Validate deferred rollout package
+        run: |
+          npm run check:gate20-db-rollout
+          npm run db:plan
+
+      - name: Production build
+        run: npm run build
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Full regression verification
+        run: npm run verify
+
+      - name: Repository diff hygiene
+        shell: bash
+        run: |
+          git diff --check
+          test -z "$(git status --short)"
