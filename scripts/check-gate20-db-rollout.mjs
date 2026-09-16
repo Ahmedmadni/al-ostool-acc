@@ -61,8 +61,8 @@ for (const marker of [
   "27-09-2026",
   "NOT STARTED",
   "Query succeeded",
-  "Preflight",
-  "Postflight",
+  "preflight-readonly.sql",
+  "postflight-readonly.sql",
   "لا تشغّل",
   "supabase_migrations",
 ]) {
