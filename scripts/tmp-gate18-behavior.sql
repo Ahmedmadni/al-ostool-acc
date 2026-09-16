@@ -16,8 +16,10 @@ BEGIN
   PERFORM public.zakat_save_account_mappings(
     '[{"account_code":"3000","target_key":"z_capital","multiplier":1}]'::jsonb
   );
-  SELECT id,version INTO v_mapping_id,v_mapping_version FROM public.zakat_account_mappings WHERE account_code='3000';
-  IF v_mapping_version<>2 THEN RAISE EXCEPTION 'Gate18 test: mapping version was not incremented'; END IF;
+  SELECT m.id,m.version INTO v_mapping_id,v_mapping_version
+  FROM public.zakat_account_mappings m
+  WHERE m.account_code='3000';
+  IF v_mapping_version IS DISTINCT FROM 2 THEN RAISE EXCEPTION 'Gate18 test: mapping version was not incremented'; END IF;
   SELECT count(*) INTO v_event_count FROM public.zakat_account_mapping_events WHERE mapping_id=v_mapping_id;
   IF v_event_count<>2 THEN RAISE EXCEPTION 'Gate18 test: mapping audit events missing'; END IF;
 
