@@ -1,14 +1,13 @@
 import { FormEvent, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { CheckCircle2, Loader2, Send, ShieldCheck } from "lucide-react";
-
-type CompanyCode = "OM" | "RE" | "CORE";
+import type { GroupCompanyCode } from "@/data/group-portfolio";
 
 type Props = {
-  companyCode: CompanyCode;
+  companyCode: GroupCompanyCode;
 };
 
-const requestTypes: Record<CompanyCode, Array<{ value: string; label: string }>> = {
+const requestTypes: Record<GroupCompanyCode, Array<{ value: string; label: string }>> = {
   OM: [
     { value: "maintenance", label: "طلب صيانة / إصلاح" },
     { value: "emergency_maintenance", label: "بلاغ صيانة طارئة" },
@@ -29,13 +28,27 @@ const requestTypes: Record<CompanyCode, Array<{ value: string; label: string }>>
     { value: "complaint", label: "شكوى أو ملاحظة" },
     { value: "general", label: "طلب عام" },
   ],
+  IT: [
+    { value: "erp_consulting", label: "نظام ERP / نظام أعمال" },
+    { value: "digital_platform", label: "موقع / تطبيق / منصة رقمية" },
+    { value: "integration_automation", label: "تكامل أنظمة / أتمتة" },
+    { value: "data_bi", label: "بيانات / ذكاء أعمال / لوحات مؤشرات" },
+    { value: "cloud_infrastructure", label: "سحابة / بنية تقنية" },
+    { value: "managed_it_support", label: "دعم وخدمات تقنية مُدارة" },
+    { value: "cybersecurity", label: "أمن سيبراني / حماية تقنية" },
+    { value: "quote_request", label: "طلب دراسة / عرض سعر" },
+    { value: "complaint", label: "شكوى أو ملاحظة" },
+    { value: "general", label: "طلب عام" },
+  ],
   CORE: [
+    { value: "project_opportunity", label: "فرصة مشروع / طلب تعاون" },
+    { value: "quote_request", label: "طلب عرض / تسعير" },
     { value: "complaint", label: "شكوى أو ملاحظة" },
     { value: "general", label: "طلب عام" },
   ],
 };
 
-const contextCopy: Record<CompanyCode, { label: string; placeholder: string; titlePlaceholder: string }> = {
+const contextCopy: Record<GroupCompanyCode, { label: string; placeholder: string; titlePlaceholder: string }> = {
   OM: {
     label: "الموقع / الفرع / رقم الأصل (اختياري)",
     placeholder: "مثال: الرياض - فرع العليا - وحدة تكييف AHU-04",
@@ -46,10 +59,15 @@ const contextCopy: Record<CompanyCode, { label: string; placeholder: string; tit
     placeholder: "مثال: الرياض - مبنى تجاري - نطاق استثماري 5–10 مليون ريال",
     titlePlaceholder: "مثال: طلب دراسة فرصة استثمار عقاري",
   },
+  IT: {
+    label: "المنشأة / النظام الحالي / نطاق الحل (اختياري)",
+    placeholder: "مثال: شركة مقاولات - ERP حالي - أتمتة دورة المشتريات",
+    titlePlaceholder: "مثال: طلب تطوير نظام متابعة عمليات وربطه بالمحاسبة",
+  },
   CORE: {
-    label: "مرجع أو موقع الطلب (اختياري)",
-    placeholder: "أي مرجع يساعد الفريق على معالجة الطلب",
-    titlePlaceholder: "اكتب عنوانًا مختصرًا للطلب",
+    label: "المشروع / المدينة / المرجع (اختياري)",
+    placeholder: "مثال: الرياض - مشروع بنية تحتية - مرحلة التسعير",
+    titlePlaceholder: "مثال: دعوة لتقديم عرض لمشروع أعمال موقع",
   },
 };
 
@@ -128,13 +146,21 @@ export function PublicServiceRequestForm({ companyCode }: Props) {
     );
   }
 
+  const detailsPlaceholder = companyCode === "RE"
+    ? "اذكر نوع الأصل أو الفرصة، الهدف الاستثماري، المدة وأي تفاصيل متاحة."
+    : companyCode === "OM"
+      ? "صف العطل أو نطاق الخدمة، وقت ظهور المشكلة وأي ملاحظات تساعد فريق الصيانة."
+      : companyCode === "IT"
+        ? "اشرح التحدي الحالي، النظام أو المنصة المطلوبة، المستخدمين المتوقعين والتكاملات المهمة."
+        : "اذكر نطاق المشروع أو الفرصة والمرحلة الحالية وأي متطلبات أساسية.";
+
   return (
     <form onSubmit={onSubmit} className="rounded-3xl border border-white/10 bg-black/15 p-5 sm:p-6">
       <div className="mb-5 flex items-start gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-300/10 text-amber-200"><ShieldCheck className="h-5 w-5" /></span>
         <div>
           <h3 className="font-black">نموذج طلب الخدمة</h3>
-          <p className="mt-1 text-xs leading-6 text-slate-400">اختر الخدمة المطلوبة وأرسل البيانات الأساسية؛ سيصدر لك رقم متابعة موحد ويرتبط الطلب بالشركة والفريق المختص.</p>
+          <p className="mt-1 text-xs leading-6 text-slate-400">اختر الخدمة المطلوبة وأرسل البيانات الأساسية؛ سيصدر لك رقم متابعة موحد ويرتبط الطلب بالشركة والفريق المختص داخل ERP المجموعة.</p>
         </div>
       </div>
 
@@ -155,7 +181,7 @@ export function PublicServiceRequestForm({ companyCode }: Props) {
         <Field label={copy.label}><input maxLength={300} placeholder={copy.placeholder} value={context} onChange={(e) => setContext(e.target.value)} className="input-public" /></Field>
         <Field label="عنوان الطلب *" className="sm:col-span-2"><input required minLength={3} maxLength={300} placeholder={copy.titlePlaceholder} value={title} onChange={(e) => setTitle(e.target.value)} className="input-public" /></Field>
       </div>
-      <Field label="التفاصيل" className="mt-4"><textarea rows={4} maxLength={7600} placeholder={companyCode === "RE" ? "اذكر نوع الأصل أو الفرصة، الهدف الاستثماري، المدة وأي تفاصيل متاحة." : companyCode === "OM" ? "صف العطل أو نطاق الخدمة، وقت ظهور المشكلة وأي ملاحظات تساعد فريق الصيانة." : "اكتب تفاصيل الطلب."} value={description} onChange={(e) => setDescription(e.target.value)} className="input-public resize-y" /></Field>
+      <Field label="التفاصيل" className="mt-4"><textarea rows={4} maxLength={7600} placeholder={detailsPlaceholder} value={description} onChange={(e) => setDescription(e.target.value)} className="input-public resize-y" /></Field>
       <div className="hidden" aria-hidden="true"><label>Website<input tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} /></label></div>
       {error && <div className="mt-4 rounded-xl border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-100">{error}</div>}
       <button disabled={submitting} type="submit" className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-300 px-5 py-3 text-sm font-black text-slate-950 disabled:opacity-60">

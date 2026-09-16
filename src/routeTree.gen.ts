@@ -16,12 +16,16 @@ import { Route as LogRouteImport } from './routes/log'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
+import { Route as AuthenticatedAppsRouteImport } from './routes/_authenticated/apps'
+import { Route as AuthenticatedCustomerServiceRouteImport } from './routes/_authenticated/customer-service'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedMaintenanceRouteImport } from './routes/_authenticated/maintenance'
 import { Route as AuthenticatedRealEstateRouteImport } from './routes/_authenticated/real-estate'
+import { Route as AuthenticatedTechnologyRouteImport } from './routes/_authenticated/technology'
 import { Route as CompaniesAlOstoolRouteImport } from './routes/companies.al-ostool'
 import { Route as CompaniesMaintenanceRouteImport } from './routes/companies.maintenance'
 import { Route as CompaniesRealEstateRouteImport } from './routes/companies.real-estate'
+import { Route as CompaniesTechnologyRouteImport } from './routes/companies.technology'
 import { Route as AuthenticatedAlertsIndexRouteImport } from './routes/_authenticated/alerts/index'
 import { Route as AuthenticatedBanksIndexRouteImport } from './routes/_authenticated/banks/index'
 import { Route as AuthenticatedBoardIndexRouteImport } from './routes/_authenticated/board/index'
@@ -156,6 +160,17 @@ const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAppsRoute = AuthenticatedAppsRouteImport.update({
+  id: '/apps',
+  path: '/apps',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedCustomerServiceRoute =
+  AuthenticatedCustomerServiceRouteImport.update({
+    id: '/customer-service',
+    path: '/customer-service',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -172,6 +187,11 @@ const AuthenticatedRealEstateRoute = AuthenticatedRealEstateRouteImport.update({
   path: '/real-estate',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedTechnologyRoute = AuthenticatedTechnologyRouteImport.update({
+  id: '/technology',
+  path: '/technology',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const CompaniesAlOstoolRoute = CompaniesAlOstoolRouteImport.update({
   id: '/companies/al-ostool',
   path: '/companies/al-ostool',
@@ -185,6 +205,11 @@ const CompaniesMaintenanceRoute = CompaniesMaintenanceRouteImport.update({
 const CompaniesRealEstateRoute = CompaniesRealEstateRouteImport.update({
   id: '/companies/real-estate',
   path: '/companies/real-estate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompaniesTechnologyRoute = CompaniesTechnologyRouteImport.update({
+  id: '/companies/technology',
+  path: '/companies/technology',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAlertsIndexRoute =
@@ -777,12 +802,16 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/account': typeof AuthenticatedAccountRoute
+  '/apps': typeof AuthenticatedAppsRoute
+  '/customer-service': typeof AuthenticatedCustomerServiceRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/maintenance': typeof AuthenticatedMaintenanceRoute
   '/real-estate': typeof AuthenticatedRealEstateRoute
+  '/technology': typeof AuthenticatedTechnologyRoute
   '/companies/al-ostool': typeof CompaniesAlOstoolRoute
   '/companies/maintenance': typeof CompaniesMaintenanceRoute
   '/companies/real-estate': typeof CompaniesRealEstateRoute
+  '/companies/technology': typeof CompaniesTechnologyRoute
   '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/control/costs': typeof AuthenticatedControlCostsRoute
   '/control/projects': typeof AuthenticatedControlProjectsRoute
@@ -890,12 +919,16 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/account': typeof AuthenticatedAccountRoute
+  '/apps': typeof AuthenticatedAppsRoute
+  '/customer-service': typeof AuthenticatedCustomerServiceRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/maintenance': typeof AuthenticatedMaintenanceRoute
   '/real-estate': typeof AuthenticatedRealEstateRoute
+  '/technology': typeof AuthenticatedTechnologyRoute
   '/companies/al-ostool': typeof CompaniesAlOstoolRoute
   '/companies/maintenance': typeof CompaniesMaintenanceRoute
   '/companies/real-estate': typeof CompaniesRealEstateRoute
+  '/companies/technology': typeof CompaniesTechnologyRoute
   '/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/control/costs': typeof AuthenticatedControlCostsRoute
   '/control/projects': typeof AuthenticatedControlProjectsRoute
@@ -1005,12 +1038,16 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
+  '/_authenticated/apps': typeof AuthenticatedAppsRoute
+  '/_authenticated/customer-service': typeof AuthenticatedCustomerServiceRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/maintenance': typeof AuthenticatedMaintenanceRoute
   '/_authenticated/real-estate': typeof AuthenticatedRealEstateRoute
+  '/_authenticated/technology': typeof AuthenticatedTechnologyRoute
   '/companies/al-ostool': typeof CompaniesAlOstoolRoute
   '/companies/maintenance': typeof CompaniesMaintenanceRoute
   '/companies/real-estate': typeof CompaniesRealEstateRoute
+  '/companies/technology': typeof CompaniesTechnologyRoute
   '/_authenticated/cash-flow/matrix': typeof AuthenticatedCashFlowMatrixRoute
   '/_authenticated/control/costs': typeof AuthenticatedControlCostsRoute
   '/_authenticated/control/projects': typeof AuthenticatedControlProjectsRoute
@@ -1120,12 +1157,16 @@ export interface FileRouteTypes {
     | '/login'
     | '/sitemap.xml'
     | '/account'
+    | '/apps'
+    | '/customer-service'
     | '/dashboard'
     | '/maintenance'
     | '/real-estate'
+    | '/technology'
     | '/companies/al-ostool'
     | '/companies/maintenance'
     | '/companies/real-estate'
+    | '/companies/technology'
     | '/cash-flow/matrix'
     | '/control/costs'
     | '/control/projects'
@@ -1233,12 +1274,16 @@ export interface FileRouteTypes {
     | '/login'
     | '/sitemap.xml'
     | '/account'
+    | '/apps'
+    | '/customer-service'
     | '/dashboard'
     | '/maintenance'
     | '/real-estate'
+    | '/technology'
     | '/companies/al-ostool'
     | '/companies/maintenance'
     | '/companies/real-estate'
+    | '/companies/technology'
     | '/cash-flow/matrix'
     | '/control/costs'
     | '/control/projects'
@@ -1347,12 +1392,16 @@ export interface FileRouteTypes {
     | '/login'
     | '/sitemap.xml'
     | '/_authenticated/account'
+    | '/_authenticated/apps'
+    | '/_authenticated/customer-service'
     | '/_authenticated/dashboard'
     | '/_authenticated/maintenance'
     | '/_authenticated/real-estate'
+    | '/_authenticated/technology'
     | '/companies/al-ostool'
     | '/companies/maintenance'
     | '/companies/real-estate'
+    | '/companies/technology'
     | '/_authenticated/cash-flow/matrix'
     | '/_authenticated/control/costs'
     | '/_authenticated/control/projects'
@@ -1464,6 +1513,7 @@ export interface RootRouteChildren {
   CompaniesAlOstoolRoute: typeof CompaniesAlOstoolRoute
   CompaniesMaintenanceRoute: typeof CompaniesMaintenanceRoute
   CompaniesRealEstateRoute: typeof CompaniesRealEstateRoute
+  CompaniesTechnologyRoute: typeof CompaniesTechnologyRoute
   ApiPublicServiceRequestRoute: typeof ApiPublicServiceRequestRoute
   ApiPublicFleetIngestRoute: typeof ApiPublicFleetIngestRoute
   ApiPublicHrAttendanceIngestRoute: typeof ApiPublicHrAttendanceIngestRoute
@@ -1521,6 +1571,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/apps': {
+      id: '/_authenticated/apps'
+      path: '/apps'
+      fullPath: '/apps'
+      preLoaderRoute: typeof AuthenticatedAppsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/customer-service': {
+      id: '/_authenticated/customer-service'
+      path: '/customer-service'
+      fullPath: '/customer-service'
+      preLoaderRoute: typeof AuthenticatedCustomerServiceRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -1542,6 +1606,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRealEstateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/technology': {
+      id: '/_authenticated/technology'
+      path: '/technology'
+      fullPath: '/technology'
+      preLoaderRoute: typeof AuthenticatedTechnologyRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/companies/al-ostool': {
       id: '/companies/al-ostool'
       path: '/companies/al-ostool'
@@ -1561,6 +1632,13 @@ declare module '@tanstack/react-router' {
       path: '/companies/real-estate'
       fullPath: '/companies/real-estate'
       preLoaderRoute: typeof CompaniesRealEstateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/companies/technology': {
+      id: '/companies/technology'
+      path: '/companies/technology'
+      fullPath: '/companies/technology'
+      preLoaderRoute: typeof CompaniesTechnologyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/alerts/': {
@@ -2261,9 +2339,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
+  AuthenticatedAppsRoute: typeof AuthenticatedAppsRoute
+  AuthenticatedCustomerServiceRoute: typeof AuthenticatedCustomerServiceRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMaintenanceRoute: typeof AuthenticatedMaintenanceRoute
   AuthenticatedRealEstateRoute: typeof AuthenticatedRealEstateRoute
+  AuthenticatedTechnologyRoute: typeof AuthenticatedTechnologyRoute
   AuthenticatedCashFlowMatrixRoute: typeof AuthenticatedCashFlowMatrixRoute
   AuthenticatedControlCostsRoute: typeof AuthenticatedControlCostsRoute
   AuthenticatedControlProjectsRoute: typeof AuthenticatedControlProjectsRoute
@@ -2363,9 +2444,12 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
+  AuthenticatedAppsRoute: AuthenticatedAppsRoute,
+  AuthenticatedCustomerServiceRoute: AuthenticatedCustomerServiceRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMaintenanceRoute: AuthenticatedMaintenanceRoute,
   AuthenticatedRealEstateRoute: AuthenticatedRealEstateRoute,
+  AuthenticatedTechnologyRoute: AuthenticatedTechnologyRoute,
   AuthenticatedCashFlowMatrixRoute: AuthenticatedCashFlowMatrixRoute,
   AuthenticatedControlCostsRoute: AuthenticatedControlCostsRoute,
   AuthenticatedControlProjectsRoute: AuthenticatedControlProjectsRoute,
@@ -2487,6 +2571,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompaniesAlOstoolRoute: CompaniesAlOstoolRoute,
   CompaniesMaintenanceRoute: CompaniesMaintenanceRoute,
   CompaniesRealEstateRoute: CompaniesRealEstateRoute,
+  CompaniesTechnologyRoute: CompaniesTechnologyRoute,
   ApiPublicServiceRequestRoute: ApiPublicServiceRequestRoute,
   ApiPublicFleetIngestRoute: ApiPublicFleetIngestRoute,
   ApiPublicHrAttendanceIngestRoute: ApiPublicHrAttendanceIngestRoute,

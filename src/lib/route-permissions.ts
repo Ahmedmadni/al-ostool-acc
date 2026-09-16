@@ -1,21 +1,5 @@
 // Maps URL pathnames to permission module keys (see src/lib/permissions.ts).
 // Used by the route gate and nav filters.
-//
-// Every prefix maps to the MOST SPECIFIC module key that owns the page, never to
-// a broader parent "group" key. Two reasons:
-//   1. Granting a parent already covers its children — can() in use-permissions.ts
-//      and has_permission() in the DB both walk ancestors ("financials.balance" →
-//      "financials"), so mapping to the leaf loses nothing and makes the leaf
-//      toggles in the permissions matrix actually do something.
-//   2. Folding a page into an unrelated parent silently strands grants. /alerts and
-//      /copilot used to be gated on "dashboard": five users held "alerts"/"copilot"
-//      grants and still could not open either page, because only one user held
-//      "dashboard". Same for /banks (gated on "treasury"), /costs (on "invoices")
-//      and /customers/contracts (on "customers").
-//
-// Keys with no page yet — "equipment", "calendar", "projects.cashflow" — are
-// reserved in the registry on purpose; scripts/check-permissions.mjs lists them as
-// reserved rather than failing, so adding the page is all that's needed later.
 const RULES: { prefix: string; module: string }[] = [
   // ===== Settings =====
   { prefix: "/settings/permissions-dashboard", module: "settings.permissions" },
@@ -29,14 +13,12 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/dashboard", module: "dashboard" },
   { prefix: "/executive", module: "dashboard" },
   { prefix: "/board", module: "dashboard" },
-  // Financial analysis pages own the "analysis" key (التحليل المالي).
   { prefix: "/forecasting", module: "analysis" },
   { prefix: "/scenarios", module: "analysis" },
-  // Own keys — both are granted far more widely than "dashboard" ever was.
   { prefix: "/alerts", module: "alerts" },
   { prefix: "/copilot", module: "copilot" },
 
-  // ===== Customers (AR) group =====
+  // ===== Customers (AR) =====
   { prefix: "/customers/contracts", module: "contracts" },
   { prefix: "/customers/invoices", module: "invoices" },
   { prefix: "/customers/collections", module: "customers" },
@@ -57,7 +39,6 @@ const RULES: { prefix: string; module: string }[] = [
 
   // ===== Projects group =====
   { prefix: "/projects/progress", module: "projects.progress" },
-  // مركز التحكم بالمشاريع — contract value vs. budget vs. actual cost.
   { prefix: "/control/projects", module: "projects.profitability" },
   { prefix: "/projects", module: "projects.list" },
 
@@ -98,10 +79,6 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/templates", module: "reports" },
 
   // ===== HR group =====
-  // Mapped to the same granular module keys RLS actually enforces (hr.employees,
-  // hr.payroll, ...) instead of one blanket "hr" key, so the nav/route gate
-  // matches what a user can actually query. can() still falls back to the
-  // parent "hr" grant for anyone given blanket access.
   { prefix: "/hr/employees", module: "hr.employees" },
   { prefix: "/hr/contracts", module: "hr.contracts" },
   { prefix: "/hr/compliance", module: "hr.contracts" },
@@ -120,8 +97,6 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/hr", module: "hr" },
 
   // ===== Fleet group =====
-  // Granular per H18-style split: tracking (live GPS) is gated separately
-  // from vehicle/driver master data instead of one blanket "fleet" key.
   { prefix: "/fleet/vehicles", module: "fleet.vehicles" },
   { prefix: "/fleet/drivers", module: "fleet.drivers" },
   { prefix: "/fleet/trips", module: "fleet.trips" },
@@ -141,25 +116,24 @@ const RULES: { prefix: string; module: string }[] = [
   { prefix: "/notifications", module: "notifications" },
 ];
 
-// Authenticated routes whose authorization belongs to a separate fail-closed domain
-// rather than the legacy permission_modules tree. Each route must render its own
-// guard; scripts/check-permissions.mjs verifies that the guard is actually present.
+// Authenticated single-company routes whose authorization belongs to the
+// company/module access domain and is enforced by ModuleAccessGuard.
 export const INDEPENDENTLY_GUARDED = [
   "/maintenance",
   "/real-estate",
+  "/technology",
 ] as const;
 
-// Pages that are always accessible to any authenticated user (no permission required).
+// Routes that may be entered by any authenticated user and enforce their own
+// business-domain access internally. /customer-service uses OR access across
+// OM/RE/IT and fails closed when the user has none of those company modules.
 const ALWAYS_ALLOWED = [
-  "/account", "/notes", "/", "",
+  "/apps", "/customer-service", "/account", "/notes", "/", "",
 ];
 
 export function pathToModule(pathname: string): string | null {
   if (ALWAYS_ALLOWED.includes(pathname)) return null;
-  // These routes are intentionally delegated to ModuleAccessGuard, which validates
-  // company + module access through group_has_module_access().
   if ((INDEPENDENTLY_GUARDED as readonly string[]).includes(pathname)) return null;
-  // sort by length desc to favor most specific prefix
   const sorted = [...RULES].sort((a, b) => b.prefix.length - a.prefix.length);
   for (const r of sorted) {
     if (pathname === r.prefix || pathname.startsWith(r.prefix + "/")) return r.module;

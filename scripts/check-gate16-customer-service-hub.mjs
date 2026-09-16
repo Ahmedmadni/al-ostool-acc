@@ -17,7 +17,9 @@ const logRoute = fs.readFileSync('src/routes/log.tsx', 'utf8');
 const legacyLogin = fs.readFileSync('src/routes/login.tsx', 'utf8');
 const robots = fs.readFileSync('public/robots.txt', 'utf8');
 
-const serviceTypes = [
+// Gate 16 owns the OM/RE catalogue below. Later gates may add companies/types, but
+// these original service types and their security invariants must never disappear.
+const gate16ServiceTypes = [
   'maintenance','emergency_maintenance','preventive_maintenance','maintenance_contract','facility','quote_request',
   'investment_enquiry','investment_opportunity','property_management','leasing_enquiry','property_enquiry','complaint','general',
 ];
@@ -41,7 +43,7 @@ const checks = [
   ['no anonymous table writes', /REVOKE ALL ON public\.cs_tickets[\s\S]*FROM PUBLIC,anon/.test(migration)],
 
   ['service catalog requires Gate 16 foundation', /requires the Gate 16 customer-service hub foundation/.test(catalogMigration)],
-  ['service catalog DB check includes every public type', serviceTypes.every((type) => catalogMigration.includes(`'${type}'`))],
+  ['service catalog DB check includes every Gate 16 public type', gate16ServiceTypes.every((type) => catalogMigration.includes(`'${type}'`))],
   ['OM maintenance-only scope', /emergency_maintenance[\s\S]*preventive_maintenance[\s\S]*maintenance_contract[\s\S]*quote_request[\s\S]*_company\.code<>'OM'/.test(catalogMigration)],
   ['RE investment-only scope', /investment_enquiry[\s\S]*investment_opportunity[\s\S]*property_management[\s\S]*leasing_enquiry[\s\S]*property_enquiry[\s\S]*_company\.code<>'RE'/.test(catalogMigration)],
   ['facility limited to RE or OM', /_request_type='facility'[\s\S]*_company\.code NOT IN \('RE','OM'\)/.test(catalogMigration)],
@@ -55,12 +57,11 @@ const checks = [
   ['public body limit', /MAX_BODY_BYTES = 32 \* 1024/.test(api)],
   ['same-origin guard', /cross_origin_request_denied/.test(api)],
   ['server uses admin client', /supabaseAdmin/.test(api) && /cs_public_submit_ticket/.test(api)],
-  ['API accepts expanded service catalog', serviceTypes.every((type) => api.includes(`"${type}"`))],
-  ['API rejects maintenance categories outside OM', /maintenanceOnly/.test(api) && /maintenance_company_mismatch/.test(api)],
-  ['API rejects investment categories outside RE', /realEstateOnly/.test(api) && /real_estate_company_mismatch/.test(api)],
+  ['API retains Gate 16 service catalog', gate16ServiceTypes.every((type) => api.includes(`"${type}"`))],
+  ['API enforces company/type scope', /scoped/.test(api) && /request_company_mismatch/.test(api)],
   ['public form tracking number', /ticketNo/.test(form) && /رقم متابعة/.test(form)],
-  ['public form has investment services', /investment_enquiry/.test(form) && /investment_opportunity/.test(form) && /property_management/.test(form)],
-  ['public form has maintenance services', /emergency_maintenance/.test(form) && /preventive_maintenance/.test(form) && /maintenance_contract/.test(form) && /quote_request/.test(form)],
+  ['public form retains investment services', /investment_enquiry/.test(form) && /investment_opportunity/.test(form) && /property_management/.test(form)],
+  ['public form retains maintenance services', /emergency_maintenance/.test(form) && /preventive_maintenance/.test(form) && /maintenance_contract/.test(form) && /quote_request/.test(form)],
   ['public form captures contextual service details', /نطاق الاستثمار/.test(form) && /رقم الأصل/.test(form)],
   ['honeypot field', /website/.test(form)],
   ['shared internal hub', /CustomerServiceHub/.test(hub) && /cs_transition_ticket/.test(hub)],
