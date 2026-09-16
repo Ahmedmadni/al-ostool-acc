@@ -34,7 +34,8 @@ function AppsLauncherPage() {
   const { can, isAdmin } = usePermissions();
   const [search, setSearch] = useState("");
   const [favorites, setFavorites] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem("erp-app-favorites") || "[]") as string[]; } catch { return []; }
+    if (typeof window === "undefined") return [];
+    try { return JSON.parse(window.localStorage.getItem("erp-app-favorites") || "[]") as string[]; } catch { return []; }
   });
   const { data: moduleAccess = { maintenance: false, real_estate: false, it_services: false } } = useQuery({
     queryKey: ["erp-app-company-access"],
