@@ -56,7 +56,7 @@ function TechnologyModuleLanding() {
           {capabilities.map(([Icon, title, body]) => <Card key={title} className="rounded-2xl"><CardContent className="p-5"><Icon className="h-6 w-6 text-primary" /><h2 className="mt-4 font-black">{title}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{body}</p></CardContent></Card>)}
         </section>
 
-        <Card className="rounded-2xl"><CardContent className="p-6"><div className="flex items-start gap-3"><Tickets className="mt-0.5 h-5 w-5 text-primary" /><div><h2 className="font-black">التشغيل يبدأ من مركز طلبات العملاء</h2><p className="mt-2 text-sm leading-7 text-muted-foreground">إدارة الإسناد، المتابعة، سجل الإجراءات وSLA ستكون في موديول طلبات العملاء الموحد. عند اكتمال Gate 18 سيصبح هذا الموديول نقطة تحويل للمهام والمشروعات التقنية دون إنشاء CRM منفصل لشركة التقنية.</p></div></div></CardContent></Card>
+        <Card className="rounded-2xl"><CardContent className="p-6"><div className="flex items-start gap-3"><Tickets className="mt-0.5 h-5 w-5 text-primary" /><div><h2 className="font-black">التشغيل يبدأ من مركز طلبات العملاء</h2><p className="mt-2 text-sm leading-7 text-muted-foreground">تتم إدارة المتابعة والحالات وSLA من موديول طلبات العملاء الموحد، وهو نقطة الربط مع المهام والمشروعات التقنية دون إنشاء CRM منفصل لشركة التقنية.</p></div></div></CardContent></Card>
       </div>
     </ModuleAccessGuard>
   );
