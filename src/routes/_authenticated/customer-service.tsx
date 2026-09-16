@@ -42,7 +42,7 @@ function UnifiedCustomerServicePage() {
       <section className="rounded-3xl border border-border bg-card p-6 md:p-8">
         <div className="flex items-start gap-4">
           <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><Inbox className="h-6 w-6" /></div>
-          <div><div className="text-sm font-bold text-primary">ERP المجموعة • CRM Service Desk</div><h1 className="mt-1 text-3xl font-black">طلبات العملاء</h1><p className="mt-3 max-w-4xl text-sm leading-7 text-muted-foreground">نقطة التشغيل الموحدة لكل الطلبات الواردة من مواقع شركات المحفظة. هذه الواجهة الحالية تمثل الأساس التشغيلي، ويضيف Gate 18 قائمة موحدة عبر الشركات والإسناد الفردي وسجل الإجراءات والمتابعات والفلاتر وSLA وفق النموذج المستفاد من AMA.</p></div>
+          <div><div className="text-sm font-bold text-primary">ERP المجموعة • CRM Service Desk</div><h1 className="mt-1 text-3xl font-black">طلبات العملاء</h1><p className="mt-3 max-w-4xl text-sm leading-7 text-muted-foreground">نقطة التشغيل الموحدة لكل الطلبات الواردة من مواقع شركات المحفظة. تجمع هذه الواجهة الطلبات عبر شركات المحفظة وتدعم المتابعة التشغيلية والحالات والأولويات وSLA والتحويل إلى الموديول المختص وفق صلاحيات كل شركة.</p></div>
         </div>
       </section>
 
