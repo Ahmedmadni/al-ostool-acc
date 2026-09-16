@@ -460,9 +460,11 @@ BEGIN
     source_fingerprint=v_fingerprint
   WHERE r.id=v_return.id
   RETURNING r.* INTO v_return;
+  PERFORM set_config('app.zakat_detail_write','off',true);
+  PERFORM set_config('app.zakat_return_write','off',true);
   RETURN v_return;
 END;
-$$;
+$;
 
 CREATE OR REPLACE FUNCTION public.zakat_save_account_mappings(_mappings jsonb)
 RETURNS integer
@@ -508,9 +510,10 @@ BEGIN
     target_key=EXCLUDED.target_key,multiplier=EXCLUDED.multiplier,is_active=true,
     updated_by=auth.uid(),updated_at=now(),version=public.zakat_account_mappings.version+1;
   GET DIAGNOSTICS v_count=ROW_COUNT;
+  PERFORM set_config('app.zakat_mapping_write','off',true);
   RETURN v_count;
 END;
-$$;
+$;
 
 CREATE OR REPLACE FUNCTION public.zakat_approve_return(_return_id uuid)
 RETURNS public.zakat_returns
@@ -541,9 +544,10 @@ BEGIN
     submitted_by=NULL,submitted_at=NULL,submission_reference=NULL,updated_by=auth.uid()
   WHERE r.id=_return_id
   RETURNING r.* INTO v_return;
+  PERFORM set_config('app.zakat_return_write','off',true);
   RETURN v_return;
 END;
-$$;
+$;
 
 CREATE OR REPLACE FUNCTION public.zakat_submit_return(_return_id uuid,_reference text)
 RETURNS public.zakat_returns
@@ -583,9 +587,10 @@ BEGIN
     submission_reference=btrim(_reference),updated_by=auth.uid()
   WHERE r.id=_return_id
   RETURNING r.* INTO v_return;
+  PERFORM set_config('app.zakat_return_write','off',true);
   RETURN v_return;
 END;
-$$;
+$;
 
 CREATE OR REPLACE FUNCTION public.zakat_reopen_return(_return_id uuid,_reason text)
 RETURNS public.zakat_returns
@@ -615,9 +620,10 @@ BEGIN
     submitted_by=NULL,submitted_at=NULL,submission_reference=NULL,updated_by=auth.uid()
   WHERE r.id=_return_id
   RETURNING r.* INTO v_return;
+  PERFORM set_config('app.zakat_return_write','off',true);
   RETURN v_return;
 END;
-$$;
+$;
 
 CREATE OR REPLACE FUNCTION public.zakat_log_status_transition()
 RETURNS trigger
