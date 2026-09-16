@@ -103,10 +103,11 @@ BEGIN
     RAISE EXCEPTION 'Gate17 test: IT module access was not granted to seeded manager';
   END IF;
 
-  SELECT public.cs_create_ticket(
+  SELECT * INTO v_ticket
+  FROM public.cs_create_ticket(
     'IT','digital_platform','30000000-0000-0000-0000-000000000001',NULL,NULL,NULL,
     'Customer portal','Build a customer portal','normal',NULL,NULL
-  ) INTO v_ticket;
+  );
   IF v_ticket.module_key <> 'it_services' OR v_ticket.request_type <> 'digital_platform' OR v_ticket.created_by <> '00000000-0000-0000-0000-000000000001' THEN
     RAISE EXCEPTION 'Gate17 test: authenticated IT internal ticket routing incorrect';
   END IF;
