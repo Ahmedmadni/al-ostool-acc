@@ -28,40 +28,27 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-      - name: Install dependencies
-        run: |
-          cp package.json /tmp/package-gate18.json
-          npm pkg set 'dependencies.@tanstack/react-router=1.170.18'
-          npm pkg set 'dependencies.@tanstack/react-start=1.168.34'
-          npm pkg set 'dependencies.@tanstack/router-plugin=1.168.23'
-          npm install --no-package-lock --ignore-scripts
-          mv /tmp/package-gate18.json package.json
-      - name: Gate 18 static checks
-        run: npm run check:gate18-zakat
       - name: PostgreSQL 16 Gate 18 migration and behavior
         env:
           PGPASSWORD: postgres
         run: |
-          psql -h 127.0.0.1 -U postgres -d gate18 -f scripts/tmp-gate18-fixture.sql
-          psql -h 127.0.0.1 -U postgres -d gate18 -f supabase/migrations/20260825100000_flexible_zakat_sources.sql
-          psql -h 127.0.0.1 -U postgres -d gate18 -f supabase/migrations/20260825110000_zakat_mapping_and_approval.sql
-          psql -h 127.0.0.1 -U postgres -d gate18 -f supabase/migrations/20260825120000_zakat_templates_and_submission.sql
-          psql -h 127.0.0.1 -U postgres -d gate18 -f supabase/migrations/20260825130000_zakat_history_and_reopen.sql
-          psql -h 127.0.0.1 -U postgres -d gate18 -f supabase/migrations/20260825150000_tax_return_immutability.sql
-          psql -h 127.0.0.1 -U postgres -d gate18 -f supabase/migrations/20260916120000_gate18_zakat_engine_hardening.sql
-          psql -h 127.0.0.1 -U postgres -d gate18 -f scripts/tmp-gate18-behavior.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18 -f scripts/tmp-gate18-fixture.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18 -f supabase/migrations/20260825100000_flexible_zakat_sources.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18 -f supabase/migrations/20260825110000_zakat_mapping_and_approval.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18 -f supabase/migrations/20260825120000_zakat_templates_and_submission.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18 -f supabase/migrations/20260825130000_zakat_history_and_reopen.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18 -f supabase/migrations/20260825150000_tax_return_immutability.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18 -f supabase/migrations/20260916120000_gate18_zakat_engine_hardening.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18 -f scripts/tmp-gate18-behavior.sql
       - name: Gate 18 concurrent overlap guard
         env:
           PGPASSWORD: postgres
         shell: bash
         run: |
           set +e
-          psql -h 127.0.0.1 -U postgres -d gate18 -f scripts/tmp-gate18-concurrency-a.sql >/tmp/gate18-a.log 2>&1 &
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18 -f scripts/tmp-gate18-concurrency-a.sql >/tmp/gate18-a.log 2>&1 &
           pid_a=$!
-          psql -h 127.0.0.1 -U postgres -d gate18 -f scripts/tmp-gate18-concurrency-b.sql >/tmp/gate18-b.log 2>&1 &
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18 -f scripts/tmp-gate18-concurrency-b.sql >/tmp/gate18-b.log 2>&1 &
           pid_b=$!
           wait "$pid_a"; code_a=$?
           wait "$pid_b"; code_b=$?
@@ -79,15 +66,15 @@ jobs:
         shell: bash
         run: |
           createdb -h 127.0.0.1 -U postgres gate18_partial
-          psql -h 127.0.0.1 -U postgres -d gate18_partial -f scripts/tmp-gate18-fixture.sql
-          psql -h 127.0.0.1 -U postgres -d gate18_partial -f supabase/migrations/20260825100000_flexible_zakat_sources.sql
-          psql -h 127.0.0.1 -U postgres -d gate18_partial -f supabase/migrations/20260825110000_zakat_mapping_and_approval.sql
-          psql -h 127.0.0.1 -U postgres -d gate18_partial -f supabase/migrations/20260825120000_zakat_templates_and_submission.sql
-          psql -h 127.0.0.1 -U postgres -d gate18_partial -f supabase/migrations/20260825130000_zakat_history_and_reopen.sql
-          psql -h 127.0.0.1 -U postgres -d gate18_partial -f supabase/migrations/20260825150000_tax_return_immutability.sql
-          psql -h 127.0.0.1 -U postgres -d gate18_partial -v ON_ERROR_STOP=1 -c "CREATE FUNCTION public.zakat_gate18_lock() RETURNS void LANGUAGE sql AS 'SELECT NULL::void';"
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18_partial -f scripts/tmp-gate18-fixture.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18_partial -f supabase/migrations/20260825100000_flexible_zakat_sources.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18_partial -f supabase/migrations/20260825110000_zakat_mapping_and_approval.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18_partial -f supabase/migrations/20260825120000_zakat_templates_and_submission.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18_partial -f supabase/migrations/20260825130000_zakat_history_and_reopen.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18_partial -f supabase/migrations/20260825150000_tax_return_immutability.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18_partial -c "CREATE FUNCTION public.zakat_gate18_lock() RETURNS void LANGUAGE sql AS 'SELECT NULL::void';"
           set +e
-          psql -h 127.0.0.1 -U postgres -d gate18_partial -v ON_ERROR_STOP=1 -f supabase/migrations/20260916120000_gate18_zakat_engine_hardening.sql >/tmp/gate18-partial.log 2>&1
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d gate18_partial -f supabase/migrations/20260916120000_gate18_zakat_engine_hardening.sql >/tmp/gate18-partial.log 2>&1
           code=$?
           set -e
           cat /tmp/gate18-partial.log
@@ -96,6 +83,19 @@ jobs:
             exit 1
           fi
           grep -q "already or partially applied" /tmp/gate18-partial.log
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: |
+          cp package.json /tmp/package-gate18.json
+          npm pkg set 'dependencies.@tanstack/react-router=1.170.18'
+          npm pkg set 'dependencies.@tanstack/react-start=1.168.34'
+          npm pkg set 'dependencies.@tanstack/router-plugin=1.168.23'
+          npm install --no-package-lock --ignore-scripts
+          mv /tmp/package-gate18.json package.json
+      - name: Gate 18 static checks
+        run: npm run check:gate18-zakat
       - name: Build
         run: npm run build
       - name: Typecheck
