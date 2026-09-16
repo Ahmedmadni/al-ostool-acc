@@ -461,7 +461,7 @@ BEGIN
   PERFORM set_config('app.zakat_return_write','off',true);
   RETURN v_return;
 END;
-$;
+$$;
 
 CREATE OR REPLACE FUNCTION public.zakat_save_account_mappings(_mappings jsonb)
 RETURNS integer
@@ -510,7 +510,7 @@ BEGIN
   PERFORM set_config('app.zakat_mapping_write','off',true);
   RETURN v_count;
 END;
-$;
+$$;
 
 CREATE OR REPLACE FUNCTION public.zakat_approve_return(_return_id uuid)
 RETURNS public.zakat_returns
@@ -544,7 +544,7 @@ BEGIN
   PERFORM set_config('app.zakat_return_write','off',true);
   RETURN v_return;
 END;
-$;
+$$;
 
 CREATE OR REPLACE FUNCTION public.zakat_submit_return(_return_id uuid,_reference text)
 RETURNS public.zakat_returns
@@ -587,7 +587,7 @@ BEGIN
   PERFORM set_config('app.zakat_return_write','off',true);
   RETURN v_return;
 END;
-$;
+$$;
 
 CREATE OR REPLACE FUNCTION public.zakat_reopen_return(_return_id uuid,_reason text)
 RETURNS public.zakat_returns
@@ -620,7 +620,7 @@ BEGIN
   PERFORM set_config('app.zakat_return_write','off',true);
   RETURN v_return;
 END;
-$;
+$$;
 
 CREATE OR REPLACE FUNCTION public.zakat_log_status_transition()
 RETURNS trigger
