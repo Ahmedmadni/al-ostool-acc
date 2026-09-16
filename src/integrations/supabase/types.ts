@@ -5811,8 +5811,14 @@ export type Database = {
       }
       zakat_account_mappings: {
         Row: { id: string; account_code: string; target_key: string; multiplier: number; is_active: boolean; created_by: string; updated_by: string; created_at: string; updated_at: string }
-        Insert: { id?: string; account_code: string; target_key: string; multiplier?: number; is_active?: boolean; created_by: string; updated_by: string; created_at?: string; updated_at?: string }
+        Insert: { id?: string; account_code: string; target_key: string; multiplier?: number; is_active?: boolean; version?: number; created_by: string; updated_by: string; created_at?: string; updated_at?: string }
         Update: { id?: string; account_code?: string; target_key?: string; multiplier?: number; is_active?: boolean; created_by?: string; updated_by?: string; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      zakat_account_mapping_events: {
+        Row: { id: string; mapping_id: string | null; account_code: string; operation: string; before_data: Json | null; after_data: Json | null; changed_by: string | null; changed_at: string }
+        Insert: { id?: string; mapping_id?: string | null; account_code: string; operation: string; before_data?: Json | null; after_data?: Json | null; changed_by?: string | null; changed_at?: string }
+        Update: { id?: string; mapping_id?: string | null; account_code?: string; operation?: string; before_data?: Json | null; after_data?: Json | null; changed_by?: string | null; changed_at?: string }
         Relationships: []
       }
       zakat_return_status_events: {
@@ -5849,6 +5855,8 @@ export type Database = {
           source_fingerprint: string | null
           calculated_by: string | null
           calculated_at: string | null
+          approved_by: string | null
+          approved_at: string | null
           submitted_by: string | null
           submitted_at: string | null
           submission_reference: string | null
@@ -5868,6 +5876,8 @@ export type Database = {
           source_fingerprint?: string | null
           calculated_by?: string | null
           calculated_at?: string | null
+          approved_by?: string | null
+          approved_at?: string | null
           submitted_by?: string | null
           submitted_at?: string | null
           submission_reference?: string | null
@@ -5887,6 +5897,8 @@ export type Database = {
           source_fingerprint?: string | null
           calculated_by?: string | null
           calculated_at?: string | null
+          approved_by?: string | null
+          approved_at?: string | null
           submitted_by?: string | null
           submitted_at?: string | null
           submission_reference?: string | null
