@@ -56,9 +56,6 @@ ALTER TABLE public.zakat_returns
   ADD COLUMN IF NOT EXISTS approved_by uuid REFERENCES auth.users(id),
   ADD COLUMN IF NOT EXISTS approved_at timestamptz;
 
-ALTER TABLE public.zakat_account_mappings
-  ADD COLUMN IF NOT EXISTS version integer NOT NULL DEFAULT 1 CHECK (version>0);
-
 CREATE UNIQUE INDEX IF NOT EXISTS uq_zakat_return_source_once
   ON public.zakat_return_sources(return_id,trial_balance_entry_id);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_zakat_submission_reference
@@ -501,14 +498,14 @@ BEGIN
   PERFORM public.zakat_gate18_lock();
   PERFORM set_config('app.zakat_mapping_write','on',true);
   INSERT INTO public.zakat_account_mappings(
-    account_code,target_key,multiplier,is_active,created_by,updated_by,version
+    account_code,target_key,multiplier,is_active,created_by,updated_by
   )
-  SELECT btrim(m.account_code),m.target_key,COALESCE(m.multiplier,1),true,auth.uid(),auth.uid(),1
+  SELECT btrim(m.account_code),m.target_key,COALESCE(m.multiplier,1),true,auth.uid(),auth.uid()
   FROM jsonb_to_recordset(COALESCE(_mappings,'[]'::jsonb))
     AS m(account_code text,target_key text,multiplier numeric)
   ON CONFLICT(account_code) DO UPDATE SET
     target_key=EXCLUDED.target_key,multiplier=EXCLUDED.multiplier,is_active=true,
-    updated_by=auth.uid(),updated_at=now(),version=public.zakat_account_mappings.version+1;
+    updated_by=auth.uid(),updated_at=now();
   GET DIAGNOSTICS v_count=ROW_COUNT;
   PERFORM set_config('app.zakat_mapping_write','off',true);
   RETURN v_count;

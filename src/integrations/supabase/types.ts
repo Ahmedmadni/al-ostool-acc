@@ -5810,9 +5810,9 @@ export type Database = {
         Relationships: []
       }
       zakat_account_mappings: {
-        Row: { id: string; account_code: string; target_key: string; multiplier: number; is_active: boolean; version: number; created_by: string; updated_by: string; created_at: string; updated_at: string }
+        Row: { id: string; account_code: string; target_key: string; multiplier: number; is_active: boolean; created_by: string; updated_by: string; created_at: string; updated_at: string }
         Insert: { id?: string; account_code: string; target_key: string; multiplier?: number; is_active?: boolean; version?: number; created_by: string; updated_by: string; created_at?: string; updated_at?: string }
-        Update: { id?: string; account_code?: string; target_key?: string; multiplier?: number; is_active?: boolean; version?: number; created_by?: string; updated_by?: string; created_at?: string; updated_at?: string }
+        Update: { id?: string; account_code?: string; target_key?: string; multiplier?: number; is_active?: boolean; created_by?: string; updated_by?: string; created_at?: string; updated_at?: string }
         Relationships: []
       }
       zakat_account_mapping_events: {
