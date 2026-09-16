@@ -54,9 +54,11 @@ for (const route of ["/maintenance", "/real-estate", "/customer-service", "/tech
 }
 assert.ok(appsRoute.includes("group_has_module_access"), "ERP launcher must check company/module access");
 assert.ok(appsRoute.includes("permissionModule"), "ERP launcher must filter legacy modules by permission");
+assert.ok(appsRoute.includes('typeof window === "undefined"'), "ERP launcher localStorage access must be SSR-safe");
 assert.ok(routePermissions.includes('"/apps"') && routePermissions.includes('"/technology"') && routePermissions.includes('"/customer-service"'), "new ERP routes are not registered in permission routing");
 assert.ok(technologyInternal.includes('<ModuleAccessGuard companyCode="IT" moduleKey="it_services">'), "technology ERP route must fail closed through company/module guard");
 assert.ok(customerService.includes("CustomerServiceHub") && customerService.includes('"OM"') && customerService.includes('"RE"') && customerService.includes('"IT"'), "portfolio customer-service entry point incomplete");
+assert.ok(!customerService.includes("Gate 18") && !technologyInternal.includes("Gate 18"), "internal production copy must not expose obsolete gate roadmap");
 
 assert.ok(requestForm.includes('IT: ['), "IT public request form catalogue missing");
 for (const requestType of ["erp_consulting", "digital_platform", "integration_automation", "data_bi", "managed_it_support", "project_opportunity"]) {
