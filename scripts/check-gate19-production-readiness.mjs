@@ -11,7 +11,7 @@ assert.equal(
   "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
   "SheetJS must use the patched authoritative 0.20.3 tarball",
 );
-const lock = JSON.parse(read("bun.lock"));
+const lock = read("bun.lock");
 
 assert.equal(
   pkg.scripts["check:gate19-production"],
@@ -38,13 +38,26 @@ for (const file of [
   assert.ok(existsSync(join(ROOT, file)), "missing permanent checker: " + file);
 }
 
-const lockedRoot = lock.workspaces?.[""];
-assert.ok(lockedRoot, "bun.lock root workspace is missing");
-for (const section of ["dependencies", "devDependencies"]) {
-  assert.deepEqual(
-    lockedRoot[section],
-    pkg[section],
-    "bun.lock " + section + " drifted from package.json",
+const workspaceEnd = lock.indexOf('"packages":');
+const workspaceLock = lock.slice(0, workspaceEnd);
+assert.ok(workspaceEnd > 0, "bun.lock workspace section is missing");
+const lockedDirect = new Map(
+  [...workspaceLock.matchAll(/^\s{8}"([^"]+)":\s*"([^"]+)",?$/gm)].map((match) => [
+    match[1],
+    match[2],
+  ]),
+);
+const expectedDirect = { ...pkg.dependencies, ...pkg.devDependencies };
+assert.equal(
+  lockedDirect.size,
+  Object.keys(expectedDirect).length,
+  "bun.lock direct dependency count drifted from package.json",
+);
+for (const [name, spec] of Object.entries(expectedDirect)) {
+  assert.equal(
+    lockedDirect.get(name),
+    spec,
+    "bun.lock dependency drifted: " + name,
   );
 }
 
