@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "title": "Al-Ostool deferred production database rollout",
+  "execution_policy": {
+    "production_state": "NOT_STARTED",
+    "execution_mode": "manual_lovable_supabase_sql_editor",
+    "schema_changes_not_before": "2026-09-27",
+    "timezone": "Asia/Riyadh",
+    "requires_read_only_preflight": true,
+    "requires_postflight_after_each_batch": true,
+    "requires_user_confirmation": "Query succeeded plus postflight evidence",
+    "forbids": [
+      "automatic production execution",
+      "blind full-bundle execution",
+      "rerunning an already-applied migration",
+      "manual edits to supabase_migrations before reconciliation",
+      "reset",
+      "drop",
+      "truncate"
+    ]
+  },
+  "batches": [
+    {
+      "id": "01_hr_payroll_integration",
+      "label": "HR, attendance and payroll-cost hardening",
+      "risk": "high",
+      "migrations": [
+        "supabase/migrations/20260901090000_gate6_sequential_code_hardening.sql",
+        "supabase/migrations/20260902090000_gate7_attendance_payroll_cost_hardening.sql",
+        "supabase/migrations/20260903090000_gate8_payroll_cost_ledger.sql",
+        "supabase/migrations/20260906090000_gate10_hr_integration_rls_closure.sql"
+      ]
+    },
+    {
+      "id": "02_cost_vat",
+      "label": "Cost accounting and VAT engine",
+      "risk": "high",
+      "migrations": [
+        "supabase/migrations/20260906100000_gate11_cost_accounting_engine.sql",
+        "supabase/migrations/20260906110000_gate12_vat_engine.sql",
+        "supabase/migrations/20260906110100_gate12_vat_runtime_qualification.sql",
+        "supabase/migrations/20260906110200_gate12_vat_upsert_overlap_guard.sql"
+      ]
+    },
+    {
+      "id": "03_holding",
+      "label": "Holding and multi-company foundation",
+      "risk": "medium",
+      "migrations": [
+        "supabase/migrations/20260914090000_gate13_holding_multicompany_foundation.sql"
+      ]
+    },
+    {
+      "id": "04_maintenance",
+      "label": "Operations and maintenance",
+      "risk": "high",
+      "migrations": [
+        "supabase/migrations/20260914105900_gate14_maintenance_preflight.sql",
+        "supabase/migrations/20260914110000_gate14_maintenance_operations_engine.sql",
+        "supabase/migrations/20260914110100_gate14_maintenance_runtime.sql",
+        "supabase/migrations/20260914110200_gate14_maintenance_authorization_hardening.sql",
+        "supabase/migrations/20260914110300_gate14_maintenance_integrity_hardening.sql"
+      ]
+    },
+    {
+      "id": "05_real_estate",
+      "label": "Real estate and facilities",
+      "risk": "high",
+      "migrations": [
+        "supabase/migrations/20260914120000_gate15_real_estate_preflight.sql",
+        "supabase/migrations/20260914120100_gate15_real_estate_foundation.sql",
+        "supabase/migrations/20260914120200_gate15_real_estate_runtime.sql",
+        "supabase/migrations/20260914120300_gate15_real_estate_integrity_hardening.sql",
+        "supabase/migrations/20260914120400_gate15_real_estate_reporting_billing.sql"
+      ]
+    },
+    {
+      "id": "06_customer_service_it",
+      "label": "Customer service, service catalog and IT company",
+      "risk": "high",
+      "migrations": [
+        "supabase/migrations/20260914130000_gate16_customer_service_hub.sql",
+        "supabase/migrations/20260914131000_gate16_service_catalog.sql",
+        "supabase/migrations/20260915190000_gate17_portfolio_it_foundation.sql"
+      ]
+    },
+    {
+      "id": "07_zakat",
+      "label": "Zakat engine hardening",
+      "risk": "high",
+      "migrations": [
+        "supabase/migrations/20260916120000_gate18_zakat_engine_hardening.sql"
+      ]
+    }
+  ]
+}
