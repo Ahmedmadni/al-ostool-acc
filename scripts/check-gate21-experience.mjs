@@ -9,7 +9,7 @@ const read = (path) => readFileSync(join(ROOT, path), "utf8");
 const styles = read("src/styles.css");
 for (const marker of [
   '"Noto Kufi Arabic"',
-  "--primary: #f05a28",
+  "--primary: #e8a312",
   "--background: #f3f4f6",
   "--background: #14181e",
   ".public-site",
@@ -82,4 +82,3 @@ assert.equal(pkg.scripts["check:gate21-experience"], "node scripts/check-gate21-
 assert.ok(pkg.scripts.verify.includes("check:gate21-experience"), "Gate 21 is missing from verify");
 
 console.log("Gate 21 interface experience checks passed ✓");
-

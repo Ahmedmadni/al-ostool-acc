@@ -19,7 +19,6 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { NotificationsBell } from "@/components/notifications/notifications-bell";
-import logo from "@/assets/logo.ico";
 import { toast } from "sonner";
 import { usePermissions } from "@/hooks/use-permissions";
 import { pathToModule } from "@/lib/route-permissions";
@@ -245,7 +244,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-background">
       <aside className="w-64 bg-sidebar text-sidebar-foreground flex-col fixed inset-y-0 end-0 z-30 no-print hidden md:flex border-s border-sidebar-border shadow-xl shadow-foreground/5">
         <div className="h-20 px-5 border-b border-sidebar-border flex items-center gap-3 shrink-0">
-          <img src={logo} alt="شعار الأسطول الآلي" className="w-10 h-10 rounded-md bg-card p-1 ring-1 ring-sidebar-border" />
+          <img src="/images/brand/al-ostool-mark.png" alt="شعار الأسطول الآلي" width={512} height={441} className="h-10 w-10 rounded-md bg-white p-1 object-contain ring-1 ring-sidebar-border" />
           <div>
             <div className="font-bold text-sm leading-tight text-sidebar-foreground">{lang === "en" ? "Al-Ostool Al-Ali" : "مجموعة الأسطول الآلي"}</div>
             <div className="text-[11px] text-sidebar-foreground/55 mt-1">{lang === "en" ? "Enterprise operations" : "منظومة إدارة الأعمال"}</div>

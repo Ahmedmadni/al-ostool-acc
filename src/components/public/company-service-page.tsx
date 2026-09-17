@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight, Building2, CheckCircle2, ExternalLink } from "lucide-react";
-import logo from "@/assets/logo.ico";
+import { BrandLogo } from "@/components/public/brand-logo";
 import { PublicServiceRequestForm } from "@/components/public/service-request-form";
 import { AppDownloadCta } from "@/components/public/app-download-cta";
 import { PublicPreferences } from "@/components/public/public-preferences";
@@ -75,8 +75,7 @@ export function CompanyServicePage(props: CompanyServicePageProps) {
       <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
           <a href="/" className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-lg border border-border bg-white p-1.5"><img src={logo} alt="Al-Ostool Al-Ali Group" className="h-full w-full object-contain" /></span>
-            <span><strong className="block text-sm">{language === "ar" ? "مجموعة الأسطول الآلي" : "Al-Ostool Al-Ali Group"}</strong><span className="text-[10px] font-semibold tracking-[0.14em] text-muted-foreground">INVEST • OPERATE • SCALE</span></span>
+            <BrandLogo language={language} compact />
           </a>
           <div className="flex items-center gap-2">
             <a href="/" className="public-button-secondary hidden h-10 px-4 text-xs sm:inline-flex">{ui.home}</a>

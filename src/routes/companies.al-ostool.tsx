@@ -12,12 +12,14 @@ export const Route = createFileRoute("/companies/al-ostool")({
 });
 
 const services = [
-  { title: text("Project delivery & management", "إدارة وتنفيذ المشاريع"), description: text("End-to-end project planning, delivery, control, and close-out, with performance connected to cost and financial indicators.", "إدارة الأعمال والمشاريع من التخطيط والمتابعة حتى الإنجاز مع ربط الأداء بالتكلفة والمؤشرات المالية.") },
-  { title: text("Infrastructure & site works", "أعمال البنية التحتية والموقع"), description: text("Structured delivery of field works and project-site services against approved scopes and site requirements.", "تنظيم وتنفيذ الأعمال الميدانية والخدمات المرتبطة بالمشاريع وفق نطاقات العمل المعتمدة ومتطلبات الموقع.") },
-  { title: text("Resources & cost control", "إدارة الموارد والتكاليف"), description: text("Project-level control of resources, equipment, suppliers, and cost through the group's financial platform.", "متابعة الموارد والمعدات والموردين والتكاليف على مستوى المشروع وربطها بمنصة المجموعة المالية.") },
-  { title: text("Contractor & supplier management", "إدارة المقاولين والموردين"), description: text("Control of contracts, procurement, supply, and claims across the full project-delivery chain.", "إدارة التعاقدات والمشتريات والتوريد والمطالبات المرتبطة بنطاق المشروع وسلسلة التنفيذ.") },
-  { title: text("Delivery assurance", "الرقابة على التنفيذ"), description: text("Monitoring actual progress, deviations, and obligations while connecting project performance to operational and financial status.", "متابعة الإنجاز الفعلي والانحرافات والالتزامات وربط مؤشرات المشروع بالموقف المالي والتشغيلي.") },
-  { title: text("Reporting & decision support", "التقارير ودعم القرار"), description: text("Management, financial, and operational reporting that connects project data with cost, liquidity, and actual performance.", "تقارير إدارية ومالية وتشغيلية تربط بيانات المشروع بالتكلفة والسيولة والأداء الفعلي.") },
+  { title: text("Roads & infrastructure", "الطرق والبنية التحتية"), description: text("Road networks and integrated infrastructure works delivered from site preparation through testing and handover.", "تنفيذ شبكات الطرق وأعمال البنية التحتية المتكاملة من تجهيز الموقع وحتى الاختبارات والتسليم.") },
+  { title: text("Excavation, backfilling & grading", "الحفر والردم والتسوية"), description: text("Earthworks, excavation, backfilling, leveling, and preparation of sites for construction and development.", "أعمال الحفر والردم والتسوية وتجهيز المواقع لتصبح صالحة لأعمال الإنشاء والتطوير.") },
+  { title: text("Demolition & site clearance", "الهدم وإخلاء المواقع"), description: text("Controlled demolition, removal, sorting, and transport of demolition and excavation output under documented safety procedures.", "الهدم المنضبط وإزالة وفرز ونقل نواتج الهدم والحفر وفق إجراءات سلامة موثقة.") },
+  { title: text("Utilities & networks", "شبكات الخدمات والمرافق"), description: text("Sewage, water, electricity, telecommunications, and lighting networks integrated with the wider infrastructure scope.", "تنفيذ شبكات الصرف والمياه والكهرباء والاتصالات والإنارة ضمن نطاق البنية التحتية المتكامل.") },
+  { title: text("Paving & structural works", "الرصف والأعمال الإنشائية"), description: text("Paving, road finishing, bridge-related works, culverts, and supporting civil construction.", "أعمال الرصف وإنهاءات الطرق والأعمال المرتبطة بالجسور والعبارات والإنشاءات المدنية المساندة.") },
+  { title: text("Crushers & construction materials", "الكسارات ومواد الإنشاء"), description: text("Stationary and mobile crusher capability supporting the production and supply of backfilling and construction materials.", "كسارات ثابتة ومتحركة تدعم إنتاج وتوريد مواد الردم والمواد اللازمة للمشروعات.") },
+  { title: text("Heavy equipment & transport", "المعدات الثقيلة والنقل"), description: text("Equipment, trucks, trailers, transport, and logistics capacity serving project delivery and field operations.", "قدرات من المعدات والشاحنات والمقطورات والنقل والخدمات اللوجستية لخدمة المشروعات والعمليات الميدانية.") },
+  { title: text("Project control & reporting", "إدارة المشروع والتقارير"), description: text("Planning, resource and supplier control, progress monitoring, and operational reporting connected to cost and financial status.", "التخطيط وضبط الموارد والموردين ومتابعة الإنجاز والتقارير التشغيلية المرتبطة بالتكلفة والموقف المالي.") },
 ];
 
 function CoreCompanyPage() {
@@ -26,7 +28,7 @@ function CoreCompanyPage() {
     eyebrow={text("PORTFOLIO COMPANY • CONTRACTING & INFRASTRUCTURE", "شركة محفظة • المقاولات والبنية التحتية")}
     title={text("Al-Ostool Al-Ali", "شركة الأسطول الآلي")}
     subtitle={text("Contracting & Infrastructure", "المقاولات والبنية التحتية")}
-    description={text("The group's contracting and infrastructure arm, supported by one operating and financial system connecting projects, resources, suppliers, cost, and management control.", "ذراع المجموعة في المقاولات والبنية التحتية وتنفيذ المشاريع، مدعوم بمنظومة تشغيل ومالية موحدة تربط المشروع بالموارد والموردين والتكلفة والرقابة الإدارية.")}
+    description={text("Established in 2008, Al-Ostool Al-Ali is the group’s contracting and infrastructure arm, with field capability spanning roads, earthworks, utilities, demolition, crushers, transport, and heavy equipment—supported by one operating and financial system.", "تأسست شركة الأسطول الآلي عام 2008، وهي ذراع المجموعة في المقاولات والبنية التحتية بقدرات ميدانية تشمل الطرق والأعمال الترابية وشبكات الخدمات والهدم والكسارات والنقل والمعدات الثقيلة، ومدعومة بمنظومة تشغيل ومالية موحدة.")}
     services={services}
     highlights={[
       text("Project and infrastructure delivery", "تنفيذ وإدارة المشروعات والبنية التحتية"),
@@ -40,4 +42,3 @@ function CoreCompanyPage() {
     accentLabel={text("Project, resources, and cost in one system", "المشروع والموارد والتكلفة في منظومة واحدة")}
   />;
 }
-
