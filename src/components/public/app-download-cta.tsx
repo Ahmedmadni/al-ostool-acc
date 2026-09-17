@@ -32,7 +32,7 @@ export function AppDownloadCta({ compact = false, source = "group" }: Props) {
     : {
         kicker: "تطبيق خدمات المجموعة",
         available: "حمّل التطبيق وابدأ الخدمة من جوالك",
-        soon: "التطبيق قادم قريباً",
+        soon: "التطبيق قادم قريبًا",
         body: "تم تجهيز رابط ثابت داخل الموقع ليوجه المستخدم إلى متاجر التطبيقات فور اعتماد النسخة الرسمية.",
         storesSoon: "ستتفعّل روابط App Store وGoogle Play عند الإطلاق دون تغيير رابط الدعوة الحالي.",
         details: "تفاصيل التطبيق",
@@ -69,7 +69,7 @@ function StoreBadge({ store, url, language }: { store: "apple" | "google"; url: 
     </>
   );
   const className = "inline-flex min-w-[152px] items-center justify-center gap-2.5 rounded-lg border border-black bg-black px-3 py-2 shadow-sm transition";
-  if (!url) return <span aria-disabled="true" title={language === "en" ? "Coming soon" : "قريباً"} className={`${className} cursor-not-allowed opacity-55`}>{content}</span>;
+  if (!url) return <span aria-disabled="true" title={language === "en" ? "Coming soon" : "قريبًا"} className={`${className} cursor-not-allowed opacity-55`}>{content}</span>;
   return <a aria-label={language === "en" ? `Download from ${isApple ? "App Store" : "Google Play"}` : `تحميل التطبيق من ${isApple ? "App Store" : "Google Play"}`} href={url} target="_blank" rel="noreferrer" className={`${className} hover:-translate-y-0.5`}>{content}</a>;
 }
 
@@ -80,4 +80,3 @@ function AppleMark() {
 function GooglePlayMark() {
   return <svg viewBox="0 0 28 31" className="h-7 w-7" role="img" aria-label="Google Play"><path fill="#3DDC84" d="M1.9 1.2A2.6 2.6 0 0 0 .8 3.4v24.2c0 .9.4 1.7 1.1 2.2l14-14.3L1.9 1.2Z" /><path fill="#FFCC00" d="m20.6 10.8-4.7 4.7 4.8 4.9 5.5-3.1c1.4-.8 1.4-2 0-2.8l-5.6-3.7Z" /><path fill="#FF3A44" d="M1.9 29.8c.7.4 1.6.4 2.5-.1l16.3-9.3-4.8-4.9-14 14.3Z" /><path fill="#00A9F4" d="M1.9 1.2 15.9 15.5l4.7-4.7L4.4 1.5c-.9-.5-1.8-.7-2.5-.3Z" /></svg>;
 }
-
