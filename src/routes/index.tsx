@@ -3,7 +3,6 @@ import {
   ArrowLeft,
   ArrowRight,
   Building2,
-  ChartNoAxesCombined,
   Cpu,
   HardHat,
   Layers3,
@@ -53,6 +52,12 @@ const copy = {
     choose: "Choose a company",
     companyLink: "Company & services",
     footer: "Investment • Operations • Assets • Technology",
+    heroStats: [
+      ["Since 2008", "Established delivery experience"],
+      ["20+ projects", "Documented portfolio record"],
+      ["8 capabilities", "One integrated delivery platform"],
+    ],
+    additionalProjects: "Additional documented projects",
     strengths: [
       ["Integrated portfolio", "We invest in and operate specialized businesses across connected sectors with clear operational and financial accountability."],
       ["Operations-led investment", "Assets, clients, contracts, cost, and performance are connected to create growth that can be measured and governed."],
@@ -87,6 +92,12 @@ const copy = {
     choose: "اختر الشركة",
     companyLink: "الشركة والخدمات",
     footer: "الاستثمار • التشغيل • الأصول • التقنية",
+    heroStats: [
+      ["منذ 2008", "خبرة تنفيذية راسخة"],
+      ["أكثر من 20 مشروعاً", "سجل مشروعات موثق"],
+      ["8 قدرات أساسية", "منصة تنفيذ متكاملة"],
+    ],
+    additionalProjects: "مشروعات إضافية موثقة",
     strengths: [
       ["محفظة متكاملة", "نستثمر ونشغّل أعمالاً متخصصة في قطاعات مترابطة مع مسؤولية تشغيلية ومالية واضحة لكل شركة."],
       ["استثمار مبني على التشغيل", "نربط الأصل والعميل والعقد والتكلفة والأداء للوصول إلى نمو قابل للقياس والحوكمة."],
@@ -96,12 +107,28 @@ const copy = {
 } as const;
 
 const partnerNames = [
-  { en: "Diriyah", ar: "الدرعية", href: "https://www.diriyahcompany.sa/en/" },
+  { en: "Diriyah", ar: "الدرعية", projectEn: "Infrastructure & earthworks", projectAr: "أعمال البنية التحتية والأعمال الترابية", href: "https://www.diriyahcompany.sa/en/", logo: "/images/partners/diriyah.svg" },
+  { en: "Royal Commission for Riyadh City", ar: "الهيئة الملكية لمدينة الرياض", projectEn: "Riyadh Metro & railway works", projectAr: "أعمال مترو وسكة حديد الرياض", href: "https://www.rcrc.gov.sa/en/", logo: "/images/partners/rcrc.svg" },
+  { en: "Princess Nourah University", ar: "جامعة الأميرة نورة", projectEn: "Infrastructure & backfilling works", projectAr: "أعمال البنية التحتية والردم", href: "https://pnu.edu.sa/en/Pages/home.aspx", logo: "/images/partners/princess-nourah-university.svg" },
+  { en: "Dallah Hospital", ar: "مستشفى دلة", projectEn: "Infrastructure & material production", projectAr: "أعمال البنية التحتية وإنتاج المواد", href: "https://www.dallah-hospital.com/english/home", logo: "/images/partners/dallah-hospital.png" },
+  { en: "Al-Hilal Saudi Club", ar: "نادي الهلال السعودي", projectEn: "Stadium rehabilitation works", projectAr: "أعمال تأهيل ملعب النادي", href: "https://alhilal.com/en", logo: "/images/partners/al-hilal.webp" },
+] as const;
+
+const additionalProjectNames = [
   { en: "King Salman Park", ar: "حديقة الملك سلمان" },
-  { en: "Riyadh Metro", ar: "مترو الرياض" },
-  { en: "Princess Nourah University", ar: "جامعة الأميرة نورة" },
-  { en: "Dallah Hospital", ar: "مستشفى دلة" },
   { en: "Security Forces Hospital", ar: "مستشفى قوى الأمن" },
+  { en: "City View Scheme", ar: "مخطط سيتي فيو" },
+  { en: "Qairouan", ar: "القيروان" },
+  { en: "Dora Al-Shafa Scheme", ar: "مخطط درة الشفا" },
+  { en: "Dammam Reformatory", ar: "إصلاحية الدمام" },
+  { en: "Ruaq Qurtuba Mall", ar: "مول رواق قرطبة" },
+  { en: "Al Hamra District", ar: "مخطط حي الحمراء" },
+  { en: "Al Yasmin District", ar: "مخطط حي الياسمين" },
+  { en: "Al Sahafa District", ar: "مخطط حي الصحافة" },
+  { en: "Half Moon Beach", ar: "مخطط شاطئ نصف القمر" },
+  { en: "Al Kharj Scheme", ar: "مخطط الخرج" },
+  { en: "Qadisiyah Exhibition Complex", ar: "مجمع معارض القادسية" },
+  { en: "National Guard Housing", ar: "إسكان الحرس الوطني" },
 ] as const;
 
 export const Route = createFileRoute("/")({
@@ -137,20 +164,25 @@ function HoldingHomePage() {
         </div>
       </header>
 
-      <section className="border-b border-border bg-background">
-        <div className="mx-auto grid min-h-[72vh] max-w-7xl items-center gap-12 px-5 py-16 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:py-24">
-          <div>
-            <div className="public-kicker text-xs">{c.eyebrow}</div>
-            <h1 className="mt-6 max-w-4xl text-4xl font-black leading-[1.25] sm:text-5xl lg:text-6xl">{c.title}</h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">{c.intro}</p>
+      <section className="relative overflow-hidden border-b border-black/20 bg-[#262626] text-white">
+        <div className="pointer-events-none absolute inset-y-0 end-0 hidden w-[34%] bg-[#f1b12b] lg:block" />
+        <div className="pointer-events-none absolute -start-24 top-20 h-72 w-72 rounded-full border border-white/10" />
+        <div className="mx-auto grid min-h-[760px] max-w-7xl items-center gap-12 px-5 py-16 lg:grid-cols-[.92fr_1.08fr] lg:px-8 lg:py-20">
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-[10px] font-black tracking-[.18em] text-[#f1b12b] backdrop-blur">{c.eyebrow}</div>
+            <h1 className="mt-7 max-w-4xl text-4xl font-black leading-[1.14] tracking-[-.03em] sm:text-5xl lg:text-7xl">{c.title}</h1>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 sm:text-lg">{c.intro}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="#portfolio" className="public-button-primary px-5 py-3 text-sm">{c.explore}<Arrow className="h-4 w-4" /></a>
-              <a href="#contact" className="public-button-secondary px-5 py-3 text-sm">{c.talk}</a>
+              <a href="#contact" className="inline-flex items-center justify-center rounded-lg border border-white/25 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:border-[#f1b12b] hover:bg-white/10">{c.talk}</a>
+            </div>
+            <div className="mt-10 grid gap-px overflow-hidden rounded-xl border border-white/10 bg-white/10 sm:grid-cols-3">
+              {c.heroStats.map(([value, label]) => <div key={value} className="bg-[#262626]/90 p-4"><div className="text-lg font-black text-[#f1b12b]">{value}</div><div className="mt-1 text-[11px] leading-5 text-white/55">{label}</div></div>)}
             </div>
           </div>
 
-          <div className="space-y-4">
-            <figure className="public-panel overflow-hidden rounded-xl">
+          <div className="relative z-10 lg:ps-4">
+            <figure className="relative min-h-[500px] overflow-hidden rounded-2xl border border-white/15 bg-black shadow-2xl shadow-black/30 lg:min-h-[610px]">
               <img
                 src="/images/group/holding-hero-v1.webp"
                 alt={lang === "ar" ? "عمليات مجموعة الأسطول الآلي في قطاعات البنية التحتية والأصول والتقنية" : "Al-Ostool Al-Ali Group operations across infrastructure, assets, and technology"}
@@ -158,30 +190,16 @@ function HoldingHomePage() {
                 height={900}
                 fetchPriority="high"
                 decoding="async"
-                className="aspect-video w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
               />
-              <figcaption className="border-t border-border px-4 py-3 text-xs font-semibold text-muted-foreground">
-                {lang === "ar" ? "خبرة تنفيذية ومنصة تشغيل موحدة عبر قطاعات المجموعة" : "Execution experience and one operating platform across the group"}
+              <div className="absolute inset-0 bg-black/25" />
+              <div className="absolute end-5 top-5 grid h-20 w-20 place-items-center rounded-xl border border-white/20 bg-white/95 p-3 shadow-xl"><img src="/images/brand/al-ostool-mark.png" alt="" className="max-h-full max-w-full object-contain" /></div>
+              <figcaption className="absolute inset-x-0 bottom-0 border-t border-white/15 bg-black/75 p-6 backdrop-blur-sm sm:p-8">
+                <div className="mb-3 h-1 w-16 bg-[#f1b12b]" />
+                <div className="text-2xl font-black sm:text-3xl">{lang === "ar" ? "تنفيذ ميداني. أصول قوية. إدارة موحدة." : "Field execution. Strong assets. Unified control."}</div>
+                <div className="mt-3 max-w-lg text-sm leading-7 text-white/65">{lang === "ar" ? "من مواقع البنية التحتية إلى إدارة المجموعة عبر منصة تشغيل واحدة." : "From infrastructure sites to group-wide management through one operating platform."}</div>
               </figcaption>
             </figure>
-            <div className="public-panel rounded-xl p-5">
-            <div className="mb-4 flex items-center justify-between border-b border-border pb-4">
-              <div><div className="public-kicker text-[10px]">PORTFOLIO CONTROL</div><div className="mt-1 font-bold">{c.portfolio}</div></div>
-              <div className="grid h-11 w-11 place-items-center rounded-lg bg-primary text-primary-foreground"><ChartNoAxesCombined className="h-5 w-5" /></div>
-            </div>
-            <div className="space-y-2">
-              {portfolioCompanies.map((company, index) => {
-                const Icon = iconByCompany[company.code];
-                return (
-                  <a key={company.code} href={company.publicPath} className="flex items-center gap-4 rounded-lg border border-border bg-background p-4 transition hover:border-primary hover:bg-accent">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-card text-primary"><Icon className="h-5 w-5" /></div>
-                    <div className="min-w-0 flex-1"><div className="truncate font-bold">{lang === "ar" ? company.nameAr : company.nameEn}</div><div className="mt-1 text-xs text-muted-foreground">{lang === "ar" ? company.sectorAr : company.sectorEn}</div></div>
-                    <span className="font-mono text-[10px] text-muted-foreground">0{index + 1}</span>
-                  </a>
-                );
-              })}
-            </div>
-          </div>
           </div>
         </div>
       </section>
@@ -246,15 +264,22 @@ function HoldingHomePage() {
             <h2 className="mt-3 text-3xl font-black sm:text-4xl">{c.partnersTitle}</h2>
             <p className="mt-4 text-sm leading-7 text-muted-foreground">{c.partnersBody}</p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {partnerNames.map((partner, index) => {
-              const content = <><span className="font-mono text-xs font-black text-primary">{String(index + 1).padStart(2, "0")}</span><span className="font-black">{lang === "ar" ? partner.ar : partner.en}</span></>;
-              return "href" in partner ? (
-                <a key={partner.en} href={partner.href} target="_blank" rel="noreferrer" className="public-panel flex min-h-24 items-center gap-4 rounded-xl p-5 transition hover:border-primary">{content}</a>
-              ) : (
-                <div key={partner.en} className="public-panel flex min-h-24 items-center gap-4 rounded-xl p-5">{content}</div>
-              );
-            })}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            {partnerNames.map((partner) => (
+              <a key={partner.en} href={partner.href} target="_blank" rel="noreferrer" className="group public-panel flex min-h-[230px] flex-col rounded-xl p-5 transition hover:-translate-y-1 hover:border-primary">
+                <div className="grid h-24 w-full place-items-center rounded-lg border border-border bg-white p-4">
+                  <img src={partner.logo} alt={`${partner.en} logo`} loading="lazy" decoding="async" className="max-h-full max-w-full object-contain" />
+                </div>
+                <h3 className="mt-5 font-black leading-6 group-hover:text-primary">{lang === "ar" ? partner.ar : partner.en}</h3>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">{lang === "ar" ? partner.projectAr : partner.projectEn}</p>
+              </a>
+            ))}
+          </div>
+          <div className="mt-10 border-t border-border pt-8">
+            <h3 className="text-sm font-black">{c.additionalProjects}</h3>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {additionalProjectNames.map((project) => <span key={project.en} className="rounded-full border border-border bg-card px-4 py-2 text-xs font-semibold text-muted-foreground">{lang === "ar" ? project.ar : project.en}</span>)}
+            </div>
           </div>
         </div>
       </section>
