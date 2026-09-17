@@ -19,7 +19,7 @@ const services = [
   { title: text("Paving & structural works", "الرصف والأعمال الإنشائية"), description: text("Paving, road finishing, bridge-related works, culverts, and supporting civil construction.", "أعمال الرصف وإنهاءات الطرق والأعمال المرتبطة بالجسور والعبارات والإنشاءات المدنية المساندة.") },
   { title: text("Crushers & construction materials", "الكسارات ومواد الإنشاء"), description: text("Stationary and mobile crusher capability supporting the production and supply of backfilling and construction materials.", "كسارات ثابتة ومتحركة تدعم إنتاج وتوريد مواد الردم والمواد اللازمة للمشروعات.") },
   { title: text("Heavy equipment & transport", "المعدات الثقيلة والنقل"), description: text("Equipment, trucks, trailers, transport, and logistics capacity serving project delivery and field operations.", "قدرات من المعدات والشاحنات والمقطورات والنقل والخدمات اللوجستية لخدمة المشروعات والعمليات الميدانية.") },
-  { title: text("Project control & reporting", "إدارة المشروع والتقارير"), description: text("Planning, resource and supplier control, progress monitoring, and operational reporting connected to cost and financial status.", "التخطيط وضبط الموارد والموردين ومتابعة الإنجاز والتقارير التشغيلية المرتبطة بالتكلفة والموقف المالي.") },
+  { title: text("Project delivery, control & reporting", "إدارة وتنفيذ المشاريع والتقارير"), description: text("Planning, resource and supplier control, progress monitoring, and operational reporting connected to cost and financial status.", "التخطيط وضبط الموارد والموردين ومتابعة الإنجاز والتقارير التشغيلية المرتبطة بالتكلفة والموقف المالي.") },
 ];
 
 function CoreCompanyPage() {
