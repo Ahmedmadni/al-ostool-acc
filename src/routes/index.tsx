@@ -6,15 +6,18 @@ import {
   Cpu,
   HardHat,
   Layers3,
+  Mail,
+  MapPin,
+  Phone,
   ShieldCheck,
   TrendingUp,
   Wrench,
 } from "lucide-react";
 import { AppDownloadCta } from "@/components/public/app-download-cta";
-import { BrandLogo } from "@/components/public/brand-logo";
-import { PublicPreferences } from "@/components/public/public-preferences";
+import { PublicSiteHeader } from "@/components/public/public-site-header";
 import { portfolioCompanies, type GroupCompanyCode } from "@/data/group-portfolio";
 import { useI18n } from "@/lib/i18n";
+import { publicSeo } from "@/lib/public-seo";
 
 const iconByCompany: Record<GroupCompanyCode, typeof Building2> = {
   CORE: HardHat,
@@ -25,8 +28,8 @@ const iconByCompany: Record<GroupCompanyCode, typeof Building2> = {
 
 const copy = {
   en: {
-    title: "Operating real businesses. Building measurable growth.",
-    intro: "Al-Ostool Al-Ali Group combines execution experience, operating discipline, asset management, and technology across a focused portfolio of specialized companies.",
+    title: "Saudi execution expertise. One group built for measurable growth.",
+    intro: "Since 2008, Al-Ostool Al-Ali has turned field capability in infrastructure, heavy equipment, and project delivery into an integrated platform for operations, assets, real estate, and technology.",
     eyebrow: "MULTI-SECTOR INVESTMENT & OPERATIONS GROUP",
     portfolio: "Group portfolio",
     about: "About the group",
@@ -48,7 +51,7 @@ const copy = {
       ["Integrated growth", "An operating platform that links specialist companies without losing accountability for each activity."],
     ],
     partnersTitle: "Trusted project relationships across major Saudi destinations",
-    partnersBody: "Selected names from the company’s documented project record. Project values are intentionally not published.",
+    partnersBody: "Selected clients, destinations, and institutions drawn from the company’s documented delivery record across the Kingdom.",
     choose: "Choose a company",
     companyLink: "Company & services",
     footer: "Investment • Operations • Assets • Technology",
@@ -58,6 +61,11 @@ const copy = {
       ["8 capabilities", "One integrated delivery platform"],
     ],
     additionalProjects: "Additional documented projects",
+    contactDirect: "Direct contact",
+    address: "Riyadh, Al-Mohammadiyah, Takhassusi Street",
+    legal: "CR 1010245630 • P.O. Box 240162, Riyadh 11322",
+    call: "Call the group",
+    email: "Email business enquiries",
     strengths: [
       ["Integrated portfolio", "We invest in and operate specialized businesses across connected sectors with clear operational and financial accountability."],
       ["Operations-led investment", "Assets, clients, contracts, cost, and performance are connected to create growth that can be measured and governed."],
@@ -65,8 +73,8 @@ const copy = {
     ],
   },
   ar: {
-    title: "نشغّل أعمالاً حقيقية ونبني نمواً قابلاً للقياس",
-    intro: "تجمع مجموعة الأسطول الآلي بين خبرة التنفيذ والانضباط التشغيلي وإدارة الأصول والتقنية ضمن محفظة مركزة من الشركات المتخصصة.",
+    title: "خبرة تنفيذ سعودية ومنظومة واحدة لنمو قابل للقياس",
+    intro: "منذ 2008، طورت الأسطول الآلي خبرتها الميدانية في البنية التحتية والمعدات الثقيلة وتنفيذ المشاريع إلى منصة متكاملة للتشغيل والأصول والعقار والتقنية.",
     eyebrow: "مجموعة استثمار وتشغيل متعددة القطاعات",
     portfolio: "محفظة المجموعة",
     about: "عن المجموعة",
@@ -88,7 +96,7 @@ const copy = {
       ["نمو متكامل", "منصة تشغيل تربط الشركات المتخصصة مع استقلال المسؤولية عن كل نشاط."],
     ],
     partnersTitle: "علاقات موثوقة ضمن مشروعات ووجهات سعودية كبرى",
-    partnersBody: "أسماء مختارة من سجل المشروعات الموثق للشركة، مع عدم نشر أي قيم مالية للمشروعات.",
+    partnersBody: "عملاء ووجهات وجهات مؤسسية مختارة من سجل التنفيذ الموثق للشركة في مناطق المملكة.",
     choose: "اختر الشركة",
     companyLink: "الشركة والخدمات",
     footer: "الاستثمار • التشغيل • الأصول • التقنية",
@@ -98,6 +106,11 @@ const copy = {
       ["8 قدرات أساسية", "منصة تنفيذ متكاملة"],
     ],
     additionalProjects: "مشروعات إضافية موثقة",
+    contactDirect: "تواصل مباشر",
+    address: "الرياض، حي المحمدية، شارع التخصصي",
+    legal: "السجل التجاري 1010245630 • ص.ب 240162، الرياض 11322",
+    call: "اتصل بالمجموعة",
+    email: "راسل فريق فرص الأعمال",
     strengths: [
       ["محفظة متكاملة", "نستثمر ونشغّل أعمالاً متخصصة في قطاعات مترابطة مع مسؤولية تشغيلية ومالية واضحة لكل شركة."],
       ["استثمار مبني على التشغيل", "نربط الأصل والعميل والعقد والتكلفة والأداء للوصول إلى نمو قابل للقياس والحوكمة."],
@@ -115,6 +128,8 @@ const partnerNames = [
 ] as const;
 
 const additionalProjectNames = [
+  { en: "Diriyah Gate — Contract 148", ar: "بوابة الدرعية — عقد 148" },
+  { en: "Diriyah Gate — Contract 102", ar: "بوابة الدرعية — عقد 102" },
   { en: "King Salman Park", ar: "حديقة الملك سلمان" },
   { en: "Security Forces Hospital", ar: "مستشفى قوى الأمن" },
   { en: "City View Scheme", ar: "مخطط سيتي فيو" },
@@ -126,18 +141,19 @@ const additionalProjectNames = [
   { en: "Al Yasmin District", ar: "مخطط حي الياسمين" },
   { en: "Al Sahafa District", ar: "مخطط حي الصحافة" },
   { en: "Half Moon Beach", ar: "مخطط شاطئ نصف القمر" },
+  { en: "Al Wurud District", ar: "حي الورود" },
   { en: "Al Kharj Scheme", ar: "مخطط الخرج" },
   { en: "Qadisiyah Exhibition Complex", ar: "مجمع معارض القادسية" },
+  { en: "Al Wurud City", ar: "مدينة الورود" },
+  { en: "Al Mousa Bridge Scheme", ar: "مخطط جسر الموسى" },
   { en: "National Guard Housing", ar: "إسكان الحرس الوطني" },
 ] as const;
 
 export const Route = createFileRoute("/")({
   component: HoldingHomePage,
-  head: () => ({
-    meta: [
-      { title: "Al-Ostool Al-Ali Group | Investment, Operations & Technology" },
-      { name: "description", content: "A multi-sector group operating in contracting, maintenance, real estate, asset management, and technology." },
-    ],
+  head: () => publicSeo({
+    title: "Al-Ostool Al-Ali Group | Contracting, Operations & Investment",
+    description: "Saudi group delivering contracting, infrastructure, heavy equipment, operations and maintenance, real estate asset management, and digital solutions since 2008.",
   }),
 });
 
@@ -148,21 +164,17 @@ function HoldingHomePage() {
 
   return (
     <main className="public-site" dir={dir}>
-      <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
-          <a href="/" className="flex items-center gap-3">
-            <BrandLogo language={lang === "ar" ? "ar" : "en"} compact />
-          </a>
-          <nav className="hidden items-center gap-4 text-xs font-semibold text-muted-foreground lg:flex xl:gap-7">
-            <a className="transition hover:text-primary" href="#portfolio">{c.portfolio}</a>
-            <a className="transition hover:text-primary" href="#about">{c.about}</a>
-            <a className="transition hover:text-primary" href="#partners">{c.partners}</a>
-            <a className="transition hover:text-primary" href="#investment-model">{c.model}</a>
-            <a className="transition hover:text-primary" href="#contact">{c.contact}</a>
-          </nav>
-          <PublicPreferences />
-        </div>
-      </header>
+      <PublicSiteHeader
+        language={lang === "ar" ? "ar" : "en"}
+        menuLabel={lang === "ar" ? "فتح قائمة التنقل" : "Open navigation menu"}
+        navigation={[
+          { href: "#portfolio", label: c.portfolio },
+          { href: "#about", label: c.about },
+          { href: "#partners", label: c.partners },
+          { href: "#investment-model", label: c.model },
+          { href: "#contact", label: c.contact },
+        ]}
+      />
 
       <section className="relative overflow-hidden border-b border-black/20 bg-[#262626] text-white">
         <div className="pointer-events-none absolute inset-y-0 end-0 hidden w-[34%] bg-[#f1b12b] lg:block" />
@@ -285,14 +297,26 @@ function HoldingHomePage() {
       </section>
 
       <section id="contact" className="px-5 py-16 lg:px-8">
-        <div className="public-panel mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 rounded-xl border-s-4 border-s-primary p-7 sm:p-10 lg:flex-row lg:items-center">
-          <div><div className="public-kicker text-sm">{c.contact}</div><h2 className="mt-2 text-2xl font-black sm:text-3xl">{c.contactTitle}</h2><p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">{c.contactBody}</p></div>
-          <a href="#portfolio" className="public-button-primary px-5 py-3 text-sm">{c.choose}<Arrow className="h-4 w-4" /></a>
+        <div className="public-panel mx-auto grid max-w-7xl gap-8 rounded-xl border-s-4 border-s-primary p-7 sm:p-10 lg:grid-cols-[1.15fr_.85fr] lg:items-center">
+          <div>
+            <div className="public-kicker text-sm">{c.contact}</div>
+            <h2 className="mt-2 text-2xl font-black sm:text-3xl">{c.contactTitle}</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">{c.contactBody}</p>
+            <a href="#portfolio" className="public-button-primary mt-6 px-5 py-3 text-sm">{c.choose}<Arrow className="h-4 w-4" /></a>
+          </div>
+          <address className="not-italic">
+            <div className="public-kicker text-xs">{c.contactDirect}</div>
+            <div className="mt-4 space-y-3">
+              <a href="tel:+966508331111" className="flex items-center gap-3 rounded-lg border border-border bg-background p-4 text-sm font-bold transition hover:border-primary"><Phone className="h-5 w-5 text-primary" /><span><span className="block text-xs font-medium text-muted-foreground">{c.call}</span><span dir="ltr" className="block">+966 50 833 1111</span><span dir="ltr" className="block text-xs text-muted-foreground">+966 11 470 4770</span></span></a>
+              <a href="mailto:info@alostool.com.sa" className="flex items-center gap-3 rounded-lg border border-border bg-background p-4 text-sm font-bold transition hover:border-primary"><Mail className="h-5 w-5 text-primary" /><span><span className="block text-xs font-medium text-muted-foreground">{c.email}</span><span dir="ltr">info@alostool.com.sa</span></span></a>
+              <div className="flex items-start gap-3 rounded-lg border border-border bg-background p-4 text-sm"><MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" /><span><span className="block font-bold">{c.address}</span><span className="mt-1 block text-xs leading-5 text-muted-foreground">{c.legal}</span></span></div>
+            </div>
+          </address>
         </div>
       </section>
 
       <section className="px-5 pb-20 lg:px-8"><div className="mx-auto max-w-7xl"><AppDownloadCta source="group" /></div></section>
-      <footer className="border-t border-border bg-card py-7 text-sm text-muted-foreground"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-5 sm:flex-row lg:px-8"><span>© {new Date().getFullYear()} {lang === "ar" ? "مجموعة الأسطول الآلي" : "Al-Ostool Al-Ali Group"}</span><span>{c.footer}</span></div></footer>
+      <footer className="border-t border-border bg-card py-7 text-sm text-muted-foreground"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-5 sm:flex-row lg:px-8"><span>© {new Date().getFullYear()} {lang === "ar" ? "مجموعة الأسطول الآلي" : "Al-Ostool Al-Ali Group"}</span><span>{c.footer}</span><a dir="ltr" href="mailto:info@alostool.com.sa" className="transition hover:text-primary">info@alostool.com.sa</a></div></footer>
     </main>
   );
 }
