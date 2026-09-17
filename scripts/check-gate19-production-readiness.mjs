@@ -104,8 +104,8 @@ assert.ok(sw.includes('import.meta.env.PROD'), "service worker must be productio
 assert.ok(sw.includes("navigator.serviceWorker"), "service worker registration is missing");
 
 const manifest = JSON.parse(read("public/manifest.webmanifest"));
-assert.equal(manifest.lang, "ar");
-assert.equal(manifest.dir, "rtl");
+assert.equal(manifest.lang, "en");
+assert.equal(manifest.dir, "ltr");
 assert.ok(["standalone", "fullscreen"].includes(manifest.display));
 assert.ok(Array.isArray(manifest.icons) && manifest.icons.length >= 2);
 
