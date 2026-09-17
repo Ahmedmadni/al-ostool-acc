@@ -77,8 +77,9 @@ for (const migration of [
 
 const rootRoute = read("src/routes/__root.tsx");
 for (const marker of [
-  'lang="ar"',
-  'dir="rtl"',
+  'lang="en"',
+  'dir="ltr"',
+  'data-surface="public"',
   'name: "viewport"',
   'rel: "manifest"',
   'import("../lib/pwa/register-sw")',

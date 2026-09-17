@@ -30,13 +30,13 @@ for (const name of [
 ]) assert.ok(portfolio.includes(name), `portfolio working brand ${name} missing`);
 
 assert.ok(home.includes("portfolioCompanies"), "holding home must render centralized portfolio companies");
-assert.ok(home.includes("مجموعة استثمار وتشغيل متعددة القطاعات"), "investment holding positioning missing");
-assert.ok(home.includes("نستثمر في أعمال حقيقية"), "investment thesis hero missing");
+assert.ok(home.includes("MULTI-SECTOR INVESTMENT & OPERATIONS GROUP") && home.includes("مجموعة استثمار وتشغيل متعددة القطاعات"), "bilingual investment holding positioning missing");
+assert.ok(home.includes("Operating real businesses. Building measurable growth.") && home.includes("نشغّل أعمالاً حقيقية"), "bilingual investment thesis hero missing");
 assert.ok(!home.includes('href="/log"') && !home.includes('href="/login"'), "employee login must stay hidden from public home");
 
 assert.ok(technologyPublic.includes('companyCode="IT"'), "technology public page must use IT company code");
 assert.ok(technologyPublic.includes("ERP") && technologyPublic.includes("التكامل") && technologyPublic.includes("ذكاء الأعمال"), "technology service catalogue incomplete");
-assert.ok(companyShell.includes("websiteUrl") && companyShell.includes("زيارة موقع الشركة") && companyShell.includes("موقع الشركة — قريبًا"), "independent company website CTA/fallback missing");
+assert.ok(companyShell.includes("websiteUrl") && companyShell.includes("Visit company website") && companyShell.includes("موقع الشركة المستقل — قريباً"), "bilingual independent company website CTA/fallback missing");
 assert.ok(companyShell.includes("AppDownloadCta"), "company app download CTA missing");
 
 for (const envName of ["VITE_PUBLIC_CORE_WEBSITE_URL", "VITE_PUBLIC_MADAR_WEBSITE_URL", "VITE_PUBLIC_RAWAFID_WEBSITE_URL", "VITE_PUBLIC_NAWA_WEBSITE_URL"]) {
