@@ -1,14 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CompanyServicePage, type LocalizedText } from "@/components/public/company-service-page";
+import { publicSeo } from "@/lib/public-seo";
 
 const text = (en: string, ar: string): LocalizedText => ({ en, ar });
 
 export const Route = createFileRoute("/companies/al-ostool")({
   component: CoreCompanyPage,
-  head: () => ({ meta: [
-    { title: "Al-Ostool Al-Ali | Contracting & Infrastructure" },
-    { name: "description", content: "Contracting, infrastructure, project delivery, resource management, cost control, and operational reporting." },
-  ] }),
+  head: () => publicSeo({
+    title: "Contracting & Infrastructure in Saudi Arabia | Al-Ostool Al-Ali",
+    description: "Roads, infrastructure, earthworks, utilities, demolition, crushers, heavy equipment, transport, and controlled project delivery across Saudi Arabia.",
+    path: "/companies/al-ostool",
+    schema: { "@type": "Service", name: "Contracting and infrastructure delivery", areaServed: "Saudi Arabia", provider: { "@id": "https://al-ostool-acc.lovable.app/#organization" } },
+  }),
 });
 
 const services = [
