@@ -1,86 +1,131 @@
-import { FormEvent, useMemo, useState } from "react";
-import type { ReactNode } from "react";
+import { FormEvent, useMemo, useState, type ReactNode } from "react";
 import { CheckCircle2, Loader2, Send, ShieldCheck } from "lucide-react";
 import type { GroupCompanyCode } from "@/data/group-portfolio";
+import { useI18n } from "@/lib/i18n";
 
-type Props = {
-  companyCode: GroupCompanyCode;
-};
+type Props = { companyCode: GroupCompanyCode };
+type Language = "en" | "ar";
+type Option = { value: string; en: string; ar: string };
 
-const requestTypes: Record<GroupCompanyCode, Array<{ value: string; label: string }>> = {
+const requestTypes: Record<GroupCompanyCode, Option[]> = {
   OM: [
-    { value: "maintenance", label: "طلب صيانة / إصلاح" },
-    { value: "emergency_maintenance", label: "بلاغ صيانة طارئة" },
-    { value: "preventive_maintenance", label: "طلب صيانة وقائية" },
-    { value: "maintenance_contract", label: "طلب عقد تشغيل وصيانة" },
-    { value: "facility", label: "طلب تشغيل / إدارة مرافق" },
-    { value: "quote_request", label: "طلب معاينة / عرض سعر" },
-    { value: "complaint", label: "شكوى أو ملاحظة" },
-    { value: "general", label: "طلب عام" },
+    { value: "maintenance", en: "Maintenance / repair request", ar: "طلب صيانة / إصلاح" },
+    { value: "emergency_maintenance", en: "Emergency maintenance", ar: "بلاغ صيانة طارئة" },
+    { value: "preventive_maintenance", en: "Preventive maintenance", ar: "طلب صيانة وقائية" },
+    { value: "maintenance_contract", en: "Operations & maintenance contract", ar: "طلب عقد تشغيل وصيانة" },
+    { value: "facility", en: "Facility operations / management", ar: "طلب تشغيل / إدارة مرافق" },
+    { value: "quote_request", en: "Inspection / quotation", ar: "طلب معاينة / عرض سعر" },
+    { value: "complaint", en: "Complaint or feedback", ar: "شكوى أو ملاحظة" },
+    { value: "general", en: "General enquiry", ar: "طلب عام" },
   ],
   RE: [
-    { value: "investment_enquiry", label: "طلب استثمار عقاري" },
-    { value: "investment_opportunity", label: "عرض فرصة / أصل استثماري" },
-    { value: "property_management", label: "طلب إدارة عقار / محفظة" },
-    { value: "leasing_enquiry", label: "استفسار تأجير / إعادة تأجير" },
-    { value: "property_enquiry", label: "استفسار عن عقار أو وحدة" },
-    { value: "facility", label: "طلب مرافق / صيانة عقار" },
-    { value: "complaint", label: "شكوى أو ملاحظة" },
-    { value: "general", label: "طلب عام" },
+    { value: "investment_enquiry", en: "Real estate investment enquiry", ar: "طلب استثمار عقاري" },
+    { value: "investment_opportunity", en: "Investment opportunity / asset", ar: "عرض فرصة / أصل استثماري" },
+    { value: "property_management", en: "Property / portfolio management", ar: "طلب إدارة عقار / محفظة" },
+    { value: "leasing_enquiry", en: "Leasing / subleasing enquiry", ar: "استفسار تأجير / إعادة تأجير" },
+    { value: "property_enquiry", en: "Property or unit enquiry", ar: "استفسار عن عقار أو وحدة" },
+    { value: "facility", en: "Property facility / maintenance", ar: "طلب مرافق / صيانة عقار" },
+    { value: "complaint", en: "Complaint or feedback", ar: "شكوى أو ملاحظة" },
+    { value: "general", en: "General enquiry", ar: "طلب عام" },
   ],
   IT: [
-    { value: "erp_consulting", label: "نظام ERP / نظام أعمال" },
-    { value: "digital_platform", label: "موقع / تطبيق / منصة رقمية" },
-    { value: "integration_automation", label: "تكامل أنظمة / أتمتة" },
-    { value: "data_bi", label: "بيانات / ذكاء أعمال / لوحات مؤشرات" },
-    { value: "cloud_infrastructure", label: "سحابة / بنية تقنية" },
-    { value: "managed_it_support", label: "دعم وخدمات تقنية مُدارة" },
-    { value: "cybersecurity", label: "أمن سيبراني / حماية تقنية" },
-    { value: "quote_request", label: "طلب دراسة / عرض سعر" },
-    { value: "complaint", label: "شكوى أو ملاحظة" },
-    { value: "general", label: "طلب عام" },
+    { value: "erp_consulting", en: "ERP / business system", ar: "نظام ERP / نظام أعمال" },
+    { value: "digital_platform", en: "Website / app / digital platform", ar: "موقع / تطبيق / منصة رقمية" },
+    { value: "integration_automation", en: "Systems integration / automation", ar: "تكامل أنظمة / أتمتة" },
+    { value: "data_bi", en: "Data / BI / dashboards", ar: "بيانات / ذكاء أعمال / لوحات مؤشرات" },
+    { value: "cloud_infrastructure", en: "Cloud / infrastructure", ar: "سحابة / بنية تقنية" },
+    { value: "managed_it_support", en: "Managed IT support", ar: "دعم وخدمات تقنية مُدارة" },
+    { value: "cybersecurity", en: "Cybersecurity", ar: "أمن سيبراني / حماية تقنية" },
+    { value: "quote_request", en: "Assessment / quotation", ar: "طلب دراسة / عرض سعر" },
+    { value: "complaint", en: "Complaint or feedback", ar: "شكوى أو ملاحظة" },
+    { value: "general", en: "General enquiry", ar: "طلب عام" },
   ],
   CORE: [
-    { value: "project_opportunity", label: "فرصة مشروع / طلب تعاون" },
-    { value: "quote_request", label: "طلب عرض / تسعير" },
-    { value: "complaint", label: "شكوى أو ملاحظة" },
-    { value: "general", label: "طلب عام" },
+    { value: "project_opportunity", en: "Project opportunity / cooperation", ar: "فرصة مشروع / طلب تعاون" },
+    { value: "quote_request", en: "Proposal / pricing request", ar: "طلب عرض / تسعير" },
+    { value: "complaint", en: "Complaint or feedback", ar: "شكوى أو ملاحظة" },
+    { value: "general", en: "General enquiry", ar: "طلب عام" },
   ],
 };
 
-const contextCopy: Record<GroupCompanyCode, { label: string; placeholder: string; titlePlaceholder: string }> = {
+const contextCopy: Record<GroupCompanyCode, Record<Language, { label: string; placeholder: string; titlePlaceholder: string; details: string }>> = {
   OM: {
-    label: "الموقع / الفرع / رقم الأصل (اختياري)",
-    placeholder: "مثال: الرياض - فرع العليا - وحدة تكييف AHU-04",
-    titlePlaceholder: "مثال: عطل تكييف بالطابق الثالث",
+    en: { label: "Site / branch / asset number (optional)", placeholder: "Riyadh – Olaya branch – AHU-04", titlePlaceholder: "Air-conditioning fault on level three", details: "Describe the fault or service scope, when it started, and any observations that may help the maintenance team." },
+    ar: { label: "الموقع / الفرع / رقم الأصل (اختياري)", placeholder: "الرياض - فرع العليا - وحدة تكييف AHU-04", titlePlaceholder: "عطل تكييف بالطابق الثالث", details: "صف العطل أو نطاق الخدمة، ووقت ظهور المشكلة، وأي ملاحظات تساعد فريق الصيانة." },
   },
   RE: {
-    label: "المدينة / العقار / نطاق الاستثمار (اختياري)",
-    placeholder: "مثال: الرياض - مبنى تجاري - نطاق استثماري 5–10 مليون ريال",
-    titlePlaceholder: "مثال: طلب دراسة فرصة استثمار عقاري",
+    en: { label: "City / property / investment range (optional)", placeholder: "Riyadh – commercial building – SAR 5–10m", titlePlaceholder: "Request to assess a real estate opportunity", details: "State the asset or opportunity type, investment objective, term, and any available details." },
+    ar: { label: "المدينة / العقار / نطاق الاستثمار (اختياري)", placeholder: "الرياض - مبنى تجاري - نطاق 5–10 مليون ريال", titlePlaceholder: "طلب دراسة فرصة استثمار عقاري", details: "اذكر نوع الأصل أو الفرصة، والهدف الاستثماري، والمدة، وأي تفاصيل متاحة." },
   },
   IT: {
-    label: "المنشأة / النظام الحالي / نطاق الحل (اختياري)",
-    placeholder: "مثال: شركة مقاولات - ERP حالي - أتمتة دورة المشتريات",
-    titlePlaceholder: "مثال: طلب تطوير نظام متابعة عمليات وربطه بالمحاسبة",
+    en: { label: "Organization / current system / scope (optional)", placeholder: "Contracting company – current ERP – procurement automation", titlePlaceholder: "Operations platform integrated with accounting", details: "Explain the current challenge, required platform, expected users, and important integrations." },
+    ar: { label: "المنشأة / النظام الحالي / نطاق الحل (اختياري)", placeholder: "شركة مقاولات - ERP حالي - أتمتة دورة المشتريات", titlePlaceholder: "طلب تطوير نظام متابعة عمليات وربطه بالمحاسبة", details: "اشرح التحدي الحالي، والنظام المطلوب، والمستخدمين المتوقعين، والتكاملات المهمة." },
   },
   CORE: {
-    label: "المشروع / المدينة / المرجع (اختياري)",
-    placeholder: "مثال: الرياض - مشروع بنية تحتية - مرحلة التسعير",
-    titlePlaceholder: "مثال: دعوة لتقديم عرض لمشروع أعمال موقع",
+    en: { label: "Project / city / reference (optional)", placeholder: "Riyadh – infrastructure project – pricing stage", titlePlaceholder: "Invitation to tender for site works", details: "State the project or opportunity scope, current stage, and key requirements." },
+    ar: { label: "المشروع / المدينة / المرجع (اختياري)", placeholder: "الرياض - مشروع بنية تحتية - مرحلة التسعير", titlePlaceholder: "دعوة لتقديم عرض لمشروع أعمال موقع", details: "اذكر نطاق المشروع أو الفرصة، والمرحلة الحالية، وأي متطلبات أساسية." },
   },
 };
 
+const uiCopy = {
+  en: {
+    title: "Service request form",
+    intro: "Choose a service and send the essential details. You will receive one tracking number linked to the right company and ERP team.",
+    type: "Request type",
+    priority: "Priority",
+    priorities: [["low", "Low"], ["normal", "Normal"], ["high", "High"], ["critical", "Emergency / critical"]],
+    name: "Name *",
+    phone: "Mobile",
+    email: "Email",
+    subject: "Request title *",
+    details: "Details",
+    send: "Submit and get a tracking number",
+    sending: "Submitting request...",
+    contactError: "Enter a mobile number or email so the service team can contact you.",
+    unavailable: "The request center is ready in the website and will activate after the final database rollout.",
+    limited: "Too many requests were submitted. Please try again later.",
+    failed: "The request could not be submitted. Review the details and try again.",
+    receivedNoNumber: "The request was received, but the tracking number could not be displayed.",
+    success: "Your request has been received",
+    keepNumber: "Keep this tracking number when contacting the service team.",
+    another: "Submit another request",
+  },
+  ar: {
+    title: "نموذج طلب الخدمة",
+    intro: "اختر الخدمة وأرسل البيانات الأساسية؛ سيصدر رقم متابعة موحد يرتبط بالشركة والفريق المختص داخل ERP المجموعة.",
+    type: "نوع الطلب",
+    priority: "الأولوية",
+    priorities: [["low", "منخفضة"], ["normal", "عادية"], ["high", "مرتفعة"], ["critical", "طارئة / حرجة"]],
+    name: "الاسم *",
+    phone: "الجوال",
+    email: "البريد الإلكتروني",
+    subject: "عنوان الطلب *",
+    details: "التفاصيل",
+    send: "إرسال والحصول على رقم متابعة",
+    sending: "جارٍ إرسال الطلب...",
+    contactError: "أدخل رقم الجوال أو البريد الإلكتروني حتى يتمكن فريق الخدمة من التواصل معك.",
+    unavailable: "مركز الطلبات جاهز في الموقع وسيصبح متاحاً فور تطبيق قاعدة البيانات النهائية.",
+    limited: "تم إرسال عدد كبير من الطلبات. حاول مرة أخرى لاحقاً.",
+    failed: "تعذر إرسال الطلب الآن. راجع البيانات وحاول مرة أخرى.",
+    receivedNoNumber: "تم استلام الطلب لكن تعذر إظهار رقم المتابعة.",
+    success: "تم استلام طلبك بنجاح",
+    keepNumber: "احتفظ برقم المتابعة التالي عند التواصل مع فريق الخدمة.",
+    another: "إرسال طلب آخر",
+  },
+} as const;
+
 export function PublicServiceRequestForm({ companyCode }: Props) {
+  const { lang, dir } = useI18n();
+  const language: Language = lang === "ar" ? "ar" : "en";
   const options = requestTypes[companyCode];
-  const copy = contextCopy[companyCode];
-  const initialType = options[0]?.value ?? "general";
-  const [requestType, setRequestType] = useState(initialType);
+  const context = contextCopy[companyCode][language];
+  const ui = uiCopy[language];
+  const [requestType, setRequestType] = useState(options[0]?.value ?? "general");
   const [priority, setPriority] = useState("normal");
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState("");
-  const [context, setContext] = useState("");
+  const [contextValue, setContextValue] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [website, setWebsite] = useState("");
@@ -92,107 +137,55 @@ export function PublicServiceRequestForm({ companyCode }: Props) {
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
-    if (!contactPhone.trim() && !contactEmail.trim()) {
-      setError("أدخل رقم الجوال أو البريد الإلكتروني حتى يتمكن فريق الخدمة من التواصل معك.");
-      return;
-    }
+    if (!contactPhone.trim() && !contactEmail.trim()) { setError(ui.contactError); return; }
     setSubmitting(true);
     try {
-      const enrichedDescription = [context.trim() ? `${copy.label.replace(" (اختياري)", "")}: ${context.trim()}` : "", description.trim()]
-        .filter(Boolean)
-        .join("\n\n");
+      const enrichedDescription = [contextValue.trim() ? `${context.label.replace(/ \(.*\)$/, "")}: ${contextValue.trim()}` : "", description.trim()].filter(Boolean).join("\n\n");
       const response = await fetch("/api/public/service-request", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          companyCode,
-          requestType,
-          contactName,
-          contactPhone,
-          contactEmail,
-          title,
-          description: enrichedDescription,
-          priority,
-          requestKey,
-          website,
-        }),
+        body: JSON.stringify({ companyCode, requestType, contactName, contactPhone, contactEmail, title, description: enrichedDescription, priority, requestKey, website }),
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) {
-        if (result?.error === "service_not_activated" || result?.error === "service_unavailable") {
-          throw new Error("مركز الطلبات جاهز في الموقع وسيصبح متاحًا فور تطبيق قاعدة البيانات النهائية.");
-        }
-        if (result?.error === "rate_limited") throw new Error("تم إرسال عدد كبير من الطلبات. حاول مرة أخرى لاحقًا.");
-        throw new Error("تعذر إرسال الطلب الآن. راجع البيانات وحاول مرة أخرى.");
+        if (result?.error === "service_not_activated" || result?.error === "service_unavailable") throw new Error(ui.unavailable);
+        if (result?.error === "rate_limited") throw new Error(ui.limited);
+        throw new Error(ui.failed);
       }
-      setTicketNo(result.ticketNo ?? null);
-      if (!result.ticketNo) throw new Error("تم استلام الطلب لكن تعذر إظهار رقم المتابعة.");
+      if (!result.ticketNo) throw new Error(ui.receivedNoNumber);
+      setTicketNo(result.ticketNo);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "تعذر إرسال الطلب الآن.");
+      setError(err instanceof Error ? err.message : ui.failed);
     } finally {
       setSubmitting(false);
     }
   }
 
   if (ticketNo) {
-    return (
-      <div className="rounded-3xl border border-emerald-300/25 bg-emerald-300/10 p-6 text-right">
-        <CheckCircle2 className="h-8 w-8 text-emerald-300" />
-        <h3 className="mt-4 text-xl font-black">تم استلام طلبك بنجاح</h3>
-        <p className="mt-2 text-sm leading-7 text-slate-300">احتفظ برقم المتابعة التالي عند التواصل مع فريق الخدمة.</p>
-        <div className="mt-4 inline-flex rounded-xl border border-emerald-300/20 bg-black/20 px-4 py-3 font-mono text-lg font-black text-emerald-200">{ticketNo}</div>
-        <div><button type="button" onClick={() => setTicketNo(null)} className="mt-5 text-sm font-bold text-amber-200 hover:text-amber-100">إرسال طلب آخر</button></div>
-      </div>
-    );
+    return <div className="rounded-xl border border-success/35 bg-success/10 p-6" dir={dir}><CheckCircle2 className="h-8 w-8 text-success" /><h3 className="mt-4 text-xl font-black">{ui.success}</h3><p className="mt-2 text-sm leading-7 text-muted-foreground">{ui.keepNumber}</p><div className="mt-4 inline-flex rounded-lg border border-success/30 bg-card px-4 py-3 font-mono text-lg font-black text-success">{ticketNo}</div><div><button type="button" onClick={() => setTicketNo(null)} className="mt-5 text-sm font-bold text-primary">{ui.another}</button></div></div>;
   }
 
-  const detailsPlaceholder = companyCode === "RE"
-    ? "اذكر نوع الأصل أو الفرصة، الهدف الاستثماري، المدة وأي تفاصيل متاحة."
-    : companyCode === "OM"
-      ? "صف العطل أو نطاق الخدمة، وقت ظهور المشكلة وأي ملاحظات تساعد فريق الصيانة."
-      : companyCode === "IT"
-        ? "اشرح التحدي الحالي، النظام أو المنصة المطلوبة، المستخدمين المتوقعين والتكاملات المهمة."
-        : "اذكر نطاق المشروع أو الفرصة والمرحلة الحالية وأي متطلبات أساسية.";
-
   return (
-    <form onSubmit={onSubmit} className="rounded-3xl border border-white/10 bg-black/15 p-5 sm:p-6">
-      <div className="mb-5 flex items-start gap-3">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-300/10 text-amber-200"><ShieldCheck className="h-5 w-5" /></span>
-        <div>
-          <h3 className="font-black">نموذج طلب الخدمة</h3>
-          <p className="mt-1 text-xs leading-6 text-slate-400">اختر الخدمة المطلوبة وأرسل البيانات الأساسية؛ سيصدر لك رقم متابعة موحد ويرتبط الطلب بالشركة والفريق المختص داخل ERP المجموعة.</p>
-        </div>
-      </div>
-
+    <form onSubmit={onSubmit} className="rounded-xl border border-border bg-background p-5 sm:p-6" dir={dir}>
+      <div className="mb-5 flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground"><ShieldCheck className="h-5 w-5" /></span><div><h3 className="font-black">{ui.title}</h3><p className="mt-1 text-xs leading-6 text-muted-foreground">{ui.intro}</p></div></div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="نوع الطلب">
-          <select value={requestType} onChange={(e) => setRequestType(e.target.value)} className="input-public">
-            {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-          </select>
-        </Field>
-        <Field label="الأولوية">
-          <select value={priority} onChange={(e) => setPriority(e.target.value)} className="input-public">
-            <option value="low">منخفضة</option><option value="normal">عادية</option><option value="high">مرتفعة</option><option value="critical">طارئة / حرجة</option>
-          </select>
-        </Field>
-        <Field label="الاسم *"><input required maxLength={200} value={contactName} onChange={(e) => setContactName(e.target.value)} className="input-public" /></Field>
-        <Field label="الجوال"><input inputMode="tel" maxLength={40} value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} className="input-public" /></Field>
-        <Field label="البريد الإلكتروني"><input type="email" maxLength={320} value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} className="input-public" /></Field>
-        <Field label={copy.label}><input maxLength={300} placeholder={copy.placeholder} value={context} onChange={(e) => setContext(e.target.value)} className="input-public" /></Field>
-        <Field label="عنوان الطلب *" className="sm:col-span-2"><input required minLength={3} maxLength={300} placeholder={copy.titlePlaceholder} value={title} onChange={(e) => setTitle(e.target.value)} className="input-public" /></Field>
+        <Field label={ui.type}><select value={requestType} onChange={(event) => setRequestType(event.target.value)} className="input-public">{options.map((option) => <option key={option.value} value={option.value}>{option[language]}</option>)}</select></Field>
+        <Field label={ui.priority}><select value={priority} onChange={(event) => setPriority(event.target.value)} className="input-public">{ui.priorities.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></Field>
+        <Field label={ui.name}><input required maxLength={200} value={contactName} onChange={(event) => setContactName(event.target.value)} className="input-public" /></Field>
+        <Field label={ui.phone}><input inputMode="tel" maxLength={40} value={contactPhone} onChange={(event) => setContactPhone(event.target.value)} className="input-public" /></Field>
+        <Field label={ui.email}><input type="email" maxLength={320} value={contactEmail} onChange={(event) => setContactEmail(event.target.value)} className="input-public" /></Field>
+        <Field label={context.label}><input maxLength={300} placeholder={context.placeholder} value={contextValue} onChange={(event) => setContextValue(event.target.value)} className="input-public" /></Field>
+        <Field label={ui.subject} className="sm:col-span-2"><input required minLength={3} maxLength={300} placeholder={context.titlePlaceholder} value={title} onChange={(event) => setTitle(event.target.value)} className="input-public" /></Field>
       </div>
-      <Field label="التفاصيل" className="mt-4"><textarea rows={4} maxLength={7600} placeholder={detailsPlaceholder} value={description} onChange={(e) => setDescription(e.target.value)} className="input-public resize-y" /></Field>
-      <div className="hidden" aria-hidden="true"><label>Website<input tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} /></label></div>
-      {error && <div className="mt-4 rounded-xl border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-100">{error}</div>}
-      <button disabled={submitting} type="submit" className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-300 px-5 py-3 text-sm font-black text-slate-950 disabled:opacity-60">
-        {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-        {submitting ? "جارٍ إرسال الطلب..." : "إرسال والحصول على رقم متابعة"}
-      </button>
-      <style>{`.input-public{width:100%;border-radius:.75rem;border:1px solid rgba(255,255,255,.12);background:rgba(2,6,23,.55);padding:.7rem .85rem;color:white;outline:none}.input-public:focus{border-color:rgba(252,211,77,.55)}.input-public::placeholder{color:rgba(148,163,184,.65)}.input-public option{background:#0f172a}`}</style>
+      <Field label={ui.details} className="mt-4"><textarea rows={4} maxLength={7600} placeholder={context.details} value={description} onChange={(event) => setDescription(event.target.value)} className="input-public resize-y" /></Field>
+      <div className="hidden" aria-hidden="true"><label>Website<input tabIndex={-1} autoComplete="off" value={website} onChange={(event) => setWebsite(event.target.value)} /></label></div>
+      {error && <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
+      <button disabled={submitting} type="submit" className="public-button-primary mt-5 w-full px-5 py-3 text-sm disabled:opacity-60">{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}{submitting ? ui.sending : ui.send}</button>
     </form>
   );
 }
 
 function Field({ label, children, className = "" }: { label: string; children: ReactNode; className?: string }) {
-  return <label className={`block text-right ${className}`}><span className="mb-1.5 block text-xs font-bold text-slate-300">{label}</span>{children}</label>;
+  return <label className={`block text-start ${className}`}><span className="mb-1.5 block text-xs font-bold text-foreground">{label}</span>{children}</label>;
 }
+

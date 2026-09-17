@@ -9,6 +9,7 @@ export type PortfolioCompany = {
   sectorAr: string;
   sectorEn: string;
   summaryAr: string;
+  summaryEn: string;
   publicPath: string;
   websiteUrl: string;
   appSource: PublicAppSource;
@@ -30,6 +31,7 @@ export const portfolioCompanies: PortfolioCompany[] = [
     sectorAr: "المقاولات والبنية التحتية",
     sectorEn: "Contracting & Infrastructure",
     summaryAr: "تنفيذ وإدارة مشاريع المقاولات والبنية التحتية وربط الموارد والتكلفة والأداء التشغيلي بالمشروع.",
+    summaryEn: "Delivering contracting and infrastructure projects with integrated control of resources, cost, and operational performance.",
     publicPath: "/companies/al-ostool",
     websiteUrl: import.meta.env.VITE_PUBLIC_CORE_WEBSITE_URL?.trim() || "",
     appSource: "contracting",
@@ -42,6 +44,7 @@ export const portfolioCompanies: PortfolioCompany[] = [
     sectorAr: "التشغيل والصيانة وإدارة الأصول",
     sectorEn: "Operations, Maintenance & Asset Care",
     summaryAr: "تشغيل وصيانة الأصول والمرافق بعقود ومستويات خدمة قابلة للقياس، من البلاغ وحتى الإغلاق والتكلفة.",
+    summaryEn: "Operating and maintaining assets and facilities through measurable contracts and service levels, from request to close-out and cost.",
     publicPath: "/companies/maintenance",
     websiteUrl: import.meta.env.VITE_PUBLIC_MADAR_WEBSITE_URL?.trim() || "",
     appSource: "maintenance",
@@ -54,6 +57,7 @@ export const portfolioCompanies: PortfolioCompany[] = [
     sectorAr: "الاستثمار العقاري وإدارة الأصول والمرافق",
     sectorEn: "Real Estate Investment, Assets & Facilities",
     summaryAr: "استثمار وإدارة العقارات والوحدات وعقود التأجير وإعادة التأجير وربط الإشغال والتشغيل بربحية الأصل.",
+    summaryEn: "Investing in and managing properties, units, and lease structures while connecting occupancy and operations to asset profitability.",
     publicPath: "/companies/real-estate",
     websiteUrl: import.meta.env.VITE_PUBLIC_RAWAFID_WEBSITE_URL?.trim() || "",
     appSource: "real-estate",
@@ -66,6 +70,7 @@ export const portfolioCompanies: PortfolioCompany[] = [
     sectorAr: "تقنية المعلومات والتحول الرقمي",
     sectorEn: "Technology & Digital Transformation",
     summaryAr: "حلول الأنظمة المؤسسية والتكامل والأتمتة والبيانات والمنصات الرقمية والبنية التقنية المُدارة.",
+    summaryEn: "Enterprise systems, integrations, automation, data platforms, digital products, and managed technology services.",
     publicPath: "/companies/technology",
     websiteUrl: import.meta.env.VITE_PUBLIC_NAWA_WEBSITE_URL?.trim() || "",
     appSource: "technology",

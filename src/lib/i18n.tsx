@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { useRouterState } from "@tanstack/react-router";
 
 export type Lang = "ar" | "en" | "ur" | "hi" | "fr";
 
@@ -240,21 +241,51 @@ const DICT: Record<Lang, Record<string, string>> = {
 type Ctx = { lang: Lang; setLang: (l: Lang) => void; t: (k: string) => string; dir: "rtl" | "ltr" };
 const I18nContext = createContext<Ctx | null>(null);
 
+type InterfaceSurface = "public" | "erp";
+
+function getInterfaceSurface(pathname: string): InterfaceSurface {
+  if (
+    pathname === "/" ||
+    pathname === "/app" ||
+    pathname.startsWith("/companies/")
+  ) {
+    return "public";
+  }
+  return "erp";
+}
+
+function getInitialLanguage(surface: InterfaceSurface): Lang {
+  const fallback: Lang = surface === "public" ? "en" : "ar";
+  if (typeof window === "undefined") return fallback;
+  const stored = localStorage.getItem(`alostool:${surface}:language`) as Lang | null;
+  return stored && LANGS.some((item) => item.code === stored) ? stored : fallback;
+}
+
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(() => {
-    if (typeof window === "undefined") return "ar";
-    const stored = localStorage.getItem("lang") as Lang | null;
-    if (stored && LANGS.find((l) => l.code === stored)) return stored;
-    return "ar";
-  });
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const surface = getInterfaceSurface(pathname);
+  const [lang, setLangState] = useState<Lang>(() => getInitialLanguage(surface));
   const dir = LANGS.find((l) => l.code === lang)?.dir ?? "ltr";
+
+  useEffect(() => {
+    setLangState(getInitialLanguage(surface));
+  }, [surface]);
+
   useEffect(() => {
     document.documentElement.dir = dir;
     document.documentElement.lang = lang;
-    localStorage.setItem("lang", lang);
-  }, [lang, dir]);
+    document.documentElement.dataset.surface = surface;
+  }, [lang, dir, surface]);
+
+  const setLang = (nextLanguage: Lang) => {
+    setLangState(nextLanguage);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`alostool:${surface}:language`, nextLanguage);
+    }
+  };
+
   const t = (k: string) => DICT[lang][k] ?? DICT.ar[k] ?? k;
-  return <I18nContext.Provider value={{ lang, setLang: setLangState, t, dir }}>{children}</I18nContext.Provider>;
+  return <I18nContext.Provider value={{ lang, setLang, t, dir }}>{children}</I18nContext.Provider>;
 }
 
 export function useI18n() {

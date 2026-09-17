@@ -1,0 +1,45 @@
+name: Interface Readiness
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: interface-readiness-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate interface contract
+        run: bun run check:gate21-experience
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Production build
+        run: bun run build
+
+      - name: Full regression verification
+        run: bun run verify
+
+      - name: Diff hygiene
+        run: git diff --check
+

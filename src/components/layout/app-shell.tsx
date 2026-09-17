@@ -184,7 +184,7 @@ function loadOpen(): Record<string, boolean> {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { theme, toggle } = useTheme();
-  const { lang, setLang, t } = useI18n();
+  const { lang, setLang, t, dir } = useI18n();
   const { user, roles, isAdmin } = useAuth();
   const { can } = usePermissions();
   const router = useRouter();
@@ -243,7 +243,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="w-64 bg-sidebar text-sidebar-foreground flex-col fixed inset-y-0 right-0 z-30 no-print hidden md:flex border-l border-sidebar-border shadow-xl shadow-foreground/5">
+      <aside className="w-64 bg-sidebar text-sidebar-foreground flex-col fixed inset-y-0 end-0 z-30 no-print hidden md:flex border-s border-sidebar-border shadow-xl shadow-foreground/5">
         <div className="h-20 px-5 border-b border-sidebar-border flex items-center gap-3 shrink-0">
           <img src={logo} alt="شعار الأسطول الآلي" className="w-10 h-10 rounded-md bg-card p-1 ring-1 ring-sidebar-border" />
           <div>
@@ -275,11 +275,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                   }`}>
                     <Icon className="w-4 h-4" />
                   </span>
-                  <span className="flex-1 text-right font-semibold">{lang === "en" ? group.label_en : group.label}</span>
+                  <span className="flex-1 text-start font-semibold">{lang === "en" ? group.label_en : group.label}</span>
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
                 </button>
                 {open && (
-                  <div className="mt-1 mr-3 border-r border-sidebar-border pr-2 py-1 space-y-0.5">
+                  <div className="mt-1 ms-3 border-s border-sidebar-border ps-2 py-1 space-y-0.5">
                     {group.links.map((link) => {
                       const active = path === link.to || (link.to !== "/dashboard" && path.startsWith(link.to) && path.split("/").length === link.to.split("/").length);
                       return (
@@ -294,7 +294,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         >
                           <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${active ? "bg-sidebar-primary" : "bg-sidebar-foreground/25"}`} />
                           <span className="flex-1">{lang === "en" ? link.label_en : link.label}</span>
-                          {active && <ChevronLeft className="w-3 h-3" />}
+                          {active && <ChevronLeft className={`w-3 h-3 ${dir === "ltr" ? "rotate-180" : ""}`} />}
                         </Link>
                       );
                     })}
@@ -320,11 +320,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <div className="flex-1 md:mr-64 flex flex-col min-w-0">
+      <div className="flex-1 md:me-64 flex flex-col min-w-0">
         <header className="h-16 bg-card/95 backdrop-blur border-b border-border/80 flex items-center px-4 md:px-6 gap-2 sticky top-0 z-20 no-print shadow-sm shadow-foreground/[0.02]">
           <div className="max-w-md w-full relative hidden sm:block">
-            <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder={t("search")} className="pr-10" />
+            <Search className="w-4 h-4 absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input placeholder={t("search")} className="pe-10" />
           </div>
           <div className="ms-auto flex items-center gap-1" />
           <DropdownMenu>
