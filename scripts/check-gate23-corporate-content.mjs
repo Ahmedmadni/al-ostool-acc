@@ -45,6 +45,19 @@ for (const marker of [
   requireText(home, marker, `corporate-content marker is missing: ${marker}`);
 }
 
+for (const asset of [
+  "public/images/partners/diriyah.svg",
+  "public/images/partners/rcrc.svg",
+  "public/images/partners/princess-nourah-university.svg",
+  "public/images/partners/dallah-hospital.png",
+  "public/images/partners/al-hilal.webp",
+]) {
+  if (statSync(asset).size < 1_000) failures.push(`${asset} is missing or unexpectedly small`);
+}
+for (const marker of ["Al-Hilal Saudi Club", "National Guard Housing", "Dammam Reformatory", "Qadisiyah Exhibition Complex", "20+ projects"]) {
+  requireText(home, marker, `expanded portfolio marker is missing: ${marker}`);
+}
+
 const contracting = read("src/routes/companies.al-ostool.tsx");
 for (const marker of ["Roads & infrastructure", "Demolition & site clearance", "Crushers & construction materials", "Heavy equipment & transport"]) {
   requireText(contracting, marker, `contracting capability is missing: ${marker}`);
