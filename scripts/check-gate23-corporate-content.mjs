@@ -27,7 +27,8 @@ for (const path of [
   "src/routes/app.tsx",
   "src/components/public/company-service-page.tsx",
 ]) {
-  requireText(read(path), "BrandLogo", `shared brand header is missing from ${path}`);
+  const source = read(path);
+  if (!source.includes("BrandLogo") && !source.includes("PublicSiteHeader")) failures.push(`shared brand header is missing from ${path}`);
 }
 requireText(read("src/components/layout/app-shell.tsx"), "/images/brand/al-ostool-mark.png", "ERP brand mark is missing");
 
@@ -40,9 +41,11 @@ for (const marker of [
   "Diriyah",
   "King Salman Park",
   "Princess Nourah University",
-  "Project values are intentionally not published",
 ]) {
   requireText(home, marker, `corporate-content marker is missing: ${marker}`);
+}
+for (const monetaryMarker of ["SAR ", "Sar ", "ريال"]) {
+  if (home.includes(monetaryMarker)) failures.push(`public project values must remain hidden: ${monetaryMarker}`);
 }
 
 for (const asset of [
