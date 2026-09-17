@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppDownloadCta } from "@/components/public/app-download-cta";
 import { PublicPreferences } from "@/components/public/public-preferences";
+import { BrandLogo } from "@/components/public/brand-logo";
 import { useI18n } from "@/lib/i18n";
-import logo from "@/assets/logo.ico";
 
 export const Route = createFileRoute("/app")({
   component: AppDownloadPage,
@@ -45,8 +45,7 @@ function AppDownloadPage() {
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-4 lg:px-8">
           <a href="/" className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-lg border border-border bg-white p-1.5"><img src={logo} alt="Al-Ostool Al-Ali Group" className="h-full w-full object-contain" /></span>
-            <span><strong className="block text-sm">{lang === "ar" ? "مجموعة الأسطول الآلي" : "Al-Ostool Al-Ali Group"}</strong><span className="text-[10px] font-semibold tracking-[0.14em] text-muted-foreground">GROUP SERVICES APP</span></span>
+            <BrandLogo language={lang === "ar" ? "ar" : "en"} compact />
           </a>
           <div className="flex items-center gap-2"><a href="/" className="public-button-secondary hidden h-10 px-4 text-xs sm:inline-flex">{c.home}</a><PublicPreferences /></div>
         </div>
@@ -63,4 +62,3 @@ function AppDownloadPage() {
     </main>
   );
 }
-

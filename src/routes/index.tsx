@@ -11,8 +11,8 @@ import {
   TrendingUp,
   Wrench,
 } from "lucide-react";
-import logo from "@/assets/logo.ico";
 import { AppDownloadCta } from "@/components/public/app-download-cta";
+import { BrandLogo } from "@/components/public/brand-logo";
 import { PublicPreferences } from "@/components/public/public-preferences";
 import { portfolioCompanies, type GroupCompanyCode } from "@/data/group-portfolio";
 import { useI18n } from "@/lib/i18n";
@@ -30,6 +30,8 @@ const copy = {
     intro: "Al-Ostool Al-Ali Group combines execution experience, operating discipline, asset management, and technology across a focused portfolio of specialized companies.",
     eyebrow: "MULTI-SECTOR INVESTMENT & OPERATIONS GROUP",
     portfolio: "Group portfolio",
+    about: "About the group",
+    partners: "Clients & partners",
     model: "Operating model",
     contact: "Business enquiries",
     explore: "Explore the portfolio",
@@ -39,6 +41,15 @@ const copy = {
     modelTitle: "From capital allocation to measurable performance",
     contactTitle: "Choose the company closest to your requirement",
     contactBody: "Maintenance, real estate, technology, and project enquiries enter one customer-service hub and are routed to the right company and operating team.",
+    aboutTitle: "Execution experience since 2008. A broader platform for the future.",
+    aboutBody: "Al-Ostool Al-Ali began with contracting, infrastructure, heavy equipment, transport, and construction-material production. Today, that field experience supports a group model connecting operations, assets, real estate, and technology under shared governance.",
+    aboutFacts: [
+      ["Since 2008", "Saudi market experience rooted in real project delivery."],
+      ["Field capability", "Infrastructure, roads, excavation, backfilling, utilities, demolition, crushers, transport, and heavy equipment."],
+      ["Integrated growth", "An operating platform that links specialist companies without losing accountability for each activity."],
+    ],
+    partnersTitle: "Trusted project relationships across major Saudi destinations",
+    partnersBody: "Selected names from the company’s documented project record. Project values are intentionally not published.",
     choose: "Choose a company",
     companyLink: "Company & services",
     footer: "Investment • Operations • Assets • Technology",
@@ -53,6 +64,8 @@ const copy = {
     intro: "تجمع مجموعة الأسطول الآلي بين خبرة التنفيذ والانضباط التشغيلي وإدارة الأصول والتقنية ضمن محفظة مركزة من الشركات المتخصصة.",
     eyebrow: "مجموعة استثمار وتشغيل متعددة القطاعات",
     portfolio: "محفظة المجموعة",
+    about: "عن المجموعة",
+    partners: "العملاء والشركاء",
     model: "نموذج التشغيل",
     contact: "فرص الأعمال",
     explore: "استكشف المحفظة",
@@ -62,6 +75,15 @@ const copy = {
     modelTitle: "من تخصيص رأس المال إلى أداء قابل للقياس",
     contactTitle: "اختر الشركة الأقرب إلى احتياجك",
     contactBody: "تدخل طلبات الصيانة والعقار والتقنية وفرص المشاريع إلى مركز خدمة موحد ثم تُوجّه إلى الشركة والفريق التشغيلي المناسب.",
+    aboutTitle: "خبرة تنفيذية منذ 2008 ومنصة أوسع للمستقبل",
+    aboutBody: "بدأت الأسطول الآلي من المقاولات والبنية التحتية والمعدات الثقيلة والنقل وإنتاج مواد الإنشاء. واليوم تدعم هذه الخبرة الميدانية نموذج مجموعة يربط التشغيل والأصول والعقار والتقنية تحت حوكمة مشتركة.",
+    aboutFacts: [
+      ["منذ 2008", "خبرة في السوق السعودي مبنية على تنفيذ مشروعات فعلية."],
+      ["قدرات ميدانية", "البنية التحتية والطرق والحفر والردم وشبكات الخدمات والهدم والكسارات والنقل والمعدات الثقيلة."],
+      ["نمو متكامل", "منصة تشغيل تربط الشركات المتخصصة مع استقلال المسؤولية عن كل نشاط."],
+    ],
+    partnersTitle: "علاقات موثوقة ضمن مشروعات ووجهات سعودية كبرى",
+    partnersBody: "أسماء مختارة من سجل المشروعات الموثق للشركة، مع عدم نشر أي قيم مالية للمشروعات.",
     choose: "اختر الشركة",
     companyLink: "الشركة والخدمات",
     footer: "الاستثمار • التشغيل • الأصول • التقنية",
@@ -72,6 +94,15 @@ const copy = {
     ],
   },
 } as const;
+
+const partnerNames = [
+  { en: "Diriyah", ar: "الدرعية", href: "https://www.diriyahcompany.sa/en/" },
+  { en: "King Salman Park", ar: "حديقة الملك سلمان" },
+  { en: "Riyadh Metro", ar: "مترو الرياض" },
+  { en: "Princess Nourah University", ar: "جامعة الأميرة نورة" },
+  { en: "Dallah Hospital", ar: "مستشفى دلة" },
+  { en: "Security Forces Hospital", ar: "مستشفى قوى الأمن" },
+] as const;
 
 export const Route = createFileRoute("/")({
   component: HoldingHomePage,
@@ -93,16 +124,12 @@ function HoldingHomePage() {
       <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
           <a href="/" className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-lg border border-border bg-white p-1.5">
-              <img src={logo} alt="Al-Ostool Al-Ali Group" className="h-full w-full object-contain" />
-            </span>
-            <span>
-              <strong className="block text-sm sm:text-base">{lang === "ar" ? "مجموعة الأسطول الآلي" : "Al-Ostool Al-Ali Group"}</strong>
-              <span className="block text-[10px] font-semibold tracking-[0.14em] text-muted-foreground">INVEST • OPERATE • SCALE</span>
-            </span>
+            <BrandLogo language={lang === "ar" ? "ar" : "en"} compact />
           </a>
-          <nav className="hidden items-center gap-7 text-xs font-semibold text-muted-foreground lg:flex">
+          <nav className="hidden items-center gap-4 text-xs font-semibold text-muted-foreground lg:flex xl:gap-7">
             <a className="transition hover:text-primary" href="#portfolio">{c.portfolio}</a>
+            <a className="transition hover:text-primary" href="#about">{c.about}</a>
+            <a className="transition hover:text-primary" href="#partners">{c.partners}</a>
             <a className="transition hover:text-primary" href="#investment-model">{c.model}</a>
             <a className="transition hover:text-primary" href="#contact">{c.contact}</a>
           </nav>
@@ -159,6 +186,25 @@ function HoldingHomePage() {
         </div>
       </section>
 
+      <section id="about" className="border-b border-border bg-card py-20">
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 lg:grid-cols-[.8fr_1.2fr] lg:px-8">
+          <div>
+            <div className="public-kicker text-sm">{c.about}</div>
+            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">{c.aboutTitle}</h2>
+            <p className="mt-5 text-sm leading-8 text-muted-foreground">{c.aboutBody}</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {c.aboutFacts.map(([title, body], index) => (
+              <article key={title} className="rounded-xl border border-border bg-background p-5">
+                <div className="font-mono text-xs font-black text-primary">0{index + 1}</div>
+                <h3 className="mt-4 font-black">{title}</h3>
+                <p className="mt-3 text-sm leading-7 text-muted-foreground">{body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="portfolio" className="py-20">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="mb-10 max-w-3xl"><div className="public-kicker text-sm">{c.portfolio}</div><h2 className="mt-3 text-3xl font-black sm:text-4xl">{c.portfolioTitle}</h2><p className="mt-4 leading-8 text-muted-foreground">{c.portfolioBody}</p></div>
@@ -188,6 +234,26 @@ function HoldingHomePage() {
             {c.strengths.map(([title, description], index) => {
               const Icon = [Layers3, TrendingUp, ShieldCheck][index];
               return <div key={title} className="rounded-xl border border-border bg-background p-6"><Icon className="h-7 w-7 text-primary" /><h3 className="mt-5 text-lg font-bold">{title}</h3><p className="mt-3 text-sm leading-7 text-muted-foreground">{description}</p></div>;
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section id="partners" className="py-20">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="mb-10 max-w-3xl">
+            <div className="public-kicker text-sm">{c.partners}</div>
+            <h2 className="mt-3 text-3xl font-black sm:text-4xl">{c.partnersTitle}</h2>
+            <p className="mt-4 text-sm leading-7 text-muted-foreground">{c.partnersBody}</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {partnerNames.map((partner, index) => {
+              const content = <><span className="font-mono text-xs font-black text-primary">{String(index + 1).padStart(2, "0")}</span><span className="font-black">{lang === "ar" ? partner.ar : partner.en}</span></>;
+              return "href" in partner ? (
+                <a key={partner.en} href={partner.href} target="_blank" rel="noreferrer" className="public-panel flex min-h-24 items-center gap-4 rounded-xl p-5 transition hover:border-primary">{content}</a>
+              ) : (
+                <div key={partner.en} className="public-panel flex min-h-24 items-center gap-4 rounded-xl p-5">{content}</div>
+              );
             })}
           </div>
         </div>

@@ -82,7 +82,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/LXTaZvI6vDfCRSePzYJGlChgDtj2/social-images/social-1780804595330-ChatGPT_Image_Jun_7,_2026,_06_56_03_AM.webp" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
-      { name: "theme-color", content: "#F05A28" },
+      { name: "theme-color", content: "#F1B12B" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Al Ostool" },
@@ -111,7 +111,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
               name: "شركة الأسطول الآلي",
               alternateName: "Al-Ostool Al-Ali Co.",
               url: "https://al-ostool-acc.lovable.app",
-              logo: "https://al-ostool-acc.lovable.app/icons/icon-512.png",
+              logo: "https://al-ostool-acc.lovable.app/images/brand/al-ostool-logo.png",
             },
             {
               "@type": "WebSite",
