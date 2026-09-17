@@ -31,7 +31,7 @@ for (const name of [
 
 assert.ok(home.includes("portfolioCompanies"), "holding home must render centralized portfolio companies");
 assert.ok(home.includes("MULTI-SECTOR INVESTMENT & OPERATIONS GROUP") && home.includes("مجموعة استثمار وتشغيل متعددة القطاعات"), "bilingual investment holding positioning missing");
-assert.ok(home.includes("Operating real businesses. Building measurable growth.") && home.includes("نشغّل أعمالاً حقيقية"), "bilingual investment thesis hero missing");
+assert.ok(home.includes("Saudi execution expertise. One group built for measurable growth.") && home.includes("خبرة تنفيذ سعودية ومنظومة واحدة لنمو قابل للقياس"), "bilingual investment thesis hero missing");
 assert.ok(!home.includes('href="/log"') && !home.includes('href="/login"'), "employee login must stay hidden from public home");
 
 assert.ok(technologyPublic.includes('companyCode="IT"'), "technology public page must use IT company code");

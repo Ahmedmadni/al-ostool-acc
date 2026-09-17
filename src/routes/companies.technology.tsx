@@ -1,14 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CompanyServicePage, type LocalizedText } from "@/components/public/company-service-page";
+import { publicSeo } from "@/lib/public-seo";
 
 const text = (en: string, ar: string): LocalizedText => ({ en, ar });
 
 export const Route = createFileRoute("/companies/technology")({
   component: TechnologyCompanyPage,
-  head: () => ({ meta: [
-    { title: "Nawa Digital Solutions & IT | Al-Ostool Group" },
-    { name: "description", content: "Enterprise systems, integration, automation, data, digital platforms, and managed technology services." },
-  ] }),
+  head: () => publicSeo({
+    title: "Digital Solutions, ERP & Automation | Nawa — Al-Ostool Group",
+    description: "Enterprise systems, ERP, digital platforms, API integration, workflow automation, data analytics, and managed technology services.",
+    path: "/companies/technology",
+    schema: { "@type": "Service", name: "Digital solutions, ERP, and automation", areaServed: "Saudi Arabia", provider: { "@id": "https://al-ostool-acc.lovable.app/#organization" } },
+  }),
 });
 
 const services = [
@@ -40,4 +43,3 @@ function TechnologyCompanyPage() {
     accentLabel={text("From business requirement to scalable digital platform", "من احتياج الأعمال إلى منصة رقمية قابلة للتوسع")}
   />;
 }
-

@@ -9,7 +9,15 @@ import { MobileAppLauncher } from "@/components/layout/mobile-app-launcher";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { RoutePermissionGate } from "@/components/permissions/can";
 
-export const Route = createFileRoute("/_authenticated")({ component: AuthLayout });
+export const Route = createFileRoute("/_authenticated")({
+  component: AuthLayout,
+  head: () => ({
+    meta: [
+      { name: "robots", content: "noindex, nofollow, noarchive" },
+      { name: "googlebot", content: "noindex, nofollow, noarchive" },
+    ],
+  }),
+});
 
 function AuthLayout() {
   const { user, loading } = useAuth();

@@ -16,6 +16,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { I18nProvider } from "@/lib/i18n";
 import { RegionalProvider } from "@/lib/regional";
+import { PUBLIC_OG_IMAGE, PUBLIC_SITE_URL } from "@/lib/public-seo";
 
 function NotFoundComponent() {
   const english = typeof document === "undefined" || document.documentElement.lang === "en";
@@ -78,8 +79,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "Al-Ostool Al-Ali Group" },
       { property: "og:description", content: "A multi-sector Saudi group combining investment discipline, operational excellence, asset management, and technology." },
       { name: "twitter:description", content: "A multi-sector Saudi group combining investment discipline, operational excellence, asset management, and technology." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/LXTaZvI6vDfCRSePzYJGlChgDtj2/social-images/social-1780804595330-ChatGPT_Image_Jun_7,_2026,_06_56_03_AM.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/LXTaZvI6vDfCRSePzYJGlChgDtj2/social-images/social-1780804595330-ChatGPT_Image_Jun_7,_2026,_06_56_03_AM.webp" },
+      { property: "og:image", content: PUBLIC_OG_IMAGE },
+      { name: "twitter:image", content: PUBLIC_OG_IMAGE },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
       { name: "theme-color", content: "#F1B12B" },
@@ -108,16 +109,50 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@graph": [
             {
               "@type": "Organization",
+              "@id": `${PUBLIC_SITE_URL}/#organization`,
               name: "شركة الأسطول الآلي",
               alternateName: "Al-Ostool Al-Ali Co.",
-              url: "https://al-ostool-acc.lovable.app",
-              logo: "https://al-ostool-acc.lovable.app/images/brand/al-ostool-logo.png",
+              url: PUBLIC_SITE_URL,
+              logo: {
+                "@type": "ImageObject",
+                url: `${PUBLIC_SITE_URL}/images/brand/al-ostool-logo.png`,
+              },
+              image: PUBLIC_OG_IMAGE,
+              foundingDate: "2008",
+              email: "info@alostool.com.sa",
+              telephone: "+966508331111",
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: "Takhassusi Street, Al-Mohammadiyah",
+                addressLocality: "Riyadh",
+                postalCode: "11322",
+                addressCountry: "SA",
+              },
+              areaServed: { "@type": "Country", name: "Saudi Arabia" },
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "business enquiries",
+                telephone: "+966508331111",
+                email: "info@alostool.com.sa",
+                availableLanguage: ["English", "Arabic"],
+              },
+              knowsAbout: [
+                "Contracting and infrastructure",
+                "Roads and earthworks",
+                "Heavy equipment and transport",
+                "Operations and maintenance",
+                "Real estate asset management",
+                "Enterprise technology solutions",
+              ],
             },
             {
               "@type": "WebSite",
+              "@id": `${PUBLIC_SITE_URL}/#website`,
               name: "Al-Ostool Al-Ali Group",
-              url: "https://al-ostool-acc.lovable.app",
+              alternateName: "الأسطول الآلي",
+              url: PUBLIC_SITE_URL,
               inLanguage: ["en", "ar"],
+              publisher: { "@id": `${PUBLIC_SITE_URL}/#organization` },
             },
           ],
         }),

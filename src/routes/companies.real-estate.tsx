@@ -1,14 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CompanyServicePage, type LocalizedText } from "@/components/public/company-service-page";
+import { publicSeo } from "@/lib/public-seo";
 
 const text = (en: string, ar: string): LocalizedText => ({ en, ar });
 
 export const Route = createFileRoute("/companies/real-estate")({
   component: RealEstateCompanyPage,
-  head: () => ({ meta: [
-    { title: "Rawafid Real Estate Investment & Asset Management" },
-    { name: "description", content: "Real estate investment, buildings and units, leasing and subleasing, occupancy, tenant services, facilities, and asset profitability." },
-  ] }),
+  head: () => publicSeo({
+    title: "Real Estate Investment & Asset Management | Rawafid",
+    description: "Real estate investment, property and unit management, leasing and subleasing, occupancy, tenant services, facilities, and asset-level performance.",
+    path: "/companies/real-estate",
+    schema: { "@type": "Service", name: "Real estate investment and asset management", areaServed: "Saudi Arabia", provider: { "@id": "https://al-ostool-acc.lovable.app/#organization" } },
+  }),
 });
 
 const services = [
@@ -40,4 +43,3 @@ function RealEstateCompanyPage() {
     accentLabel={text("Property, contract, tenant, and return in one record", "العقار والعقد والمستأجر والعائد في سجل واحد")}
   />;
 }
-
