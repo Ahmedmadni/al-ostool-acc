@@ -122,7 +122,22 @@ function HoldingHomePage() {
             </div>
           </div>
 
-          <div className="public-panel rounded-xl p-5">
+          <div className="space-y-4">
+            <figure className="public-panel overflow-hidden rounded-xl">
+              <img
+                src="/images/group/holding-hero-v1.webp"
+                alt={lang === "ar" ? "عمليات مجموعة الأسطول الآلي في قطاعات البنية التحتية والأصول والتقنية" : "Al-Ostool Al-Ali Group operations across infrastructure, assets, and technology"}
+                width={1600}
+                height={900}
+                fetchPriority="high"
+                decoding="async"
+                className="aspect-video w-full object-cover"
+              />
+              <figcaption className="border-t border-border px-4 py-3 text-xs font-semibold text-muted-foreground">
+                {lang === "ar" ? "خبرة تنفيذية ومنصة تشغيل موحدة عبر قطاعات المجموعة" : "Execution experience and one operating platform across the group"}
+              </figcaption>
+            </figure>
+            <div className="public-panel rounded-xl p-5">
             <div className="mb-4 flex items-center justify-between border-b border-border pb-4">
               <div><div className="public-kicker text-[10px]">PORTFOLIO CONTROL</div><div className="mt-1 font-bold">{c.portfolio}</div></div>
               <div className="grid h-11 w-11 place-items-center rounded-lg bg-primary text-primary-foreground"><ChartNoAxesCombined className="h-5 w-5" /></div>
@@ -140,6 +155,7 @@ function HoldingHomePage() {
               })}
             </div>
           </div>
+          </div>
         </div>
       </section>
 
@@ -150,11 +166,14 @@ function HoldingHomePage() {
             {portfolioCompanies.map((company) => {
               const Icon = iconByCompany[company.code];
               return (
-                <article key={company.code} className="public-panel flex min-h-[310px] flex-col rounded-xl p-6 transition hover:-translate-y-1 hover:border-primary">
+                <article key={company.code} className="public-panel flex min-h-[310px] flex-col overflow-hidden rounded-xl transition hover:-translate-y-1 hover:border-primary">
+                  <img src={company.imageUrl} alt={lang === "ar" ? company.imageAltAr : company.imageAltEn} width={1600} height={900} loading="lazy" decoding="async" className="aspect-[16/7] w-full object-cover" />
+                  <div className="flex flex-1 flex-col p-6">
                   <div className="mb-7 flex items-start justify-between gap-4"><div className="grid h-12 w-12 place-items-center rounded-lg bg-primary text-primary-foreground"><Icon className="h-6 w-6" /></div><span className="rounded-full border border-border px-3 py-1.5 text-[11px] text-muted-foreground">{lang === "ar" ? company.sectorAr : company.sectorEn}</span></div>
                   <h3 className="text-xl font-extrabold leading-8">{lang === "ar" ? company.nameAr : company.nameEn}</h3>
                   <p className="mt-4 flex-1 text-sm leading-7 text-muted-foreground">{lang === "ar" ? company.summaryAr : company.summaryEn}</p>
                   <a href={company.publicPath} className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-primary">{c.companyLink}<Arrow className="h-4 w-4" /></a>
+                  </div>
                 </article>
               );
             })}
@@ -186,4 +205,3 @@ function HoldingHomePage() {
     </main>
   );
 }
-

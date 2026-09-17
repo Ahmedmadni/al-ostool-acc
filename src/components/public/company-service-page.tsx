@@ -104,13 +104,24 @@ export function CompanyServicePage(props: CompanyServicePageProps) {
             </div>
           </div>
 
-          <div className="public-panel rounded-xl p-6">
+          <div className="public-panel overflow-hidden rounded-xl">
+            <img
+              src={company.imageUrl}
+              alt={language === "ar" ? company.imageAltAr : company.imageAltEn}
+              width={1600}
+              height={900}
+              fetchPriority="high"
+              decoding="async"
+              className="aspect-[16/8] w-full object-cover"
+            />
+            <div className="p-6">
             <div className="flex items-center justify-between border-b border-border pb-5">
               <div><div className="public-kicker text-[10px]">{ui.model}</div><div className="mt-1 text-lg font-bold">{text(props.accentLabel)}</div></div>
               <div className="grid h-12 w-12 place-items-center rounded-lg bg-primary text-primary-foreground"><Building2 className="h-6 w-6" /></div>
             </div>
             <div className="mt-5 space-y-2">
               {props.highlights.map((item) => <div key={item.en} className="flex items-center gap-3 rounded-lg border border-border bg-background p-3.5 text-sm"><CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />{text(item)}</div>)}
+            </div>
             </div>
           </div>
         </div>
@@ -146,4 +157,3 @@ export function CompanyServicePage(props: CompanyServicePageProps) {
     </main>
   );
 }
-

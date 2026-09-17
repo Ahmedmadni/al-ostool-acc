@@ -10,6 +10,9 @@ export type PortfolioCompany = {
   sectorEn: string;
   summaryAr: string;
   summaryEn: string;
+  imageUrl: string;
+  imageAltAr: string;
+  imageAltEn: string;
   publicPath: string;
   websiteUrl: string;
   appSource: PublicAppSource;
@@ -32,6 +35,9 @@ export const portfolioCompanies: PortfolioCompany[] = [
     sectorEn: "Contracting & Infrastructure",
     summaryAr: "تنفيذ وإدارة مشاريع المقاولات والبنية التحتية وربط الموارد والتكلفة والأداء التشغيلي بالمشروع.",
     summaryEn: "Delivering contracting and infrastructure projects with integrated control of resources, cost, and operational performance.",
+    imageUrl: "/images/group/contracting-infrastructure-v1.webp",
+    imageAltAr: "مشروع بنية تحتية وأعمال مدنية قيد التنفيذ في الرياض",
+    imageAltEn: "Infrastructure and civil works project under delivery in Riyadh",
     publicPath: "/companies/al-ostool",
     websiteUrl: import.meta.env.VITE_PUBLIC_CORE_WEBSITE_URL?.trim() || "",
     appSource: "contracting",
@@ -45,6 +51,9 @@ export const portfolioCompanies: PortfolioCompany[] = [
     sectorEn: "Operations, Maintenance & Asset Care",
     summaryAr: "تشغيل وصيانة الأصول والمرافق بعقود ومستويات خدمة قابلة للقياس، من البلاغ وحتى الإغلاق والتكلفة.",
     summaryEn: "Operating and maintaining assets and facilities through measurable contracts and service levels, from request to close-out and cost.",
+    imageUrl: "/images/group/operations-maintenance-v1.webp",
+    imageAltAr: "مهندس تشغيل وصيانة يفحص أنظمة التكييف والخدمات الميكانيكية",
+    imageAltEn: "Operations and maintenance engineer inspecting HVAC and mechanical systems",
     publicPath: "/companies/maintenance",
     websiteUrl: import.meta.env.VITE_PUBLIC_MADAR_WEBSITE_URL?.trim() || "",
     appSource: "maintenance",
@@ -58,6 +67,9 @@ export const portfolioCompanies: PortfolioCompany[] = [
     sectorEn: "Real Estate Investment, Assets & Facilities",
     summaryAr: "استثمار وإدارة العقارات والوحدات وعقود التأجير وإعادة التأجير وربط الإشغال والتشغيل بربحية الأصل.",
     summaryEn: "Investing in and managing properties, units, and lease structures while connecting occupancy and operations to asset profitability.",
+    imageUrl: "/images/group/real-estate-assets-v1.webp",
+    imageAltAr: "أصل عقاري متعدد الاستخدامات مُدار باحترافية في الرياض",
+    imageAltEn: "Professionally managed mixed-use real estate asset in Riyadh",
     publicPath: "/companies/real-estate",
     websiteUrl: import.meta.env.VITE_PUBLIC_RAWAFID_WEBSITE_URL?.trim() || "",
     appSource: "real-estate",
@@ -71,6 +83,9 @@ export const portfolioCompanies: PortfolioCompany[] = [
     sectorEn: "Technology & Digital Transformation",
     summaryAr: "حلول الأنظمة المؤسسية والتكامل والأتمتة والبيانات والمنصات الرقمية والبنية التقنية المُدارة.",
     summaryEn: "Enterprise systems, integrations, automation, data platforms, digital products, and managed technology services.",
+    imageUrl: "/images/group/digital-technology-v1.webp",
+    imageAltAr: "مركز عمليات تقنية مؤسسي للحلول الرقمية وتحليل البيانات",
+    imageAltEn: "Enterprise technology operations center for digital solutions and data analytics",
     publicPath: "/companies/technology",
     websiteUrl: import.meta.env.VITE_PUBLIC_NAWA_WEBSITE_URL?.trim() || "",
     appSource: "technology",
