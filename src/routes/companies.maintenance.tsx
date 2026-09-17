@@ -1,14 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CompanyServicePage, type LocalizedText } from "@/components/public/company-service-page";
+import { publicSeo } from "@/lib/public-seo";
 
 const text = (en: string, ar: string): LocalizedText => ({ en, ar });
 
 export const Route = createFileRoute("/companies/maintenance")({
   component: MaintenanceCompanyPage,
-  head: () => ({ meta: [
-    { title: "Madar Operations & Maintenance | Al-Ostool Group" },
-    { name: "description", content: "Asset and facility operations, preventive and corrective maintenance, HVAC, fire systems, fit-out, restoration, and service contracts." },
-  ] }),
+  head: () => publicSeo({
+    title: "Operations & Facility Maintenance | Madar — Al-Ostool Group",
+    description: "Preventive and corrective maintenance, HVAC, fire and life-safety systems, fit-out, restoration, asset operations, and measurable service contracts.",
+    path: "/companies/maintenance",
+    schema: { "@type": "Service", name: "Operations and facility maintenance", areaServed: "Saudi Arabia", provider: { "@id": "https://al-ostool-acc.lovable.app/#organization" } },
+  }),
 });
 
 const services = [
@@ -40,4 +43,3 @@ function MaintenanceCompanyPage() {
     accentLabel={text("From service request to work order and close-out", "من البلاغ إلى أمر العمل والإغلاق")}
   />;
 }
-
