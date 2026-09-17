@@ -1,8 +1,7 @@
 import { ArrowLeft, ArrowRight, Building2, CheckCircle2, ExternalLink } from "lucide-react";
-import { BrandLogo } from "@/components/public/brand-logo";
 import { PublicServiceRequestForm } from "@/components/public/service-request-form";
 import { AppDownloadCta } from "@/components/public/app-download-cta";
-import { PublicPreferences } from "@/components/public/public-preferences";
+import { PublicSiteHeader } from "@/components/public/public-site-header";
 import { portfolioCompany, type GroupCompanyCode } from "@/data/group-portfolio";
 import { useI18n } from "@/lib/i18n";
 
@@ -39,6 +38,7 @@ const interfaceCopy = {
       "The public interface cannot read internal ERP data.",
     ],
     back: "Back to the group",
+    menu: "Open navigation menu",
     model: "PORTFOLIO OPERATING MODEL",
   },
   ar: {
@@ -58,6 +58,7 @@ const interfaceCopy = {
       "الواجهة العامة لا تملك صلاحية قراءة بيانات ERP الداخلية.",
     ],
     back: "العودة إلى المجموعة",
+    menu: "فتح قائمة التنقل",
     model: "نموذج تشغيل شركات المحفظة",
   },
 } as const;
@@ -72,17 +73,15 @@ export function CompanyServicePage(props: CompanyServicePageProps) {
 
   return (
     <main className="public-site" dir={dir}>
-      <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
-          <a href="/" className="flex items-center gap-3">
-            <BrandLogo language={language} compact />
-          </a>
-          <div className="flex items-center gap-2">
-            <a href="/" className="public-button-secondary hidden h-10 px-4 text-xs sm:inline-flex">{ui.home}</a>
-            <PublicPreferences />
-          </div>
-        </div>
-      </header>
+      <PublicSiteHeader
+        language={language}
+        menuLabel={ui.menu}
+        navigation={[
+          { href: "/", label: ui.home },
+          { href: "#services", label: ui.services },
+          { href: "#request", label: ui.requests },
+        ]}
+      />
 
       <section className="border-b border-border bg-background">
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 lg:grid-cols-[1.1fr_.9fr] lg:px-8 lg:py-24">
