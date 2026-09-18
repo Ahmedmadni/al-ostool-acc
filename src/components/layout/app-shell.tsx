@@ -22,6 +22,7 @@ import { NotificationsBell } from "@/components/notifications/notifications-bell
 import { toast } from "sonner";
 import { usePermissions } from "@/hooks/use-permissions";
 import { pathToModule } from "@/lib/route-permissions";
+import { useTenantContext } from "@/hooks/use-tenant-context";
 
 type NavLink = { to: string; label: string; label_en: string };
 type NavGroup = { key: string; label: string; label_en: string; icon: React.ComponentType<{ className?: string }>; links: NavLink[] };
@@ -67,8 +68,15 @@ const GROUPS: NavGroup[] = [
     key: "projects", label: "المشاريع والتشغيل", label_en: "Projects & Operations", icon: FolderKanban,
     links: [
       { to: "/projects", label: "المشاريع", label_en: "Projects" },
+      { to: "/maintenance", label: "مشاريع الصيانة والتشغيل", label_en: "Maintenance & Operations Projects" },
       { to: "/projects/progress", label: "متابعة الإنجاز", label_en: "Progress Tracking" },
       { to: "/control/projects", label: "التحكم بالمشاريع", label_en: "Project Control" },
+    ],
+  },
+  {
+    key: "facilities", label: "إدارة المرافق والعقارات", label_en: "Facilities & Real Estate", icon: Building2,
+    links: [
+      { to: "/real-estate", label: "العقارات والمرافق", label_en: "Properties & Facilities" },
     ],
   },
   {
@@ -185,6 +193,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { theme, toggle } = useTheme();
   const { lang, setLang, t, dir } = useI18n();
   const { user, roles, isAdmin } = useAuth();
+  const tenant = useTenantContext();
   const { can } = usePermissions();
   const router = useRouter();
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -208,6 +217,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }), []);
 
   const filterLink = (to: string) => {
+    if (!tenant.canUsePath(to)) return false;
     if (isAdmin) return true;
     const m = pathToModule(to);
     if (!m) return true;
@@ -218,7 +228,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     () => [...GROUPS, settingsGroup]
       .map((g) => ({ ...g, links: g.links.filter((l) => filterLink(l.to)) }))
       .filter((g) => g.links.length > 0),
-    [settingsGroup, isAdmin, can], // eslint-disable-line react-hooks/exhaustive-deps
+    [settingsGroup, isAdmin, can, tenant.mode, tenant.claims], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const [openMap, setOpenMap] = useState<Record<string, boolean>>(loadOpen);
@@ -252,7 +262,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </span>
           <div>
             <div className="font-extrabold tracking-[0.14em] text-sm leading-tight text-sidebar-foreground">ONEXA</div>
-            <div className="text-[11px] text-sidebar-foreground/55 mt-1">{lang === "en" ? "Enterprise Resource Planning" : "تخطيط موارد المؤسسات"}</div>
+            <div className="text-[11px] text-sidebar-foreground/55 mt-1">{tenant.label.name} • {tenant.label.plan}</div>
           </div>
         </div>
 

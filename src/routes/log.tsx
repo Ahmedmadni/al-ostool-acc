@@ -10,7 +10,9 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { LANGS, type Lang, useI18n } from "@/lib/i18n";
 import { ONEXA } from "@/lib/onexa-product";
+import { normalizeOnexaPlanKey, ONEXA_PLANS, type OnexaPlanKey } from "@/lib/onexa-plans";
 import { PUBLIC_SITE_URL } from "@/lib/public-seo";
+import { resolveTenantRuntime, TENANCY_ENFORCEMENT_ENABLED } from "@/lib/tenant-context";
 
 const LOGIN_TITLE = "Sign in or create an account | ONEXA ERP";
 const LOGIN_DESC = "Access your ONEXA ERP workspace or create a new company account.";
@@ -44,6 +46,7 @@ const copy = {
     loginBody: "Sign in with the email linked to your company workspace.",
     createBody: "Start your company onboarding. Your isolated workspace will be prepared after verification.",
     company: "Company name",
+    plan: "Requested plan",
     fullName: "Your full name",
     email: "Work email",
     phone: "Phone number",
@@ -59,6 +62,7 @@ const copy = {
     short: "Password must be at least 8 characters.",
     pending: "Your account is awaiting workspace approval.",
     rejected: "This account request was not approved. Contact ONEXA support.",
+    workspaceMissing: "This account is not linked to an active ONEXA workspace.",
     signedIn: "Signed in successfully.",
     created: "Your request was received. Check your email to continue onboarding.",
     signupPaused: "Company onboarding is being prepared. Self-service account creation will open after the dedicated workspace rollout.",
@@ -74,6 +78,7 @@ const copy = {
     loginBody: "سجّل الدخول بالبريد المرتبط بمساحة عمل شركتك.",
     createBody: "ابدأ تسجيل شركتك، وسيتم تجهيز مساحة العمل المستقلة بعد التحقق.",
     company: "اسم الشركة",
+    plan: "الباقة المطلوبة",
     fullName: "الاسم الكامل",
     email: "بريد العمل",
     phone: "رقم الهاتف",
@@ -89,6 +94,7 @@ const copy = {
     short: "كلمة المرور يجب ألا تقل عن 8 أحرف.",
     pending: "حسابك بانتظار اعتماد مساحة العمل.",
     rejected: "لم تتم الموافقة على طلب الحساب. تواصل مع دعم ONEXA.",
+    workspaceMissing: "هذا الحساب غير مرتبط بمساحة عمل ONEXA نشطة.",
     signedIn: "تم تسجيل الدخول بنجاح.",
     created: "تم استلام الطلب. راجع بريدك لاستكمال التسجيل.",
     signupPaused: "يجري تجهيز تسجيل الشركات. سيتاح إنشاء الحسابات ذاتيًا بعد إطلاق بيئات العملاء المستقلة.",
@@ -103,6 +109,7 @@ function LoginPage() {
   const c = copy[language];
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [companyName, setCompanyName] = useState("");
+  const [planKey, setPlanKey] = useState<OnexaPlanKey>("start");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -111,7 +118,9 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("mode") === "signup") setMode("signup");
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("mode") === "signup") setMode("signup");
+    setPlanKey(normalizeOnexaPlanKey(params.get("plan")));
   }, []);
 
   const submit = async (event: React.FormEvent) => {
@@ -132,6 +141,14 @@ function LoginPage() {
           await supabase.auth.signOut();
           toast.error(c.rejected);
           return;
+        }
+        if (TENANCY_ENFORCEMENT_ENABLED) {
+          const tenant = resolveTenantRuntime(data.user!.app_metadata as Record<string, unknown>);
+          if (tenant.mode !== "tenant" || tenant.claims.status !== "active") {
+            await supabase.auth.signOut();
+            toast.error(c.workspaceMissing);
+            return;
+          }
         }
         toast.success(c.signedIn);
         navigate({ to: "/apps" });
@@ -165,6 +182,7 @@ function LoginPage() {
             company_name: companyName.trim(),
             phone: phone.trim(),
             signup_intent: "workspace_owner",
+            requested_plan: planKey,
           },
         },
       });
@@ -210,6 +228,7 @@ function LoginPage() {
           <form onSubmit={submit} className="space-y-4">
             {mode === "signup" && <>
               <div><Label htmlFor="company">{c.company}</Label><Input id="company" value={companyName} onChange={(event) => setCompanyName(event.target.value)} autoComplete="organization" required className="mt-1.5" /></div>
+              <div><Label htmlFor="plan">{c.plan}</Label><select id="plan" value={planKey} onChange={(event) => setPlanKey(normalizeOnexaPlanKey(event.target.value))} className="mt-1.5 h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15">{ONEXA_PLANS.map((plan) => <option key={plan.key} value={plan.key}>{language === "ar" ? plan.nameAr : plan.name}</option>)}</select></div>
               <div><Label htmlFor="name">{c.fullName}</Label><Input id="name" value={fullName} onChange={(event) => setFullName(event.target.value)} autoComplete="name" required className="mt-1.5" /></div>
             </>}
             <div><Label htmlFor="email">{c.email}</Label><Input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required dir="ltr" className="mt-1.5" placeholder="name@company.com" /></div>

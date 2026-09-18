@@ -34,7 +34,7 @@ for (const marker of ["PublicPreferences", "setLang(nextLanguage)", "useTheme", 
 }
 
 const shell = read("src/components/layout/app-shell.tsx");
-for (const marker of ["ONEXA", "Enterprise Resource Planning", "end-0", "border-s", "md:me-64", "text-start", "pe-10"]) {
+for (const marker of ["ONEXA", "tenant.label.name", "end-0", "border-s", "md:me-64", "text-start", "pe-10"]) {
   assert.ok(shell.includes(marker), "logical ERP layout marker missing: " + marker);
 }
 for (const oldBrand of ["Al-Ostool Al-Ali", "مجموعة الأسطول الآلي", "/images/brand/al-ostool-mark.png"]) {

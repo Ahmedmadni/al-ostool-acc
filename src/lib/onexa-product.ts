@@ -20,3 +20,11 @@ export const onexaModules = [
   { key: "assets", en: "Fixed Assets", ar: "الأصول الثابتة" },
   { key: "people", en: "People & Payroll", ar: "الموارد البشرية والرواتب" },
 ] as const;
+
+export type OnexaModuleKey = (typeof onexaModules)[number]["key"];
+
+export const onexaModuleKeys = onexaModules.map((module) => module.key) as OnexaModuleKey[];
+
+export function isOnexaModuleKey(value: unknown): value is OnexaModuleKey {
+  return typeof value === "string" && (onexaModuleKeys as string[]).includes(value);
+}

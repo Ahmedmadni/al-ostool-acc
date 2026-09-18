@@ -8,6 +8,7 @@ import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { MobileAppLauncher } from "@/components/layout/mobile-app-launcher";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { RoutePermissionGate } from "@/components/permissions/can";
+import { TenantBoundary } from "@/components/tenancy/tenant-boundary";
 
 export const Route = createFileRoute("/_authenticated")({
   component: AuthLayout,
@@ -35,13 +36,13 @@ function AuthLayout() {
     );
   }
   return (
-    <>
+    <TenantBoundary>
       <AppShell><RoutePermissionGate><Outlet /></RoutePermissionGate></AppShell>
       <MobileBottomNav onOpenLauncher={() => setLauncherOpen(true)} />
       <MobileAppLauncher open={launcherOpen} onOpenChange={setLauncherOpen} />
       <FloatingCopilot />
       <FloatingCalculator />
       <InstallPrompt />
-    </>
+    </TenantBoundary>
   );
 }

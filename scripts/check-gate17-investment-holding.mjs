@@ -47,9 +47,10 @@ assert.ok(login.includes('navigate({ to: "/apps" })'), "employee login must land
 assert.ok(!login.includes("selectedSystem") && !login.includes("SystemKey"), "separate system selector must be removed from unified ERP login");
 assert.ok(login.includes("One workspace for every business operation.") && login.includes("مساحة عمل واحدة لكل عمليات شركتك."), "unified ONEXA login message missing");
 
-for (const route of ["/maintenance", "/real-estate", "/customer-service", "/technology", "/hr", "/fleet", "/warehouses", "/projects", "/treasury"]) {
+for (const route of ["/maintenance", "/real-estate", "/hr", "/fleet", "/warehouses", "/projects", "/treasury"]) {
   assert.ok(erpApps.includes(route), `ERP launcher missing ${route}`);
 }
+assert.ok(erpApps.includes("subscriptionModule") && !erpApps.includes("مدار —") && !erpApps.includes("روافد —") && !erpApps.includes("نواة —"), "ONEXA launcher must be subscription-aware and customer-neutral");
 assert.ok(appsRoute.includes("group_has_module_access"), "ERP launcher must check company/module access");
 assert.ok(appsRoute.includes("permissionModule"), "ERP launcher must filter legacy modules by permission");
 assert.ok(appsRoute.includes('typeof window === "undefined"'), "ERP launcher localStorage access must be SSR-safe");

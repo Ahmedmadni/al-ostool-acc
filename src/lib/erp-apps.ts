@@ -3,7 +3,6 @@ import {
   Building2,
   Calculator,
   ClipboardList,
-  Cpu,
   FileBarChart,
   FolderKanban,
   Landmark,
@@ -15,11 +14,17 @@ import {
   UserCog,
   Users,
   Vault,
-  Wrench,
+  Warehouse,
   type LucideIcon,
 } from "lucide-react";
+import type { OnexaModuleKey } from "@/lib/onexa-product";
 
-export type ErpAppCategory = "management" | "finance" | "operations" | "shared" | "admin";
+export type ErpAppCategory = "overview" | "finance" | "operations" | "resources" | "admin";
+
+export type LegacyCompanyGuard = {
+  companyCode: "OM" | "RE" | "IT";
+  moduleKey: "maintenance" | "real_estate" | "it_services";
+};
 
 export type ErpApp = {
   key: string;
@@ -28,42 +33,42 @@ export type ErpApp = {
   to: string;
   icon: LucideIcon;
   category: ErpAppCategory;
+  subscriptionModule: OnexaModuleKey;
   permissionModule?: string;
-  companyGuard?: { companyCode: "OM" | "RE" | "IT"; moduleKey: "maintenance" | "real_estate" | "it_services" };
-  strategic?: boolean;
+  legacyGuard?: LegacyCompanyGuard;
+  featured?: boolean;
 };
 
 export const ERP_APP_CATEGORIES: Array<{ key: ErpAppCategory; label: string }> = [
-  { key: "management", label: "الإدارة والقيادة" },
-  { key: "finance", label: "المالية والرقابة" },
-  { key: "operations", label: "التشغيل وشركات المحفظة" },
-  { key: "shared", label: "الخدمات المشتركة" },
-  { key: "admin", label: "إدارة النظام" },
+  { key: "overview", label: "الرئيسية والتحليلات" },
+  { key: "finance", label: "المالية والتجارة" },
+  { key: "operations", label: "المشاريع والتشغيل" },
+  { key: "resources", label: "الموارد والأصول" },
+  { key: "admin", label: "إدارة مساحة العمل" },
 ];
 
 /**
- * Top-level Odoo-style application catalog. Sub-pages remain inside the existing
- * AppShell navigation so the launcher stays focused on business domains rather
- * than becoming a flat list of every screen.
+ * Tenant-neutral ONEXA application catalogue. Subscription entitlements are
+ * evaluated before role permissions; administrators cannot bypass plan limits.
+ * Legacy company guards remain only while the Al-Ostool workspace is migrated.
  */
 export const ERP_APPS: ErpApp[] = [
-  { key: "executive", title: "القيادة التنفيذية", subtitle: "المؤشرات والتنبيهات والتوقعات", to: "/executive", icon: BarChart3, category: "management", permissionModule: "dashboard" },
-  { key: "projects", title: "المشاريع والمقاولات", subtitle: "المشاريع والإنجاز والرقابة", to: "/projects", icon: FolderKanban, category: "management", permissionModule: "projects.list" },
-  { key: "customers", title: "العملاء والذمم", subtitle: "AR والعقود والتحصيل", to: "/customers", icon: Users, category: "finance", permissionModule: "customers" },
-  { key: "vendors", title: "الموردون والذمم", subtitle: "AP والعقود والمدفوعات", to: "/vendors", icon: Truck, category: "finance", permissionModule: "vendors" },
-  { key: "costs", title: "التكاليف", subtitle: "التكلفة والربحية والرقابة", to: "/costs", icon: Receipt, category: "finance", permissionModule: "costs" },
-  { key: "treasury", title: "الخزينة والسيولة", subtitle: "النقدية والبنوك والتوقعات", to: "/treasury", icon: Vault, category: "finance", permissionModule: "treasury" },
-  { key: "financials", title: "التحليل المالي", subtitle: "القوائم ومؤشرات الأداء", to: "/financials", icon: Landmark, category: "finance", permissionModule: "financials" },
-  { key: "tax", title: "الزكاة والضريبة", subtitle: "VAT والزكاة وأدوات الامتثال", to: "/tax-tools", icon: Calculator, category: "finance", permissionModule: "tax" },
-  { key: "maintenance", title: "مدار — الصيانة والتشغيل", subtitle: "العقود • الأصول • SLA • أوامر العمل", to: "/maintenance", icon: Wrench, category: "operations", companyGuard: { companyCode: "OM", moduleKey: "maintenance" }, strategic: true },
-  { key: "real_estate", title: "روافد — العقارات والمرافق", subtitle: "الأصول • التأجير • الإشغال • المرافق", to: "/real-estate", icon: Building2, category: "operations", companyGuard: { companyCode: "RE", moduleKey: "real_estate" }, strategic: true },
-  { key: "customer_service", title: "طلبات العملاء", subtitle: "الصيانة • العقار • التقنية • المتابعة", to: "/customer-service", icon: ClipboardList, category: "operations", strategic: true },
-  { key: "technology", title: "نواة — الحلول الرقمية", subtitle: "الأنظمة • التكامل • الدعم التقني", to: "/technology", icon: Cpu, category: "operations", companyGuard: { companyCode: "IT", moduleKey: "it_services" }, strategic: true },
-  { key: "hr", title: "الموارد البشرية", subtitle: "الموظفون • الحضور • الرواتب", to: "/hr", icon: UserCog, category: "shared", permissionModule: "hr" },
-  { key: "fleet", title: "النقليات والأسطول", subtitle: "المركبات • الرحلات • الوقود", to: "/fleet", icon: Truck, category: "shared", permissionModule: "fleet" },
-  { key: "inventory", title: "المخازن", subtitle: "الأصناف • التوريد • الصرف • الرصيد", to: "/warehouses", icon: PackageOpen, category: "shared", permissionModule: "inventory.warehouses" },
-  { key: "tasks", title: "المهام والتقويم", subtitle: "العمل والمتابعة وأداء الفريق", to: "/tasks", icon: ClipboardList, category: "shared", permissionModule: "tasks" },
-  { key: "reports", title: "مركز التقارير", subtitle: "التقارير والاستيراد والتصدير", to: "/reports", icon: FileBarChart, category: "shared", permissionModule: "reports" },
-  { key: "settings", title: "إدارة النظام", subtitle: "المستخدمون والصلاحيات والإعدادات", to: "/settings/users", icon: Settings, category: "admin", permissionModule: "settings.users" },
-  { key: "permissions", title: "الصلاحيات والحوكمة", subtitle: "الأدوار والوصول والتدقيق", to: "/settings/permissions", icon: ShieldCheck, category: "admin", permissionModule: "settings.permissions" },
+  { key: "executive", title: "الرئيسية والتحليلات", subtitle: "المؤشرات والتنبيهات والتوقعات", to: "/executive", icon: BarChart3, category: "overview", subscriptionModule: "finance", permissionModule: "dashboard", featured: true },
+  { key: "general_ledger", title: "الحسابات العامة", subtitle: "القيود والدفاتر والقوائم والتقارير المالية", to: "/financials", icon: Landmark, category: "finance", subscriptionModule: "finance", permissionModule: "financials", featured: true },
+  { key: "sales", title: "العملاء والمبيعات", subtitle: "العملاء والعقود والفواتير والتحصيل", to: "/customers", icon: Users, category: "finance", subscriptionModule: "sales", permissionModule: "customers" },
+  { key: "procurement", title: "الموردون والمشتريات", subtitle: "الموردون والعقود والفواتير والمدفوعات", to: "/vendors", icon: Truck, category: "finance", subscriptionModule: "procurement", permissionModule: "vendors" },
+  { key: "costs", title: "التكاليف والميزانيات", subtitle: "التكلفة والربحية والرقابة", to: "/costs", icon: Receipt, category: "finance", subscriptionModule: "finance", permissionModule: "costs" },
+  { key: "treasury", title: "الخزينة والسيولة", subtitle: "النقدية والبنوك والتوقعات", to: "/treasury", icon: Vault, category: "finance", subscriptionModule: "finance", permissionModule: "treasury" },
+  { key: "tax", title: "الزكاة والضريبة", subtitle: "ضريبة القيمة المضافة والزكاة والامتثال", to: "/tax-tools", icon: Calculator, category: "finance", subscriptionModule: "finance", permissionModule: "tax" },
+  { key: "projects", title: "المشاريع والتشغيل", subtitle: "المقاولات • الصيانة والتشغيل • العقود الخدمية", to: "/projects", icon: FolderKanban, category: "operations", subscriptionModule: "projects", permissionModule: "projects.list", featured: true },
+  { key: "maintenance", title: "أوامر الصيانة والتشغيل", subtitle: "الأصول • SLA • الأوامر • الزيارات • التكلفة", to: "/maintenance", icon: ClipboardList, category: "operations", subscriptionModule: "projects", legacyGuard: { companyCode: "OM", moduleKey: "maintenance" } },
+  { key: "facilities", title: "إدارة المرافق والعقارات", subtitle: "العقارات والوحدات والإيجارات والإشغال والمرافق", to: "/real-estate", icon: Building2, category: "operations", subscriptionModule: "facilities", legacyGuard: { companyCode: "RE", moduleKey: "real_estate" }, featured: true },
+  { key: "logistics", title: "النقليات واللوجستيات", subtitle: "المركبات والرحلات والسائقون والوقود", to: "/fleet", icon: Truck, category: "operations", subscriptionModule: "logistics", permissionModule: "fleet" },
+  { key: "inventory", title: "المخزون والمستودعات", subtitle: "الأصناف والتوريد والصرف والتقييم", to: "/warehouses", icon: Warehouse, category: "resources", subscriptionModule: "inventory", permissionModule: "inventory.warehouses" },
+  { key: "assets", title: "الأصول الثابتة", subtitle: "سجل الأصول والإهلاك والحركة والتقارير", to: "/fixed-assets", icon: PackageOpen, category: "resources", subscriptionModule: "assets", permissionModule: "assets" },
+  { key: "people", title: "الموارد البشرية والرواتب", subtitle: "الموظفون والحضور والإجازات والرواتب", to: "/hr", icon: UserCog, category: "resources", subscriptionModule: "people", permissionModule: "hr" },
+  { key: "tasks", title: "سير العمل والمهام", subtitle: "المهام والتقويم والمتابعة وأداء الفريق", to: "/tasks", icon: ClipboardList, category: "resources", subscriptionModule: "people", permissionModule: "tasks" },
+  { key: "reports", title: "ذكاء الأعمال والتقارير", subtitle: "التقارير والاستيراد والتصدير", to: "/reports", icon: FileBarChart, category: "overview", subscriptionModule: "finance", permissionModule: "reports" },
+  { key: "settings", title: "إعدادات مساحة العمل", subtitle: "الشركات والفروع والمستخدمون والإعدادات", to: "/settings/users", icon: Settings, category: "admin", subscriptionModule: "finance", permissionModule: "settings.users" },
+  { key: "permissions", title: "المستخدمون والصلاحيات", subtitle: "الأدوار وحدود الوصول والتدقيق", to: "/settings/permissions", icon: ShieldCheck, category: "admin", subscriptionModule: "finance", permissionModule: "settings.permissions" },
 ];

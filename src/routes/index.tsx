@@ -27,6 +27,7 @@ import {
 import { PublicSiteHeader } from "@/components/public/public-site-header";
 import { useI18n } from "@/lib/i18n";
 import { ONEXA, onexaModules } from "@/lib/onexa-product";
+import { formatPlanLimit, ONEXA_PLANS } from "@/lib/onexa-plans";
 import { publicSeo } from "@/lib/public-seo";
 
 const moduleIcons: Record<(typeof onexaModules)[number]["key"], LucideIcon> = {
@@ -84,6 +85,11 @@ const copy = {
     plansTitle: "Choose the operating scope that fits your business.",
     plansBody: "Plans will control active users, legal entities, storage, and enabled modules—with room to expand without changing systems.",
     planNames: ["Start", "Business", "Pro", "Enterprise"],
+    planUsers: "active users",
+    planEntities: "legal entities",
+    planModules: "included modules",
+    planCta: "Choose plan",
+    recommended: "Recommended",
     finalTitle: "Replace disconnected work with one source of truth.",
     finalBody: "Create an ONEXA account and prepare a connected workspace for your company.",
     footer: "One System. Every Operation.",
@@ -130,6 +136,11 @@ const copy = {
     plansTitle: "اختر نطاق التشغيل المناسب لأعمالك.",
     plansBody: "تحدد الباقة المستخدمين النشطين والشركات والتخزين والموديولات، مع إمكانية التوسع دون تغيير النظام.",
     planNames: ["Start", "Business", "Pro", "Enterprise"],
+    planUsers: "مستخدمين نشطين",
+    planEntities: "شركات قانونية",
+    planModules: "موديولات مشمولة",
+    planCta: "اختر الباقة",
+    recommended: "موصى بها",
     finalTitle: "استبدل الأنظمة المتفرقة بمصدر واحد للحقيقة.",
     finalBody: "أنشئ حساب ONEXA وجهز مساحة عمل مترابطة لشركتك.",
     footer: "نظام واحد لكل عملياتك",
@@ -241,7 +252,22 @@ function OnexaHomePage() {
       <section id="plans" className="border-t border-border bg-card py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="max-w-3xl"><div className="public-kicker text-xs">{c.plansEyebrow}</div><h2 className="mt-4 text-3xl font-black sm:text-5xl">{c.plansTitle}</h2><p className="mt-5 leading-8 text-muted-foreground">{c.plansBody}</p></div>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{c.planNames.map((plan, index) => <article key={plan} className={`rounded-2xl border p-6 ${index === 2 ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background"}`}><div className="text-xs font-black opacity-70">0{index + 1}</div><h3 className="mt-8 text-xl font-black">{plan}</h3><p className="mt-3 text-xs leading-6 opacity-70">{language === "ar" ? "مستخدمون وشركات وموديولات بحسب احتياجك." : "Users, entities, and modules sized to your operation."}</p></article>)}</div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {ONEXA_PLANS.map((plan, index) => (
+              <article key={plan.key} className={`relative flex min-h-[340px] flex-col rounded-2xl border p-6 ${plan.recommended ? "border-primary bg-primary text-primary-foreground shadow-xl shadow-primary/15" : "border-border bg-background"}`}>
+                {plan.recommended && <span className="absolute end-5 top-5 rounded-full bg-white/15 px-3 py-1 text-[10px] font-black">{c.recommended}</span>}
+                <div className="text-xs font-black opacity-70">0{index + 1}</div>
+                <h3 className="mt-8 text-xl font-black">{language === "ar" ? plan.nameAr : plan.name}</h3>
+                <p className="mt-3 min-h-16 text-xs leading-6 opacity-75">{language === "ar" ? plan.descriptionAr : plan.description}</p>
+                <div className="mt-5 space-y-3 border-t border-current/15 pt-5 text-xs font-bold">
+                  <div className="flex items-center justify-between gap-3"><span className="opacity-70">{c.planUsers}</span><span>{formatPlanLimit(plan.limits.activeUsers, language)}</span></div>
+                  <div className="flex items-center justify-between gap-3"><span className="opacity-70">{c.planEntities}</span><span>{formatPlanLimit(plan.limits.legalEntities, language)}</span></div>
+                  <div className="flex items-center justify-between gap-3"><span className="opacity-70">{c.planModules}</span><span>{plan.modules.length}</span></div>
+                </div>
+                <a href={`/log?mode=signup&plan=${plan.key}`} className={`mt-auto inline-flex items-center justify-center rounded-xl px-4 py-3 text-xs font-black transition ${plan.recommended ? "bg-white text-[#143b94] hover:bg-slate-100" : "bg-primary text-primary-foreground hover:bg-primary/90"}`}>{c.planCta}</a>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
