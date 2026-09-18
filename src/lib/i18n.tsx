@@ -257,7 +257,7 @@ function getInterfaceSurface(pathname: string): InterfaceSurface {
 function getInitialLanguage(surface: InterfaceSurface): Lang {
   const fallback: Lang = surface === "public" ? "en" : "ar";
   if (typeof window === "undefined") return fallback;
-  const stored = localStorage.getItem(`alostool:${surface}:language`) as Lang | null;
+  const stored = localStorage.getItem(`onexa:${surface}:language`) as Lang | null;
   return stored && LANGS.some((item) => item.code === stored) ? stored : fallback;
 }
 
@@ -280,7 +280,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const setLang = (nextLanguage: Lang) => {
     setLangState(nextLanguage);
     if (typeof window !== "undefined") {
-      localStorage.setItem(`alostool:${surface}:language`, nextLanguage);
+      localStorage.setItem(`onexa:${surface}:language`, nextLanguage);
     }
   };
 

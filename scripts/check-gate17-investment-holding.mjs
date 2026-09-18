@@ -29,13 +29,11 @@ for (const name of [
   "نواة للحلول الرقمية وتقنية المعلومات",
 ]) assert.ok(portfolio.includes(name), `portfolio working brand ${name} missing`);
 
-assert.ok(home.includes("portfolioCompanies"), "holding home must render centralized portfolio companies");
-assert.ok(home.includes("MULTI-SECTOR INVESTMENT & OPERATIONS GROUP") && home.includes("مجموعة استثمار وتشغيل متعددة القطاعات"), "bilingual investment holding positioning missing");
-assert.ok(home.includes("Saudi execution expertise. One group built for measurable growth.") && home.includes("خبرة تنفيذ سعودية ومنظومة واحدة لنمو قابل للقياس"), "bilingual investment thesis hero missing");
-assert.ok(!home.includes('href="/log"') && !home.includes('href="/login"'), "employee login must stay hidden from public home");
+assert.ok(home.includes("ONEXA") && home.includes("CONNECTED CLOUD ERP"), "ONEXA ERP product positioning missing");
+assert.ok(home.includes("Run every operation from one clear system.") && home.includes("أدِر كل عملياتك من نظام واحد واضح."), "bilingual ONEXA hero missing");
+assert.ok(home.includes('href="/log?mode=signup"'), "public company-account entry point is missing");
 
-assert.ok(technologyPublic.includes('companyCode="IT"'), "technology public page must use IT company code");
-assert.ok(technologyPublic.includes("ERP") && technologyPublic.includes("التكامل") && technologyPublic.includes("ذكاء الأعمال"), "technology service catalogue incomplete");
+assert.ok(technologyPublic.includes('throw redirect({ to: "/"'), "legacy technology public page must redirect to ONEXA");
 assert.ok(companyShell.includes("websiteUrl") && companyShell.includes("Visit company website") && companyShell.includes("موقع الشركة المستقل — قريباً"), "bilingual independent company website CTA/fallback missing");
 assert.ok(companyShell.includes("AppDownloadCta"), "company app download CTA missing");
 
@@ -47,7 +45,7 @@ assert.ok(appCta.includes("AppleMark") && appCta.includes("GooglePlayMark"), "st
 
 assert.ok(login.includes('navigate({ to: "/apps" })'), "employee login must land on unified ERP apps launcher");
 assert.ok(!login.includes("selectedSystem") && !login.includes("SystemKey"), "separate system selector must be removed from unified ERP login");
-assert.ok(login.includes("ERP واحد — تطبيقات متعددة"), "unified ERP login message missing");
+assert.ok(login.includes("One workspace for every business operation.") && login.includes("مساحة عمل واحدة لكل عمليات شركتك."), "unified ONEXA login message missing");
 
 for (const route of ["/maintenance", "/real-estate", "/customer-service", "/technology", "/hr", "/fleet", "/warehouses", "/projects", "/treasury"]) {
   assert.ok(erpApps.includes(route), `ERP launcher missing ${route}`);
@@ -73,8 +71,7 @@ for (const marker of ["'IT'", "'it_services'", "cs_module_for_company_code", "SE
 assert.ok(migration.includes("REVOKE ALL ON FUNCTION public.cs_public_submit_ticket"), "public intake RPC ACL hardening missing");
 assert.ok(migration.includes("GRANT EXECUTE ON FUNCTION public.cs_public_submit_ticket") && migration.includes("TO service_role"), "public intake must remain service-role only");
 
-for (const route of ["/companies/al-ostool", "/companies/maintenance", "/companies/real-estate", "/companies/technology", "/app"]) {
-  assert.ok(sitemap.includes(route), `sitemap missing ${route}`);
-}
+assert.ok(sitemap.includes('path: "/"'), "ONEXA sitemap home entry missing");
+assert.ok(!sitemap.includes("/companies/al-ostool"), "legacy customer pages must not remain in the ONEXA sitemap");
 
 console.log("Gate 17 investment holding / unified ERP apps static checks passed ✓");

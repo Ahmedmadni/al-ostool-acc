@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-
-const BASE_URL = "https://al-ostool-acc.lovable.app";
+import { PUBLIC_SITE_URL } from "@/lib/public-seo";
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
@@ -9,11 +8,6 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         const entries = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
-          { path: "/companies/al-ostool", changefreq: "weekly", priority: "0.9" },
-          { path: "/companies/maintenance", changefreq: "weekly", priority: "0.9" },
-          { path: "/companies/real-estate", changefreq: "weekly", priority: "0.9" },
-          { path: "/companies/technology", changefreq: "weekly", priority: "0.9" },
-          { path: "/app", changefreq: "monthly", priority: "0.7" },
         ];
 
         const xml = [
@@ -22,7 +16,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           ...entries.map((e) =>
             [
               `  <url>`,
-              `    <loc>${BASE_URL}${e.path}</loc>`,
+              `    <loc>${PUBLIC_SITE_URL}${e.path}</loc>`,
               `    <changefreq>${e.changefreq}</changefreq>`,
               `    <priority>${e.priority}</priority>`,
               `  </url>`,

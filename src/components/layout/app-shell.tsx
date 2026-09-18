@@ -28,7 +28,7 @@ type NavGroup = { key: string; label: string; label_en: string; icon: React.Comp
 
 const GROUPS: NavGroup[] = [
   {
-    key: "executive", label: "القيادة التنفيذية", label_en: "Executive Command", icon: LayoutDashboard,
+    key: "executive", label: "الرئيسية والتحليلات", label_en: "Overview & Analytics", icon: LayoutDashboard,
     links: [
       { to: "/executive", label: "مركز القيادة التنفيذي الموحد", label_en: "Unified Executive Command Center" },
       { to: "/forecasting", label: "محرك التوقعات", label_en: "Forecasting Engine" },
@@ -39,7 +39,7 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: "customers", label: "العملاء والذمم المدينة (AR)", label_en: "Customers & Receivables (AR)", icon: Users,
+    key: "customers", label: "العملاء والمبيعات", label_en: "Sales & Customers", icon: Users,
     links: [
       { to: "/customers", label: "العملاء", label_en: "Customers" },
       { to: "/customers/contracts", label: "العقود", label_en: "Contracts" },
@@ -52,7 +52,7 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: "vendors", label: "الموردين والذمم الدائنة (AP)", label_en: "Vendors & Payables (AP)", icon: Truck,
+    key: "vendors", label: "الموردون والمشتريات", label_en: "Procurement & Suppliers", icon: Truck,
     links: [
       { to: "/vendors", label: "الموردين", label_en: "Vendors" },
       { to: "/vendors/contracts", label: "العقود", label_en: "Contracts" },
@@ -64,7 +64,7 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: "projects", label: "المشاريع", label_en: "Projects", icon: FolderKanban,
+    key: "projects", label: "المشاريع والتشغيل", label_en: "Projects & Operations", icon: FolderKanban,
     links: [
       { to: "/projects", label: "المشاريع", label_en: "Projects" },
       { to: "/projects/progress", label: "متابعة الإنجاز", label_en: "Progress Tracking" },
@@ -72,7 +72,7 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: "billing", label: "التكاليف", label_en: "Costs", icon: Receipt,
+    key: "billing", label: "التكاليف والميزانيات", label_en: "Costs & Budgets", icon: Receipt,
     links: [
       { to: "/costs", label: "ذكاء التكاليف", label_en: "Cost Intelligence" },
       { to: "/control/costs", label: "التحكم بالتكاليف", label_en: "Cost Control" },
@@ -88,14 +88,14 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: "assets", label: "الأصول والمحاسبة", label_en: "Assets & Accounting", icon: Building2,
+    key: "assets", label: "الأصول الثابتة", label_en: "Fixed Assets", icon: Building2,
     links: [
       { to: "/fixed-assets", label: "الأصول الثابتة", label_en: "Fixed Assets" },
       { to: "/trial-balance", label: "ميزان المراجعة", label_en: "Trial Balance" },
     ],
   },
   {
-    key: "financials", label: "التحليل المالي", label_en: "Financial Analysis", icon: Scale,
+    key: "financials", label: "الحسابات العامة والتقارير المالية", label_en: "General Ledger & Financials", icon: Scale,
     links: [
       { to: "/financials", label: "مركز التحليل المالي", label_en: "Financial Analysis Center" },
       { to: "/financials/balance-sheet", label: "الميزانية العمومية", label_en: "Balance Sheet" },
@@ -106,7 +106,7 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: "reports", label: "التقارير والاستيراد", label_en: "Reports & Import", icon: FileText,
+    key: "reports", label: "ذكاء الأعمال والتقارير", label_en: "Business Intelligence & Reports", icon: FileText,
     links: [
       { to: "/reports", label: "مركز التقارير", label_en: "Reports Center" },
       { to: "/imports", label: "مركز الاستيراد الذكي", label_en: "Smart Import Center" },
@@ -133,7 +133,7 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: "fleet", label: "النقليات والأسطول", label_en: "Fleet Management", icon: Truck,
+    key: "fleet", label: "النقليات واللوجستيات", label_en: "Transport & Logistics", icon: Truck,
     links: [
       { to: "/fleet", label: "لوحة النقليات", label_en: "Fleet Dashboard" },
       { to: "/fleet/vehicles", label: "المركبات", label_en: "Vehicles" },
@@ -145,7 +145,7 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: "inventory", label: "المخازن", label_en: "Warehouses", icon: Warehouse,
+    key: "inventory", label: "المخزون والمستودعات", label_en: "Inventory & Warehouses", icon: Warehouse,
     links: [
       { to: "/warehouses", label: "المخازن", label_en: "Warehouses" },
       { to: "/warehouses/items", label: "الأصناف", label_en: "Items" },
@@ -155,14 +155,14 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: "tasks", label: "المهام والتقويم", label_en: "Tasks & Calendar", icon: ClipboardList,
+    key: "tasks", label: "سير العمل والمهام", label_en: "Workflow & Tasks", icon: ClipboardList,
     links: [
       { to: "/tasks", label: "المهام والتقويم", label_en: "Tasks & Calendar" },
       { to: "/tasks/team", label: "أداء الفريق (المهام)", label_en: "Team Performance (Tasks)" },
     ],
   },
   {
-    key: "tools", label: "الأدوات المحاسبية", label_en: "Accounting Tools", icon: Calculator,
+    key: "tools", label: "الضرائب والامتثال", label_en: "Tax & Compliance", icon: Calculator,
     links: [
       { to: "/tax-tools", label: "إقرارات الزكاة وضريبة القيمة المضافة", label_en: "Zakat & VAT Returns" },
       { to: "/templates", label: "مصمم القوالب", label_en: "Template Designer" },
@@ -244,10 +244,15 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-background">
       <aside className="w-64 bg-sidebar text-sidebar-foreground flex-col fixed inset-y-0 end-0 z-30 no-print hidden md:flex border-s border-sidebar-border shadow-xl shadow-foreground/5">
         <div className="h-20 px-5 border-b border-sidebar-border flex items-center gap-3 shrink-0">
-          <img src="/images/brand/al-ostool-mark.png" alt="شعار الأسطول الآلي" width={512} height={441} className="h-10 w-10 rounded-md bg-white p-1 object-contain ring-1 ring-sidebar-border" />
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-sm" aria-hidden="true">
+            <svg viewBox="0 0 40 40" className="h-8 w-8" fill="none">
+              <path d="M10 11.5h20v17H10z" stroke="currentColor" strokeWidth="3" />
+              <path d="m11.5 28 17-16.5M11.5 12 28.5 28" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+            </svg>
+          </span>
           <div>
-            <div className="font-bold text-sm leading-tight text-sidebar-foreground">{lang === "en" ? "Al-Ostool Al-Ali" : "مجموعة الأسطول الآلي"}</div>
-            <div className="text-[11px] text-sidebar-foreground/55 mt-1">{lang === "en" ? "Enterprise operations" : "منظومة إدارة الأعمال"}</div>
+            <div className="font-extrabold tracking-[0.14em] text-sm leading-tight text-sidebar-foreground">ONEXA</div>
+            <div className="text-[11px] text-sidebar-foreground/55 mt-1">{lang === "en" ? "Enterprise Resource Planning" : "تخطيط موارد المؤسسات"}</div>
           </div>
         </div>
 
