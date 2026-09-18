@@ -99,13 +99,13 @@ const GROUPS: NavGroup[] = [
     key: "assets", label: "الأصول الثابتة", label_en: "Fixed Assets", icon: Building2,
     links: [
       { to: "/fixed-assets", label: "الأصول الثابتة", label_en: "Fixed Assets" },
-      { to: "/trial-balance", label: "ميزان المراجعة", label_en: "Trial Balance" },
     ],
   },
   {
     key: "financials", label: "الحسابات العامة والتقارير المالية", label_en: "General Ledger & Financials", icon: Scale,
     links: [
       { to: "/financials", label: "مركز التحليل المالي", label_en: "Financial Analysis Center" },
+      { to: "/trial-balance", label: "ميزان المراجعة", label_en: "Trial Balance" },
       { to: "/financials/balance-sheet", label: "الميزانية العمومية", label_en: "Balance Sheet" },
       { to: "/financials/income-statement", label: "قائمة الدخل", label_en: "Income Statement" },
       { to: "/financials/cash-flow", label: "قائمة التدفقات النقدية", label_en: "Cash Flow Statement" },

@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePermissions } from "@/hooks/use-permissions";
 import { useTenantContext } from "@/hooks/use-tenant-context";
 import { ERP_APPS, ERP_APP_CATEGORIES, type ErpApp } from "@/lib/erp-apps";
+import { AccountingIntegrationOverview } from "@/components/accounting/integration-overview";
 
 export const Route = createFileRoute("/_authenticated/apps")({
   component: AppsLauncherPage,
@@ -80,6 +81,8 @@ function AppsLauncherPage() {
           <div className="relative"><Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="ابحث عن موديول..." className="h-12 pr-10" /></div>
         </div>
       </section>
+
+      <AccountingIntegrationOverview />
 
       {favorites.length > 0 && !search && (
         <section>
