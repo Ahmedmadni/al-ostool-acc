@@ -9,6 +9,7 @@ import { usePermissions } from "@/hooks/use-permissions";
 import { useTenantContext } from "@/hooks/use-tenant-context";
 import { ERP_APPS, ERP_APP_CATEGORIES, type ErpApp } from "@/lib/erp-apps";
 import { AccountingIntegrationOverview } from "@/components/accounting/integration-overview";
+import { WorkspaceSubscriptionPanel } from "@/components/tenancy/workspace-subscription-panel";
 
 export const Route = createFileRoute("/_authenticated/apps")({
   component: AppsLauncherPage,
@@ -83,6 +84,8 @@ function AppsLauncherPage() {
       </section>
 
       <AccountingIntegrationOverview />
+
+      <WorkspaceSubscriptionPanel />
 
       {favorites.length > 0 && !search && (
         <section>
