@@ -1,22 +1,22 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { BarChart3, Building2, Globe, Layers3, LockKeyhole, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
+import { BrandLogo } from "@/components/public/brand-logo";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
-import { HardHat, ShieldCheck, BarChart3, Brain, Globe, Grid3X3 } from "lucide-react";
-import logo from "@/assets/logo.ico";
-import hero from "@/assets/login-hero.jpg";
-import { useI18n, LANGS, type Lang } from "@/lib/i18n";
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
+import { LANGS, type Lang, useI18n } from "@/lib/i18n";
+import { ONEXA } from "@/lib/onexa-product";
+import { normalizeOnexaPlanKey, ONEXA_PLANS, type OnexaPlanKey } from "@/lib/onexa-plans";
+import { PUBLIC_SITE_URL } from "@/lib/public-seo";
+import { resolveTenantRuntime, TENANCY_ENFORCEMENT_ENABLED } from "@/lib/tenant-context";
 
-const LOGIN_TITLE = "بوابة الموظفين | ERP مجموعة الأسطول الآلي";
-const LOGIN_DESC =
-  "رابط الموظفين الخاص للدخول إلى ERP المجموعة الموحد وإدارة المالية والمشاريع والموارد والتشغيل والصيانة والعقارات والمرافق وخدمة العملاء والتقنية.";
+const LOGIN_TITLE = "Sign in or create an account | ONEXA ERP";
+const LOGIN_DESC = "Access your ONEXA ERP workspace or create a new company account.";
+const SELF_SERVICE_SIGNUP_ENABLED = import.meta.env.VITE_ENABLE_ONEXA_SIGNUP === "true";
 
 export const Route = createFileRoute("/log")({
   component: LoginPage,
@@ -26,221 +26,222 @@ export const Route = createFileRoute("/log")({
       { name: "description", content: LOGIN_DESC },
       { property: "og:title", content: LOGIN_TITLE },
       { property: "og:description", content: LOGIN_DESC },
-      { property: "og:url", content: "https://al-ostool-acc.lovable.app/log" },
+      { property: "og:url", content: `${PUBLIC_SITE_URL}/log` },
       { name: "twitter:title", content: LOGIN_TITLE },
       { name: "twitter:description", content: LOGIN_DESC },
       { name: "robots", content: "noindex, nofollow, noarchive" },
     ],
-    links: [{ rel: "canonical", href: "https://al-ostool-acc.lovable.app/log" }],
+    links: [{ rel: "canonical", href: `${PUBLIC_SITE_URL}/log` }],
   }),
 });
 
-type Option = { id: string; name_ar: string };
+const copy = {
+  en: {
+    badge: "CONNECTED ERP • MULTI-COMPANY • ROLE-BASED",
+    heroTitle: "One workspace for every business operation.",
+    heroBody: "Finance, sales, procurement, inventory, projects, assets, logistics, facilities, and people—connected to one governed source of truth.",
+    points: ["Connected finance", "Controlled access", "Live insight"],
+    welcome: "Welcome back",
+    create: "Create your ONEXA account",
+    loginBody: "Sign in with the email linked to your company workspace.",
+    createBody: "Start your company onboarding. Your isolated workspace will be prepared after verification.",
+    company: "Company name",
+    plan: "Requested plan",
+    fullName: "Your full name",
+    email: "Work email",
+    phone: "Phone number",
+    password: "Password",
+    confirm: "Confirm password",
+    submitLogin: "Sign in",
+    submitCreate: "Create account",
+    processing: "Processing…",
+    noAccount: "New to ONEXA? Create an account",
+    haveAccount: "Already have an account? Sign in",
+    required: "Please complete all required fields.",
+    mismatch: "Passwords do not match.",
+    short: "Password must be at least 8 characters.",
+    pending: "Your account is awaiting workspace approval.",
+    rejected: "This account request was not approved. Contact ONEXA support.",
+    workspaceMissing: "This account is not linked to an active ONEXA workspace.",
+    signedIn: "Signed in successfully.",
+    created: "Your request was received. Check your email to continue onboarding.",
+    signupPaused: "Company onboarding is being prepared. Self-service account creation will open after the dedicated workspace rollout.",
+    terms: "By creating an account, you agree to the ONEXA terms and privacy policy.",
+  },
+  ar: {
+    badge: "ERP مترابط • متعدد الشركات • صلاحيات حسب الدور",
+    heroTitle: "مساحة عمل واحدة لكل عمليات شركتك.",
+    heroBody: "المالية والمبيعات والمشتريات والمخزون والمشاريع والأصول واللوجستيات والمرافق والموارد البشرية ضمن مصدر واحد محكوم للبيانات.",
+    points: ["مالية مترابطة", "صلاحيات محكومة", "رؤية لحظية"],
+    welcome: "مرحبًا بعودتك",
+    create: "أنشئ حساب شركتك على ONEXA",
+    loginBody: "سجّل الدخول بالبريد المرتبط بمساحة عمل شركتك.",
+    createBody: "ابدأ تسجيل شركتك، وسيتم تجهيز مساحة العمل المستقلة بعد التحقق.",
+    company: "اسم الشركة",
+    plan: "الباقة المطلوبة",
+    fullName: "الاسم الكامل",
+    email: "بريد العمل",
+    phone: "رقم الهاتف",
+    password: "كلمة المرور",
+    confirm: "تأكيد كلمة المرور",
+    submitLogin: "تسجيل الدخول",
+    submitCreate: "إنشاء الحساب",
+    processing: "جارٍ التنفيذ…",
+    noAccount: "جديد في ONEXA؟ أنشئ حسابًا",
+    haveAccount: "لديك حساب بالفعل؟ سجّل الدخول",
+    required: "يرجى استكمال جميع الحقول المطلوبة.",
+    mismatch: "كلمتا المرور غير متطابقتين.",
+    short: "كلمة المرور يجب ألا تقل عن 8 أحرف.",
+    pending: "حسابك بانتظار اعتماد مساحة العمل.",
+    rejected: "لم تتم الموافقة على طلب الحساب. تواصل مع دعم ONEXA.",
+    workspaceMissing: "هذا الحساب غير مرتبط بمساحة عمل ONEXA نشطة.",
+    signedIn: "تم تسجيل الدخول بنجاح.",
+    created: "تم استلام الطلب. راجع بريدك لاستكمال التسجيل.",
+    signupPaused: "يجري تجهيز تسجيل الشركات. سيتاح إنشاء الحسابات ذاتيًا بعد إطلاق بيئات العملاء المستقلة.",
+    terms: "بإنشاء الحساب فإنك توافق على شروط ONEXA وسياسة الخصوصية.",
+  },
+} as const;
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { lang, setLang, t } = useI18n();
+  const { lang, setLang, dir } = useI18n();
+  const language = lang === "ar" ? "ar" : "en";
+  const c = copy[language];
   const [mode, setMode] = useState<"login" | "signup">("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPwd, setConfirmPwd] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [planKey, setPlanKey] = useState<OnexaPlanKey>("start");
   const [fullName, setFullName] = useState("");
-  const [employeeId, setEmployeeId] = useState("");
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [deptId, setDeptId] = useState("");
-  const [jobId, setJobId] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [depts, setDepts] = useState<Option[]>([]);
-  const [jobs, setJobs] = useState<Option[]>([]);
 
   useEffect(() => {
-    (async () => {
-      const [d, j] = await Promise.all([
-        supabase.from("departments").select("id, name_ar").eq("is_active", true).order("name_ar"),
-        (supabase as any).from("job_titles").select("id, name_ar").eq("is_active", true).order("name_ar"),
-      ]);
-      setDepts((d.data as any) ?? []);
-      setJobs((j.data as any) ?? []);
-    })();
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("mode") === "signup") setMode("signup");
+    setPlanKey(normalizeOnexaPlanKey(params.get("plan")));
   }, []);
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setLoading(true);
     try {
       if (mode === "login") {
-        let loginEmail = email.trim();
-        if (loginEmail && !loginEmail.includes("@")) {
-          const { data: resolved, error: rpcErr } = await (supabase as any)
-            .rpc("get_email_by_employee_id", { _employee_id: loginEmail });
-          if (rpcErr) throw rpcErr;
-          if (!resolved) {
-            toast.error("لم يتم العثور على حساب بهذا الرقم الوظيفي");
-            return;
-          }
-          loginEmail = resolved as string;
-        }
-        const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (error) throw error;
-        const { data: prof } = await (supabase as any)
-          .from("profiles").select("status").eq("id", data.user!.id).maybeSingle();
-        const status = prof?.status ?? "active";
+        const { data: profile } = await (supabase as any).from("profiles").select("status").eq("id", data.user!.id).maybeSingle();
+        const status = profile?.status ?? "active";
         if (status === "pending") {
           await supabase.auth.signOut();
-          toast.error("حسابك بانتظار اعتماد مسؤول النظام");
+          toast.error(c.pending);
           return;
         }
         if (status === "rejected") {
           await supabase.auth.signOut();
-          toast.error("تم رفض طلب حسابك. تواصل مع مسؤول النظام.");
+          toast.error(c.rejected);
           return;
         }
-        toast.success("تم تسجيل الدخول بنجاح");
+        if (TENANCY_ENFORCEMENT_ENABLED) {
+          const tenant = resolveTenantRuntime(data.user!.app_metadata as Record<string, unknown>);
+          if (tenant.mode !== "tenant" || tenant.claims.status !== "active") {
+            await supabase.auth.signOut();
+            toast.error(c.workspaceMissing);
+            return;
+          }
+        }
+        toast.success(c.signedIn);
         navigate({ to: "/apps" });
-      } else {
-        if (!employeeId || !fullName || !email || !deptId || !jobId || !password) {
-          toast.error("الحقول المعلّمة بنجمة (*) مطلوبة");
-          return;
-        }
-        if (password !== confirmPwd) {
-          toast.error("كلمتا المرور غير متطابقتين");
-          return;
-        }
-        if (password.length < 8) {
-          toast.error("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
-          return;
-        }
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: window.location.origin,
-            data: {
-              full_name: fullName,
-              employee_id: employeeId,
-              phone,
-              department_id: deptId,
-              job_title_id: jobId,
-            },
-          },
-        });
-        if (error) throw error;
-        await supabase.auth.signOut();
-        toast.success("تم استلام طلبك بنجاح. سيتم تفعيل حسابك بعد اعتماد مسؤول النظام.");
-        setMode("login");
+        return;
       }
-    } catch (err) {
-      toast.error((err as Error).message);
+
+      if (!companyName.trim() || !fullName.trim() || !email.trim() || !password) {
+        toast.error(c.required);
+        return;
+      }
+      if (password !== confirmPassword) {
+        toast.error(c.mismatch);
+        return;
+      }
+      if (password.length < 8) {
+        toast.error(c.short);
+        return;
+      }
+      if (!SELF_SERVICE_SIGNUP_ENABLED) {
+        toast.info(c.signupPaused);
+        return;
+      }
+
+      const { error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/log`,
+          data: {
+            full_name: fullName.trim(),
+            company_name: companyName.trim(),
+            phone: phone.trim(),
+            signup_intent: "workspace_owner",
+            requested_plan: planKey,
+          },
+        },
+      });
+      if (error) throw error;
+      await supabase.auth.signOut();
+      toast.success(c.created);
+      setMode("login");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : String(error));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-[1.2fr_1fr] bg-sidebar">
-      <div className="relative hidden lg:flex flex-col justify-between p-12 text-white overflow-hidden">
-        <img src={hero} alt="" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
-        <div className="absolute inset-0 bg-gradient-to-l from-sidebar/95 via-sidebar/70 to-sidebar/40" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--accent)/15%,_transparent_60%)]" />
-        <div className="relative flex items-center gap-3">
-          <div className="w-12 h-12 rounded-lg bg-white/95 p-1.5 shadow-xl">
-            <img src={logo} alt="" className="w-full h-full object-contain" />
-          </div>
-          <div>
-            <div className="font-bold text-lg">{lang === "en" ? "Al-Ostool Al-Ali Group" : "مجموعة الأسطول الآلي"}</div>
-            <div className="text-xs text-white/75">Unified Group ERP</div>
+    <main className="grid min-h-screen bg-background lg:grid-cols-[1.08fr_.92fr]" dir={dir}>
+      <section className="relative hidden overflow-hidden bg-[#0b1220] p-12 text-white lg:flex lg:flex-col lg:justify-between">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.035)_1px,transparent_1px)] bg-[size:42px_42px]" />
+        <div className="relative"><a href="/" className="inline-flex rounded-xl bg-white px-3 py-2 text-[#0b1220]"><BrandLogo language={language} compact /></a></div>
+        <div className="relative max-w-2xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-300/20 bg-blue-400/10 px-4 py-2 text-[10px] font-black tracking-[.12em] text-blue-200"><Layers3 className="h-4 w-4" />{c.badge}</div>
+          <h1 className="mt-7 text-4xl font-black leading-tight xl:text-6xl">{c.heroTitle}</h1>
+          <p className="mt-6 max-w-xl text-base leading-8 text-slate-300">{c.heroBody}</p>
+          <div className="mt-10 grid gap-3 sm:grid-cols-3">
+            {[BarChart3, ShieldCheck, LockKeyhole].map((Icon, index) => <div key={c.points[index]} className="rounded-xl border border-white/10 bg-white/[.045] p-4 text-center"><Icon className="mx-auto h-5 w-5 text-cyan-300" /><div className="mt-3 text-xs font-bold">{c.points[index]}</div></div>)}
           </div>
         </div>
-        <div className="relative space-y-6 max-w-xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/20 border border-accent/40 text-accent text-xs font-semibold">
-            <HardHat className="w-3.5 h-3.5" /> ONE ERP • MULTI-COMPANY • MULTI-MODULE
-          </div>
-          <h1 className="text-4xl xl:text-5xl font-extrabold leading-tight">
-            منصة تشغيل واحدة
-            <span className="block text-accent mt-2">لكل شركات المجموعة</span>
-          </h1>
-          <p className="text-white/85 text-lg leading-relaxed">
-            المالية والمشاريع والموارد البشرية والتكاليف والخزينة والمخازن والصيانة والتشغيل والعقارات والمرافق وخدمة العملاء والتقنية داخل ERP موحد بصلاحيات حسب الشركة والموديول.
-          </p>
-          <div className="grid grid-cols-3 gap-3 pt-4">
-            {[{ icon: BarChart3, label: "رؤية إدارية موحدة" }, { icon: Brain, label: "بيانات وذكاء أعمال" }, { icon: ShieldCheck, label: "حوكمة وصلاحيات" }].map((f, i) => (
-              <div key={i} className="rounded-lg bg-white/10 backdrop-blur-md border border-white/15 p-3 text-center">
-                <f.icon className="w-5 h-5 mx-auto mb-1 text-accent" />
-                <div className="text-xs font-medium">{f.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="relative text-xs text-white/60">© {new Date().getFullYear()} {lang === "en" ? "Al-Ostool Al-Ali Group" : "مجموعة الأسطول الآلي"} • {t("footerRights")}</div>
-      </div>
+        <div className="relative text-xs text-slate-500">© {new Date().getFullYear()} {ONEXA.productName} • {language === "ar" ? ONEXA.taglineAr : ONEXA.tagline}</div>
+      </section>
 
-      <div className="relative flex items-center justify-center p-6 lg:p-12 bg-background overflow-y-auto">
-        <svg className="pointer-events-none absolute inset-0 w-full h-full text-muted-foreground/15" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-          <defs>
-            <pattern id="dotsLogin" x="0" y="0" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="currentColor" opacity="0.55" /></pattern>
-            <pattern id="ringsLogin" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse"><circle cx="30" cy="30" r="14" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.45" /><circle cx="30" cy="30" r="6" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.35" /></pattern>
-          </defs>
-          <path d="M-40 120 C 120 40, 260 140, 240 280 S 80 420, 40 360 -60 240 -40 120 Z" fill="currentColor" opacity="0.18" />
-          <path d="M620 -20 C 760 60, 820 220, 720 320 S 520 360, 500 240 540 60 620 -20 Z" fill="currentColor" opacity="0.14" />
-          <path d="M-20 560 C 120 500, 280 580, 300 700 S 140 820, 40 780 -80 660 -20 560 Z" fill="currentColor" opacity="0.16" />
-          <path d="M520 540 C 660 480, 820 560, 820 700 S 700 820, 600 780 460 660 520 540 Z" fill="currentColor" opacity="0.13" />
-          <circle cx="120" cy="640" r="90" fill="url(#ringsLogin)" /><circle cx="680" cy="160" r="110" fill="url(#ringsLogin)" />
-          <rect x="40" y="380" width="180" height="180" fill="url(#dotsLogin)" /><rect x="560" y="380" width="200" height="220" fill="url(#dotsLogin)" />
-        </svg>
-        <div className="relative w-full max-w-md">
-          <div className="flex items-center justify-between gap-3 mb-8">
-            <div className="lg:hidden flex items-center gap-3">
-              <img src={logo} alt="" className="w-12 h-12 rounded-lg bg-white p-1.5 shadow" />
-              <div><div className="font-bold">{lang === "en" ? "Al-Ostool Group" : "مجموعة الأسطول الآلي"}</div><div className="text-xs text-muted-foreground">ERP المجموعة الموحد</div></div>
-            </div>
+      <section className="relative flex items-center justify-center overflow-y-auto p-6 sm:p-10 lg:p-12">
+        <div className="w-full max-w-md">
+          <div className="mb-10 flex items-center justify-between gap-4">
+            <a href="/" className="lg:hidden"><BrandLogo language={language} compact /></a>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild><Button variant="ghost" size="sm" className="gap-1 ms-auto"><Globe className="w-4 h-4" /> {LANGS.find((l) => l.code === lang)?.native ?? lang}</Button></DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {LANGS.map((l) => <DropdownMenuItem key={l.code} onClick={() => setLang(l.code as Lang)}><span className="font-medium">{l.native}</span><span className="text-xs text-muted-foreground ms-2">{l.label}</span></DropdownMenuItem>)}
-              </DropdownMenuContent>
+              <DropdownMenuTrigger asChild><Button variant="ghost" size="sm" className="ms-auto gap-2"><Globe className="h-4 w-4" />{LANGS.find((item) => item.code === lang)?.native ?? lang}</Button></DropdownMenuTrigger>
+              <DropdownMenuContent align="end">{LANGS.map((item) => <DropdownMenuItem key={item.code} onClick={() => setLang(item.code as Lang)}><span className="font-medium">{item.native}</span><span className="ms-2 text-xs text-muted-foreground">{item.label}</span></DropdownMenuItem>)}</DropdownMenuContent>
             </DropdownMenu>
           </div>
 
-          <h2 className="text-2xl font-bold mb-1">{mode === "login" ? t("loginWelcomeBack") : t("loginCreateAccount")}</h2>
-          <p className="text-sm text-muted-foreground mb-5">{mode === "login" ? "سجّل الدخول مرة واحدة ثم اختر التطبيق المصرح لك به من لوحة التطبيقات." : t("loginSubtitleSignup")}</p>
+          <div className="mb-7"><div className="mb-4 grid h-12 w-12 place-items-center rounded-xl bg-primary/10 text-primary"><Building2 className="h-6 w-6" /></div><h2 className="text-2xl font-black">{mode === "login" ? c.welcome : c.create}</h2><p className="mt-2 text-sm leading-7 text-muted-foreground">{mode === "login" ? c.loginBody : c.createBody}</p></div>
 
-          {mode === "login" && (
-            <div className="mb-5 rounded-xl border border-primary/20 bg-primary/[0.05] p-4">
-              <div className="flex items-start gap-3">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground"><Grid3X3 className="h-5 w-5" /></div>
-                <div><div className="font-bold">ERP واحد — تطبيقات متعددة</div><p className="mt-1 text-xs leading-5 text-muted-foreground">بعد الدخول ستظهر واجهة تطبيقات شبيهة بأنظمة ERP الحديثة. تظهر لك فقط الموديولات المسموح بها، وظهور الموديول لا يتجاوز صلاحيات قاعدة البيانات.</p></div>
-              </div>
-            </div>
-          )}
-
-          <form onSubmit={submit} className="space-y-3">
-            {mode === "signup" && (
-              <>
-                <div><Label htmlFor="empid">{t("loginEmployeeIdLabel")}</Label><Input id="empid" value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} required className="mt-1.5" /></div>
-                <div><Label htmlFor="name">{t("loginFullNameLabel")}</Label><Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} required className="mt-1.5" /></div>
-              </>
-            )}
-            <div>
-              <Label htmlFor="email">{mode === "login" ? t("loginEmailOrIdLabel") : t("loginEmailLabel")}</Label>
-              <Input id="email" type={mode === "login" ? "text" : "email"} value={email} onChange={(e) => setEmail(e.target.value)} required dir="ltr" className="mt-1.5" placeholder={mode === "login" ? "name@example.com" : ""} />
-            </div>
-            {mode === "signup" && (
-              <>
-                <div><Label htmlFor="phone">{t("loginPhoneLabel")}</Label><Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} dir="ltr" className="mt-1.5" /></div>
-                <div className="grid grid-cols-1 gap-3">
-                  <div><Label>{t("loginDeptLabel")}</Label><Select value={deptId} onValueChange={setDeptId}><SelectTrigger className="mt-1.5"><SelectValue placeholder={t("loginDeptPlaceholder")} /></SelectTrigger><SelectContent>{depts.map((d) => <SelectItem key={d.id} value={d.id}>{d.name_ar}</SelectItem>)}</SelectContent></Select></div>
-                  <div><Label>{t("loginJobLabel")}</Label><Select value={jobId} onValueChange={setJobId}><SelectTrigger className="mt-1.5"><SelectValue placeholder={t("loginJobPlaceholder")} /></SelectTrigger><SelectContent>{jobs.map((j) => <SelectItem key={j.id} value={j.id}>{j.name_ar}</SelectItem>)}</SelectContent></Select></div>
-                </div>
-              </>
-            )}
-            <div><Label htmlFor="password">{t("loginPasswordLabel")}</Label><Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} dir="ltr" className="mt-1.5" /></div>
-            {mode === "signup" && <div><Label htmlFor="cpwd">{t("loginConfirmPasswordLabel")}</Label><Input id="cpwd" type="password" value={confirmPwd} onChange={(e) => setConfirmPwd(e.target.value)} required dir="ltr" className="mt-1.5" /></div>}
-            <Button type="submit" className="w-full h-11 text-base font-semibold bg-primary hover:bg-primary/90" disabled={loading}>{loading ? t("loginProcessing") : mode === "login" ? t("loginSubmitLogin") : t("loginSubmitSignup")}</Button>
+          <form onSubmit={submit} className="space-y-4">
+            {mode === "signup" && <>
+              <div><Label htmlFor="company">{c.company}</Label><Input id="company" value={companyName} onChange={(event) => setCompanyName(event.target.value)} autoComplete="organization" required className="mt-1.5" /></div>
+              <div><Label htmlFor="plan">{c.plan}</Label><select id="plan" value={planKey} onChange={(event) => setPlanKey(normalizeOnexaPlanKey(event.target.value))} className="mt-1.5 h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15">{ONEXA_PLANS.map((plan) => <option key={plan.key} value={plan.key}>{language === "ar" ? plan.nameAr : plan.name}</option>)}</select></div>
+              <div><Label htmlFor="name">{c.fullName}</Label><Input id="name" value={fullName} onChange={(event) => setFullName(event.target.value)} autoComplete="name" required className="mt-1.5" /></div>
+            </>}
+            <div><Label htmlFor="email">{c.email}</Label><Input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required dir="ltr" className="mt-1.5" placeholder="name@company.com" /></div>
+            {mode === "signup" && <div><Label htmlFor="phone">{c.phone}</Label><Input id="phone" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} autoComplete="tel" dir="ltr" className="mt-1.5" /></div>}
+            <div><Label htmlFor="password">{c.password}</Label><Input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete={mode === "login" ? "current-password" : "new-password"} required minLength={8} dir="ltr" className="mt-1.5" /></div>
+            {mode === "signup" && <div><Label htmlFor="confirm-password">{c.confirm}</Label><Input id="confirm-password" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} autoComplete="new-password" required minLength={8} dir="ltr" className="mt-1.5" /></div>}
+            <Button type="submit" className="h-12 w-full text-sm font-black" disabled={loading}>{loading ? c.processing : mode === "login" ? c.submitLogin : c.submitCreate}</Button>
           </form>
 
-          <div className="mt-6 text-center"><button type="button" onClick={() => setMode(mode === "login" ? "signup" : "login")} className="text-sm text-primary hover:text-accent transition-colors font-medium">{mode === "login" ? t("loginNoAccount") : t("loginHaveAccount")}</button></div>
+          {mode === "signup" && <p className="mt-4 text-center text-[11px] leading-5 text-muted-foreground">{c.terms}</p>}
+          <div className="mt-7 text-center"><button type="button" onClick={() => setMode(mode === "login" ? "signup" : "login")} className="text-sm font-bold text-primary transition hover:text-primary/80">{mode === "login" ? c.noAccount : c.haveAccount}</button></div>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

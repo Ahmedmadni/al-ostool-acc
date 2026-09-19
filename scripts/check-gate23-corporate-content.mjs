@@ -1,79 +1,48 @@
-import { readFileSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 
 const read = (path) => readFileSync(path, "utf8");
 const failures = [];
-const requireText = (source, needle, label) => {
-  if (!source.includes(needle)) failures.push(label);
-};
+const requireText = (source, needle, label) => { if (!source.includes(needle)) failures.push(label); };
 
 const styles = read("src/styles.css");
-requireText(styles, "--primary: #e8a312", "profile yellow is missing from the light identity");
-requireText(styles, "--primary: #f1b12b", "profile yellow is missing from the dark identity");
-for (const legacyOrange of ["#f05a28", "#ff6a35", "#ff7547", "#ff8157"]) {
-  if (styles.toLowerCase().includes(legacyOrange)) failures.push(`legacy orange remains: ${legacyOrange}`);
-}
-
-for (const asset of ["public/images/brand/al-ostool-logo.png", "public/images/brand/al-ostool-mark.png"]) {
-  const bytes = readFileSync(asset);
-  if (bytes.subarray(1, 4).toString("ascii") !== "PNG") failures.push(`${asset} is not a PNG asset`);
-  if (statSync(asset).size > 350_000) failures.push(`${asset} exceeds the 350 KB brand-asset budget`);
-}
+requireText(styles, "--primary: #2158d8", "ONEXA blue is missing from the light identity");
+requireText(styles, "--primary: #4c8dff", "ONEXA blue is missing from the dark identity");
 
 const brand = read("src/components/public/brand-logo.tsx");
-requireText(brand, "/images/brand/al-ostool-mark.png", "shared brand mark is missing");
-
-for (const path of [
-  "src/routes/index.tsx",
-  "src/routes/app.tsx",
-  "src/components/public/company-service-page.tsx",
-]) {
-  const source = read(path);
-  if (!source.includes("BrandLogo") && !source.includes("PublicSiteHeader")) failures.push(`shared brand header is missing from ${path}`);
+for (const marker of ["ONEXA", "ENTERPRISE RESOURCE PLANNING", "نظام تخطيط موارد المؤسسات"]) {
+  requireText(brand, marker, `ONEXA shared brand marker is missing: ${marker}`);
 }
-requireText(read("src/components/layout/app-shell.tsx"), "/images/brand/al-ostool-mark.png", "ERP brand mark is missing");
 
 const home = read("src/routes/index.tsx");
-for (const marker of [
-  'id="about"',
-  'id="partners"',
-  "Since 2008",
-  "منذ 2008",
-  "Diriyah",
-  "King Salman Park",
-  "Princess Nourah University",
-]) {
-  requireText(home, marker, `corporate-content marker is missing: ${marker}`);
+for (const marker of ['id="modules"', 'id="platform"', 'id="industries"', 'id="security"', 'id="plans"', "One ERP. Every essential business function.", "نظام واحد لكل وظائف الشركة الأساسية."]) {
+  requireText(home, marker, `ONEXA product-content marker is missing: ${marker}`);
+}
+for (const oldBrand of ["Al-Ostool Al-Ali", "مجموعة الأسطول الآلي", "شركة الأسطول الآلي"]) {
+  if (home.includes(oldBrand)) failures.push(`legacy customer identity remains on the product home: ${oldBrand}`);
 }
 for (const monetaryMarker of ["SAR ", "Sar ", "ريال"]) {
-  if (home.includes(monetaryMarker)) failures.push(`public project values must remain hidden: ${monetaryMarker}`);
+  if (home.includes(monetaryMarker)) failures.push(`customer project values must remain hidden: ${monetaryMarker}`);
 }
 
-for (const asset of [
-  "public/images/partners/diriyah.svg",
-  "public/images/partners/rcrc.svg",
-  "public/images/partners/princess-nourah-university.svg",
-  "public/images/partners/dallah-hospital.png",
-  "public/images/partners/al-hilal.webp",
-]) {
-  if (statSync(asset).size < 1_000) failures.push(`${asset} is missing or unexpectedly small`);
-}
-for (const marker of ["Al-Hilal Saudi Club", "National Guard Housing", "Dammam Reformatory", "Qadisiyah Exhibition Complex", "20+ projects"]) {
-  requireText(home, marker, `expanded portfolio marker is missing: ${marker}`);
-}
+const shell = read("src/components/layout/app-shell.tsx");
+requireText(shell, "ONEXA", "ERP shell does not use the ONEXA product identity");
+requireText(shell, "الحسابات العامة والتقارير المالية", "general ledger module group is missing");
+requireText(shell, "المشاريع والتشغيل", "projects and operations module group is missing");
+requireText(shell, "النقليات واللوجستيات", "transport and logistics module group is missing");
 
-const contracting = read("src/routes/companies.al-ostool.tsx");
-for (const marker of ["Roads & infrastructure", "Demolition & site clearance", "Crushers & construction materials", "Heavy equipment & transport"]) {
-  requireText(contracting, marker, `contracting capability is missing: ${marker}`);
-}
+const login = read("src/routes/log.tsx");
+requireText(login, "VITE_ENABLE_ONEXA_SIGNUP", "safe self-service signup gate is missing");
+requireText(login, "workspace_owner", "workspace-owner onboarding intent is missing");
+requireText(login, 'navigate({ to: "/apps" })', "successful login does not reach the ERP launcher");
 
 const manifest = JSON.parse(read("public/manifest.webmanifest"));
-if (manifest.name !== "Al-Ostool Al-Ali Group") failures.push("public manifest still uses the ERP product identity");
-if (manifest.theme_color !== "#F1B12B") failures.push("public manifest theme does not match the approved profile yellow");
+if (manifest.name !== "ONEXA ERP") failures.push("public manifest does not use the ONEXA identity");
+if (manifest.theme_color !== "#2158D8") failures.push("public manifest does not use the ONEXA primary color");
 if (manifest.lang !== "en" || manifest.dir !== "ltr") failures.push("public manifest does not match the English-first public website");
 
 if (failures.length) {
-  console.error("Gate 23 corporate content checks failed:\n- " + failures.join("\n- "));
+  console.error("Gate 23 ONEXA product foundation checks failed:\n- " + failures.join("\n- "));
   process.exit(1);
 }
 
-console.log("Gate 23 corporate content checks passed.");
+console.log("Gate 23 ONEXA product foundation checks passed.");

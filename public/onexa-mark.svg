@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">ONEXA</title>
+  <desc id="desc">ONEXA ERP brand mark</desc>
+  <rect width="512" height="512" rx="116" fill="#2158D8"/>
+  <circle cx="204" cy="256" r="106" fill="none" stroke="#FFFFFF" stroke-width="50"/>
+  <path d="M278 161 397 351M397 161 278 351" fill="none" stroke="#FFFFFF" stroke-width="50" stroke-linecap="round"/>
+</svg>

@@ -1,322 +1,281 @@
 import { createFileRoute } from "@tanstack/react-router";
+import type { LucideIcon } from "lucide-react";
 import {
   ArrowLeft,
   ArrowRight,
+  ArrowUpRight,
+  BarChart3,
+  Boxes,
   Building2,
-  Cpu,
-  HardHat,
+  Check,
+  CircleDollarSign,
+  ClipboardCheck,
+  Cloud,
+  Database,
+  FileText,
+  Landmark,
   Layers3,
-  Mail,
-  MapPin,
-  Phone,
+  LockKeyhole,
+  Package,
+  Route as RouteIcon,
   ShieldCheck,
-  TrendingUp,
+  Truck,
+  Users,
+  Workflow,
   Wrench,
 } from "lucide-react";
-import { AppDownloadCta } from "@/components/public/app-download-cta";
 import { PublicSiteHeader } from "@/components/public/public-site-header";
-import { portfolioCompanies, type GroupCompanyCode } from "@/data/group-portfolio";
 import { useI18n } from "@/lib/i18n";
+import { ONEXA, onexaModules } from "@/lib/onexa-product";
+import { formatPlanLimit, ONEXA_PLANS } from "@/lib/onexa-plans";
 import { publicSeo } from "@/lib/public-seo";
 
-const iconByCompany: Record<GroupCompanyCode, typeof Building2> = {
-  CORE: HardHat,
-  OM: Wrench,
-  RE: Building2,
-  IT: Cpu,
+const moduleIcons: Record<(typeof onexaModules)[number]["key"], LucideIcon> = {
+  finance: Landmark,
+  sales: CircleDollarSign,
+  procurement: ClipboardCheck,
+  inventory: Package,
+  projects: Layers3,
+  facilities: Building2,
+  logistics: Truck,
+  assets: Boxes,
+  people: Users,
 };
 
 const copy = {
   en: {
-    title: "Saudi execution expertise. One group built for measurable growth.",
-    intro: "Since 2008, Al-Ostool Al-Ali has turned field capability in infrastructure, heavy equipment, and project delivery into an integrated platform for operations, assets, real estate, and technology.",
-    eyebrow: "MULTI-SECTOR INVESTMENT & OPERATIONS GROUP",
-    portfolio: "Group portfolio",
-    about: "About the group",
-    partners: "Clients & partners",
-    model: "Operating model",
-    contact: "Business enquiries",
-    explore: "Explore the portfolio",
-    talk: "Contact the group",
-    portfolioTitle: "Specialized companies. Shared operating strength.",
-    portfolioBody: "Each company serves its own market with a clear operating mandate, while the group provides governance, systems, data, and financial control.",
-    modelTitle: "From capital allocation to measurable performance",
-    contactTitle: "Choose the company closest to your requirement",
-    contactBody: "Maintenance, real estate, technology, and project enquiries enter one customer-service hub and are routed to the right company and operating team.",
-    aboutTitle: "Execution experience since 2008. A broader platform for the future.",
-    aboutBody: "Al-Ostool Al-Ali began with contracting, infrastructure, heavy equipment, transport, and construction-material production. Today, that field experience supports a group model connecting operations, assets, real estate, and technology under shared governance.",
-    aboutFacts: [
-      ["Since 2008", "Saudi market experience rooted in real project delivery."],
-      ["Field capability", "Infrastructure, roads, excavation, backfilling, utilities, demolition, crushers, transport, and heavy equipment."],
-      ["Integrated growth", "An operating platform that links specialist companies without losing accountability for each activity."],
+    eyebrow: "CONNECTED CLOUD ERP",
+    title: "Run every operation from one clear system.",
+    intro: "ONEXA connects finance, customers, suppliers, inventory, projects, assets, logistics, facilities, and people—so every operational movement reaches the right ledger and report.",
+    start: "Create your account",
+    demo: "Explore the platform",
+    signIn: "Sign in",
+    nav: { modules: "Modules", platform: "Platform", industries: "Industries", security: "Security", pricing: "Plans" },
+    proof: ["Arabic & English", "Multi-company ready", "Role-based access"],
+    modulesEyebrow: "CORE MODULES",
+    modulesTitle: "One ERP. Every essential business function.",
+    modulesBody: "Start with the modules you need today and add more as your business grows. Shared records and workflows keep every team aligned.",
+    connectedEyebrow: "ACCOUNTING BY DESIGN",
+    connectedTitle: "Every operation reaches the books automatically.",
+    connectedBody: "Sales, procurement, payroll, inventory, projects, assets, and logistics feed a governed posting engine with approvals, traceability, and drill-down to the source document.",
+    flow: ["Operational document", "Approval workflow", "Accounting rule", "Journal entry", "Live reporting"],
+    platformEyebrow: "BUILT FOR CONTROL",
+    platformTitle: "A dependable operating layer for growing companies.",
+    platformFeatures: [
+      ["Dedicated customer environment", "Customer business data is isolated from every other ONEXA customer."],
+      ["Companies, branches, and dimensions", "Manage legal entities, branches, cost centers, projects, and reporting dimensions."],
+      ["Flexible roles and approvals", "Give each user the precise access and approval limits required by their role."],
+      ["One audit trail", "Track every important action, approval, posting, reversal, and document change."],
     ],
-    partnersTitle: "Trusted project relationships across major Saudi destinations",
-    partnersBody: "Selected clients, destinations, and institutions drawn from the company’s documented delivery record across the Kingdom.",
-    choose: "Choose a company",
-    companyLink: "Company & services",
-    footer: "Investment • Operations • Assets • Technology",
-    heroStats: [
-      ["Since 2008", "Established delivery experience"],
-      ["20+ projects", "Documented portfolio record"],
-      ["8 capabilities", "One integrated delivery platform"],
+    industriesEyebrow: "ADAPTS TO YOUR WORK",
+    industriesTitle: "Core ERP with industry-ready operating models.",
+    industries: [
+      ["Contracting", "Contracts, budgets, progress billing, retention, resources, and project profitability."],
+      ["Operations & maintenance", "Service contracts, work orders, preventive plans, assets, materials, and field cost."],
+      ["Facilities & real estate", "Properties, units, leases, tenants, services, occupancy, and asset performance."],
+      ["Transport & logistics", "Fleet, trips, drivers, fuel, maintenance, delivery cost, and route performance."],
+      ["Trading & services", "CRM, quotations, sales, purchasing, inventory, service delivery, and collections."],
+      ["Multi-company groups", "Separate entities with unified governance, permissions, consolidation, and reporting."],
     ],
-    additionalProjects: "Additional documented projects",
-    contactDirect: "Direct contact",
-    address: "Riyadh, Al-Mohammadiyah, Takhassusi Street",
-    legal: "CR 1010245630 • P.O. Box 240162, Riyadh 11322",
-    call: "Call the group",
-    email: "Email business enquiries",
-    strengths: [
-      ["Integrated portfolio", "We invest in and operate specialized businesses across connected sectors with clear operational and financial accountability."],
-      ["Operations-led investment", "Assets, clients, contracts, cost, and performance are connected to create growth that can be measured and governed."],
-      ["Shared governance platform", "A group ERP supports finance, people, projects, operations, real estate, and customer service with company-level permissions."],
-    ],
+    securityEyebrow: "SECURITY & GOVERNANCE",
+    securityTitle: "Your company workspace. Your users. Your data.",
+    securityBody: "ONEXA is being designed for dedicated customer data environments, invitation-based access, controlled support, and complete operational auditability.",
+    securityPoints: ["Dedicated database per customer", "Tenant-scoped administration", "Invite-only user access", "Audited support controls"],
+    plansEyebrow: "MODULAR PLANS",
+    plansTitle: "Choose the operating scope that fits your business.",
+    plansBody: "Plans will control active users, legal entities, storage, and enabled modules—with room to expand without changing systems.",
+    planNames: ["Start", "Business", "Pro", "Enterprise"],
+    planUsers: "active users",
+    planEntities: "legal entities",
+    planModules: "included modules",
+    planCta: "Choose plan",
+    recommended: "Recommended",
+    finalTitle: "Replace disconnected work with one source of truth.",
+    finalBody: "Create an ONEXA account and prepare a connected workspace for your company.",
+    footer: "One System. Every Operation.",
   },
   ar: {
-    title: "خبرة تنفيذ سعودية ومنظومة واحدة لنمو قابل للقياس",
-    intro: "منذ 2008، طورت الأسطول الآلي خبرتها الميدانية في البنية التحتية والمعدات الثقيلة وتنفيذ المشاريع إلى منصة متكاملة للتشغيل والأصول والعقار والتقنية.",
-    eyebrow: "مجموعة استثمار وتشغيل متعددة القطاعات",
-    portfolio: "محفظة المجموعة",
-    about: "عن المجموعة",
-    partners: "العملاء والشركاء",
-    model: "نموذج التشغيل",
-    contact: "فرص الأعمال",
-    explore: "استكشف المحفظة",
-    talk: "تواصل مع المجموعة",
-    portfolioTitle: "شركات متخصصة وقوة تشغيلية مشتركة",
-    portfolioBody: "لكل شركة سوقها ونطاقها التشغيلي، بينما توحّد المجموعة الحوكمة والأنظمة والبيانات والرقابة المالية.",
-    modelTitle: "من تخصيص رأس المال إلى أداء قابل للقياس",
-    contactTitle: "اختر الشركة الأقرب إلى احتياجك",
-    contactBody: "تدخل طلبات الصيانة والعقار والتقنية وفرص المشاريع إلى مركز خدمة موحد ثم تُوجّه إلى الشركة والفريق التشغيلي المناسب.",
-    aboutTitle: "خبرة تنفيذية منذ 2008 ومنصة أوسع للمستقبل",
-    aboutBody: "بدأت الأسطول الآلي من المقاولات والبنية التحتية والمعدات الثقيلة والنقل وإنتاج مواد الإنشاء. واليوم تدعم هذه الخبرة الميدانية نموذج مجموعة يربط التشغيل والأصول والعقار والتقنية تحت حوكمة مشتركة.",
-    aboutFacts: [
-      ["منذ 2008", "خبرة في السوق السعودي مبنية على تنفيذ مشروعات فعلية."],
-      ["قدرات ميدانية", "البنية التحتية والطرق والحفر والردم وشبكات الخدمات والهدم والكسارات والنقل والمعدات الثقيلة."],
-      ["نمو متكامل", "منصة تشغيل تربط الشركات المتخصصة مع استقلال المسؤولية عن كل نشاط."],
+    eyebrow: "نظام ERP سحابي مترابط",
+    title: "أدِر كل عملياتك من نظام واحد واضح.",
+    intro: "يربط ONEXA المالية والعملاء والموردين والمخزون والمشاريع والأصول واللوجستيات والمرافق والموارد البشرية، لتنعكس كل حركة تشغيلية في القيد والتقرير الصحيح.",
+    start: "إنشاء حساب",
+    demo: "استكشف النظام",
+    signIn: "تسجيل الدخول",
+    nav: { modules: "الموديولات", platform: "المنصة", industries: "القطاعات", security: "الأمان", pricing: "الباقات" },
+    proof: ["العربية والإنجليزية", "يدعم تعدد الشركات", "صلاحيات حسب الدور"],
+    modulesEyebrow: "الموديولات الرئيسية",
+    modulesTitle: "نظام واحد لكل وظائف الشركة الأساسية.",
+    modulesBody: "ابدأ بالموديولات التي تحتاجها الآن وأضف المزيد مع نمو أعمالك، مع بيانات ومسارات عمل مشتركة تربط جميع الفرق.",
+    connectedEyebrow: "محاسبة مدمجة في التشغيل",
+    connectedTitle: "كل عملية تصل تلقائيًا إلى الحسابات.",
+    connectedBody: "تغذي المبيعات والمشتريات والرواتب والمخزون والمشاريع والأصول واللوجستيات محرك قيود محكومًا بالموافقات والتتبع والرجوع إلى المستند الأصلي.",
+    flow: ["مستند تشغيلي", "مسار اعتماد", "قاعدة محاسبية", "قيد يومية", "تقرير لحظي"],
+    platformEyebrow: "مصمم للرقابة",
+    platformTitle: "طبقة تشغيل موثوقة للشركات النامية.",
+    platformFeatures: [
+      ["بيئة مستقلة لكل عميل", "تُعزل بيانات العميل التشغيلية عن جميع عملاء ONEXA الآخرين."],
+      ["شركات وفروع وأبعاد", "إدارة الشركات القانونية والفروع ومراكز التكلفة والمشاريع والأبعاد التحليلية."],
+      ["أدوار واعتمادات مرنة", "منح كل مستخدم الصلاحيات وحدود الاعتماد المناسبة لدوره."],
+      ["سجل رقابي موحد", "تتبع العمليات والموافقات والترحيل والعكس والتعديلات المهمة."],
     ],
-    partnersTitle: "علاقات موثوقة ضمن مشروعات ووجهات سعودية كبرى",
-    partnersBody: "عملاء ووجهات وجهات مؤسسية مختارة من سجل التنفيذ الموثق للشركة في مناطق المملكة.",
-    choose: "اختر الشركة",
-    companyLink: "الشركة والخدمات",
-    footer: "الاستثمار • التشغيل • الأصول • التقنية",
-    heroStats: [
-      ["منذ 2008", "خبرة تنفيذية راسخة"],
-      ["أكثر من 20 مشروعاً", "سجل مشروعات موثق"],
-      ["8 قدرات أساسية", "منصة تنفيذ متكاملة"],
+    industriesEyebrow: "يتكيّف مع طبيعة عملك",
+    industriesTitle: "نواة ERP موحدة مع نماذج تشغيل للقطاعات.",
+    industries: [
+      ["المقاولات", "العقود والميزانيات والمستخلصات والاحتجاز والموارد وربحية المشاريع."],
+      ["التشغيل والصيانة", "عقود الخدمة وأوامر العمل والصيانة الوقائية والأصول والمواد وتكلفة المواقع."],
+      ["المرافق والعقارات", "العقارات والوحدات والإيجارات والمستأجرون والخدمات والإشغال وربحية الأصول."],
+      ["النقل واللوجستيات", "الأسطول والرحلات والسائقون والوقود والصيانة وتكلفة التوصيل وأداء المسارات."],
+      ["التجارة والخدمات", "العملاء والعروض والمبيعات والمشتريات والمخزون والخدمات والتحصيل."],
+      ["المجموعات متعددة الشركات", "كيانات مستقلة مع حوكمة وصلاحيات وتقارير وتجميع موحد."],
     ],
-    additionalProjects: "مشروعات إضافية موثقة",
-    contactDirect: "تواصل مباشر",
-    address: "الرياض، حي المحمدية، شارع التخصصي",
-    legal: "السجل التجاري 1010245630 • ص.ب 240162، الرياض 11322",
-    call: "اتصل بالمجموعة",
-    email: "راسل فريق فرص الأعمال",
-    strengths: [
-      ["محفظة متكاملة", "نستثمر ونشغّل أعمالاً متخصصة في قطاعات مترابطة مع مسؤولية تشغيلية ومالية واضحة لكل شركة."],
-      ["استثمار مبني على التشغيل", "نربط الأصل والعميل والعقد والتكلفة والأداء للوصول إلى نمو قابل للقياس والحوكمة."],
-      ["منصة حوكمة مشتركة", "يدعم ERP المجموعة المالية والموارد والمشاريع والتشغيل والعقارات وخدمة العملاء بصلاحيات مستقلة لكل شركة."],
-    ],
+    securityEyebrow: "الأمان والحوكمة",
+    securityTitle: "مساحة شركتك. مستخدموك. بياناتك.",
+    securityBody: "يُبنى ONEXA على بيئات بيانات مستقلة لكل عميل، ودخول بالدعوات، ودعم فني مضبوط، وسجل رقابي كامل.",
+    securityPoints: ["قاعدة مستقلة لكل عميل", "إدارة مقيدة بالعميل", "مستخدمون عبر الدعوات", "دعم فني خاضع للتدقيق"],
+    plansEyebrow: "باقات مرنة",
+    plansTitle: "اختر نطاق التشغيل المناسب لأعمالك.",
+    plansBody: "تحدد الباقة المستخدمين النشطين والشركات والتخزين والموديولات، مع إمكانية التوسع دون تغيير النظام.",
+    planNames: ["Start", "Business", "Pro", "Enterprise"],
+    planUsers: "مستخدمين نشطين",
+    planEntities: "شركات قانونية",
+    planModules: "موديولات مشمولة",
+    planCta: "اختر الباقة",
+    recommended: "موصى بها",
+    finalTitle: "استبدل الأنظمة المتفرقة بمصدر واحد للحقيقة.",
+    finalBody: "أنشئ حساب ONEXA وجهز مساحة عمل مترابطة لشركتك.",
+    footer: "نظام واحد لكل عملياتك",
   },
 } as const;
 
-const partnerNames = [
-  { en: "Diriyah", ar: "الدرعية", projectEn: "Infrastructure & earthworks", projectAr: "أعمال البنية التحتية والأعمال الترابية", href: "https://www.diriyahcompany.sa/en/", logo: "/images/partners/diriyah.svg" },
-  { en: "Royal Commission for Riyadh City", ar: "الهيئة الملكية لمدينة الرياض", projectEn: "Riyadh Metro & railway works", projectAr: "أعمال مترو وسكة حديد الرياض", href: "https://www.rcrc.gov.sa/en/", logo: "/images/partners/rcrc.svg" },
-  { en: "Princess Nourah University", ar: "جامعة الأميرة نورة", projectEn: "Infrastructure & backfilling works", projectAr: "أعمال البنية التحتية والردم", href: "https://pnu.edu.sa/en/Pages/home.aspx", logo: "/images/partners/princess-nourah-university.svg" },
-  { en: "Dallah Hospital", ar: "مستشفى دلة", projectEn: "Infrastructure & material production", projectAr: "أعمال البنية التحتية وإنتاج المواد", href: "https://www.dallah-hospital.com/english/home", logo: "/images/partners/dallah-hospital.png" },
-  { en: "Al-Hilal Saudi Club", ar: "نادي الهلال السعودي", projectEn: "Stadium rehabilitation works", projectAr: "أعمال تأهيل ملعب النادي", href: "https://alhilal.com/en", logo: "/images/partners/al-hilal.webp" },
-] as const;
-
-const additionalProjectNames = [
-  { en: "Diriyah Gate — Contract 148", ar: "بوابة الدرعية — عقد 148" },
-  { en: "Diriyah Gate — Contract 102", ar: "بوابة الدرعية — عقد 102" },
-  { en: "King Salman Park", ar: "حديقة الملك سلمان" },
-  { en: "Security Forces Hospital", ar: "مستشفى قوى الأمن" },
-  { en: "City View Scheme", ar: "مخطط سيتي فيو" },
-  { en: "Qairouan", ar: "القيروان" },
-  { en: "Dora Al-Shafa Scheme", ar: "مخطط درة الشفا" },
-  { en: "Dammam Reformatory", ar: "إصلاحية الدمام" },
-  { en: "Ruaq Qurtuba Mall", ar: "مول رواق قرطبة" },
-  { en: "Al Hamra District", ar: "مخطط حي الحمراء" },
-  { en: "Al Yasmin District", ar: "مخطط حي الياسمين" },
-  { en: "Al Sahafa District", ar: "مخطط حي الصحافة" },
-  { en: "Half Moon Beach", ar: "مخطط شاطئ نصف القمر" },
-  { en: "Al Wurud District", ar: "حي الورود" },
-  { en: "Al Kharj Scheme", ar: "مخطط الخرج" },
-  { en: "Qadisiyah Exhibition Complex", ar: "مجمع معارض القادسية" },
-  { en: "Al Wurud City", ar: "مدينة الورود" },
-  { en: "Al Mousa Bridge Scheme", ar: "مخطط جسر الموسى" },
-  { en: "National Guard Housing", ar: "إسكان الحرس الوطني" },
-] as const;
-
 export const Route = createFileRoute("/")({
-  component: HoldingHomePage,
-  head: () => publicSeo({
-    title: "Al-Ostool Al-Ali Group | Contracting, Operations & Investment",
-    description: "Saudi group delivering contracting, infrastructure, heavy equipment, operations and maintenance, real estate asset management, and digital solutions since 2008.",
-  }),
+  component: OnexaHomePage,
+  head: () =>
+    publicSeo({
+      title: "ONEXA ERP | One System. Every Operation.",
+      description: ONEXA.description,
+      schema: {
+        "@type": "SoftwareApplication",
+        name: ONEXA.productName,
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        description: ONEXA.description,
+      },
+    }),
 });
 
-function HoldingHomePage() {
+function OnexaHomePage() {
   const { lang, dir } = useI18n();
-  const c = copy[lang === "ar" ? "ar" : "en"];
+  const language = lang === "ar" ? "ar" : "en";
+  const c = copy[language];
   const Arrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
   return (
     <main className="public-site" dir={dir}>
       <PublicSiteHeader
-        language={lang === "ar" ? "ar" : "en"}
-        menuLabel={lang === "ar" ? "فتح قائمة التنقل" : "Open navigation menu"}
+        language={language}
+        menuLabel={language === "ar" ? "فتح قائمة التنقل" : "Open navigation menu"}
         navigation={[
-          { href: "#portfolio", label: c.portfolio },
-          { href: "#about", label: c.about },
-          { href: "#partners", label: c.partners },
-          { href: "#investment-model", label: c.model },
-          { href: "#contact", label: c.contact },
+          { href: "#modules", label: c.nav.modules },
+          { href: "#platform", label: c.nav.platform },
+          { href: "#industries", label: c.nav.industries },
+          { href: "#security", label: c.nav.security },
+          { href: "#plans", label: c.nav.pricing },
         ]}
       />
 
-      <section className="relative overflow-hidden border-b border-black/20 bg-[#262626] text-white">
-        <div className="pointer-events-none absolute inset-y-0 end-0 hidden w-[34%] bg-[#f1b12b] lg:block" />
-        <div className="pointer-events-none absolute -start-24 top-20 h-72 w-72 rounded-full border border-white/10" />
-        <div className="mx-auto grid min-h-[760px] max-w-7xl items-center gap-12 px-5 py-16 lg:grid-cols-[.92fr_1.08fr] lg:px-8 lg:py-20">
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-[10px] font-black tracking-[.18em] text-[#f1b12b] backdrop-blur">{c.eyebrow}</div>
-            <h1 className="mt-7 max-w-4xl text-4xl font-black leading-[1.14] tracking-[-.03em] sm:text-5xl lg:text-7xl">{c.title}</h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 sm:text-lg">{c.intro}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#portfolio" className="public-button-primary px-5 py-3 text-sm">{c.explore}<Arrow className="h-4 w-4" /></a>
-              <a href="#contact" className="inline-flex items-center justify-center rounded-lg border border-white/25 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:border-[#f1b12b] hover:bg-white/10">{c.talk}</a>
+      <section className="relative overflow-hidden border-b border-border bg-[#0b1220] text-white">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.035)_1px,transparent_1px)] bg-[size:44px_44px]" />
+        <div className="relative mx-auto grid min-h-[720px] max-w-7xl items-center gap-14 px-5 py-16 lg:grid-cols-[.95fr_1.05fr] lg:px-8 lg:py-24">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-300/20 bg-blue-400/10 px-4 py-2 text-[10px] font-black tracking-[.18em] text-blue-200"><Cloud className="h-4 w-4" /> {c.eyebrow}</div>
+            <h1 className="mt-7 max-w-3xl text-4xl font-black leading-[1.16] tracking-[-.04em] sm:text-5xl lg:text-7xl">{c.title}</h1>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">{c.intro}</p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <a href="/log?mode=signup" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground transition hover:-translate-y-0.5 hover:bg-primary/90">{c.start}<Arrow className="h-4 w-4" /></a>
+              <a href="#modules" className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:border-white/40 hover:bg-white/10">{c.demo}</a>
             </div>
-            <div className="mt-10 grid gap-px overflow-hidden rounded-xl border border-white/10 bg-white/10 sm:grid-cols-3">
-              {c.heroStats.map(([value, label]) => <div key={value} className="bg-[#262626]/90 p-4"><div className="text-lg font-black text-[#f1b12b]">{value}</div><div className="mt-1 text-[11px] leading-5 text-white/55">{label}</div></div>)}
-            </div>
+            <div className="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-xs text-slate-300">{c.proof.map((item) => <span key={item} className="inline-flex items-center gap-2"><Check className="h-4 w-4 text-cyan-300" />{item}</span>)}</div>
           </div>
 
-          <div className="relative z-10 lg:ps-4">
-            <figure className="relative min-h-[500px] overflow-hidden rounded-2xl border border-white/15 bg-black shadow-2xl shadow-black/30 lg:min-h-[610px]">
-              <img
-                src="/images/group/holding-hero-v1.webp"
-                alt={lang === "ar" ? "عمليات مجموعة الأسطول الآلي في قطاعات البنية التحتية والأصول والتقنية" : "Al-Ostool Al-Ali Group operations across infrastructure, assets, and technology"}
-                width={1600}
-                height={900}
-                fetchPriority="high"
-                decoding="async"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black/25" />
-              <div className="absolute end-5 top-5 grid h-20 w-20 place-items-center rounded-xl border border-white/20 bg-white/95 p-3 shadow-xl"><img src="/images/brand/al-ostool-mark.png" alt="" className="max-h-full max-w-full object-contain" /></div>
-              <figcaption className="absolute inset-x-0 bottom-0 border-t border-white/15 bg-black/75 p-6 backdrop-blur-sm sm:p-8">
-                <div className="mb-3 h-1 w-16 bg-[#f1b12b]" />
-                <div className="text-2xl font-black sm:text-3xl">{lang === "ar" ? "تنفيذ ميداني. أصول قوية. إدارة موحدة." : "Field execution. Strong assets. Unified control."}</div>
-                <div className="mt-3 max-w-lg text-sm leading-7 text-white/65">{lang === "ar" ? "من مواقع البنية التحتية إلى إدارة المجموعة عبر منصة تشغيل واحدة." : "From infrastructure sites to group-wide management through one operating platform."}</div>
-              </figcaption>
-            </figure>
+          <div className="relative">
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#111b2e] shadow-2xl shadow-black/40">
+              <div className="flex items-center justify-between border-b border-white/10 px-5 py-4"><div><div className="text-sm font-black">ONEXA Command Center</div><div className="mt-1 text-[10px] text-slate-400">LIVE BUSINESS OVERVIEW</div></div><div className="flex gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-cyan-400" /><span className="h-2.5 w-2.5 rounded-full bg-blue-400" /><span className="h-2.5 w-2.5 rounded-full bg-slate-500" /></div></div>
+              <div className="grid gap-4 p-5 sm:grid-cols-3">
+                {[["Revenue", "2.48M", "+12.4%"], ["Cash position", "1.12M", "+5.8%"], ["Project margin", "18.6%", "+2.1%"]].map(([label, value, trend]) => <div key={label} className="rounded-xl border border-white/10 bg-white/[.035] p-4"><div className="text-[10px] text-slate-400">{label}</div><div className="mt-2 text-xl font-black">{value}</div><div className="mt-1 text-[10px] font-bold text-cyan-300">{trend}</div></div>)}
+              </div>
+              <div className="grid gap-4 px-5 pb-5 sm:grid-cols-[1.35fr_.65fr]">
+                <div className="rounded-xl border border-white/10 bg-white/[.035] p-5"><div className="flex items-center justify-between"><span className="text-xs font-bold">Connected performance</span><BarChart3 className="h-4 w-4 text-blue-300" /></div><div className="mt-8 flex h-32 items-end gap-2">{[42, 58, 49, 72, 65, 84, 76, 94, 88].map((height, index) => <div key={index} className={`flex-1 rounded-t ${index % 3 === 0 ? "bg-cyan-400" : "bg-blue-500"}`} style={{ height: `${height}%` }} />)}</div></div>
+                <div className="rounded-xl border border-white/10 bg-white/[.035] p-5"><div className="text-xs font-bold">Today</div><div className="mt-5 space-y-4">{["8 approvals", "14 invoices", "3 project alerts", "9 active users"].map((item) => <div key={item} className="flex items-center gap-3 text-[11px] text-slate-300"><span className="h-2 w-2 rounded-full bg-cyan-300" />{item}</div>)}</div></div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="about" className="border-b border-border bg-card py-20">
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 lg:grid-cols-[.8fr_1.2fr] lg:px-8">
-          <div>
-            <div className="public-kicker text-sm">{c.about}</div>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">{c.aboutTitle}</h2>
-            <p className="mt-5 text-sm leading-8 text-muted-foreground">{c.aboutBody}</p>
+      <section id="modules" className="py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="max-w-3xl"><div className="public-kicker text-xs">{c.modulesEyebrow}</div><h2 className="mt-4 text-3xl font-black leading-tight sm:text-5xl">{c.modulesTitle}</h2><p className="mt-5 leading-8 text-muted-foreground">{c.modulesBody}</p></div>
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {onexaModules.map((module, index) => { const Icon = moduleIcons[module.key]; return <article key={module.key} className="group rounded-2xl border border-border bg-card p-6 transition hover:-translate-y-1 hover:border-primary hover:shadow-xl hover:shadow-primary/5"><div className="flex items-center justify-between"><span className="grid h-12 w-12 place-items-center rounded-xl bg-primary/10 text-primary"><Icon className="h-6 w-6" /></span><span className="font-mono text-[10px] font-black text-muted-foreground">0{index + 1}</span></div><h3 className="mt-7 text-lg font-black">{language === "ar" ? module.ar : module.en}</h3><div className="mt-5 flex items-center gap-2 text-xs font-bold text-primary opacity-70 transition group-hover:opacity-100">{language === "ar" ? "مترابط مع الحسابات والتقارير" : "Connected to finance and reporting"}<ArrowUpRight className="h-3.5 w-3.5" /></div></article>; })}
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {c.aboutFacts.map(([title, body], index) => (
-              <article key={title} className="rounded-xl border border-border bg-background p-5">
-                <div className="font-mono text-xs font-black text-primary">0{index + 1}</div>
-                <h3 className="mt-4 font-black">{title}</h3>
-                <p className="mt-3 text-sm leading-7 text-muted-foreground">{body}</p>
+        </div>
+      </section>
+
+      <section className="border-y border-border bg-card py-20 sm:py-24">
+        <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 lg:grid-cols-[.8fr_1.2fr] lg:px-8">
+          <div><div className="public-kicker text-xs">{c.connectedEyebrow}</div><h2 className="mt-4 text-3xl font-black leading-tight sm:text-5xl">{c.connectedTitle}</h2><p className="mt-5 leading-8 text-muted-foreground">{c.connectedBody}</p></div>
+          <div className="rounded-2xl border border-border bg-background p-5 sm:p-7"><div className="grid gap-3 md:grid-cols-5">{c.flow.map((item, index) => <div key={item} className="relative rounded-xl border border-border bg-card p-4 text-center"><span className="mx-auto grid h-9 w-9 place-items-center rounded-full bg-primary text-xs font-black text-primary-foreground">{index + 1}</span><div className="mt-3 text-xs font-bold leading-5">{item}</div>{index < c.flow.length - 1 && <Arrow className="absolute -end-5 top-1/2 z-10 hidden h-4 w-4 -translate-y-1/2 text-primary md:block" />}</div>)}</div></div>
+        </div>
+      </section>
+
+      <section id="platform" className="py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="max-w-3xl"><div className="public-kicker text-xs">{c.platformEyebrow}</div><h2 className="mt-4 text-3xl font-black sm:text-5xl">{c.platformTitle}</h2></div>
+          <div className="mt-12 grid gap-4 md:grid-cols-2">{c.platformFeatures.map(([title, body], index) => { const Icon = [Database, Building2, Workflow, FileText][index]; return <article key={title} className="rounded-2xl border border-border bg-card p-7"><Icon className="h-7 w-7 text-primary" /><h3 className="mt-6 text-lg font-black">{title}</h3><p className="mt-3 text-sm leading-7 text-muted-foreground">{body}</p></article>; })}</div>
+        </div>
+      </section>
+
+      <section id="industries" className="border-y border-border bg-[#0b1220] py-20 text-white sm:py-24">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="max-w-3xl"><div className="text-xs font-black tracking-[.16em] text-cyan-300">{c.industriesEyebrow}</div><h2 className="mt-4 text-3xl font-black sm:text-5xl">{c.industriesTitle}</h2></div>
+          <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 md:grid-cols-2 lg:grid-cols-3">{c.industries.map(([title, body], index) => { const Icon = [Building2, Wrench, Landmark, RouteIcon, CircleDollarSign, Layers3][index]; return <article key={title} className="bg-[#0f192b] p-7"><Icon className="h-7 w-7 text-cyan-300" /><h3 className="mt-6 text-lg font-black">{title}</h3><p className="mt-3 text-sm leading-7 text-slate-400">{body}</p></article>; })}</div>
+        </div>
+      </section>
+
+      <section id="security" className="py-20 sm:py-24">
+        <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 lg:grid-cols-[1fr_.8fr] lg:px-8">
+          <div><div className="public-kicker text-xs">{c.securityEyebrow}</div><h2 className="mt-4 text-3xl font-black sm:text-5xl">{c.securityTitle}</h2><p className="mt-5 max-w-2xl leading-8 text-muted-foreground">{c.securityBody}</p><div className="mt-8 grid gap-3 sm:grid-cols-2">{c.securityPoints.map((item) => <div key={item} className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-sm font-bold"><ShieldCheck className="h-5 w-5 text-primary" />{item}</div>)}</div></div>
+          <div className="relative mx-auto grid aspect-square w-full max-w-sm place-items-center rounded-full border border-primary/15 bg-primary/[.035]"><div className="absolute inset-10 rounded-full border border-primary/20" /><div className="absolute inset-20 rounded-full border border-primary/30" /><div className="relative grid h-28 w-28 place-items-center rounded-3xl bg-primary text-primary-foreground shadow-2xl shadow-primary/25"><LockKeyhole className="h-12 w-12" /></div></div>
+        </div>
+      </section>
+
+      <section id="plans" className="border-t border-border bg-card py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="max-w-3xl"><div className="public-kicker text-xs">{c.plansEyebrow}</div><h2 className="mt-4 text-3xl font-black sm:text-5xl">{c.plansTitle}</h2><p className="mt-5 leading-8 text-muted-foreground">{c.plansBody}</p></div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {ONEXA_PLANS.map((plan, index) => (
+              <article key={plan.key} className={`relative flex min-h-[340px] flex-col rounded-2xl border p-6 ${plan.recommended ? "border-primary bg-primary text-primary-foreground shadow-xl shadow-primary/15" : "border-border bg-background"}`}>
+                {plan.recommended && <span className="absolute end-5 top-5 rounded-full bg-white/15 px-3 py-1 text-[10px] font-black">{c.recommended}</span>}
+                <div className="text-xs font-black opacity-70">0{index + 1}</div>
+                <h3 className="mt-8 text-xl font-black">{language === "ar" ? plan.nameAr : plan.name}</h3>
+                <p className="mt-3 min-h-16 text-xs leading-6 opacity-75">{language === "ar" ? plan.descriptionAr : plan.description}</p>
+                <div className="mt-5 space-y-3 border-t border-current/15 pt-5 text-xs font-bold">
+                  <div className="flex items-center justify-between gap-3"><span className="opacity-70">{c.planUsers}</span><span>{formatPlanLimit(plan.limits.activeUsers, language)}</span></div>
+                  <div className="flex items-center justify-between gap-3"><span className="opacity-70">{c.planEntities}</span><span>{formatPlanLimit(plan.limits.legalEntities, language)}</span></div>
+                  <div className="flex items-center justify-between gap-3"><span className="opacity-70">{c.planModules}</span><span>{plan.modules.length}</span></div>
+                </div>
+                <a href={`/log?mode=signup&plan=${plan.key}`} className={`mt-auto inline-flex items-center justify-center rounded-xl px-4 py-3 text-xs font-black transition ${plan.recommended ? "bg-white text-[#143b94] hover:bg-slate-100" : "bg-primary text-primary-foreground hover:bg-primary/90"}`}>{c.planCta}</a>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="portfolio" className="py-20">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <div className="mb-10 max-w-3xl"><div className="public-kicker text-sm">{c.portfolio}</div><h2 className="mt-3 text-3xl font-black sm:text-4xl">{c.portfolioTitle}</h2><p className="mt-4 leading-8 text-muted-foreground">{c.portfolioBody}</p></div>
-          <div className="grid gap-4 md:grid-cols-2">
-            {portfolioCompanies.map((company) => {
-              const Icon = iconByCompany[company.code];
-              return (
-                <article key={company.code} className="public-panel flex min-h-[310px] flex-col overflow-hidden rounded-xl transition hover:-translate-y-1 hover:border-primary">
-                  <img src={company.imageUrl} alt={lang === "ar" ? company.imageAltAr : company.imageAltEn} width={1600} height={900} loading="lazy" decoding="async" className="aspect-[16/7] w-full object-cover" />
-                  <div className="flex flex-1 flex-col p-6">
-                  <div className="mb-7 flex items-start justify-between gap-4"><div className="grid h-12 w-12 place-items-center rounded-lg bg-primary text-primary-foreground"><Icon className="h-6 w-6" /></div><span className="rounded-full border border-border px-3 py-1.5 text-[11px] text-muted-foreground">{lang === "ar" ? company.sectorAr : company.sectorEn}</span></div>
-                  <h3 className="text-xl font-extrabold leading-8">{lang === "ar" ? company.nameAr : company.nameEn}</h3>
-                  <p className="mt-4 flex-1 text-sm leading-7 text-muted-foreground">{lang === "ar" ? company.summaryAr : company.summaryEn}</p>
-                  <a href={company.publicPath} className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-primary">{c.companyLink}<Arrow className="h-4 w-4" /></a>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </div>
+      <section className="bg-primary py-16 text-primary-foreground">
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 px-5 lg:flex-row lg:items-center lg:px-8"><div><h2 className="text-3xl font-black sm:text-4xl">{c.finalTitle}</h2><p className="mt-3 max-w-2xl text-sm leading-7 opacity-80">{c.finalBody}</p></div><div className="flex flex-wrap gap-3"><a href="/log?mode=signup" className="rounded-xl bg-white px-5 py-3 text-sm font-black text-[#143b94]">{c.start}</a><a href="/log" className="rounded-xl border border-current/25 px-5 py-3 text-sm font-black">{c.signIn}</a></div></div>
       </section>
 
-      <section id="investment-model" className="border-y border-border bg-card py-20">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <div className="mb-10 max-w-3xl"><div className="public-kicker text-sm">{c.model}</div><h2 className="mt-3 text-3xl font-black sm:text-4xl">{c.modelTitle}</h2></div>
-          <div className="grid gap-4 md:grid-cols-3">
-            {c.strengths.map(([title, description], index) => {
-              const Icon = [Layers3, TrendingUp, ShieldCheck][index];
-              return <div key={title} className="rounded-xl border border-border bg-background p-6"><Icon className="h-7 w-7 text-primary" /><h3 className="mt-5 text-lg font-bold">{title}</h3><p className="mt-3 text-sm leading-7 text-muted-foreground">{description}</p></div>;
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section id="partners" className="py-20">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <div className="mb-10 max-w-3xl">
-            <div className="public-kicker text-sm">{c.partners}</div>
-            <h2 className="mt-3 text-3xl font-black sm:text-4xl">{c.partnersTitle}</h2>
-            <p className="mt-4 text-sm leading-7 text-muted-foreground">{c.partnersBody}</p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {partnerNames.map((partner) => (
-              <a key={partner.en} href={partner.href} target="_blank" rel="noreferrer" className="group public-panel flex min-h-[230px] flex-col rounded-xl p-5 transition hover:-translate-y-1 hover:border-primary">
-                <div className="grid h-24 w-full place-items-center rounded-lg border border-border bg-white p-4">
-                  <img src={partner.logo} alt={`${partner.en} logo`} loading="lazy" decoding="async" className="max-h-full max-w-full object-contain" />
-                </div>
-                <h3 className="mt-5 font-black leading-6 group-hover:text-primary">{lang === "ar" ? partner.ar : partner.en}</h3>
-                <p className="mt-2 text-xs leading-5 text-muted-foreground">{lang === "ar" ? partner.projectAr : partner.projectEn}</p>
-              </a>
-            ))}
-          </div>
-          <div className="mt-10 border-t border-border pt-8">
-            <h3 className="text-sm font-black">{c.additionalProjects}</h3>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {additionalProjectNames.map((project) => <span key={project.en} className="rounded-full border border-border bg-card px-4 py-2 text-xs font-semibold text-muted-foreground">{lang === "ar" ? project.ar : project.en}</span>)}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="contact" className="px-5 py-16 lg:px-8">
-        <div className="public-panel mx-auto grid max-w-7xl gap-8 rounded-xl border-s-4 border-s-primary p-7 sm:p-10 lg:grid-cols-[1.15fr_.85fr] lg:items-center">
-          <div>
-            <div className="public-kicker text-sm">{c.contact}</div>
-            <h2 className="mt-2 text-2xl font-black sm:text-3xl">{c.contactTitle}</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">{c.contactBody}</p>
-            <a href="#portfolio" className="public-button-primary mt-6 px-5 py-3 text-sm">{c.choose}<Arrow className="h-4 w-4" /></a>
-          </div>
-          <address className="not-italic">
-            <div className="public-kicker text-xs">{c.contactDirect}</div>
-            <div className="mt-4 space-y-3">
-              <a href="tel:+966508331111" className="flex items-center gap-3 rounded-lg border border-border bg-background p-4 text-sm font-bold transition hover:border-primary"><Phone className="h-5 w-5 text-primary" /><span><span className="block text-xs font-medium text-muted-foreground">{c.call}</span><span dir="ltr" className="block">+966 50 833 1111</span><span dir="ltr" className="block text-xs text-muted-foreground">+966 11 470 4770</span></span></a>
-              <a href="mailto:info@alostool.com.sa" className="flex items-center gap-3 rounded-lg border border-border bg-background p-4 text-sm font-bold transition hover:border-primary"><Mail className="h-5 w-5 text-primary" /><span><span className="block text-xs font-medium text-muted-foreground">{c.email}</span><span dir="ltr">info@alostool.com.sa</span></span></a>
-              <div className="flex items-start gap-3 rounded-lg border border-border bg-background p-4 text-sm"><MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" /><span><span className="block font-bold">{c.address}</span><span className="mt-1 block text-xs leading-5 text-muted-foreground">{c.legal}</span></span></div>
-            </div>
-          </address>
-        </div>
-      </section>
-
-      <section className="px-5 pb-20 lg:px-8"><div className="mx-auto max-w-7xl"><AppDownloadCta source="group" /></div></section>
-      <footer className="border-t border-border bg-card py-7 text-sm text-muted-foreground"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-5 sm:flex-row lg:px-8"><span>© {new Date().getFullYear()} {lang === "ar" ? "مجموعة الأسطول الآلي" : "Al-Ostool Al-Ali Group"}</span><span>{c.footer}</span><a dir="ltr" href="mailto:info@alostool.com.sa" className="transition hover:text-primary">info@alostool.com.sa</a></div></footer>
+      <footer className="border-t border-border bg-[#0b1220] py-8 text-sm text-slate-400"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-3 px-5 sm:flex-row lg:px-8"><span className="font-black text-white">© {new Date().getFullYear()} ONEXA ERP</span><span>{c.footer}</span><span>Finance • Operations • People • Insight</span></div></footer>
     </main>
   );
 }

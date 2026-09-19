@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0B1220"/>
+  <path d="M0 530H1200" stroke="#25324A" stroke-width="2"/>
+  <path d="M850 0V630M980 0V630M1110 0V630" stroke="#17233A" stroke-width="2"/>
+  <rect x="82" y="82" width="112" height="112" rx="26" fill="#2158D8"/>
+  <circle cx="127" cy="138" r="24" fill="none" stroke="#FFFFFF" stroke-width="11"/>
+  <path d="M144 116 170 160M170 116 144 160" fill="none" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round"/>
+  <text x="82" y="322" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="108" font-weight="800" letter-spacing="-3">ONEXA</text>
+  <text x="88" y="385" fill="#70A4FF" font-family="Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="5">ENTERPRISE RESOURCE PLANNING</text>
+  <text x="88" y="470" fill="#CBD5E1" font-family="Arial, sans-serif" font-size="42" font-weight="600">One System. Every Operation.</text>
+  <circle cx="968" cy="315" r="152" fill="#111B2E" stroke="#25324A" stroke-width="3"/>
+  <circle cx="968" cy="315" r="82" fill="none" stroke="#4C8DFF" stroke-width="30"/>
+  <path d="M1026 241 1115 389M1115 241 1026 389" fill="none" stroke="#38C4D6" stroke-width="30" stroke-linecap="round"/>
+</svg>

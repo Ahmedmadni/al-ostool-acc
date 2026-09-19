@@ -16,6 +16,7 @@ const realEstatePage = fs.readFileSync('src/routes/companies.real-estate.tsx', '
 const logRoute = fs.readFileSync('src/routes/log.tsx', 'utf8');
 const legacyLogin = fs.readFileSync('src/routes/login.tsx', 'utf8');
 const robots = fs.readFileSync('public/robots.txt', 'utf8');
+const publicHeader = fs.readFileSync('src/components/public/public-site-header.tsx', 'utf8');
 
 // Gate 16 owns the OM/RE catalogue below. Later gates may add companies/types, but
 // these original service types and their security invariants must never disappear.
@@ -68,8 +69,8 @@ const checks = [
   ['maintenance conversion action', /cs_convert_ticket_to_maintenance/.test(hub)],
   ['company page renders request form', /PublicServiceRequestForm/.test(servicePage)],
   ['company page renders app CTA', /AppDownloadCta/.test(servicePage) && /href="\/app"/.test(servicePage)],
-  ['maintenance company scoped OM', /companyCode="OM"/.test(maintenancePage)],
-  ['real estate company scoped RE', /companyCode="RE"/.test(realEstatePage)],
+  ['legacy maintenance page redirects to ONEXA', /redirect/.test(maintenancePage) && /to: "\/"/.test(maintenancePage)],
+  ['legacy real-estate page redirects to ONEXA', /redirect/.test(realEstatePage) && /to: "\/"/.test(realEstatePage)],
 
   ['stable public app route', /createFileRoute\("\/app"\)/.test(appRoute)],
   ['app store links are environment-driven', /VITE_PUBLIC_APP_STORE_URL/.test(appCta) && /VITE_PUBLIC_GOOGLE_PLAY_URL/.test(appCta)],
@@ -80,8 +81,9 @@ const checks = [
   ['hidden employee route', /createFileRoute\("\/log"\)/.test(logRoute)],
   ['employee route excluded from indexing', /noindex, nofollow, noarchive/.test(logRoute)],
   ['legacy login redirects to hidden route', /redirect\(\{ to: "\/log", replace: true \}\)/.test(legacyLogin)],
-  ['public home exposes no employee login link', !home.includes('href="/login"') && !home.includes('href="/log"')],
-  ['public company shell exposes no employee login link', !servicePage.includes('href="/login"') && !servicePage.includes('href="/log"')],
+  ['ONEXA public header exposes product sign-in', publicHeader.includes('href="/log"') && publicHeader.includes('/log?mode=signup')],
+  ['ONEXA home uses the shared product header', /PublicSiteHeader/.test(home)],
+  ['legacy company shell has no direct authentication mutation', !servicePage.includes('signInWithPassword') && !servicePage.includes('signUp')],
   ['app page exposes no employee login link', !appRoute.includes('href="/login"') && !appRoute.includes('href="/log"')],
   ['protected routes redirect to hidden login path', /navigate\(\{ to: "\/log" \}\)/.test(authLayout)],
   ['crawler excludes hidden login', /Disallow: \/log(?:\n|$)/.test(robots) && /Disallow: \/login(?:\n|$)/.test(robots)],

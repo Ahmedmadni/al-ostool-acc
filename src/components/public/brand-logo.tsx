@@ -6,13 +6,16 @@ type Props = {
 export function BrandLogo({ language, compact = false }: Props) {
   return (
     <span className="flex items-center gap-3">
-      <span className={`${compact ? "h-10 w-10" : "h-12 w-12"} grid shrink-0 place-items-center rounded-lg border border-border bg-white p-1.5`}>
-        <img src="/images/brand/al-ostool-mark.png" alt="" width={512} height={441} className="h-full w-full object-contain" />
+      <span className={`${compact ? "h-10 w-10" : "h-12 w-12"} grid shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm shadow-primary/20`}>
+        <svg viewBox="0 0 48 48" aria-hidden="true" className="h-8 w-8" fill="none">
+          <circle cx="20" cy="24" r="11" stroke="currentColor" strokeWidth="4" />
+          <path d="m27 15 11 18M38 15 27 33" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+        </svg>
       </span>
       <span>
-        <strong className="block text-sm sm:text-base">{language === "ar" ? "مجموعة الأسطول الآلي" : "Al-Ostool Al-Ali Group"}</strong>
-        <span className="block text-[10px] font-semibold tracking-[0.14em] text-muted-foreground">
-          {language === "ar" ? "الاستثمار • التشغيل • النمو" : "INVEST • OPERATE • SCALE"}
+        <strong className="block text-base font-black tracking-[-0.03em] sm:text-lg">ONEXA</strong>
+        <span className="block text-[9px] font-bold tracking-[0.16em] text-muted-foreground sm:text-[10px]">
+          {language === "ar" ? "نظام تخطيط موارد المؤسسات" : "ENTERPRISE RESOURCE PLANNING"}
         </span>
       </span>
     </span>
