@@ -1,6 +1,6 @@
 # ONEXA tenancy foundation
 
-Status: application foundation implemented; database rollout deferred until 27 September 2026.
+Status: application foundation and Tenant 001 seed implemented; database rollout deferred until 27 September 2026.
 
 ## Target isolation model
 
@@ -75,3 +75,9 @@ The future database package must include, at minimum:
 - security and performance advisor review before production rollout.
 
 No migration file is created by this application-only phase.
+
+## Tenant 001 application package
+
+The first customer is represented by a validated, non-executable manifest in `src/data/tenant-seeds/al-ostool.ts`. It contains workspace, plan, module, legal-entity, branch and role templates only. It deliberately excludes people, credentials, statutory identifiers, banking data, opening balances and secrets.
+
+The seed remains separate from ONEXA product identity and is not imported by public marketing surfaces. `buildTrustedTenantAppMetadata` prepares the claim payload for a future trusted server/admin operation; it does not write claims from the browser. The activation and rollback sequence is documented in `docs/runbooks/tenant-001-al-ostool-activation.md`.
